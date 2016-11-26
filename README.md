@@ -4,13 +4,7 @@ This is a suite of analyzers that target the NUnit testing framework. Right now,
 
 ## Building ##
 
-First, make sure you have the right tools and templates on your machine. You'll need VS 2015 and a couple of CompilerAPI-related project templates installed. If you open the Extensibility node when you create a new project in VS 2015, you'll see the "Install Visual Studio Extensibility Tools" node in the window:
-
-{TODO: insert image}
-
-Install the tools, then do the same step of creating a new project, except this time run the "Download the .NET Compiler Platform SDK" node:
-
-{TODO: insert image}
+First, make sure you have the right tools and templates on your machine. You'll need VS 2015 and a couple of CompilerAPI-related project templates installed. If you open the Extensibility node when you create a new project in VS 2015, you'll see the "Install Visual Studio Extensibility Tools" node in the window. Install the tools, then do the same step of creating a new project, except this time run the "Download the .NET Compiler Platform SDK" node.
 
 Now you should be able to open the nunit.analyzers.sln file. When you build the nunit.analyzers project, the output folder should contains a .nupkg file, something like NUnit.Analyzers.1.0.0.0.nupkg. You can reference that NuGet package file in another project that uses the NUnit testing framework, or you can launch the VSIX project, which will install the analyzers into an experimental version of VS. The nunit.analyzers.integrationtests solution has some examples of NUnit-based code that should have analyzer issues.
 
