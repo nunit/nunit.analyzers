@@ -283,4 +283,3 @@ $RECYCLE.BIN/
 # Build content directories
 CommentRemover.ConsoleApplication Output/
 CommentRemover.Task Output/
-tools/
