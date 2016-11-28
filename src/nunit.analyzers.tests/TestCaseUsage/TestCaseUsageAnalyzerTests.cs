@@ -94,6 +94,22 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 		}
 
 		[Test]
+		public async Task AnalyzeWhenArgumentPassesNullToNullableType()
+		{
+			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
+				$"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenArgumentPassesNullToNullableType))}.cs",
+				Array.Empty<string>());
+		}
+
+		[Test]
+		public async Task AnalyzeWhenArgumentPassesValueToNullableType()
+		{
+			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
+				$"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenArgumentPassesValueToNullableType))}.cs",
+				Array.Empty<string>());
+		}
+
+		[Test]
 		public async Task AnalyzeWhenNotEnoughRequiredArgumentsAreProvided()
 		{
 			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
@@ -139,24 +155,24 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 		public async Task AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided()
 		{
 			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-			  $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided))}.cs",
-			  Array.Empty<string>());
+				$"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided))}.cs",
+				Array.Empty<string>());
 		}
 
 		[Test]
 		public async Task AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided()
 		{
 			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-			  $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided))}.cs",
-			  Array.Empty<string>());
+				$"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided))}.cs",
+				Array.Empty<string>());
 		}
 
 		[Test]
 		public async Task AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect()
 		{
 			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-			  $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect))}.cs",
-			  Array.Empty<string>());
+				$"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect))}.cs",
+				Array.Empty<string>());
 		}
 
 		[Test]
@@ -193,8 +209,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 		public async Task AnalyzeWhenExpectedResultIsProvidedCorrectly()
 		{
 			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-			  $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedCorrectly))}.cs",
-			  Array.Empty<string>());
+				$"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedCorrectly))}.cs",
+				Array.Empty<string>());
 		}
 
 		[Test]
@@ -240,6 +256,22 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 						TestCaseUsageAnalyzerConstants.ExpectedResultCannotBeNullMessage),
 						nameof(diagnostic.GetMessage));
 				});
+		}
+
+		[Test]
+		public async Task AnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType()
+		{
+			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
+				$"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType))}.cs",
+				Array.Empty<string>());
+		}
+
+		[Test]
+		public async Task AnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType()
+		{
+			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
+				$"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType))}.cs",
+				Array.Empty<string>());
 		}
 	}
 }

@@ -41,7 +41,7 @@ namespace NUnit.Analyzers.Tests
 			var action = actions.Where(_ => _.Title == title).First();
 
 			var operation = (await action.GetOperationsAsync(
-			  new CancellationToken(false))).ToArray()[0] as ApplyChangesOperation;
+				new CancellationToken(false))).ToArray()[0] as ApplyChangesOperation;
 			var newDoc = operation.ChangedSolution.GetDocument(document.Id);
 			var newTree = await newDoc.GetSyntaxTreeAsync();
 			var changes = newTree.GetChanges(tree);
@@ -51,7 +51,7 @@ namespace NUnit.Analyzers.Tests
 			foreach (var expectedNewText in expectedNewTexts)
 			{
 				Assert.That(changes.Any(_ => _.NewText == expectedNewText), Is.True,
-				  string.Join($"{Environment.NewLine}{Environment.NewLine}", changes.Select(_ => $"Change text: {_.NewText}")));
+					string.Join($"{Environment.NewLine}{Environment.NewLine}", changes.Select(_ => $"Change text: {_.NewText}")));
 			}
 		}
 
@@ -76,7 +76,7 @@ namespace NUnit.Analyzers.Tests
 			var document = TestHelpers.Create(code);
 			var root = await document.GetSyntaxRootAsync();
 			var compilation = (await document.Project.GetCompilationAsync())
-			  .WithAnalyzers(ImmutableArray.Create(analyzer));
+				.WithAnalyzers(ImmutableArray.Create(analyzer));
 			return (await compilation.GetAnalyzerDiagnosticsAsync()).ToImmutableArray();
 		}
 

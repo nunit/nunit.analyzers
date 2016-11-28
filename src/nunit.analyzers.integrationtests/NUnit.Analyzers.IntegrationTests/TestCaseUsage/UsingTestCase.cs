@@ -21,5 +21,11 @@ namespace NUnit.Analyzers.IntegrationTests.TestCaseUsage
 		{
 			return 22d;
 		}
+
+		[TestCase(3d, ExpectedResult = 22d)]
+		public double? RunTestWithNullables(double? a)
+		{
+			return null;
+		}
 	}
 }

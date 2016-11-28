@@ -261,6 +261,18 @@
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesNullToNullableType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesValueToNullableType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Compile Include="TestCaseUsage\TestCaseUsageAnalyzerTests.cs" />
     <Compile Include="TestHelpers.cs" />
   </ItemGroup>

@@ -120,7 +120,8 @@ namespace NUnit.Analyzers.TestCaseUsage
 
 					if (expectedResultNamedArgumentValue == null)
 					{
-						if (!methodReturnValueType.IsReferenceType)
+						if (!(methodReturnValueType.IsReferenceType ||
+							methodReturnValueType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T))
 						{
 							context.ReportDiagnostic(Diagnostic.Create(
 								TestCaseUsageAnalyzer.CreateDescriptor(
@@ -132,7 +133,12 @@ namespace NUnit.Analyzers.TestCaseUsage
 					{
 						var argumentType = model.Compilation.GetTypeByMetadataName(expectedResultNamedArgumentValue.GetType().FullName);
 
-						if (!methodReturnValueType.IsAssignableFrom(argumentType))
+						var methodReturnValueComparisonType =
+							(methodReturnValueType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T) ?
+							(methodReturnValueType as INamedTypeSymbol).TypeArguments.ToList()[0] :
+							methodReturnValueType;
+
+						if (!methodReturnValueComparisonType.IsAssignableFrom(argumentType))
 						{
 							context.ReportDiagnostic(Diagnostic.Create(
 								TestCaseUsageAnalyzer.CreateDescriptor(
@@ -181,7 +187,8 @@ namespace NUnit.Analyzers.TestCaseUsage
 
 				if (attributeValue == null)
 				{
-					if (!methodParameterType.IsReferenceType)
+					if (!(methodParameterType.IsReferenceType || 
+						methodParameterType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T))
 					{
 						context.ReportDiagnostic(Diagnostic.Create(
 							TestCaseUsageAnalyzer.CreateDescriptor(
@@ -193,8 +200,12 @@ namespace NUnit.Analyzers.TestCaseUsage
 				else
 				{
 					var argumentType = model.Compilation.GetTypeByMetadataName(attributeValue.GetType().FullName);
+					var methodParameterComparisonType =
+						(methodParameterType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T) ?
+						(methodParameterType as INamedTypeSymbol).TypeArguments.ToList()[0] :
+						methodParameterType;
 
-					if (!methodParameterType.IsAssignableFrom(argumentType))
+					if (!methodParameterComparisonType.IsAssignableFrom(argumentType))
 					{
 						context.ReportDiagnostic(Diagnostic.Create(
 							TestCaseUsageAnalyzer.CreateDescriptor(
