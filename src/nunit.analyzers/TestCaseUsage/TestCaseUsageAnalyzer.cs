@@ -50,10 +50,10 @@ namespace NUnit.Analyzers.TestCaseUsage
 				{
 					var attributeNode = (AttributeSyntax)context.Node;
 					var attributeSymbol = context.SemanticModel.GetSymbolInfo(attributeNode).Symbol;
+					var testCaseType = context.SemanticModel.Compilation.GetTypeByMetadataName(typeof(TestCaseAttribute).FullName);
 
-					if (attributeNode.DescendantNodes().OfType<IdentifierNameSyntax>().Any(
-						_ => typeof(TestCaseAttribute).AssemblyQualifiedName.Contains(attributeSymbol.ContainingAssembly.Name) && 
-							nameof(TestCaseAttribute) == attributeSymbol.ContainingType.Name))
+					if (testCaseType.ContainingAssembly.Identity == attributeSymbol.ContainingAssembly.Identity && 
+						nameof(TestCaseAttribute) == attributeSymbol.ContainingType.Name)
 					{
 						context.CancellationToken.ThrowIfCancellationRequested();
 

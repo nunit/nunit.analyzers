@@ -82,12 +82,12 @@ namespace NUnit.Analyzers.Tests
 
 		internal static Document Create(string code)
 		{
-			var projectName = "Test";
-			var projectId = ProjectId.CreateNewId(projectName);
+			var name = "Test"; // Guid.NewGuid().ToString("N");
+			var projectId = ProjectId.CreateNewId(name);
 
 			var solution = new AdhocWorkspace()
 				.CurrentSolution
-				.AddProject(projectId, projectName, projectName, LanguageNames.CSharp)
+				.AddProject(projectId, name, name, LanguageNames.CSharp)
 				.WithProjectCompilationOptions(projectId, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
 				.AddMetadataReference(projectId, MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
 				.AddMetadataReference(projectId, MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location))
@@ -96,7 +96,7 @@ namespace NUnit.Analyzers.Tests
 				.AddMetadataReference(projectId, MetadataReference.CreateFromFile(typeof(Assert).Assembly.Location));
 
 			var documentId = DocumentId.CreateNewId(projectId);
-			solution = solution.AddDocument(documentId, "Test.cs", SourceText.From(code));
+			solution = solution.AddDocument(documentId, $"{name}.cs", SourceText.From(code));
 
 			return solution.GetProject(projectId).Documents.First();
 		}

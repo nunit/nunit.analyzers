@@ -17,11 +17,23 @@ namespace NUnit.Analyzers.Tests.Extensions
 		{
 			var attribute = await this.GetAttributeSyntaxAsync(
 				$"{AttributeSyntaxExtensionsTests.BasePath}{(nameof(this.GetArguments))}.cs",
-				$"{nameof(AttributeSyntaxExtensionsTests)}{nameof(GetArguments)}");
+				$"{nameof(AttributeSyntaxExtensionsTests)}{nameof(this.GetArguments)}");
 			var arguments = attribute.GetArguments();
 
 			Assert.That(arguments.Item1.Length, Is.EqualTo(1), nameof(arguments.Item1));
 			Assert.That(arguments.Item2.Length, Is.EqualTo(2), nameof(arguments.Item2));
+		}
+
+		[Test]
+		public async Task GetArgumentsWhenNoneExist()
+		{
+			var attribute = await this.GetAttributeSyntaxAsync(
+				$"{AttributeSyntaxExtensionsTests.BasePath}{(nameof(this.GetArgumentsWhenNoneExist))}.cs",
+				$"{nameof(AttributeSyntaxExtensionsTests)}{nameof(this.GetArgumentsWhenNoneExist)}");
+			var arguments = attribute.GetArguments();
+
+			Assert.That(arguments.Item1.Length, Is.EqualTo(0), nameof(arguments.Item1));
+			Assert.That(arguments.Item2.Length, Is.EqualTo(0), nameof(arguments.Item2));
 		}
 
 		private async Task<AttributeSyntax> GetAttributeSyntaxAsync(string file, string typeName)

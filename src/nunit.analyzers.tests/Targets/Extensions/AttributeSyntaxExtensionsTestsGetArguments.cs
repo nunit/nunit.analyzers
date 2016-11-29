@@ -5,12 +5,12 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 {
 	public sealed class AttributeSyntaxExtensionsTestsGetArguments
 	{
-		[An(34, AProperty = 22d, BProperty = 33d)]
+		[Arguments(34, AProperty = 22d, BProperty = 33d)]
 		public void Foo() { }
 	}
 
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-	public sealed class AnAttribute
+	public sealed class ArgumentsAttribute
 		: Attribute
 	{
 		public AnAttribute(int x) { }

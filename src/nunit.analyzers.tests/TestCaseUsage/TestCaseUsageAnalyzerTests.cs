@@ -55,6 +55,14 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 		}
 
 		[Test]
+		public async Task AnalyzeWhenAttributeIsNotInNUnit()
+		{
+			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
+				$"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenAttributeIsNotInNUnit))}.cs",
+				Array.Empty<string>());
+		}
+
+		[Test]
 		public async Task AnalyzeWhenAttributeIsTestAttribute()
 		{
 			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(

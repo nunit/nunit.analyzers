@@ -279,6 +279,12 @@
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeHasNoArguments.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsNotInNUnit.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeSyntaxExtensionsTestsGetArgumentsWhenNoneExist.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Compile Include="TestCaseUsage\TestCaseUsageAnalyzerTests.cs" />
     <Compile Include="TestHelpers.cs" />
   </ItemGroup>
