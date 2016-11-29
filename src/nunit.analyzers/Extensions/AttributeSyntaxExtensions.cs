@@ -18,19 +18,23 @@ namespace NUnit.Analyzers.Extensions
 		internal static Tuple<ImmutableArray<AttributeArgumentSyntax>, ImmutableArray<AttributeArgumentSyntax>> GetArguments(
 			this AttributeSyntax @this)
 		{
-			var arguments = @this.ArgumentList.Arguments;
 			var positionalArguments = new List<AttributeArgumentSyntax>();
 			var namedArguments = new List<AttributeArgumentSyntax>();
 
-			foreach (var argument in arguments)
+			if (@this.ArgumentList != null)
 			{
-				if (argument.DescendantNodes().OfType<NameEqualsSyntax>().Any())
+				var arguments = @this.ArgumentList.Arguments;
+
+				foreach (var argument in arguments)
 				{
-					namedArguments.Add(argument);
-				}
-				else
-				{
-					positionalArguments.Add(argument);
+					if (argument.DescendantNodes().OfType<NameEqualsSyntax>().Any())
+					{
+						namedArguments.Add(argument);
+					}
+					else
+					{
+						positionalArguments.Add(argument);
+					}
 				}
 			}
 

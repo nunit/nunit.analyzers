@@ -55,6 +55,22 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 		}
 
 		[Test]
+		public async Task AnalyzeWhenAttributeIsTestAttribute()
+		{
+			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
+				$"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenAttributeIsTestAttribute))}.cs",
+				Array.Empty<string>());
+		}
+
+		[Test]
+		public async Task AnalyzeWhenAttributeHasNoArguments()
+		{
+			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
+				$"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenAttributeHasNoArguments))}.cs",
+				Array.Empty<string>());
+		}
+
+		[Test]
 		public async Task AnalyzeWhenArgumentIsCorrect()
 		{
 			await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(

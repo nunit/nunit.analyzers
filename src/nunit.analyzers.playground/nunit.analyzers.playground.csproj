@@ -7,7 +7,7 @@
     <ProjectGuid>{AAEF264E-AA3D-4C46-9FA3-73CAD7A0BC13}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>nunit.analyzers.playground</RootNamespace>
+    <RootNamespace>NUnit.Analyzers.Playground</RootNamespace>
     <AssemblyName>nunit.analyzers.playground</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

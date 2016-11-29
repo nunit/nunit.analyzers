@@ -49,9 +49,11 @@ namespace NUnit.Analyzers.TestCaseUsage
 				if (!methodNode.ContainsDiagnostics)
 				{
 					var attributeNode = (AttributeSyntax)context.Node;
+					var attributeSymbol = context.SemanticModel.GetSymbolInfo(attributeNode).Symbol;
 
 					if (attributeNode.DescendantNodes().OfType<IdentifierNameSyntax>().Any(
-						_ => nameof(TestCaseAttribute).Contains(_.Identifier.Text)))
+						_ => typeof(TestCaseAttribute).AssemblyQualifiedName.Contains(attributeSymbol.ContainingAssembly.Name) && 
+							nameof(TestCaseAttribute) == attributeSymbol.ContainingType.Name))
 					{
 						context.CancellationToken.ThrowIfCancellationRequested();
 
@@ -61,7 +63,6 @@ namespace NUnit.Analyzers.TestCaseUsage
 						var methodOptionalParameters = methodParameters.Item2;
 						var methodParamsParameters = methodParameters.Item3;
 
-						var attributeArguments = attributeNode.ArgumentList.Arguments;
 						var attributePositionalAndNamedArguments = attributeNode.GetArguments();
 						var attributePositionalArguments = attributePositionalAndNamedArguments.Item1;
 						var attributeNamedArguments = attributePositionalAndNamedArguments.Item2;
@@ -73,7 +74,7 @@ namespace NUnit.Analyzers.TestCaseUsage
 									TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
 								attributeNode.GetLocation()));
 						}
-						else if (methodParamsParameters == 0 && 
+						else if (methodParamsParameters == 0 &&
 							attributePositionalArguments.Length > methodRequiredParameters + methodOptionalParameters)
 						{
 							context.ReportDiagnostic(Diagnostic.Create(
@@ -107,7 +108,7 @@ namespace NUnit.Analyzers.TestCaseUsage
 			{
 				var methodReturnValueType = methodSymbol.ReturnType;
 
-				if(methodReturnValueType.SpecialType == SpecialType.System_Void)
+				if (methodReturnValueType.SpecialType == SpecialType.System_Void)
 				{
 					context.ReportDiagnostic(Diagnostic.Create(
 						TestCaseUsageAnalyzer.CreateDescriptor(
@@ -159,7 +160,7 @@ namespace NUnit.Analyzers.TestCaseUsage
 
 			ITypeSymbol type = null;
 
-			if(symbol.IsParams)
+			if (symbol.IsParams)
 			{
 				type = (symbol.Type as IArrayTypeSymbol).ElementType;
 			}
@@ -187,7 +188,7 @@ namespace NUnit.Analyzers.TestCaseUsage
 
 				if (attributeValue == null)
 				{
-					if (!(methodParameterType.IsReferenceType || 
+					if (!(methodParameterType.IsReferenceType ||
 						methodParameterType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T))
 					{
 						context.ReportDiagnostic(Diagnostic.Create(

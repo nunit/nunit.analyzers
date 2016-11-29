@@ -7,8 +7,8 @@
     <ProjectGuid>{070974CB-B483-4347-BA5A-53ED977E639C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>nunit.analyzers.Tests</RootNamespace>
-    <AssemblyName>nunit.analyzers.Tests</AssemblyName>
+    <RootNamespace>NUnit.Analyzers.Tests</RootNamespace>
+    <AssemblyName>nunit.analyzers.tests</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -271,6 +271,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsTestAttribute.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeHasNoArguments.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Compile Include="TestCaseUsage\TestCaseUsageAnalyzerTests.cs" />
