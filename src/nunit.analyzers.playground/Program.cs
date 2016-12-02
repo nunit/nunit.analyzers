@@ -24,7 +24,10 @@ namespace NUnit.Analyzers.Playground
 			Assert.That(args.Length == 0, Is.True, "message", new object());
 
 			Assert.That(4.500000000000001d, Is.EqualTo(4.5d).Within(0.0000001d), "x is {0}", "blah");
+			Program.Foo(22);
 		}
+
+		public static void Foo(short a) { }
 
 		[TestCase(3d, "a value", 123, ExpectedResult = 22)]
 		public int RunTest(double a, string b, int c) { return 22; }

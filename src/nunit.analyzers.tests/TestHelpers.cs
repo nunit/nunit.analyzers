@@ -82,7 +82,7 @@ namespace NUnit.Analyzers.Tests
 
 		internal static Document Create(string code)
 		{
-			var name = "Test"; // Guid.NewGuid().ToString("N");
+			var name = "Test";
 			var projectId = ProjectId.CreateNewId(name);
 
 			var solution = new AdhocWorkspace()
