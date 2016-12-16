@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
@@ -55,7 +56,7 @@ namespace NUnit.Analyzers.Extensions
 						return AttributeArgumentSyntaxExtensions.TryChangeType(targetType, argumentValue);
 					}
 					else if(argumentType.SpecialType == SpecialType.System_String &&
-						model.Compilation.GetTypeByMetadataName(typeof(TimeSpan).FullName).IsAssignableFrom(target))
+						model.Compilation.GetTypeByMetadataName(typeof(TimeSpan).FullName).IsAssignableFrom(targetType))
 					{
 						var outValue = default(TimeSpan);
 						canConvert = TimeSpan.TryParse(argumentValue as string, out outValue);
@@ -68,7 +69,8 @@ namespace NUnit.Analyzers.Extensions
 
 		private static bool TryChangeType(ITypeSymbol targetType, object argumentValue)
 		{
-			var targetReflectionType = Type.GetType(targetType.MetadataName, false);
+			var targetReflectionType = Type.GetType(
+				AttributeArgumentSyntaxExtensions.GetFullName(targetType), false);
 
 			if(targetReflectionType != null)
 			{
@@ -94,6 +96,23 @@ namespace NUnit.Analyzers.Extensions
 			{
 				return false;
 			}
+		}
+
+		private static string GetFullName(ITypeSymbol targetType)
+		{
+			// Note that this does not take into account generics,
+			// so if that's ever added to attributes this will have to change.
+			var namespaces = new List<string>();
+
+			var @namespace = targetType.ContainingNamespace;
+
+			while(!@namespace.IsGlobalNamespace)
+			{
+				namespaces.Add(@namespace.Name);
+				@namespace = @namespace.ContainingNamespace;
+			}
+
+			return $"{string.Join(".", namespaces)}.{targetType.Name}, {targetType.ContainingAssembly.Identity.ToString()}";
 		}
 	}
 }
