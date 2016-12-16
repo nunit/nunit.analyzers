@@ -24,12 +24,10 @@ namespace NUnit.Analyzers.TestCaseUsage
 			get
 			{
 				return ImmutableArray.Create(
-					TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.ExpectedResultCannotBeNullMessage),
 					TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage),
 					TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
-					TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.NullUsageMessage),
 					TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
-					TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.TypeMismatchMessage),
+					TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage),
 					TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage));
 			}
 		}
@@ -117,36 +115,13 @@ namespace NUnit.Analyzers.TestCaseUsage
 				}
 				else
 				{
-					var expectedResultNamedArgumentValue = (expectedResultNamedArgument.Expression as LiteralExpressionSyntax).Token.Value;
-
-					if (expectedResultNamedArgumentValue == null)
+					if(!expectedResultNamedArgument.CanAssignTo(methodReturnValueType, context.SemanticModel))
 					{
-						if (!(methodReturnValueType.IsReferenceType ||
-							methodReturnValueType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T))
-						{
-							context.ReportDiagnostic(Diagnostic.Create(
-								TestCaseUsageAnalyzer.CreateDescriptor(
-									TestCaseUsageAnalyzerConstants.ExpectedResultCannotBeNullMessage),
-								expectedResultNamedArgument.GetLocation()));
-						}
-					}
-					else
-					{
-						var argumentType = model.Compilation.GetTypeByMetadataName(expectedResultNamedArgumentValue.GetType().FullName);
-
-						var methodReturnValueComparisonType =
-							(methodReturnValueType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T) ?
-							(methodReturnValueType as INamedTypeSymbol).TypeArguments.ToList()[0] :
-							methodReturnValueType;
-
-						if (!methodReturnValueComparisonType.IsAssignableFrom(argumentType))
-						{
-							context.ReportDiagnostic(Diagnostic.Create(
-								TestCaseUsageAnalyzer.CreateDescriptor(
-									string.Format(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage,
-										argumentType.MetadataName, methodReturnValueType.MetadataName)),
-								expectedResultNamedArgument.GetLocation()));
-						}
+						context.ReportDiagnostic(Diagnostic.Create(
+							TestCaseUsageAnalyzer.CreateDescriptor(
+								string.Format(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage,
+									methodReturnValueType.MetadataName)),
+							expectedResultNamedArgument.GetLocation()));
 					}
 				}
 			}
@@ -186,34 +161,13 @@ namespace NUnit.Analyzers.TestCaseUsage
 				var methodParameterType = methodParametersSymbol.Item1;
 				var methodParameterName = methodParametersSymbol.Item2;
 
-				if (attributeValue == null)
+				if (!attributeArgument.CanAssignTo(methodParameterType, context.SemanticModel))
 				{
-					if (!(methodParameterType.IsReferenceType ||
-						methodParameterType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T))
-					{
-						context.ReportDiagnostic(Diagnostic.Create(
-							TestCaseUsageAnalyzer.CreateDescriptor(
-								string.Format(TestCaseUsageAnalyzerConstants.NullUsageMessage,
-									i, methodParameterName, methodParameterType.MetadataName)),
-							attributeArgument.GetLocation()));
-					}
-				}
-				else
-				{
-					var argumentType = model.Compilation.GetTypeByMetadataName(attributeValue.GetType().FullName);
-					var methodParameterComparisonType =
-						(methodParameterType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T) ?
-						(methodParameterType as INamedTypeSymbol).TypeArguments.ToList()[0] :
-						methodParameterType;
-
-					if (!methodParameterComparisonType.IsAssignableFrom(argumentType))
-					{
-						context.ReportDiagnostic(Diagnostic.Create(
-							TestCaseUsageAnalyzer.CreateDescriptor(
-								string.Format(TestCaseUsageAnalyzerConstants.TypeMismatchMessage,
-									i, argumentType.MetadataName, methodParameterName, methodParameterType.MetadataName)),
-							attributeArgument.GetLocation()));
-					}
+					context.ReportDiagnostic(Diagnostic.Create(
+						TestCaseUsageAnalyzer.CreateDescriptor(
+							string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage,
+								i, methodParameterName)),
+						attributeArgument.GetLocation()));
 				}
 
 				context.CancellationToken.ThrowIfCancellationRequested();

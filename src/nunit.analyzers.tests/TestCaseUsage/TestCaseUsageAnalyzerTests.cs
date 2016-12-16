@@ -22,7 +22,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 			var analyzer = new TestCaseUsageAnalyzer();
 			var diagnostics = analyzer.SupportedDiagnostics;
 
-			Assert.That(diagnostics.Length, Is.EqualTo(7), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
+			Assert.That(diagnostics.Length, Is.EqualTo(5), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
 
 			foreach (var diagnostic in diagnostics)
 			{
@@ -38,20 +38,16 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 
 			var diagnosticMessage = diagnostics.Select(_ => _.MessageFormat.ToString()).ToImmutableArray();
 
-			Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.ExpectedResultCannotBeNullMessage),
-				$"{TestCaseUsageAnalyzerConstants.ExpectedResultCannotBeNullMessage} is missing.");
 			Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage),
 				$"{TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage} is missing.");
 			Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
 				$"{TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage} is missing.");
-			Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.NullUsageMessage),
-				$"{TestCaseUsageAnalyzerConstants.NullUsageMessage} is missing.");
 			Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
 				$"{TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage} is missing.");
 			Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage),
 				$"{TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage} is missing.");
-			Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.TypeMismatchMessage),
-				$"{TestCaseUsageAnalyzerConstants.TypeMismatchMessage} is missing.");
+			Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage),
+				$"{TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage} is missing.");
 		}
 
 		[Test]
@@ -96,7 +92,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 				{
 					var diagnostic = diagnostics[0];
 					Assert.That(diagnostic.GetMessage(), Is.EqualTo(
-						string.Format(TestCaseUsageAnalyzerConstants.TypeMismatchMessage, "0", "Int32", "a", "Char")),
+						string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, "0", "a")),
 						nameof(diagnostic.GetMessage));
 				});
 		}
@@ -111,8 +107,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 				{
 					var diagnostic = diagnostics[0];
 					Assert.That(diagnostic.GetMessage(), Is.EqualTo(
-						string.Format(TestCaseUsageAnalyzerConstants.NullUsageMessage,
-							"0", "a", "Char")),
+						string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, "0", "a")),
 						nameof(diagnostic.GetMessage));
 				});
 		}
@@ -209,7 +204,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 				{
 					var diagnostic = diagnostics[0];
 					Assert.That(diagnostic.GetMessage(), Is.EqualTo(
-						string.Format(TestCaseUsageAnalyzerConstants.TypeMismatchMessage, "0", "Int32", "a", "String")),
+						string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, "0", "a")),
 						nameof(diagnostic.GetMessage));
 				});
 		}
@@ -224,7 +219,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 				{
 					var diagnostic = diagnostics[0];
 					Assert.That(diagnostic.GetMessage(), Is.EqualTo(
-						string.Format(TestCaseUsageAnalyzerConstants.NullUsageMessage, "0", "a", "Int32")),
+						string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, "0", "a")),
 						nameof(diagnostic.GetMessage));
 				});
 		}
@@ -262,7 +257,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 				{
 					var diagnostic = diagnostics[0];
 					Assert.That(diagnostic.GetMessage(), Is.EqualTo(
-						string.Format(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, "Char", "Int32")),
+						string.Format(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, "Int32")),
 						nameof(diagnostic.GetMessage));
 				});
 		}
@@ -277,7 +272,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 				{
 					var diagnostic = diagnostics[0];
 					Assert.That(diagnostic.GetMessage(), Is.EqualTo(
-						TestCaseUsageAnalyzerConstants.ExpectedResultCannotBeNullMessage),
+						string.Format(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, "Int32")),
 						nameof(diagnostic.GetMessage));
 				});
 		}
