@@ -8,7 +8,7 @@ namespace NUnit.Analyzers.Extensions
 {
 	internal static class AttributeArgumentSyntaxExtensions
 	{
-		internal static bool CanPassTo(this AttributeArgumentSyntax @this, ITypeSymbol target, SemanticModel model)
+		internal static bool CanAssignTo(this AttributeArgumentSyntax @this, ITypeSymbol target, SemanticModel model)
 		{
 			// See https://github.com/nunit/nunit/blob/master/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L363
 			// for the reasoning behind this implementation.
@@ -52,42 +52,47 @@ namespace NUnit.Analyzers.Extensions
 
 					if (canConvert)
 					{
-						var targetReflectionType = Type.GetType(targetType.MetadataName, false);
-
-						if(targetReflectionType != null)
-						{
-							try
-							{
-								Convert.ChangeType(argumentValue, targetReflectionType, CultureInfo.InvariantCulture);
-								return true;
-							}
-							catch(InvalidCastException)
-							{
-								return false;
-							}
-							catch (FormatException)
-							{
-								return false;
-							}
-							catch (OverflowException)
-							{
-								return false;
-							}
-						}
-						else
-						{
-							return false;
-						}
+						return AttributeArgumentSyntaxExtensions.TryChangeType(targetType, argumentValue);
 					}
 					else if(argumentType.SpecialType == SpecialType.System_String &&
 						model.Compilation.GetTypeByMetadataName(typeof(TimeSpan).FullName).IsAssignableFrom(target))
 					{
-						TimeSpan outValue = default(TimeSpan);
+						var outValue = default(TimeSpan);
 						canConvert = TimeSpan.TryParse(argumentValue as string, out outValue);
 					}
 
 					return canConvert;
 				}
+			}
+		}
+
+		private static bool TryChangeType(ITypeSymbol targetType, object argumentValue)
+		{
+			var targetReflectionType = Type.GetType(targetType.MetadataName, false);
+
+			if(targetReflectionType != null)
+			{
+				try
+				{
+					Convert.ChangeType(argumentValue, targetReflectionType, CultureInfo.InvariantCulture);
+					return true;
+				}
+				catch (InvalidCastException)
+				{
+					return false;
+				}
+				catch (FormatException)
+				{
+					return false;
+				}
+				catch (OverflowException)
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
 			}
 		}
 	}

@@ -101,6 +101,7 @@
     <Compile Include="ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTests.cs" />
     <Compile Include="ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTests.cs" />
     <Compile Include="CodeFixTests.cs" />
+    <Compile Include="Extensions\AttributeArgumentSyntaxExtensionsTests.cs" />
     <Compile Include="Extensions\AttributeSyntaxExtensionsTests.cs" />
     <Compile Include="Extensions\IMethodSymbolExtensionsTests.cs" />
     <Compile Include="Extensions\ITypeSymbolExtensionsTests.cs" />
@@ -283,6 +284,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\Extensions\AttributeSyntaxExtensionsTestsGetArgumentsWhenNoneExist.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullAndTargetIsReferenceType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullAndTargetIsNullableType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullAndTargetIsValueType.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Compile Include="TestCaseUsage\TestCaseUsageAnalyzerTests.cs" />

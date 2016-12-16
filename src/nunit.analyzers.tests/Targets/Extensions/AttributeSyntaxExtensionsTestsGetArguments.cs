@@ -13,7 +13,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 	public sealed class ArgumentsAttribute
 		: Attribute
 	{
-		public AnAttribute(int x) { }
+		public ArgumentsAttribute(int x) { }
 
 		public double AProperty { get; set; }
 

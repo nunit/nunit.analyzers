@@ -41,6 +41,7 @@
     <Compile Include="Constants\TestCaseUsageAnalyzerConstants.cs" />
     <Compile Include="Constants\CodeFixConstants.cs" />
     <Compile Include="Constants\ClassicModelUsageAnalyzerConstants.cs" />
+    <Compile Include="Extensions\AttributeArgumentSyntaxExtensions.cs" />
     <Compile Include="Extensions\AttributeSyntaxExtensions.cs" />
     <Compile Include="Extensions\IMethodSymbolExtensions.cs" />
     <Compile Include="Extensions\ITypeSymbolExtensions.cs" />
