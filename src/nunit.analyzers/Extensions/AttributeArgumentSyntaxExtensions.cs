@@ -11,9 +11,15 @@ namespace NUnit.Analyzers.Extensions
 	{
 		internal static bool CanAssignTo(this AttributeArgumentSyntax @this, ITypeSymbol target, SemanticModel model)
 		{
-			// See https://github.com/nunit/nunit/blob/master/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L363
-			// for the reasoning behind this implementation.
-			var argumentValue = (@this.Expression as LiteralExpressionSyntax).Token.Value;
+            // See https://github.com/nunit/nunit/blob/master/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L363
+            // for the reasoning behind this implementation.
+
+            object argumentValue = null;
+            if(@this.Expression is LiteralExpressionSyntax)
+			    argumentValue = (@this.Expression as LiteralExpressionSyntax).Token.Value;
+
+            if(@this.Expression is ImplicitArrayCreationExpressionSyntax)
+                argumentValue = ((@this.Expression as ImplicitArrayCreationExpressionSyntax).Initializer.Expressions[0] as LiteralExpressionSyntax).Token.Value;
 
 			if (argumentValue == null)
 			{
@@ -23,9 +29,7 @@ namespace NUnit.Analyzers.Extensions
 			else
 			{
 				var argumentType = model.Compilation.GetTypeByMetadataName(argumentValue.GetType().FullName);
-				var targetType =
-					(target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T) ?
-					(target as INamedTypeSymbol).TypeArguments.ToArray()[0] : target;
+                var targetType = GetTargetType(target);
 
 				if (targetType.IsAssignableFrom(argumentType))
 				{
@@ -67,7 +71,18 @@ namespace NUnit.Analyzers.Extensions
 			}
 		}
 
-		private static bool TryChangeType(ITypeSymbol targetType, object argumentValue)
+        private static ITypeSymbol GetTargetType(ITypeSymbol target)
+        {
+            if(target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+                return (target as INamedTypeSymbol).TypeArguments.ToArray()[0];
+
+            if(target is IArrayTypeSymbol)
+                return (target as IArrayTypeSymbol).ElementType;
+
+            return target;
+        }
+
+        private static bool TryChangeType(ITypeSymbol targetType, object argumentValue)
 		{
 			var targetReflectionType = Type.GetType(
 				AttributeArgumentSyntaxExtensions.GetFullName(targetType), false);
