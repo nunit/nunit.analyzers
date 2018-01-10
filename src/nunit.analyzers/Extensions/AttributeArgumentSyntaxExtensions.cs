@@ -72,13 +72,13 @@ namespace NUnit.Analyzers.Extensions
 
 		private static ITypeSymbol GetTargetType(ITypeSymbol target)
 		{
-		if(target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
-			return (target as INamedTypeSymbol).TypeArguments.ToArray()[0];
+			if(target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+				return (target as INamedTypeSymbol).TypeArguments.ToArray()[0];
 
-		if(target is IArrayTypeSymbol)
-			return (target as IArrayTypeSymbol).ElementType;
+			if(target is IArrayTypeSymbol)
+				return (target as IArrayTypeSymbol).ElementType;
 
-		return target;
+			return target;
 		}
 
         	private static bool TryChangeType(ITypeSymbol targetType, object argumentValue)
