@@ -4,7 +4,7 @@ using System;
 namespace NUnit.Analyzers.Tests.Targets.Extensions
 {
 	public sealed class AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable
-    {
+	{
 		[Arguments(new[] { "a", "b", "c" })]
 		public void Foo(string[] inputs) { }
 
@@ -12,7 +12,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 		public sealed class ArgumentsAttribute
 			: Attribute
 		{
-			public ArgumentsAttribute(int? x) { }
+			public ArgumentsAttribute(string[] x) { }
 		}
 	}
 }

@@ -192,22 +192,22 @@ namespace NUnit.Analyzers.Tests.Extensions
 				rootAndModel.Item2);
 		}
 
-        [Test]
-        public async Task CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable))}.cs");
+		[Test]
+		public async Task CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable()
+		{
+			var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
+				$"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
-        }
+			Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+		}
 
-        [Test]
-        public async Task CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable))}.cs");
+		[Test]
+		public async Task CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable()
+		{
+			var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
+				$"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.False);
-        }
+			Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.False);
+		}
     }
 }
