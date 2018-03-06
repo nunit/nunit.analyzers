@@ -340,6 +340,12 @@
     <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsInvalidString.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Compile Include="TestCaseUsage\TestCaseUsageAnalyzerTests.cs" />
     <Compile Include="TestHelpers.cs" />
   </ItemGroup>

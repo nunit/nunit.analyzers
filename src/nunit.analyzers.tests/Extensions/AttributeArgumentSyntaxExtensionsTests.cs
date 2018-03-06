@@ -191,5 +191,23 @@ namespace NUnit.Analyzers.Tests.Extensions
 					rootAndModel.Item1.DescendantNodes().OfType<MethodDeclarationSyntax>().Single()).Parameters[0].Type,
 				rootAndModel.Item2);
 		}
-	}
+
+		[Test]
+		public async Task CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable()
+		{
+			var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
+				$"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable))}.cs");
+
+			Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+		}
+
+		[Test]
+		public async Task CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable()
+		{
+			var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
+				$"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable))}.cs");
+
+			Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.False);
+		}
+    }
 }
