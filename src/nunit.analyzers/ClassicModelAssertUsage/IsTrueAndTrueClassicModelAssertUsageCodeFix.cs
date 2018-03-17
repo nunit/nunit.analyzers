@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,14 +15,9 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 	public sealed class IsTrueAndTrueClassicModelAssertUsageCodeFix
 		: ClassicModelAssertUsageCodeFix
 	{
-		public override ImmutableArray<string> FixableDiagnosticIds
-		{
-			get
-			{
-				return ImmutableArray.Create(AnalyzerIdentifiers.IsTrueUsage,
-					AnalyzerIdentifiers.TrueUsage);
-			}
-		}
+		public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
+			AnalyzerIdentifiers.IsTrueUsage,
+			AnalyzerIdentifiers.TrueUsage);
 
 		protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
 		{

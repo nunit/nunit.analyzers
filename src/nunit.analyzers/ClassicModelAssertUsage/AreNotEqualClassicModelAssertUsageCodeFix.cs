@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,13 +15,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 	public sealed class AreNotEqualClassicModelAssertUsageCodeFix
 		: ClassicModelAssertUsageCodeFix
 	{
-		public override ImmutableArray<string> FixableDiagnosticIds
-		{
-			get
-			{
-				return ImmutableArray.Create(AnalyzerIdentifiers.AreNotEqualUsage);
-			}
-		}
+		public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(AnalyzerIdentifiers.AreNotEqualUsage);
 
 		protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
 		{

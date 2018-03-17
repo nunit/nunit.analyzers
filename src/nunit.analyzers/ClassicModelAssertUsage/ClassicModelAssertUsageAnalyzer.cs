@@ -31,13 +31,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 				ClassicModelUsageAnalyzerConstants.Message, Categories.Usage,
 				DiagnosticSeverity.Warning, true);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-		{
-			get
-			{
-				return ClassicModelAssertUsageAnalyzer.Names.Values.ToImmutableArray();
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.Names.Values.ToImmutableArray();
 
 		public override void Initialize(AnalysisContext context)
 		{
