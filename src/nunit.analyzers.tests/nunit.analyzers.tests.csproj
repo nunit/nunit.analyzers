@@ -1,127 +1,111 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{070974CB-B483-4347-BA5A-53ED977E639C}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NUnit.Analyzers.Tests</RootNamespace>
-    <AssemblyName>nunit.analyzers.tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <TargetFramework>net461</TargetFramework>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=3.5.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.5.0\lib\net45\nunit.framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.CodeAnalysis, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.1.1\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.CodeAnalysis.CSharp, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.1.1.1\lib\net45\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.Workspaces.1.1.1\lib\net45\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.CodeAnalysis.Workspaces, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.Workspaces.Common.1.1.1\lib\net45\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.CodeAnalysis.Workspaces.Desktop, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.Workspaces.Common.1.1.1\lib\net45\Microsoft.CodeAnalysis.Workspaces.Desktop.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Collections.Immutable, Version=1.1.37.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Collections.Immutable.1.1.37\lib\dotnet\System.Collections.Immutable.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Composition.AttributedModel, Version=1.0.30.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Composition.1.0.30\lib\portable-net45+win8+wp8+wpa81\System.Composition.AttributedModel.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Composition.Convention, Version=1.0.30.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Composition.1.0.30\lib\portable-net45+win8+wp8+wpa81\System.Composition.Convention.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Composition.Hosting, Version=1.0.30.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Composition.1.0.30\lib\portable-net45+win8+wp8+wpa81\System.Composition.Hosting.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Composition.Runtime, Version=1.0.30.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Composition.1.0.30\lib\portable-net45+win8+wp8+wpa81\System.Composition.Runtime.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Composition.TypedParts, Version=1.0.30.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Composition.1.0.30\lib\portable-net45+win8+wp8+wpa81\System.Composition.TypedParts.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Core" />
-    <Reference Include="System.Reflection.Metadata, Version=1.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Reflection.Metadata.1.2.0\lib\portable-net45+win8\System.Reflection.Metadata.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExists.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExistsWithMessage.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExistsWithMessageAndParams.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\AreNotEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\AreNotEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\AreNotEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreEqualIsUsed.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreEqualIsUsedWithTolerance.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreNotEqualIsUsed.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenDiagnosticIssuesExist.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenFalseIsUsed.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenInvocationIsNotFromAssert.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenIsFalseIsUsed.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenIsTrueIsUsed.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenThatIsUsed.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenTrueIsUsed.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNotAssignable.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNotNullableAndAssignable.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullableAndAssignable.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullAndTargetIsNullableType.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullAndTargetIsReferenceType.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullAndTargetIsValueType.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsByteAndArgumentIsInt32.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDateTimeAndArgumentIsInvalidString.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDateTimeAndArgumentIsValidString.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsDouble.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsInt32.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsInvalidString.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsValidString.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDoubleAndArgumentIsInt32.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsInt16AndArgumentIsInt32.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsSByteAndArgumentIsInt32.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsInvalidString.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString.cs" />
+    <Compile Remove="Targets\Extensions\AttributeSyntaxExtensionsTestsGetArguments.cs" />
+    <Compile Remove="Targets\Extensions\AttributeSyntaxExtensionsTestsGetArgumentsWhenNoneExist.cs" />
+    <Compile Remove="Targets\Extensions\IMethodSymbolExtensionsTestsGetParameterCounts.cs" />
+    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsAssertType.cs" />
+    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsInNUnitAssemblyAndNotAssertType.cs" />
+    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsNotInNUnitAssembly.cs" />
+    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherImplementsInterface.cs" />
+    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsASubclass.cs" />
+    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsInDifferentAssembly.cs" />
+    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNotASubclass.cs" />
+    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNull.cs" />
+    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsSameTypeAsThis.cs" />
+    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenThisIsNull.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsCorrect.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesNullToNullableType.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesNullToValueType.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesValueToNullableType.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentTypeIsIncorrect.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeHasNoArguments.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsNotInNUnit.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsTestAttribute.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedCorrectly.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenNotEnoughRequiredArgumentsAreProvided.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredArgumentsAreProvided.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClassicModelAssertUsage\ClassicModelAssertUsageCodeFixTests.cs" />
-    <Compile Include="ClassicModelAssertUsage\IsFalseAndFalseClassicModelAssertUsageCodeFixTests.cs" />
-    <Compile Include="ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTests.cs" />
-    <Compile Include="ClassicModelAssertUsage\AreNotEqualClassicModelAssertUsageCodeFixTests.cs" />
-    <Compile Include="ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTests.cs" />
-    <Compile Include="ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTests.cs" />
-    <Compile Include="CodeFixTests.cs" />
-    <Compile Include="Extensions\AttributeArgumentSyntaxExtensionsTests.cs" />
-    <Compile Include="Extensions\AttributeSyntaxExtensionsTests.cs" />
-    <Compile Include="Extensions\IMethodSymbolExtensionsTests.cs" />
-    <Compile Include="Extensions\ITypeSymbolExtensionsTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExistsWithMessageAndParams.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExistsWithMessage.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs">
+    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExists.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs">
+    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExistsWithMessage.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExistsWithMessageAndParams.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\ClassicModelAssertUsage\AreNotEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs">
@@ -133,31 +117,34 @@
     <None Include="Targets\ClassicModelAssertUsage\AreNotEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreNotEqualIsUsed.cs">
+    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreEqualIsUsed.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreEqualIsUsedWithTolerance.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenFalseIsUsed.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreEqualIsUsed.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenIsFalseIsUsed.cs">
+    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreNotEqualIsUsed.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenDiagnosticIssuesExist.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenTrueIsUsed.cs">
+    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenFalseIsUsed.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenInvocationIsNotFromAssert.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenIsFalseIsUsed.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenIsTrueIsUsed.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenThatIsUsed.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenTrueIsUsed.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\ClassicModelAssertUsage\IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs">
@@ -178,31 +165,73 @@
     <None Include="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNotAssignable.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNotNullableAndAssignable.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullableAndAssignable.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullAndTargetIsNullableType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullAndTargetIsReferenceType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullAndTargetIsValueType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsByteAndArgumentIsInt32.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDateTimeAndArgumentIsInvalidString.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDateTimeAndArgumentIsValidString.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsDouble.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsInt32.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsInvalidString.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsValidString.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDoubleAndArgumentIsInt32.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsInt16AndArgumentIsInt32.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsSByteAndArgumentIsInt32.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsInvalidString.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Targets\Extensions\AttributeSyntaxExtensionsTestsGetArguments.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Targets\Extensions\AttributeSyntaxExtensionsTestsGetArgumentsWhenNoneExist.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Targets\Extensions\IMethodSymbolExtensionsTestsGetParameterCounts.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherImplementsInterface.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNotASubclass.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsInDifferentAssembly.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsSameTypeAsThis.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsASubclass.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenThisIsNull.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNull.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsAssertType.cs">
@@ -214,67 +243,40 @@
     <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsNotInNUnitAssembly.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType.cs">
+    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherImplementsInterface.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect.cs">
+    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsASubclass.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedCorrectly.cs">
+    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsInDifferentAssembly.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesNullToValueType.cs">
+    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNotASubclass.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType.cs">
+    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNull.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect.cs">
+    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsSameTypeAsThis.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredArgumentsAreProvided.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenNotEnoughRequiredArgumentsAreProvided.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentTypeIsIncorrect.cs">
+    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenThisIsNull.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsCorrect.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenInvocationIsNotFromAssert.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesNullToNullableType.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesNullToValueType.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesValueToNullableType.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsTestAttribute.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentTypeIsIncorrect.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeHasNoArguments.cs">
@@ -283,91 +285,67 @@
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsNotInNUnit.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeSyntaxExtensionsTestsGetArgumentsWhenNoneExist.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsTestAttribute.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullAndTargetIsReferenceType.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullAndTargetIsNullableType.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullAndTargetIsValueType.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNotNullableAndAssignable.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullableAndAssignable.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNotAssignable.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedCorrectly.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsInt16AndArgumentIsInt32.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsByteAndArgumentIsInt32.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsSByteAndArgumentIsInt32.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDoubleAndArgumentIsInt32.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsDouble.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsValidString.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenNotEnoughRequiredArgumentsAreProvided.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsInvalidString.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsInt32.cs">
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredArgumentsAreProvided.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDateTimeAndArgumentIsValidString.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDateTimeAndArgumentIsInvalidString.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsInvalidString.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <Compile Include="TestCaseUsage\TestCaseUsageAnalyzerTests.cs" />
-    <Compile Include="TestHelpers.cs" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.2.1" />
+    <PackageReference Include="NUnit" Version="3.10.1" />
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\nunit.analyzers\nunit.analyzers.csproj">
-      <Project>{74151914-3c12-4eac-8fd5-5766ebea35a3}</Project>
-      <Name>nunit.analyzers</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\nunit.analyzers\nunit.analyzers.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
 </Project>
