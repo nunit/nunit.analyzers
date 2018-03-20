@@ -18,4 +18,4 @@ NUnit analyzers are Open Source software and released under the [MIT license](ht
 
 ## Contributors ##
 
-Current contributors to the analyzers are [Jason Bock] (https://www.github.com/jasonbock).
+NUnit.Analyzers was created by [Jason Bock](https://www.github.com/jasonbock). A complete list of contributors can be found on the [GitHub contributors page](https://github.com/nunit/nunit.analyzers/graphs/contributors).
