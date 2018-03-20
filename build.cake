@@ -78,7 +78,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
     {
-        NUnit3(TEST_FILE);
+        NUnit3(TEST_FILE, new NUnit3Settings());
     });
 
 //////////////////////////////////////////////////////////////////////
