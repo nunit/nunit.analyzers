@@ -19,7 +19,7 @@ var TEST_BIN_DIR = PROJECT_DIR + "src/nunit.analyzers.tests/bin/" + configuratio
 var SOLUTION_FILE = PROJECT_DIR + "src/" + "nunit.analyzers.sln";
 
 // Test Assembly
-var TEST_FILE = TEST_BIN_DIR + "nunit.analyzers.tests.dll";
+var TEST_FILE = TEST_BIN_DIR + "net461/nunit.analyzers.tests.dll";
 
 // Package sources for nuget restore
 var PACKAGE_SOURCE = new string[]
