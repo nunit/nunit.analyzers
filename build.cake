@@ -13,13 +13,17 @@ var configuration = Argument("configuration", "Debug");
 
 // Directories
 var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath + "/";
-var TEST_BIN_DIR = PROJECT_DIR + "src/nunit.analyzers.tests/bin/" + configuration + "/";
+var SRC_DIR = PROJECT_DIR + "src/";
+
+var PLAYGROUND_OUTPUT_DIR = SRC_DIR + "nunit.analyzers.playground/bin/";
+var ANALYZERS_TESTS_OUTPUT_DIR = SRC_DIR + "nunit.analyzers.tests/bin/";
+var ANALYZERS_OUTPUT_DIR = SRC_DIR + "nunit.analyzers/bin/";
 
 // Solution
-var SOLUTION_FILE = PROJECT_DIR + "src/" + "nunit.analyzers.sln";
+var SOLUTION_FILE = PROJECT_DIR + "src/nunit.analyzers.sln";
 
 // Test Assembly
-var TEST_FILE = TEST_BIN_DIR + "net461/nunit.analyzers.tests.dll";
+var TEST_FILE = ANALYZERS_TESTS_OUTPUT_DIR + configuration + "/net461/nunit.analyzers.tests.dll";
 
 // Package sources for nuget restore
 var PACKAGE_SOURCE = new string[]
@@ -31,11 +35,13 @@ var PACKAGE_SOURCE = new string[]
 // CLEAN
 //////////////////////////////////////////////////////////////////////
 
-//Task("Clean")
-//    .Does(() =>
-//{
-//    CleanDirectory(BIN_DIR);
-// });
+Task("Clean")
+    .Does(() =>
+    {
+        CleanDirectory(PLAYGROUND_OUTPUT_DIR);
+        CleanDirectory(ANALYZERS_TESTS_OUTPUT_DIR);
+        CleanDirectory(ANALYZERS_OUTPUT_DIR);
+    });
 
 
 //////////////////////////////////////////////////////////////////////
@@ -44,24 +50,21 @@ var PACKAGE_SOURCE = new string[]
 
 Task("RestorePackages")
     .Does(() =>
-{
-    NuGetRestore(SOLUTION_FILE, new NuGetRestoreSettings
     {
-        Source = PACKAGE_SOURCE,
-        Verbosity = NuGetVerbosity.Detailed
+        NuGetRestore(SOLUTION_FILE, new NuGetRestoreSettings
+        {
+            Source = PACKAGE_SOURCE,
+        });
     });
-});
 
 //////////////////////////////////////////////////////////////////////
 // BUILD
 //////////////////////////////////////////////////////////////////////
 
 Task("Build")
-//    .IsDependentOn("Clean")
     .IsDependentOn("RestorePackages")
     .Does(() =>
     {
-        // Use MSBuild
         MSBuild(SOLUTION_FILE, new MSBuildSettings()
             .SetConfiguration(configuration)
             .SetVerbosity(Verbosity.Minimal)
@@ -84,6 +87,10 @@ Task("Test")
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
 //////////////////////////////////////////////////////////////////////
+
+Task("Rebuild")
+    .IsDependentOn("Clean")
+    .IsDependentOn("Build");
 
 Task("Default")
     .IsDependentOn("Build")
