@@ -16,9 +16,6 @@ charset = utf-8
 [*.{proj,csproj,vcxproj,xproj,json,config,nuspec,xml}]
 indent_size = 2
 
-# Sort using and Import directives with System.* appearing first
-dotnet_sort_system_directives_first = true
-
 [*]
 # https://github.com/nunit/docs/wiki/Coding-Standards#namespace-class-structure-interface-enumeration-and-method-definitions
 csharp_new_line_before_open_brace = all
@@ -27,7 +24,7 @@ csharp_new_line_before_catch = true
 csharp_new_line_before_finally = true
 csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_members_in_anonymous_types = true
-csharp_new_line_within_query_expression_clauses = true
+csharp_new_line_between_query_expression_clauses = true
 
 # https://github.com/nunit/docs/wiki/Coding-Standards#spaces
 csharp_space_after_cast = false
