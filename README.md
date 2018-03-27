@@ -14,15 +14,19 @@ Now you should be able to open the nunit.analyzers.sln file. When you build the 
 
 Right now there are two analyzers in the code base. One will look for classic model assertions (e.g. `Assert.AreEqual()`, `Assert.IsTrue()`) and change them into constraint model assertions (`Assert.That()`). The other analyzer looks for methods with the `[TestCase]` attribute and makes sure the argument values are correct for the types of the method parameters along with the `ExpectedResult` value if it was provided. 
 
+## Download ##
+
+Prelease nuget builds will soon appear.
+
 ## License ##
 
 NUnit analyzers are Open Source software and released under the [MIT license](http://www.nunit.org/nuget/nunit3-license.txt), which allow the use of the analyzers in free and commercial applications and libraries without restrictions.
 
 ## Contributing ##
 
-There are several ways to contribute to this project. One can try things out, report bugs, propose improvements and new functionality, work on issues (especially the issues marked with the labels [help wanted](https://github.com/nunit/nunit.analyzers/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) and [Good First Issue](https://github.com/nunit/nunit.analyzers/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22)), and in general join in the conversations.
+There are several ways to contribute to this project. One can try things out, report bugs, propose improvements and new functionality, work on issues (especially the issues marked with the labels [help wanted](https://github.com/nunit/nunit.analyzers/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) and [Good First Issue](https://github.com/nunit/nunit.analyzers/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22)), and in general join in the conversations. See [Contributing](CONTRIBUTING.md) for more information.
 
-This project has adopted the Code of Conduct from the [Contributor Covenant](http://contributor-covenant.org), version 1.4, available at [http://contributor-covenant.org/version/1/4](http://contributor-covenant.org/version/1/4/).
+This project has adopted the Code of Conduct from the [Contributor Covenant](http://contributor-covenant.org), version 1.4, available at [http://contributor-covenant.org/version/1/4](http://contributor-covenant.org/version/1/4/). See the [Code of Conduct](CODE_OF_CONDUCT.md) for more information.
 
 ## Contributors ##
 
