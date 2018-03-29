@@ -1,12 +1,11 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit.analyzers", "nunit.analyzers\nunit.analyzers.csproj", "{74151914-3C12-4EAC-8FD5-5766EBEA35A3}"
 EndProject
-# Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit.analyzers.vsix", "nunit.analyzers.vsix\nunit.analyzers.vsix.csproj", "{5D87311B-74DE-4DF9-BCC3-E14D8EE4E7B0}"
-# EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit.analyzers.vsix", "nunit.analyzers.vsix\nunit.analyzers.vsix.csproj", "{5D87311B-74DE-4DF9-BCC3-E14D8EE4E7B0}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit.analyzers.tests", "nunit.analyzers.tests\nunit.analyzers.tests.csproj", "{070974CB-B483-4347-BA5A-53ED977E639C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit.analyzers.playground", "nunit.analyzers.playground\nunit.analyzers.playground.csproj", "{AAEF264E-AA3D-4C46-9FA3-73CAD7A0BC13}"
@@ -36,5 +35,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D4EB0814-1C84-4F3B-96CF-F9D68F63FFCB}
 	EndGlobalSection
 EndGlobal
