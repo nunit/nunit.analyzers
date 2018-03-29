@@ -3,8 +3,6 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
-using NUnit.Framework;
-using NUnit.Framework.Constraints;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
@@ -25,8 +23,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 			var equalToInvocationNode = SyntaxFactory.InvocationExpression(
 				SyntaxFactory.MemberAccessExpression(
 					SyntaxKind.SimpleMemberAccessExpression,
-					SyntaxFactory.IdentifierName(nameof(Is)),
-					SyntaxFactory.IdentifierName(nameof(Is.EqualTo))))
+					SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIs),
+					SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsEqualTo)))
 				.WithArgumentList(SyntaxFactory.ArgumentList(
 					SyntaxFactory.SingletonSeparatedList(arguments[0])));
 
@@ -38,7 +36,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 					SyntaxFactory.MemberAccessExpression(
 						SyntaxKind.SimpleMemberAccessExpression,
 						equalToInvocationNode,
-						SyntaxFactory.IdentifierName(nameof(EqualConstraint.Within))))
+						SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfEqualConstraintWithin)))
 					.WithArgumentList(SyntaxFactory.ArgumentList(
 						SyntaxFactory.SingletonSeparatedList(arguments[2])));
 			}

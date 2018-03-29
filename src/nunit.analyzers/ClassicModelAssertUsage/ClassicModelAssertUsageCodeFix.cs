@@ -1,10 +1,9 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
-using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,7 +35,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 				invocationNode.DescendantNodes(_ => true).Where(_ => 
 					_.IsKind(SyntaxKind.IdentifierName) && 
 					(_ as IdentifierNameSyntax).Identifier.Text == invocationIdentifier).Single(),
-				SyntaxFactory.IdentifierName(nameof(Assert.That)));
+				SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfAssertThat));
 
 			// Now, replace the arguments.
 			var arguments = invocationNode.ArgumentList.Arguments.ToList();

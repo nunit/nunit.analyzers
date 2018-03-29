@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
-using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
@@ -25,9 +24,9 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 						SyntaxKind.SimpleMemberAccessExpression,
 						SyntaxFactory.MemberAccessExpression(
 							SyntaxKind.SimpleMemberAccessExpression,
-							SyntaxFactory.IdentifierName(nameof(Is)),
-							SyntaxFactory.IdentifierName(nameof(Is.Not))),
-						SyntaxFactory.IdentifierName(nameof(Is.Not.EqualTo))))
+							SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIs),
+							SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsNot)),
+						SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsNotEqualTo)))
 					.WithArgumentList(SyntaxFactory.ArgumentList(
 						SyntaxFactory.SingletonSeparatedList(arguments[0])))));
 
