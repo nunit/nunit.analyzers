@@ -70,6 +70,7 @@ Task("Build")
             .SetVerbosity(Verbosity.Minimal)
             .SetNodeReuse(false)
             .SetPlatformTarget(PlatformTarget.MSIL)
+            .SetMSBuildPlatform(MSBuildPlatform.x86)
         );
     });
 
