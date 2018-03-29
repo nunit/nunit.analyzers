@@ -3,11 +3,11 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
-using NUnit.Framework;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using static NUnit.Analyzers.Extensions.ITypeSymbolExtensions;
+using static NUnit.Analyzers.Constants.NunitFrameworkConstants;
 
 namespace NUnit.Analyzers.ClassicModelAssertUsage
 {
@@ -18,12 +18,12 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 		private static readonly ImmutableDictionary<string, DiagnosticDescriptor> Names =
 			new Dictionary<string, DiagnosticDescriptor>
 			{
-				{ nameof(Assert.IsTrue), ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.IsTrueUsage) },
-				{ nameof(Assert.True), ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.TrueUsage) },
-				{ nameof(Assert.IsFalse), ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.IsFalseUsage) },
-				{ nameof(Assert.False), ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.FalseUsage) },
-				{ nameof(Assert.AreEqual), ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.AreEqualUsage) },
-				{ nameof(Assert.AreNotEqual), ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.AreNotEqualUsage) }
+				{ NameOfAssertIsTrue, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.IsTrueUsage) },
+				{ NameOfAssertTrue, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.TrueUsage) },
+				{ NameOfAssertIsFalse, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.IsFalseUsage) },
+				{ NameOfAssertFalse, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.FalseUsage) },
+				{ NameOfAssertAreEqual, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.AreEqualUsage) },
+				{ NameOfAssertAreNotEqual, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.AreNotEqualUsage) }
 			}.ToImmutableDictionary();
 
 		private static DiagnosticDescriptor CreateDescriptor(string identifier) =>
@@ -68,7 +68,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 				{
 					{ AnalyzerPropertyKeys.ModelName, invocationSymbol.Name },
 					{ AnalyzerPropertyKeys.HasToleranceValue,
-						(invocationSymbol.Name == nameof(Assert.AreEqual) &&
+						(invocationSymbol.Name == NameOfAssertAreEqual &&
 							invocationSymbol.Parameters.Length >= 3 &&
 							invocationSymbol.Parameters[2].Type.SpecialType == SpecialType.System_Double).ToString() }
 				}.ToImmutableDictionary();

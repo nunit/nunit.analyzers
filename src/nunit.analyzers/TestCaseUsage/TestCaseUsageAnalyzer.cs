@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
-using NUnit.Framework;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
@@ -48,10 +47,10 @@ namespace NUnit.Analyzers.TestCaseUsage
 				{
 					var attributeNode = (AttributeSyntax)context.Node;
 					var attributeSymbol = context.SemanticModel.GetSymbolInfo(attributeNode).Symbol;
-					var testCaseType = context.SemanticModel.Compilation.GetTypeByMetadataName(typeof(TestCaseAttribute).FullName);
+					var testCaseType = context.SemanticModel.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
 
 					if (testCaseType.ContainingAssembly.Identity == attributeSymbol?.ContainingAssembly.Identity && 
-						nameof(TestCaseAttribute) == attributeSymbol?.ContainingType.Name)
+						NunitFrameworkConstants.NameOfTestCaseAttribute == attributeSymbol?.ContainingType.Name)
 					{
 						context.CancellationToken.ThrowIfCancellationRequested();
 
@@ -100,7 +99,7 @@ namespace NUnit.Analyzers.TestCaseUsage
 			var model = context.SemanticModel;
 
 			var expectedResultNamedArgument = attributeNamedArguments.SingleOrDefault(
-				_ => _.DescendantTokens().Any(__ => __.Text == nameof(TestCaseAttribute.ExpectedResult)));
+				_ => _.DescendantTokens().Any(__ => __.Text == NunitFrameworkConstants.NameOfTestCaseAttributeExpectedResult));
 
 			if (expectedResultNamedArgument != null)
 			{

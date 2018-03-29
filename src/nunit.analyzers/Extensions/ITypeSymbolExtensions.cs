@@ -1,6 +1,6 @@
-﻿using Microsoft.CodeAnalysis;
-using NUnit.Framework;
+using Microsoft.CodeAnalysis;
 using System.Linq;
+using NUnit.Analyzers.Constants;
 
 namespace NUnit.Analyzers.Extensions
 {
@@ -18,8 +18,8 @@ namespace NUnit.Analyzers.Extensions
         internal static bool IsAssert(this ITypeSymbol @this)
 		{
 			return @this != null &&
-				typeof(Assert).AssemblyQualifiedName.Contains(@this.ContainingAssembly.Name) &&
-				@this.Name == nameof(Assert);
+				NunitFrameworkConstants.AssemblyQualifiedNameOfTypeAssert.Contains(@this.ContainingAssembly.Name) &&
+				@this.Name == NunitFrameworkConstants.NameOfAssert;
 		}
 	}
 }
