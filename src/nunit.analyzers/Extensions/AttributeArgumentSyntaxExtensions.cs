@@ -1,9 +1,9 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NUnit.Analyzers.Extensions
 {
@@ -14,7 +14,7 @@ namespace NUnit.Analyzers.Extensions
             //See https://github.com/nunit/nunit/blob/master/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L363
             //for the reasoning behind this implementation.
             object argumentValue = null;
-            if(@this.Expression is LiteralExpressionSyntax)
+            if (@this.Expression is LiteralExpressionSyntax)
             {
                 argumentValue = (@this.Expression as LiteralExpressionSyntax).Token.Value;
             }
@@ -22,7 +22,7 @@ namespace NUnit.Analyzers.Extensions
             TypeInfo sourceTypeInfo = model.GetTypeInfo(@this.Expression);
             ITypeSymbol argumentType = sourceTypeInfo.Type;
 
-            if(sourceTypeInfo.Type == null)
+            if (sourceTypeInfo.Type == null)
             {
                 return target.IsReferenceType ||
                     target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.Extensions
             else
             {
                 var targetType = GetTargetType(target);
-                if(targetType.IsAssignableFrom(argumentType))
+                if (targetType.IsAssignableFrom(argumentType))
                 {
                     return true;
                 }
@@ -38,27 +38,27 @@ namespace NUnit.Analyzers.Extensions
                 {
                     var canConvert = false;
 
-                    if(targetType.SpecialType == SpecialType.System_Int16 || targetType.SpecialType == SpecialType.System_Byte ||
+                    if (targetType.SpecialType == SpecialType.System_Int16 || targetType.SpecialType == SpecialType.System_Byte ||
                         targetType.SpecialType == SpecialType.System_SByte || targetType.SpecialType == SpecialType.System_Double)
                     {
                         canConvert = argumentType.SpecialType == SpecialType.System_Int32;
                     }
-                    else if(targetType.SpecialType == SpecialType.System_Decimal)
+                    else if (targetType.SpecialType == SpecialType.System_Decimal)
                     {
                         canConvert = argumentType.SpecialType == SpecialType.System_Double ||
                             argumentType.SpecialType == SpecialType.System_String ||
                             argumentType.SpecialType == SpecialType.System_Int32;
                     }
-                    else if(targetType.SpecialType == SpecialType.System_DateTime)
+                    else if (targetType.SpecialType == SpecialType.System_DateTime)
                     {
                         canConvert = argumentType.SpecialType == SpecialType.System_String;
                     }
 
-                    if(canConvert)
+                    if (canConvert)
                     {
                         return AttributeArgumentSyntaxExtensions.TryChangeType(targetType, argumentValue);
                     }
-                    else if(argumentType.SpecialType == SpecialType.System_String &&
+                    else if (argumentType.SpecialType == SpecialType.System_String &&
                         model.Compilation.GetTypeByMetadataName(typeof(TimeSpan).FullName).IsAssignableFrom(targetType))
                     {
                         var outValue = default(TimeSpan);
@@ -69,61 +69,61 @@ namespace NUnit.Analyzers.Extensions
                 }
             }
         }
-        
+
         private static ITypeSymbol GetTargetType(ITypeSymbol target)
-		{
-			if(target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
-				return (target as INamedTypeSymbol).TypeArguments.ToArray()[0];
+        {
+            if (target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+                return (target as INamedTypeSymbol).TypeArguments.ToArray()[0];
 
             return target;
-		}
+        }
 
         private static bool TryChangeType(ITypeSymbol targetType, object argumentValue)
-		{
-			var targetReflectionType = Type.GetType(
-				AttributeArgumentSyntaxExtensions.GetFullName(targetType), false);
+        {
+            var targetReflectionType = Type.GetType(
+              AttributeArgumentSyntaxExtensions.GetFullName(targetType), false);
 
-			if(targetReflectionType != null)
-			{
-				try
-				{
-					Convert.ChangeType(argumentValue, targetReflectionType, CultureInfo.InvariantCulture);
-					return true;
-				}
-				catch (InvalidCastException)
-				{
-					return false;
-				}
-				catch (FormatException)
-				{
-					return false;
-				}
-				catch (OverflowException)
-				{
-					return false;
-				}
-			}
-			else
-			{
-				return false;
-			}
-		}
+            if (targetReflectionType != null)
+            {
+                try
+                {
+                    Convert.ChangeType(argumentValue, targetReflectionType, CultureInfo.InvariantCulture);
+                    return true;
+                }
+                catch (InvalidCastException)
+                {
+                    return false;
+                }
+                catch (FormatException)
+                {
+                    return false;
+                }
+                catch (OverflowException)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
 
-		private static string GetFullName(ITypeSymbol targetType)
-		{
-			// Note that this does not take into account generics,
-			// so if that's ever added to attributes this will have to change.
-			var namespaces = new List<string>();
+        private static string GetFullName(ITypeSymbol targetType)
+        {
+            // Note that this does not take into account generics,
+            // so if that's ever added to attributes this will have to change.
+            var namespaces = new List<string>();
 
-			var @namespace = targetType.ContainingNamespace;
+            var @namespace = targetType.ContainingNamespace;
 
-			while(!@namespace.IsGlobalNamespace)
-			{
-				namespaces.Add(@namespace.Name);
-				@namespace = @namespace.ContainingNamespace;
-			}
+            while (!@namespace.IsGlobalNamespace)
+            {
+                namespaces.Add(@namespace.Name);
+                @namespace = @namespace.ContainingNamespace;
+            }
 
-			return $"{string.Join(".", namespaces)}.{targetType.Name}, {targetType.ContainingAssembly.Identity.ToString()}";
-		}
-	}
+            return $"{string.Join(".", namespaces)}.{targetType.Name}, {targetType.ContainingAssembly.Identity.ToString()}";
+        }
+    }
 }
