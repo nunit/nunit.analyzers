@@ -2,11 +2,11 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Targets.ClassicModelAssertUsage
 {
-  public sealed class ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreNotEqualIsUsed
-  {
-    public void Test()
+    public sealed class ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreNotEqualIsUsed
     {
-      Assert.AreNotEqual(2, 3);
+        public void Test()
+        {
+            Assert.AreNotEqual(2, 3);
+        }
     }
-  }
 }

@@ -3,11 +3,11 @@ using System;
 
 namespace NUnit.Analyzers.Tests.Targets.ClassicModelAssertUsage
 {
-  public sealed class AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExistsWithMessageAndParams
-  {
-    public void Test()
+    public sealed class AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExistsWithMessageAndParams
     {
-      Assert.AreEqual(2d, 2d, 0.0000001d, "message", Guid.NewGuid());
+        public void Test()
+        {
+            Assert.AreEqual(2d, 2d, 0.0000001d, "message", Guid.NewGuid());
+        }
     }
-  }
 }

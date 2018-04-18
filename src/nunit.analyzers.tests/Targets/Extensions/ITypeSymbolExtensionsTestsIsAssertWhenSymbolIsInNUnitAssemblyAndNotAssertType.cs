@@ -2,8 +2,8 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Targets.Extensions
 {
-  public sealed class ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsInNUnitAssemblyAndNotAssertType
-  {
-    public Is x;
-  }
+    public sealed class ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsInNUnitAssemblyAndNotAssertType
+    {
+        public Is x;
+    }
 }

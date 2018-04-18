@@ -3,12 +3,12 @@ using System;
 
 namespace NUnit.Analyzers.Tests.Targets.ClassicModelAssertUsage
 {
-  public sealed class IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams
-  {
-    public void Test()
+    public sealed class IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams
     {
-      Assert.IsFalse(false, "message", Guid.NewGuid());
-      Assert.False(false, "message", Guid.NewGuid());
+        public void Test()
+        {
+            Assert.IsFalse(false, "message", Guid.NewGuid());
+            Assert.False(false, "message", Guid.NewGuid());
+        }
     }
-  }
 }

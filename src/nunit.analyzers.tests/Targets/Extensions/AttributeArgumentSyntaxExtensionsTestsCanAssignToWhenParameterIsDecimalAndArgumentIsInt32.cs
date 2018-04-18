@@ -3,16 +3,16 @@ using System;
 
 namespace NUnit.Analyzers.Tests.Targets.Extensions
 {
-  public sealed class AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsInt32
-  {
-    [Arguments(3)]
-    public void Foo(decimal a) { }
-
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public sealed class ArgumentsAttribute
-      : Attribute
+    public sealed class AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsInt32
     {
-      public ArgumentsAttribute(int a) { }
+        [Arguments(3)]
+        public void Foo(decimal a) { }
+
+        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+        public sealed class ArgumentsAttribute
+          : Attribute
+        {
+            public ArgumentsAttribute(int a) { }
+        }
     }
-  }
 }

@@ -1,4 +1,4 @@
 namespace NUnit.Analyzers.Tests.Targets.Extensions
 {
-  public sealed class ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNull { }
+    public sealed class ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNull { }
 }

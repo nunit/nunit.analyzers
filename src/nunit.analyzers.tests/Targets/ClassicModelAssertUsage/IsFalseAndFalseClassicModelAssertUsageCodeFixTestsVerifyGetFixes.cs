@@ -2,12 +2,12 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Targets.ClassicModelAssertUsage
 {
-  public sealed class IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixes
-  {
-    public void Test()
+    public sealed class IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixes
     {
-      Assert.IsFalse(false);
-      Assert.False(false);
+        public void Test()
+        {
+            Assert.IsFalse(false);
+            Assert.False(false);
+        }
     }
-  }
 }

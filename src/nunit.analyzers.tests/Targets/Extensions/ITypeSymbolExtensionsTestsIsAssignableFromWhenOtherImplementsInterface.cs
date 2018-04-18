@@ -1,8 +1,8 @@
 namespace NUnit.Analyzers.Tests.Targets.Extensions
 {
-  public interface ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherImplementsInterface { }
+    public interface ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherImplementsInterface { }
 
-  public class ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherImplementsInterfaceType
-    : ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherImplementsInterface
-  { }
+    public class ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherImplementsInterfaceType
+      : ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherImplementsInterface
+    { }
 }

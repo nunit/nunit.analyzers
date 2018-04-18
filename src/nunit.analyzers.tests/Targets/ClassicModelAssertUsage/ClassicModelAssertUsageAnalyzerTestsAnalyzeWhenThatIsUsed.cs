@@ -2,11 +2,11 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Targets.ClassicModelAssertUsage
 {
-  public sealed class ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenThatIsUsed
-  {
-    public void Test()
+    public sealed class ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenThatIsUsed
     {
-      Assert.That(true, Is.True);
+        public void Test()
+        {
+            Assert.That(true, Is.True);
+        }
     }
-  }
 }

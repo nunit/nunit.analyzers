@@ -2,11 +2,11 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Targets.ClassicModelAssertUsage
 {
-  public sealed class AreNotEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceDoesNotExist
-  {
-    public void Test()
+    public sealed class AreNotEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceDoesNotExist
     {
-      Assert.AreNotEqual(2d, 2d, "message");
+        public void Test()
+        {
+            Assert.AreNotEqual(2d, 2d, "message");
+        }
     }
-  }
 }
