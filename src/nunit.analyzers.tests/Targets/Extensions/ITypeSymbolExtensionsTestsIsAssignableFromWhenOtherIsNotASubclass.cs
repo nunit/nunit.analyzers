@@ -1,6 +1,6 @@
-﻿namespace NUnit.Analyzers.Tests.Targets.Extensions
+namespace NUnit.Analyzers.Tests.Targets.Extensions
 {
-	public class ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNotASubclassA { }
+    public class ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNotASubclassA { }
 
-	public class ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNotASubclassB { }
+    public class ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNotASubclassB { }
 }

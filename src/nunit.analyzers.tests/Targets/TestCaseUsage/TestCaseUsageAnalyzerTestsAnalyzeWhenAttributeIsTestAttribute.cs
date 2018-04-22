@@ -1,10 +1,10 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
 {
-	public sealed class TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsTestAttribute
-	{
-		[Test]
-		public void ATest() { }
-	}
+    public sealed class TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsTestAttribute
+    {
+        [Test]
+        public void ATest() { }
+    }
 }
