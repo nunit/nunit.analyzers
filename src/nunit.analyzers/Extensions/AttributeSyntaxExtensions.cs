@@ -16,7 +16,7 @@ namespace NUnit.Analyzers.Extensions
         /// The first array are the positional arguments, and the second contains the named parameters.
         /// </returns>
         internal static Tuple<ImmutableArray<AttributeArgumentSyntax>, ImmutableArray<AttributeArgumentSyntax>> GetArguments(
-          this AttributeSyntax @this)
+            this AttributeSyntax @this)
         {
             var positionalArguments = new List<AttributeArgumentSyntax>();
             var namedArguments = new List<AttributeArgumentSyntax>();
@@ -39,7 +39,7 @@ namespace NUnit.Analyzers.Extensions
             }
 
             return new Tuple<ImmutableArray<AttributeArgumentSyntax>, ImmutableArray<AttributeArgumentSyntax>>(
-              positionalArguments.ToImmutableArray(), namedArguments.ToImmutableArray());
+                positionalArguments.ToImmutableArray(), namedArguments.ToImmutableArray());
         }
     }
 }

@@ -8,7 +8,7 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
         public void ATest() { }
 
         private sealed class TestCaseAttribute
-          : Attribute
+            : Attribute
         { }
     }
 }

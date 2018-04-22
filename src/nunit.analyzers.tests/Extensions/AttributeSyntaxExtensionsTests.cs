@@ -10,14 +10,14 @@ namespace NUnit.Analyzers.Tests.Extensions
     public sealed class AttributeSyntaxExtensionsTests
     {
         private static readonly string BasePath =
-          $@"{TestContext.CurrentContext.TestDirectory}\Targets\Extensions\{nameof(AttributeSyntaxExtensionsTests)}";
+            $@"{TestContext.CurrentContext.TestDirectory}\Targets\Extensions\{nameof(AttributeSyntaxExtensionsTests)}";
 
         [Test]
         public async Task GetArguments()
         {
             var attribute = await AttributeSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-              $"{AttributeSyntaxExtensionsTests.BasePath}{(nameof(this.GetArguments))}.cs",
-              $"{nameof(AttributeSyntaxExtensionsTests)}{nameof(this.GetArguments)}");
+                $"{AttributeSyntaxExtensionsTests.BasePath}{(nameof(this.GetArguments))}.cs",
+                $"{nameof(AttributeSyntaxExtensionsTests)}{nameof(this.GetArguments)}");
             var arguments = attribute.GetArguments();
 
             Assert.That(arguments.Item1.Length, Is.EqualTo(1), nameof(arguments.Item1));
@@ -28,8 +28,8 @@ namespace NUnit.Analyzers.Tests.Extensions
         public async Task GetArgumentsWhenNoneExist()
         {
             var attribute = await AttributeSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-              $"{AttributeSyntaxExtensionsTests.BasePath}{(nameof(this.GetArgumentsWhenNoneExist))}.cs",
-              $"{nameof(AttributeSyntaxExtensionsTests)}{nameof(this.GetArgumentsWhenNoneExist)}");
+                $"{AttributeSyntaxExtensionsTests.BasePath}{(nameof(this.GetArgumentsWhenNoneExist))}.cs",
+                $"{nameof(AttributeSyntaxExtensionsTests)}{nameof(this.GetArgumentsWhenNoneExist)}");
             var arguments = attribute.GetArguments();
 
             Assert.That(arguments.Item1.Length, Is.EqualTo(0), nameof(arguments.Item1));
@@ -41,9 +41,9 @@ namespace NUnit.Analyzers.Tests.Extensions
             var rootAndModel = await TestHelpers.GetRootAndModel(file);
 
             return rootAndModel.Item1
-              .DescendantNodes().OfType<TypeDeclarationSyntax>()
-              .Where(_ => _.Identifier.ValueText == typeName).Single()
-              .DescendantNodes().OfType<AttributeSyntax>().Single();
+                .DescendantNodes().OfType<TypeDeclarationSyntax>()
+                .Where(_ => _.Identifier.ValueText == typeName).Single()
+                .DescendantNodes().OfType<AttributeSyntax>().Single();
         }
     }
 }

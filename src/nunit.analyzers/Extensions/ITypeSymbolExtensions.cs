@@ -18,8 +18,8 @@ namespace NUnit.Analyzers.Extensions
         internal static bool IsAssert(this ITypeSymbol @this)
         {
             return @this != null &&
-              NunitFrameworkConstants.AssemblyQualifiedNameOfTypeAssert.Contains(@this.ContainingAssembly.Name) &&
-              @this.Name == NunitFrameworkConstants.NameOfAssert;
+                NunitFrameworkConstants.AssemblyQualifiedNameOfTypeAssert.Contains(@this.ContainingAssembly.Name) &&
+                @this.Name == NunitFrameworkConstants.NameOfAssert;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
     [ExportCodeFixProvider(LanguageNames.CSharp)]
     [Shared]
     public sealed class AreEqualClassicModelAssertUsageCodeFix
-      : ClassicModelAssertUsageCodeFix
+        : ClassicModelAssertUsageCodeFix
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(AnalyzerIdentifiers.AreEqualUsage);
 
@@ -21,24 +21,24 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             // Note that if there's a 3rd argument and it's a double,
             // it has to be added to the "Is.EqualTo(1st argument)" with ".Within(3rd argument)"
             var equalToInvocationNode = SyntaxFactory.InvocationExpression(
-              SyntaxFactory.MemberAccessExpression(
-                SyntaxKind.SimpleMemberAccessExpression,
-                SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIs),
-                SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsEqualTo)))
-              .WithArgumentList(SyntaxFactory.ArgumentList(
-                SyntaxFactory.SingletonSeparatedList(arguments[0])));
+                SyntaxFactory.MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIs),
+                    SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsEqualTo)))
+                .WithArgumentList(SyntaxFactory.ArgumentList(
+                    SyntaxFactory.SingletonSeparatedList(arguments[0])));
 
             var hasToleranceValue = diagnostic.Properties[AnalyzerPropertyKeys.HasToleranceValue] == true.ToString();
 
             if (hasToleranceValue)
             {
                 equalToInvocationNode = SyntaxFactory.InvocationExpression(
-                  SyntaxFactory.MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    equalToInvocationNode,
-                    SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfEqualConstraintWithin)))
-                  .WithArgumentList(SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SingletonSeparatedList(arguments[2])));
+                    SyntaxFactory.MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        equalToInvocationNode,
+                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfEqualConstraintWithin)))
+                    .WithArgumentList(SyntaxFactory.ArgumentList(
+                        SyntaxFactory.SingletonSeparatedList(arguments[2])));
             }
 
             arguments.Insert(2, SyntaxFactory.Argument(equalToInvocationNode));

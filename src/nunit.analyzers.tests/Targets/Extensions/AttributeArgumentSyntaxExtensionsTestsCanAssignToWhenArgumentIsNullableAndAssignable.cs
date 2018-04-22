@@ -10,7 +10,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
         [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
         public sealed class ArgumentsAttribute
-          : Attribute
+            : Attribute
         {
             public ArgumentsAttribute(int? x) { }
         }

@@ -12,14 +12,14 @@ namespace NUnit.Analyzers.Tests.Extensions
     public sealed class IMethodSymbolExtensionsTests
     {
         private static readonly string BasePath =
-          $@"{TestContext.CurrentContext.TestDirectory}\Targets\Extensions\{nameof(IMethodSymbolExtensionsTests)}";
+            $@"{TestContext.CurrentContext.TestDirectory}\Targets\Extensions\{nameof(IMethodSymbolExtensionsTests)}";
 
         [Test]
         public async Task GetParameterCounts()
         {
             var method = await this.GetMethodSymbolAsync(
-              $"{IMethodSymbolExtensionsTests.BasePath}{(nameof(this.GetParameterCounts))}.cs",
-              $"{nameof(IMethodSymbolExtensionsTests)}{nameof(GetParameterCounts)}");
+                $"{IMethodSymbolExtensionsTests.BasePath}{(nameof(this.GetParameterCounts))}.cs",
+                $"{nameof(IMethodSymbolExtensionsTests)}{nameof(GetParameterCounts)}");
             var counts = method.GetParameterCounts();
 
             Assert.That(counts.Item1, Is.EqualTo(3), nameof(counts.Item1));
@@ -32,9 +32,9 @@ namespace NUnit.Analyzers.Tests.Extensions
             var rootAndModel = await TestHelpers.GetRootAndModel(file);
 
             return rootAndModel.Item2.GetDeclaredSymbol(rootAndModel.Item1
-              .DescendantNodes().OfType<TypeDeclarationSyntax>()
-              .Where(_ => _.Identifier.ValueText == typeName).Single()
-              .DescendantNodes().OfType<MethodDeclarationSyntax>().Single()) as IMethodSymbol;
+                .DescendantNodes().OfType<TypeDeclarationSyntax>()
+                .Where(_ => _.Identifier.ValueText == typeName).Single()
+                .DescendantNodes().OfType<MethodDeclarationSyntax>().Single()) as IMethodSymbol;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace NUnit.Analyzers.Extensions
         /// and the last is the <code>params</code> count.
         /// </returns>
         internal static Tuple<uint, uint, uint> GetParameterCounts(
-          this IMethodSymbol @this)
+            this IMethodSymbol @this)
         {
             var parameters = @this.Parameters;
 

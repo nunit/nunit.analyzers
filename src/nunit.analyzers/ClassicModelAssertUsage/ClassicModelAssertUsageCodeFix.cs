@@ -11,7 +11,7 @@ using NUnit.Analyzers.Constants;
 namespace NUnit.Analyzers.ClassicModelAssertUsage
 {
     public abstract class ClassicModelAssertUsageCodeFix
-      : CodeFixProvider
+        : CodeFixProvider
     {
         public sealed override FixAllProvider GetFixAllProvider()
         {
@@ -32,10 +32,10 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
             // First, replace the original method invocation name to "That".
             var newInvocationNode = invocationNode.ReplaceNode(
-              invocationNode.DescendantNodes(_ => true).Where(_ =>
-                _.IsKind(SyntaxKind.IdentifierName) &&
-                (_ as IdentifierNameSyntax).Identifier.Text == invocationIdentifier).Single(),
-              SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfAssertThat));
+                invocationNode.DescendantNodes(_ => true).Where(_ =>
+                    _.IsKind(SyntaxKind.IdentifierName) &&
+                    (_ as IdentifierNameSyntax).Identifier.Text == invocationIdentifier).Single(),
+                SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfAssertThat));
 
             // Now, replace the arguments.
             var arguments = invocationNode.ArgumentList.Arguments.ToList();
@@ -59,18 +59,18 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             }
 
             newInvocationNode = newInvocationNode.WithArgumentList(
-              SyntaxFactory.ArgumentList(
-                SyntaxFactory.SeparatedList<ArgumentSyntax>(newArgumentList)));
+                SyntaxFactory.ArgumentList(
+                    SyntaxFactory.SeparatedList<ArgumentSyntax>(newArgumentList)));
 
             context.CancellationToken.ThrowIfCancellationRequested();
 
             var newRoot = root.ReplaceNode(invocationNode, newInvocationNode);
 
             context.RegisterCodeFix(
-              CodeAction.Create(
-                CodeFixConstants.TransformToConstraintModelDescription,
-                _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
-                CodeFixConstants.TransformToConstraintModelDescription), diagnostic);
+                CodeAction.Create(
+                    CodeFixConstants.TransformToConstraintModelDescription,
+                    _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
+                    CodeFixConstants.TransformToConstraintModelDescription), diagnostic);
         }
     }
 }

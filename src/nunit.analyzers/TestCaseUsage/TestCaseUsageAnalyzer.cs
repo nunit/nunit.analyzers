@@ -12,29 +12,29 @@ namespace NUnit.Analyzers.TestCaseUsage
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TestCaseUsageAnalyzer
-      : DiagnosticAnalyzer
+        : DiagnosticAnalyzer
     {
         private static DiagnosticDescriptor CreateDescriptor(string message) =>
-          new DiagnosticDescriptor(AnalyzerIdentifiers.TestCaseUsage, TestCaseUsageAnalyzerConstants.Title,
-            message, Categories.Usage, DiagnosticSeverity.Error, true);
+            new DiagnosticDescriptor(AnalyzerIdentifiers.TestCaseUsage, TestCaseUsageAnalyzerConstants.Title,
+                message, Categories.Usage, DiagnosticSeverity.Error, true);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
         {
             get
             {
                 return ImmutableArray.Create(
-                  TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage),
-                  TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
-                  TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
-                  TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage),
-                  TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage));
+                    TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage),
+                    TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
+                    TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
+                    TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage),
+                    TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage));
             }
         }
 
         public override void Initialize(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(
-              TestCaseUsageAnalyzer.AnalyzeAttribute, SyntaxKind.Attribute);
+                TestCaseUsageAnalyzer.AnalyzeAttribute, SyntaxKind.Attribute);
         }
 
         private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context)
@@ -50,7 +50,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                     var testCaseType = context.SemanticModel.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
 
                     if (testCaseType.ContainingAssembly.Identity == attributeSymbol?.ContainingAssembly.Identity &&
-                      NunitFrameworkConstants.NameOfTestCaseAttribute == attributeSymbol?.ContainingType.Name)
+                        NunitFrameworkConstants.NameOfTestCaseAttribute == attributeSymbol?.ContainingType.Name)
                     {
                         context.CancellationToken.ThrowIfCancellationRequested();
 
@@ -67,26 +67,26 @@ namespace NUnit.Analyzers.TestCaseUsage
                         if (attributePositionalArguments.Length < methodRequiredParameters)
                         {
                             context.ReportDiagnostic(Diagnostic.Create(
-                              TestCaseUsageAnalyzer.CreateDescriptor(
-                                TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
-                              attributeNode.GetLocation()));
+                                TestCaseUsageAnalyzer.CreateDescriptor(
+                                    TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
+                                attributeNode.GetLocation()));
                         }
                         else if (methodParamsParameters == 0 &&
-                          attributePositionalArguments.Length > methodRequiredParameters + methodOptionalParameters)
+                            attributePositionalArguments.Length > methodRequiredParameters + methodOptionalParameters)
                         {
                             context.ReportDiagnostic(Diagnostic.Create(
-                              TestCaseUsageAnalyzer.CreateDescriptor(
-                                TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage),
-                              attributeNode.GetLocation()));
+                                TestCaseUsageAnalyzer.CreateDescriptor(
+                                    TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage),
+                                attributeNode.GetLocation()));
                         }
                         else
                         {
                             context.CancellationToken.ThrowIfCancellationRequested();
                             TestCaseUsageAnalyzer.AnalyzePositionalArgumentsAndParameters(context,
-                              attributePositionalArguments, methodSymbol.Parameters);
+                                attributePositionalArguments, methodSymbol.Parameters);
                             context.CancellationToken.ThrowIfCancellationRequested();
                             TestCaseUsageAnalyzer.AnalyzeNamedArguments(context,
-                              attributeNamedArguments, methodSymbol);
+                                attributeNamedArguments, methodSymbol);
                         }
                     }
                 }
@@ -94,12 +94,12 @@ namespace NUnit.Analyzers.TestCaseUsage
         }
 
         private static void AnalyzeNamedArguments(SyntaxNodeAnalysisContext context,
-          ImmutableArray<AttributeArgumentSyntax> attributeNamedArguments, IMethodSymbol methodSymbol)
+            ImmutableArray<AttributeArgumentSyntax> attributeNamedArguments, IMethodSymbol methodSymbol)
         {
             var model = context.SemanticModel;
 
             var expectedResultNamedArgument = attributeNamedArguments.SingleOrDefault(
-              _ => _.DescendantTokens().Any(__ => __.Text == NunitFrameworkConstants.NameOfTestCaseAttributeExpectedResult));
+                _ => _.DescendantTokens().Any(__ => __.Text == NunitFrameworkConstants.NameOfTestCaseAttributeExpectedResult));
 
             if (expectedResultNamedArgument != null)
             {
@@ -108,29 +108,29 @@ namespace NUnit.Analyzers.TestCaseUsage
                 if (methodReturnValueType.SpecialType == SpecialType.System_Void)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
-                      TestCaseUsageAnalyzer.CreateDescriptor(
-                        TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
-                      expectedResultNamedArgument.GetLocation()));
+                        TestCaseUsageAnalyzer.CreateDescriptor(
+                            TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
+                        expectedResultNamedArgument.GetLocation()));
                 }
                 else
                 {
                     if (!expectedResultNamedArgument.CanAssignTo(methodReturnValueType, context.SemanticModel))
                     {
                         context.ReportDiagnostic(Diagnostic.Create(
-                          TestCaseUsageAnalyzer.CreateDescriptor(
-                            string.Format(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage,
-                              methodReturnValueType.MetadataName)),
-                          expectedResultNamedArgument.GetLocation()));
+                            TestCaseUsageAnalyzer.CreateDescriptor(
+                                string.Format(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage,
+                                    methodReturnValueType.MetadataName)),
+                            expectedResultNamedArgument.GetLocation()));
                     }
                 }
             }
         }
 
         private static Tuple<ITypeSymbol, string> GetParameterType(ImmutableArray<IParameterSymbol> methodParameter,
-          int position)
+            int position)
         {
             var symbol = position >= methodParameter.Length ?
-              methodParameter[methodParameter.Length - 1] : methodParameter[position];
+                methodParameter[methodParameter.Length - 1] : methodParameter[position];
 
             ITypeSymbol type = null;
 
@@ -147,8 +147,8 @@ namespace NUnit.Analyzers.TestCaseUsage
         }
 
         private static void AnalyzePositionalArgumentsAndParameters(SyntaxNodeAnalysisContext context,
-          ImmutableArray<AttributeArgumentSyntax> attributePositionalArguments,
-          ImmutableArray<IParameterSymbol> methodParameters)
+            ImmutableArray<AttributeArgumentSyntax> attributePositionalArguments,
+            ImmutableArray<IParameterSymbol> methodParameters)
         {
             var model = context.SemanticModel;
 
@@ -164,8 +164,8 @@ namespace NUnit.Analyzers.TestCaseUsage
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                       TestCaseUsageAnalyzer.CreateDescriptor(
-                        string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage,
-                          i, methodParameterName)),
+                          string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage,
+                              i, methodParameterName)),
                       attributeArgument.GetLocation()));
                 }
 

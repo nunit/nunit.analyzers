@@ -15,9 +15,9 @@ namespace NUnit.Analyzers.Tests
     public abstract class CodeFixTests
     {
         protected async Task VerifyGetFixes<TAnalyzer, TFix>(string codeFile, int expectedActionCount,
-          string expectedTitle, ImmutableArray<string> expectedNewTexts)
-          where TAnalyzer : DiagnosticAnalyzer, new()
-          where TFix : CodeFixProvider, new()
+            string expectedTitle, ImmutableArray<string> expectedNewTexts)
+            where TAnalyzer : DiagnosticAnalyzer, new()
+            where TFix : CodeFixProvider, new()
         {
             var code = File.ReadAllText(codeFile);
             var document = TestHelpers.Create(code);
@@ -27,17 +27,16 @@ namespace NUnit.Analyzers.Tests
 
             var actions = new List<CodeAction>();
             var codeActionRegistration = new Action<CodeAction, ImmutableArray<Diagnostic>>(
-              (a, _) => { actions.Add(a); });
+                (a, _) => { actions.Add(a); });
 
             var fix = new TFix();
             var codeFixContext = new CodeFixContext(document, diagnostics[0],
-              codeActionRegistration, new CancellationToken(false));
+                codeActionRegistration, new CancellationToken(false));
             await fix.RegisterCodeFixesAsync(codeFixContext);
 
             Assert.That(actions.Count, Is.EqualTo(expectedActionCount), nameof(actions.Count));
 
-            await TestHelpers.VerifyActionAsync(actions,
-              expectedTitle, document, tree, expectedNewTexts);
+            await TestHelpers.VerifyActionAsync(actions, expectedTitle, document, tree, expectedNewTexts);
         }
     }
 }

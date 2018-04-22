@@ -11,6 +11,6 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     public sealed class NoArgumentsAttribute
-      : Attribute
+        : Attribute
     { }
 }
