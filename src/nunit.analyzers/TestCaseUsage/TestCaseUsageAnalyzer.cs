@@ -45,12 +45,12 @@ namespace NUnit.Analyzers.TestCaseUsage
             {
                 if (!methodNode.ContainsDiagnostics)
                 {
-                    var attributeNode = (AttributeSyntax)context.Node;
-                    var attributeSymbol = context.SemanticModel.GetSymbolInfo(attributeNode).Symbol;
                     var testCaseType = context.SemanticModel.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
-
                     if (testCaseType == null)
                         return;
+
+                    var attributeNode = (AttributeSyntax)context.Node;
+                    var attributeSymbol = context.SemanticModel.GetSymbolInfo(attributeNode).Symbol;
 
                     if (testCaseType.ContainingAssembly.Identity == attributeSymbol?.ContainingAssembly.Identity &&
                         NunitFrameworkConstants.NameOfTestCaseAttribute == attributeSymbol?.ContainingType.Name)
