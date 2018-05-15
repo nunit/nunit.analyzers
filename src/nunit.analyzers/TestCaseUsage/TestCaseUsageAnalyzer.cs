@@ -49,6 +49,9 @@ namespace NUnit.Analyzers.TestCaseUsage
                     var attributeSymbol = context.SemanticModel.GetSymbolInfo(attributeNode).Symbol;
                     var testCaseType = context.SemanticModel.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
 
+                    if (testCaseType == null)
+                        return;
+
                     if (testCaseType.ContainingAssembly.Identity == attributeSymbol?.ContainingAssembly.Identity &&
                         NunitFrameworkConstants.NameOfTestCaseAttribute == attributeSymbol?.ContainingType.Name)
                     {
