@@ -1,26 +1,25 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
-    <id>nunit.analyzers</id>
-    <version>1.0.0.0</version>
-    <title>nunit.analyzers</title>
-    <authors>JasonB</authors>
-    <owners>JasonB</owners>
-    <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
-    <projectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</projectUrl>
-    <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>
+    <id>NUnit.Analyzers</id>
+    <version>0.1.0.0</version>
+    <title>NUnit Analyzers</title>
+    <authors>NUnit</authors>
+    <licenseUrl>https://raw.githubusercontent.com/nunit/nunit.analyzers/master/license.txt</licenseUrl>
+    <iconUrl>https://raw.githubusercontent.com/nunit/resources/master/images/icon/nunit_256.png</iconUrl>
+    <projectUrl>https://github.com/nunit/nunit.analyzers</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>nunit.analyzers</description>
-    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
-    <copyright>Copyright</copyright>
-    <tags>nunit, analyzers</tags>
+    <description>NUnit Framework analyzers</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright NUnit</copyright>
+    <tags>nunit, analyzers, rosyln-analyzers</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework="" />
     </frameworkAssemblies>
   </metadata>
   <!-- The convention for analyzers is to put language agnostic dlls in analyzers\portable50 and language specific analyzers in either analyzers\portable50\cs or analyzers\portable50\vb -->
   <files>
-    <file src="*.dll" target="analyzers\dotnet\cs" exclude="**\Microsoft.CodeAnalysis.*;**\System.Collections.Immutable.*;**\System.Reflection.Metadata.*;**\System.Composition.*" />
+    <file src="bin\release\netstandard1.6\nunit.analyzers.dll" target="analyzers\dotnet\cs\" />
     <file src="tools\*.ps1" target="tools\" />
   </files>
 </package>
