@@ -12,7 +12,7 @@
     <description>NUnit Framework analyzers</description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright NUnit</copyright>
-    <tags>nunit, analyzers, rosyln-analyzers</tags>
+    <tags>nunit, analyzers, roslyn-analyzers</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework="" />
     </frameworkAssemblies>
