@@ -1,7 +1,10 @@
 image: Visual Studio 2017
 
 build_script:
-  - ps: .\build.ps1 -Target "Default" -Configuration "Release"
+  - ps: .\build.ps1 -Target "Pack" -Configuration "Release"
 
 # disable built-in tests.
 test: off
+
+artifacts:
+  - path: 'package\Release\NUnit.Analyzers*.nupkg'

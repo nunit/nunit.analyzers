@@ -14,6 +14,7 @@ var configuration = Argument("configuration", "Debug");
 // Directories
 var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath + "/";
 var SRC_DIR = PROJECT_DIR + "src/";
+var PACKAGE_DIR = PROJECT_DIR + "package/" + configuration;
 
 var PLAYGROUND_OUTPUT_DIR = SRC_DIR + "nunit.analyzers.playground/bin/";
 var ANALYZERS_TESTS_OUTPUT_DIR = SRC_DIR + "nunit.analyzers.tests/bin/";
@@ -83,6 +84,25 @@ Task("Test")
     .Does(() =>
     {
         NUnit3(TEST_FILE);
+    });
+
+
+//////////////////////////////////////////////////////////////////////
+// Pack
+//////////////////////////////////////////////////////////////////////
+
+Task("Pack")
+    .IsDependentOn("Build")
+    .Does(() =>
+    {
+        NuGetPack("./src/nunit.analyzers/nunit.analyzers.nuspec", new NuGetPackSettings()
+        {
+            OutputDirectory = PACKAGE_DIR,
+            Properties = new Dictionary<string, string>()
+            {
+                {"Configuration", configuration}
+            }
+        });
     });
 
 //////////////////////////////////////////////////////////////////////
