@@ -7,4 +7,4 @@ build_script:
 test: off
 
 artifacts:
-  - path: 'package/$(configuration)/nunit.analyzers*.nupkg'
+  - path: 'package\Release\NUnit.Analyzers*.nupkg'
