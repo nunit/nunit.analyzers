@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>NUnit.Analyzers</id>
-    <version>0.1.0.0</version>
+    <version>0.1.0</version>
     <title>NUnit Analyzers</title>
     <authors>NUnit</authors>
     <licenseUrl>https://raw.githubusercontent.com/nunit/nunit.analyzers/master/license.txt</licenseUrl>
