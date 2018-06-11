@@ -8,3 +8,12 @@ test: off
 
 artifacts:
   - path: 'package\Release\NUnit.Analyzers*.nupkg'
+
+deploy:
+  - provider: NuGet
+    server: https://www.myget.org/F/nunit-analyzers/api/v2/package
+    api_key:
+      secure: qXsslQqMhHj/tJrUnSJWFBn5OZCmF/Qf+esLbkuzlAvTFWkY9yae5uO80YiJirLA
+    skip_symbols: true
+    on:
+      branch: master
