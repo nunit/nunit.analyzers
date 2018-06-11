@@ -8,6 +8,17 @@ var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Debug");
 
 //////////////////////////////////////////////////////////////////////
+// SET PACKAGE VERSION
+//////////////////////////////////////////////////////////////////////
+
+var version = "0.1.0";
+var modifier = "";
+
+var isAppveyor = BuildSystem.IsRunningOnAppVeyor;
+var dbgSuffix = configuration == "Debug" ? "-dbg" : "";
+var packageVersion = version + modifier + dbgSuffix;
+
+//////////////////////////////////////////////////////////////////////
 // DEFINE RUN CONSTANTS
 //////////////////////////////////////////////////////////////////////
 
@@ -31,6 +42,46 @@ var PACKAGE_SOURCE = new string[]
 {
     "https://www.nuget.org/api/v2",
 };
+
+//////////////////////////////////////////////////////////////////////
+// SETUP AND TEARDOWN TASKS
+//////////////////////////////////////////////////////////////////////
+Setup(context =>
+{
+    if (BuildSystem.IsRunningOnAppVeyor)
+    {
+        var buildNumber = AppVeyor.Environment.Build.Number.ToString("00000");
+        var branch = AppVeyor.Environment.Repository.Branch;
+        var isPullRequest = AppVeyor.Environment.PullRequest.IsPullRequest;
+
+        if (branch == "master" && !isPullRequest)
+        {
+            packageVersion = version + "-dev-" + buildNumber + dbgSuffix;
+        }
+        else
+        {
+            var suffix = "-ci-" + buildNumber + dbgSuffix;
+
+            if (isPullRequest)
+                suffix += "-pr-" + AppVeyor.Environment.PullRequest.Number;
+            else if (AppVeyor.Environment.Repository.Branch.StartsWith("release", StringComparison.OrdinalIgnoreCase))
+                suffix += "-pre-" + buildNumber;
+            else
+                suffix += "-" + branch;
+
+            // Nuget limits "special version part" to 20 chars. Add one for the hyphen.
+            if (suffix.Length > 21)
+                suffix = suffix.Substring(0, 21);
+
+            packageVersion = version + suffix;
+        }
+
+        AppVeyor.UpdateBuildVersion(packageVersion);
+    }
+
+    // Executed BEFORE the first task.
+    Information("Building {0} version {1} of NUnit.Analyzers", configuration, packageVersion);
+});
 
 //////////////////////////////////////////////////////////////////////
 // CLEAN
@@ -97,6 +148,7 @@ Task("Pack")
     {
         NuGetPack("./src/nunit.analyzers/nunit.analyzers.nuspec", new NuGetPackSettings()
         {
+            Version = packageVersion,
             OutputDirectory = PACKAGE_DIR,
             Properties = new Dictionary<string, string>()
             {
