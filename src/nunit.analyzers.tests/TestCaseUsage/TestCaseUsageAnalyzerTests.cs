@@ -83,6 +83,30 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public async Task AnalyzeWhenArgumentIsACast()
+        {
+            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
+                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenArgumentIsACast))}.cs",
+                Array.Empty<string>());
+        }
+
+        [Test]
+        public async Task AnalyzeWhenArgumentIsAPrefixedValue()
+        {
+            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
+                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenArgumentIsAPrefixedValue))}.cs",
+                Array.Empty<string>());
+        }
+
+        [Test]
+        public async Task AnalyzeWhenArgumentIsAReferenceToConstant()
+        {
+            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
+                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenArgumentIsAReferenceToConstant))}.cs",
+                Array.Empty<string>());
+        }
+
+        [Test]
         public async Task AnalyzeWhenArgumentTypeIsIncorrect()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(

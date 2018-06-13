@@ -66,6 +66,9 @@
     <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNull.cs" />
     <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsSameTypeAsThis.cs" />
     <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenThisIsNull.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsACast.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsAPrefixedValue.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsAReferenceToConstant.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsCorrect.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesNullToNullableType.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesNullToValueType.cs" />
@@ -262,6 +265,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenThisIsNull.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsACast.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsAPrefixedValue.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsAReferenceToConstant.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsCorrect.cs">
