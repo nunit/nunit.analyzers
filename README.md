@@ -17,7 +17,7 @@ Right now there are two analyzers in the code base. One will look for classic mo
 
 ## Download ##
 
-Prelease nuget builds will soon appear.
+Prerelease nuget packages can be found on [MyGet](https://www.myget.org/feed/nunit-analyzers/package/nuget/NUnit.Analyzers). Please try out the package and report bugs and feature requests.
 
 ## License ##
 
