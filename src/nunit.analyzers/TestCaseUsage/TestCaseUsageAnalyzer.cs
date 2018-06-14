@@ -158,12 +158,11 @@ namespace NUnit.Analyzers.TestCaseUsage
             for (var i = 0; i < attributePositionalArguments.Length; i++)
             {
                 var attributeArgument = attributePositionalArguments[i];
-                var attributeValue = (attributeArgument.Expression as LiteralExpressionSyntax).Token.Value;
                 var methodParametersSymbol = TestCaseUsageAnalyzer.GetParameterType(methodParameters, i);
                 var methodParameterType = methodParametersSymbol.Item1;
                 var methodParameterName = methodParametersSymbol.Item2;
 
-                if (!attributeArgument.CanAssignTo(methodParameterType, context.SemanticModel))
+                if (!attributeArgument.CanAssignTo(methodParameterType, model))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                       TestCaseUsageAnalyzer.CreateDescriptor(
