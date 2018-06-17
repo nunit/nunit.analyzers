@@ -187,5 +187,14 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                        AnalyzerPropertyKeys.HasToleranceValue);
                 });
         }
+
+        [Test]
+        public async Task AnalyzeWhenInvocationIsNotWithinAMethod()
+        {
+            await TestHelpers.RunAnalysisAsync<ClassicModelAssertUsageAnalyzer>(
+                $"{ClassicModelAssertUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenInvocationIsNotWithinAMethod))}.cs",
+                Array.Empty<string>());
+        }
+
     }
 }

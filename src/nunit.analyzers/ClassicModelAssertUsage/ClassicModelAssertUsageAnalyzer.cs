@@ -41,7 +41,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
         private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
         {
-            if (!context.Node.Ancestors().OfType<MethodDeclarationSyntax>().Single().ContainsDiagnostics)
+            var methodNode = context.Node.Ancestors().OfType<MethodDeclarationSyntax>().SingleOrDefault();
+            if (methodNode != null && !methodNode.ContainsDiagnostics)
             {
                 var invocationNode = (InvocationExpressionSyntax)context.Node;
                 var invocationSymbol = context.SemanticModel.GetSymbolInfo(
