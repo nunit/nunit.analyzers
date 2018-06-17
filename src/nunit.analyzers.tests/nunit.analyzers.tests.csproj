@@ -23,6 +23,7 @@
     <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenDiagnosticIssuesExist.cs" />
     <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenFalseIsUsed.cs" />
     <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenInvocationIsNotFromAssert.cs" />
+    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenInvocationIsNotWithinAMethod.cs" />
     <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenIsFalseIsUsed.cs" />
     <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenIsTrueIsUsed.cs" />
     <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenThatIsUsed.cs" />
@@ -91,6 +92,11 @@
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenNotEnoughRequiredArgumentsAreProvided.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredArgumentsAreProvided.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenInvocationIsNotWithinAMethod.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs">
