@@ -169,6 +169,11 @@ Task("Default")
     .IsDependentOn("Build")
     .IsDependentOn("Test");
 
+Task("Appveyor")
+    .IsDependentOn("Build")
+    .IsDependentOn("Test")
+    .IsDependentOn("Pack");
+
 //////////////////////////////////////////////////////////////////////
 // EXECUTION
 //////////////////////////////////////////////////////////////////////
