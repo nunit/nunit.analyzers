@@ -7,9 +7,15 @@ This is a suite of analyzers that target the NUnit testing framework. Right now,
 
 ## Building ##
 
-First, make sure you have the right tools and templates on your machine. You'll need VS 2015 and a couple of CompilerAPI-related project templates installed. If you open the Extensibility node when you create a new project in VS 2015, you'll see the "Install Visual Studio Extensibility Tools" node in the window. Install the tools, then do the same step of creating a new project, except this time run the "Download the .NET Compiler Platform SDK" node.
+First, make sure you have the right tools and templates on your machine. You'll need **Visual Studio 2017** and the **.NET Compiler Platform SDK**. The **.NET Compiler Platform SDK** can be installed via the **Visual Studio Installer**. Either 
+* check the **Visual Studio extension development** workload; open the **Visual Studio extension development** node in the summary tree to the right; and check the box for **.NET Compiler Platform SDK** (last under the optional components), or
+* select the **Individual components** tab and check the box for **.NET Compiler Platform SDK** (at the top under the Compilers, build tools, and runtimes section).
 
-Now you should be able to open the nunit.analyzers.sln file. When you build the nunit.analyzers project, the output folder should contains a .nupkg file, something like NUnit.Analyzers.1.0.0.0.nupkg. You can reference that NuGet package file in another project that uses the NUnit testing framework, or you can launch the VSIX project, which will install the analyzers into an experimental version of VS. The nunit.analyzers.integrationtests solution has some examples of NUnit-based code that should have analyzer issues.
+The code can now be compiled using the cake script using `.\build.ps1` or from within Visual Studio. From Visual Studio one can also debug the analyzer by setting **nunit.analyzers.vsix** project as StartUp project and press F5 (Start Debugging). This will compile the analyzer as an extension and start a new (experimental) instance of Visual Studio with the extension.
+
+One can also pack a NuGet package using the cake script via `.\build.ps1 -Target Pack`. This will create a NuGet package under `package\Debug\` (for a `Debug` build) and the file will be named `NUnit.Analyzers.***.nupkg` where `***` depends upon the build type (`Debug` vs. `Release`) and the version. The NuGet package can then be referenced from another project.
+
+See [NuGet package vs. extension](https://docs.microsoft.com/en-us/visualstudio/code-quality/roslyn-analyzers-overview#nuget-package-vs-extension) for more information about the difference between installing a Roslyn analyzer as a NuGet package or as a Visual Studio extension.
 
 ## Analyzers ##
 
