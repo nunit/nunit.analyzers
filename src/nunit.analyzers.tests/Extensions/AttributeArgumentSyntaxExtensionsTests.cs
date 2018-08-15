@@ -142,6 +142,15 @@ namespace NUnit.Analyzers.Tests.Extensions
         }
 
         [Test]
+        public async Task CanAssignToWhenParameterIsNullableInt64AndArgumentIsInt32()
+        {
+            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
+                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsNullableInt64AndArgumentIsInt32))}.cs");
+
+            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+        }
+
+        [Test]
         public async Task CanAssignToWhenParameterIsDateTimeAndArgumentIsValidString()
         {
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
