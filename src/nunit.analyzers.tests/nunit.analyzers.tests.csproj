@@ -51,6 +51,7 @@
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDecimalAndArgumentIsValidString.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsDoubleAndArgumentIsInt32.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsInt16AndArgumentIsInt32.cs" />
+    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsNullableInt64AndArgumentIsInt32.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsSByteAndArgumentIsInt32.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsInvalidString.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString.cs" />
@@ -223,6 +224,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsInt16AndArgumentIsInt32.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsNullableInt64AndArgumentIsInt32.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsSByteAndArgumentIsInt32.cs">

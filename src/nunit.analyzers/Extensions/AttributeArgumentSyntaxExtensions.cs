@@ -11,7 +11,7 @@ namespace NUnit.Analyzers.Extensions
     {
         internal static bool CanAssignTo(this AttributeArgumentSyntax @this, ITypeSymbol target, SemanticModel model)
         {
-            //See https://github.com/nunit/nunit/blob/master/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L363
+            //See https://github.com/nunit/nunit/blob/f16d12d6fa9e5c879601ad57b4b24ec805c66054/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L396
             //for the reasoning behind this implementation.
             object argumentValue = null;
             if (@this.Expression is LiteralExpressionSyntax)
@@ -39,6 +39,7 @@ namespace NUnit.Analyzers.Extensions
                     var canConvert = false;
 
                     if (targetType.SpecialType == SpecialType.System_Int16 || targetType.SpecialType == SpecialType.System_Byte ||
+                        targetType.SpecialType == SpecialType.System_Int64 ||
                         targetType.SpecialType == SpecialType.System_SByte || targetType.SpecialType == SpecialType.System_Double)
                     {
                         canConvert = argumentType.SpecialType == SpecialType.System_Int32;
@@ -80,8 +81,7 @@ namespace NUnit.Analyzers.Extensions
 
         private static bool TryChangeType(ITypeSymbol targetType, object argumentValue)
         {
-            var targetReflectionType = Type.GetType(
-              AttributeArgumentSyntaxExtensions.GetFullName(targetType), false);
+            var targetReflectionType = Type.GetType(AttributeArgumentSyntaxExtensions.GetFullName(targetType), false);
 
             if (targetReflectionType != null)
             {
