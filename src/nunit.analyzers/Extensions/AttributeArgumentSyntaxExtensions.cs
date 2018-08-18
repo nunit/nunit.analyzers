@@ -81,35 +81,50 @@ namespace NUnit.Analyzers.Extensions
 
         private static bool TryChangeType(ITypeSymbol targetType, object argumentValue)
         {
-            var targetReflectionType = Type.GetType(AttributeArgumentSyntaxExtensions.GetFullName(targetType), false);
-
-            if (targetReflectionType != null)
+            Type targetReflectionType = GetTargetReflectionType(targetType);
+            if (targetReflectionType == null)
             {
-                try
-                {
-                    Convert.ChangeType(argumentValue, targetReflectionType, CultureInfo.InvariantCulture);
-                    return true;
-                }
-                catch (InvalidCastException)
-                {
-                    return false;
-                }
-                catch (FormatException)
-                {
-                    return false;
-                }
-                catch (OverflowException)
-                {
-                    return false;
-                }
+                return false;
             }
-            else
+
+            try
+            {
+                Convert.ChangeType(argumentValue, targetReflectionType, CultureInfo.InvariantCulture);
+                return true;
+            }
+            catch (InvalidCastException)
+            {
+                return false;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+            catch (OverflowException)
             {
                 return false;
             }
         }
 
-        private static string GetFullName(ITypeSymbol targetType)
+        private static Type GetTargetReflectionType(ITypeSymbol targetType)
+        {
+            string assembly = ", " + targetType.ContainingAssembly.Identity.ToString();
+            string typeName = AttributeArgumentSyntaxExtensions.GetQualifiedTypeName(targetType);
+
+            // First try to get type using assembly-qualified name, and if that fails try to get type
+            // using only the type name qualified by its namespace.
+            // This is a hacky attempt to make it work for types that are forwarded in .NET Core, e.g.
+            // Double which exists in the System.Runtime assembly at design time and in
+            // System.Private.CorLib at runtime, so targetType.ContainingAssembly will denote the wrong
+            // assembly, System.Runtime. See e.g. the following comment
+            // https://github.com/dotnet/roslyn/issues/16211#issuecomment-373084209
+            var targetReflectionType = Type.GetType(typeName + assembly, false);
+            if (targetReflectionType == null)
+                targetReflectionType = Type.GetType(typeName, false);
+            return targetReflectionType;
+        }
+
+        private static string GetQualifiedTypeName(ITypeSymbol targetType)
         {
             // Note that this does not take into account generics,
             // so if that's ever added to attributes this will have to change.
@@ -123,7 +138,7 @@ namespace NUnit.Analyzers.Extensions
                 @namespace = @namespace.ContainingNamespace;
             }
 
-            return $"{string.Join(".", namespaces)}.{targetType.Name}, {targetType.ContainingAssembly.Identity.ToString()}";
+            return $"{string.Join(".", namespaces)}.{targetType.Name}";
         }
     }
 }
