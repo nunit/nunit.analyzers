@@ -91,6 +91,7 @@
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenNotEnoughRequiredArgumentsAreProvided.cs" />
+    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenReturnTypeIsAsyncVoid.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredArgumentsAreProvided.cs" />
   </ItemGroup>
@@ -275,6 +276,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenThisIsNull.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenReturnTypeIsAsyncVoid.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsACast.cs">

@@ -52,45 +52,53 @@ namespace NUnit.Analyzers.TestCaseUsage
                     var attributeNode = (AttributeSyntax)context.Node;
                     var attributeSymbol = context.SemanticModel.GetSymbolInfo(attributeNode).Symbol;
 
+                    var isTestCase = false;
                     if (testCaseType.ContainingAssembly.Identity == attributeSymbol?.ContainingAssembly.Identity &&
-                        NunitFrameworkConstants.NameOfTestCaseAttribute == attributeSymbol?.ContainingType.Name)
+                        (isTestCase = NunitFrameworkConstants.NameOfTestCaseAttribute == attributeSymbol?.ContainingType.Name)
+                        ||  NunitFrameworkConstants.NameOfTestAttribute == attributeSymbol?.ContainingType.Name)
                     {
                         context.CancellationToken.ThrowIfCancellationRequested();
 
                         var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodNode);
-                        var methodParameters = methodSymbol.GetParameterCounts();
-                        var methodRequiredParameters = methodParameters.Item1;
-                        var methodOptionalParameters = methodParameters.Item2;
-                        var methodParamsParameters = methodParameters.Item3;
 
-                        var attributePositionalAndNamedArguments = attributeNode.GetArguments();
-                        var attributePositionalArguments = attributePositionalAndNamedArguments.Item1;
-                        var attributeNamedArguments = attributePositionalAndNamedArguments.Item2;
-
-                        if (attributePositionalArguments.Length < methodRequiredParameters)
+                        if (isTestCase)
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(
-                                TestCaseUsageAnalyzer.CreateDescriptor(
-                                    TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
-                                attributeNode.GetLocation()));
-                        }
-                        else if (methodParamsParameters == 0 &&
+                            var methodParameters = methodSymbol.GetParameterCounts();
+                            var methodRequiredParameters = methodParameters.Item1;
+                            var methodOptionalParameters = methodParameters.Item2;
+                            var methodParamsParameters = methodParameters.Item3;
+
+                            var attributePositionalAndNamedArguments = attributeNode.GetArguments();
+                            var attributePositionalArguments = attributePositionalAndNamedArguments.Item1;
+                            var attributeNamedArguments = attributePositionalAndNamedArguments.Item2;
+
+                            if (attributePositionalArguments.Length < methodRequiredParameters)
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(
+                                    TestCaseUsageAnalyzer.CreateDescriptor(
+                                        TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
+                                    attributeNode.GetLocation()));
+                            }
+                            else if (methodParamsParameters == 0 &&
                             attributePositionalArguments.Length > methodRequiredParameters + methodOptionalParameters)
-                        {
-                            context.ReportDiagnostic(Diagnostic.Create(
-                                TestCaseUsageAnalyzer.CreateDescriptor(
-                                    TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage),
-                                attributeNode.GetLocation()));
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(
+                                    TestCaseUsageAnalyzer.CreateDescriptor(
+                                        TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage),
+                                    attributeNode.GetLocation()));
+                            }
+                            else
+                            {
+                                context.CancellationToken.ThrowIfCancellationRequested();
+                                TestCaseUsageAnalyzer.AnalyzePositionalArgumentsAndParameters(context,
+                                    attributePositionalArguments, methodSymbol.Parameters);
+                                context.CancellationToken.ThrowIfCancellationRequested();
+                                TestCaseUsageAnalyzer.AnalyzeNamedArguments(context,
+                                    attributeNamedArguments, methodSymbol);
+                            }
                         }
-                        else
-                        {
-                            context.CancellationToken.ThrowIfCancellationRequested();
-                            TestCaseUsageAnalyzer.AnalyzePositionalArgumentsAndParameters(context,
-                                attributePositionalArguments, methodSymbol.Parameters);
-                            context.CancellationToken.ThrowIfCancellationRequested();
-                            TestCaseUsageAnalyzer.AnalyzeNamedArguments(context,
-                                attributeNamedArguments, methodSymbol);
-                        }
+
+                        AnalyzeReturnType(context, methodSymbol);
                     }
                 }
             }
@@ -125,6 +133,22 @@ namespace NUnit.Analyzers.TestCaseUsage
                                     methodReturnValueType.MetadataName)),
                             expectedResultNamedArgument.GetLocation()));
                     }
+                }
+            }
+        }
+        private static void AnalyzeReturnType(SyntaxNodeAnalysisContext context, IMethodSymbol methodSymbol)
+        {
+            if (methodSymbol.IsAsync)
+            {
+
+                var methodReturnValueType = methodSymbol.ReturnType;
+
+                if (methodReturnValueType.SpecialType == SpecialType.System_Void)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        TestCaseUsageAnalyzer.CreateDescriptor(
+                            TestCaseUsageAnalyzerConstants.AsyncVoidMessage),
+                        methodSymbol.Locations.FirstOrDefault())); 
                 }
             }
         }

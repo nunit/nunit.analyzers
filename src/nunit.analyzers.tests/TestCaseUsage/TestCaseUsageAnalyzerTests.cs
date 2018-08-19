@@ -272,6 +272,21 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public async Task AnalyzeWhenReturnTypeIsAsyncVoid()
+        {
+            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
+                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenReturnTypeIsAsyncVoid))}.cs",
+                new[] { AnalyzerIdentifiers.TestCaseUsage },
+                diagnostics =>
+                {
+                    var diagnostic = diagnostics[0];
+                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(
+                        TestCaseUsageAnalyzerConstants.AsyncVoidMessage),
+                        nameof(diagnostic.GetMessage));
+                });
+        }
+
+        [Test]
         public async Task AnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
