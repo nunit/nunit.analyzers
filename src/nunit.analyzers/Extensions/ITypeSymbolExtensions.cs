@@ -12,7 +12,7 @@ namespace NUnit.Analyzers.Extensions
                 other != null &&
                 (@this.Equals(other) ||
                 @this.IsAssignableFrom(other.BaseType) ||
-                other.Interfaces.Any(_ => @this.IsAssignableFrom(_)));
+                other.Interfaces.Any(@this.IsAssignableFrom));
         }
 
         internal static bool IsAssert(this ITypeSymbol @this)

@@ -18,18 +18,12 @@ namespace NUnit.Analyzers.TestCaseUsage
             new DiagnosticDescriptor(AnalyzerIdentifiers.TestCaseUsage, TestCaseUsageAnalyzerConstants.Title,
                 message, Categories.Usage, DiagnosticSeverity.Error, true);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-        {
-            get
-            {
-                return ImmutableArray.Create(
-                    TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage),
-                    TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
-                    TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
-                    TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage),
-                    TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage));
-            }
-        }
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
+            TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage),
+            TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
+            TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
+            TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage),
+            TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage));
 
         public override void Initialize(AnalysisContext context)
         {
@@ -99,8 +93,6 @@ namespace NUnit.Analyzers.TestCaseUsage
         private static void AnalyzeNamedArguments(SyntaxNodeAnalysisContext context,
             ImmutableArray<AttributeArgumentSyntax> attributeNamedArguments, IMethodSymbol methodSymbol)
         {
-            var model = context.SemanticModel;
-
             var expectedResultNamedArgument = attributeNamedArguments.SingleOrDefault(
                 _ => _.DescendantTokens().Any(__ => __.Text == NunitFrameworkConstants.NameOfTestCaseAttributeExpectedResult));
 
@@ -135,11 +127,11 @@ namespace NUnit.Analyzers.TestCaseUsage
             var symbol = position >= methodParameter.Length ?
                 methodParameter[methodParameter.Length - 1] : methodParameter[position];
 
-            ITypeSymbol type = null;
+            ITypeSymbol type;
 
             if (symbol.IsParams)
             {
-                type = (symbol.Type as IArrayTypeSymbol).ElementType;
+                type = ((IArrayTypeSymbol)symbol.Type).ElementType;
             }
             else
             {

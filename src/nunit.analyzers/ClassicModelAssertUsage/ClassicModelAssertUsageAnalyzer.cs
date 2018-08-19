@@ -45,10 +45,9 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             if (methodNode != null && !methodNode.ContainsDiagnostics)
             {
                 var invocationNode = (InvocationExpressionSyntax)context.Node;
-                var invocationSymbol = context.SemanticModel.GetSymbolInfo(
-                    invocationNode.Expression).Symbol as IMethodSymbol;
 
-                if (invocationSymbol != null && invocationSymbol.ContainingType.IsAssert())
+                if (context.SemanticModel.GetSymbolInfo(
+                        invocationNode.Expression).Symbol is IMethodSymbol invocationSymbol && invocationSymbol.ContainingType.IsAssert())
                 {
                     context.CancellationToken.ThrowIfCancellationRequested();
 
