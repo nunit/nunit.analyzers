@@ -19,7 +19,11 @@ See [NuGet package vs. extension](https://docs.microsoft.com/en-us/visualstudio/
 
 ## Analyzers ##
 
-Right now there are two analyzers in the code base. One will look for classic model assertions (e.g. `Assert.AreEqual()`, `Assert.IsTrue()`) and change them into constraint model assertions (`Assert.That()`). The other analyzer looks for methods with the `[TestCase]` attribute and makes sure the argument values are correct for the types of the method parameters along with the `ExpectedResult` value if it was provided. 
+Right now there are two analyzers in the code base. One will look for methods with the `[TestCase]` attribute and makes sure the argument values are correct for the types of the method parameters along with the `ExpectedResult` value if it was provided. 
+![testcase](https://user-images.githubusercontent.com/1007631/44311794-269a7200-a3ee-11e8-86a0-1d290b355ac5.gif)
+
+The other analyzer looks for classic model assertions (e.g. `Assert.AreEqual()`, `Assert.IsTrue()`) and change them into constraint model assertions (`Assert.That()`).
+![classicmodelassertions](https://user-images.githubusercontent.com/1007631/44311791-213d2780-a3ee-11e8-90b8-6d144c0e3dbd.gif)
 
 ## Download ##
 
