@@ -233,8 +233,8 @@ namespace NUnit.Analyzers.Tests.Extensions
         public async Task CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable()
         {
             // option 2
-            var values = await GetAttributeSyntaxAsync<CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable>();
-            Assert.That(values.Syntax.CanAssignTo(values.Symbol, values.Model), Is.False);
+            var (syntax, symbol, model) = await GetAttributeSyntaxAsync<CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable>();
+            Assert.That(syntax.CanAssignTo(symbol, model), Is.False);
         }
 
         private static string GetTestFileName<T>()
