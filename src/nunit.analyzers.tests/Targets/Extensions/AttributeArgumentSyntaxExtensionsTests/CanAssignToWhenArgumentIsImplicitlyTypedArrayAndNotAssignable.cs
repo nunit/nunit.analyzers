@@ -3,10 +3,10 @@ using System;
 
 namespace NUnit.Analyzers.Tests.Targets.Extensions
 {
-    public sealed class AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable
+    public sealed class CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable
     {
         [Arguments(new[] { "a", "b", "c" })]
-        public void Foo(string[] inputs) { }
+        public void Foo(int[] inputs) { }
 
         [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
         public sealed class ArgumentsAttribute

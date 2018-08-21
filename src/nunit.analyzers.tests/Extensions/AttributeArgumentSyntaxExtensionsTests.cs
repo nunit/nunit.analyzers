@@ -1,10 +1,12 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Extensions;
+using NUnit.Analyzers.Tests.Targets.Extensions;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Extensions
@@ -201,11 +203,28 @@ namespace NUnit.Analyzers.Tests.Extensions
                 rootAndModel.Item2);
         }
 
+        private async static Task<(AttributeArgumentSyntax Syntax, ITypeSymbol Symbol, SemanticModel Model)> GetAttributeSyntaxAsync<T>()
+        {
+            var file = GetTestFileName<T>();
+            var rootAndModel = await TestHelpers.GetRootAndModel(file);
+
+            // It's assumed the code will have one attribute with one argument,
+            // along with one method with one parameter
+            return (rootAndModel.Item1.DescendantNodes().OfType<AttributeSyntax>().Single(
+                    _ => _.Name.ToFullString() == "Arguments")
+                    .DescendantNodes().OfType<AttributeArgumentSyntax>().Single(),
+                rootAndModel.Item2.GetDeclaredSymbol(
+                    rootAndModel.Item1.DescendantNodes().OfType<MethodDeclarationSyntax>().Single()).Parameters[0].Type,
+                rootAndModel.Item2);
+        }
+
+
         [Test]
         public async Task CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable()
         {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable))}.cs");
+            //option 1
+            var fileName = GetTestFileName<CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable>();
+            var values = await GetAttributeSyntaxAsync(fileName);
 
             Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
         }
@@ -213,10 +232,14 @@ namespace NUnit.Analyzers.Tests.Extensions
         [Test]
         public async Task CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable()
         {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable))}.cs");
+            // option 2
+            var values = await GetAttributeSyntaxAsync<CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable>();
+            Assert.That(values.Syntax.CanAssignTo(values.Symbol, values.Model), Is.False);
+        }
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.False);
+        private static string GetTestFileName<T>()
+        {
+            return Path.Combine(BasePath, typeof(T).Name.ToString() + ".cs");
         }
     }
 }

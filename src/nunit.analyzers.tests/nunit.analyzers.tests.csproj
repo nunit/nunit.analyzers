@@ -34,8 +34,6 @@
     <Compile Remove="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs" />
     <Compile Remove="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs" />
     <Compile Remove="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs" />
-    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable.cs" />
-    <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNotAssignable.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNotNullableAndAssignable.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNullableAndAssignable.cs" />
@@ -57,6 +55,8 @@
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString.cs" />
     <Compile Remove="Targets\Extensions\AttributeSyntaxExtensionsTestsGetArguments.cs" />
     <Compile Remove="Targets\Extensions\AttributeSyntaxExtensionsTestsGetArgumentsWhenNoneExist.cs" />
+    <Compile Remove="Targets\Extensions\CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable.cs" />
+    <Compile Remove="Targets\Extensions\CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable.cs" />
     <Compile Remove="Targets\Extensions\IMethodSymbolExtensionsTestsGetParameterCounts.cs" />
     <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsAssertType.cs" />
     <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsInNUnitAssemblyAndNotAssertType.cs" />
@@ -175,10 +175,10 @@
     <None Include="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable.cs">
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTests\CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable.cs">
+    <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTests\CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNotAssignable.cs">
