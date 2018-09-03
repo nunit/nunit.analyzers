@@ -14,9 +14,9 @@ namespace NUnit.Analyzers.Extensions
             //See https://github.com/nunit/nunit/blob/f16d12d6fa9e5c879601ad57b4b24ec805c66054/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L396
             //for the reasoning behind this implementation.
             object argumentValue = null;
-            if (@this.Expression is LiteralExpressionSyntax)
+            if (@this.Expression is LiteralExpressionSyntax syntax)
             {
-                argumentValue = (@this.Expression as LiteralExpressionSyntax).Token.Value;
+                argumentValue = syntax.Token.Value;
             }
 
             TypeInfo sourceTypeInfo = model.GetTypeInfo(@this.Expression);
@@ -62,8 +62,7 @@ namespace NUnit.Analyzers.Extensions
                     else if (argumentType.SpecialType == SpecialType.System_String &&
                         model.Compilation.GetTypeByMetadataName(typeof(TimeSpan).FullName).IsAssignableFrom(targetType))
                     {
-                        var outValue = default(TimeSpan);
-                        canConvert = TimeSpan.TryParse(argumentValue as string, out outValue);
+                        canConvert = TimeSpan.TryParse(argumentValue as string, out _);
                     }
 
                     return canConvert;
@@ -118,9 +117,7 @@ namespace NUnit.Analyzers.Extensions
             // System.Private.CorLib at runtime, so targetType.ContainingAssembly will denote the wrong
             // assembly, System.Runtime. See e.g. the following comment
             // https://github.com/dotnet/roslyn/issues/16211#issuecomment-373084209
-            var targetReflectionType = Type.GetType(typeName + assembly, false);
-            if (targetReflectionType == null)
-                targetReflectionType = Type.GetType(typeName, false);
+            var targetReflectionType = Type.GetType(typeName + assembly, false) ?? Type.GetType(typeName, false);
             return targetReflectionType;
         }
 
