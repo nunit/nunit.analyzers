@@ -19,9 +19,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                 message, Categories.Usage, DiagnosticSeverity.Error, true);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage),
             TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
-            TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
             TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage),
             TestCaseUsageAnalyzer.CreateDescriptor(TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage));
 
@@ -81,41 +79,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                             context.CancellationToken.ThrowIfCancellationRequested();
                             TestCaseUsageAnalyzer.AnalyzePositionalArgumentsAndParameters(context,
                                 attributePositionalArguments, methodSymbol.Parameters);
-                            context.CancellationToken.ThrowIfCancellationRequested();
-                            TestCaseUsageAnalyzer.AnalyzeNamedArguments(context,
-                                attributeNamedArguments, methodSymbol);
                         }
-                    }
-                }
-            }
-        }
-
-        private static void AnalyzeNamedArguments(SyntaxNodeAnalysisContext context,
-            ImmutableArray<AttributeArgumentSyntax> attributeNamedArguments, IMethodSymbol methodSymbol)
-        {
-            var expectedResultNamedArgument = attributeNamedArguments.SingleOrDefault(
-                _ => _.DescendantTokens().Any(__ => __.Text == NunitFrameworkConstants.NameOfTestCaseAttributeExpectedResult));
-
-            if (expectedResultNamedArgument != null)
-            {
-                var methodReturnValueType = methodSymbol.ReturnType;
-
-                if (methodReturnValueType.SpecialType == SpecialType.System_Void)
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        TestCaseUsageAnalyzer.CreateDescriptor(
-                            TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
-                        expectedResultNamedArgument.GetLocation()));
-                }
-                else
-                {
-                    if (!expectedResultNamedArgument.CanAssignTo(methodReturnValueType, context.SemanticModel))
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            TestCaseUsageAnalyzer.CreateDescriptor(
-                                string.Format(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage,
-                                    methodReturnValueType.MetadataName)),
-                            expectedResultNamedArgument.GetLocation()));
                     }
                 }
             }
