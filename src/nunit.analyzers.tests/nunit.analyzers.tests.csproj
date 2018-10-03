@@ -79,12 +79,6 @@
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeHasNoArguments.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsNotInNUnit.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsTestAttribute.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedCorrectly.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect.cs" />
@@ -93,6 +87,12 @@
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenNotEnoughRequiredArgumentsAreProvided.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredArgumentsAreProvided.cs" />
+    <Compile Remove="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType.cs" />
+    <Compile Remove="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType.cs" />
+    <Compile Remove="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType.cs" />
+    <Compile Remove="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid.cs" />
+    <Compile Remove="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect.cs" />
+    <Compile Remove="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedCorrectly.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenInvocationIsNotWithinAMethod.cs">
@@ -310,24 +310,6 @@
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsTestAttribute.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedCorrectly.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -350,6 +332,24 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredArgumentsAreProvided.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+	<None Include="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedCorrectly.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

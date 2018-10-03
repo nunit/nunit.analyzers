@@ -27,7 +27,8 @@ namespace NUnit.Analyzers.Tests.Constants
         [TestCase(NunitFrameworkConstants.NameOfAssertAreNotEqual, nameof(Assert.AreNotEqual))]
         [TestCase(NunitFrameworkConstants.NameOfAssertThat, nameof(Assert.That))]
         [TestCase(NunitFrameworkConstants.NameOfTestCaseAttribute, nameof(TestCaseAttribute))]
-        [TestCase(NunitFrameworkConstants.NameOfTestCaseAttributeExpectedResult, nameof(TestCaseAttribute.ExpectedResult))]
+        [TestCase(NunitFrameworkConstants.NameOfExpectedResult, nameof(TestCaseAttribute.ExpectedResult))]
+        [TestCase(NunitFrameworkConstants.NameOfExpectedResult, nameof(TestAttribute.ExpectedResult))]
         public void TestConstant(string constant, string nameOfArgument)
         {
             Assert.That(constant, Is.EqualTo(nameOfArgument));

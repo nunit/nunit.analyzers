@@ -22,7 +22,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             var analyzer = new TestCaseUsageAnalyzer();
             var diagnostics = analyzer.SupportedDiagnostics;
 
-            Assert.That(diagnostics.Length, Is.EqualTo(5), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
+            Assert.That(diagnostics.Length, Is.EqualTo(3), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
 
             foreach (var diagnostic in diagnostics)
             {
@@ -38,12 +38,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 
             var diagnosticMessage = diagnostics.Select(_ => _.MessageFormat.ToString()).ToImmutableArray();
 
-            Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage),
-                $"{TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage} is missing.");
             Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
                 $"{TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage} is missing.");
-            Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
-                $"{TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage} is missing.");
             Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage),
                 $"{TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage} is missing.");
             Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage),
@@ -246,75 +242,6 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                         string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, "0", "a")),
                         nameof(diagnostic.GetMessage));
                 });
-        }
-
-        [Test]
-        public async Task AnalyzeWhenExpectedResultIsProvidedCorrectly()
-        {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedCorrectly))}.cs",
-                Array.Empty<string>());
-        }
-
-        [Test]
-        public async Task AnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid()
-        {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(
-                        TestCaseUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
-                        nameof(diagnostic.GetMessage));
-                });
-        }
-
-        [Test]
-        public async Task AnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect()
-        {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(
-                        string.Format(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, "Int32")),
-                        nameof(diagnostic.GetMessage));
-                });
-        }
-
-        [Test]
-        public async Task AnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType()
-        {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(
-                        string.Format(TestCaseUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, "Int32")),
-                        nameof(diagnostic.GetMessage));
-                });
-        }
-
-        [Test]
-        public async Task AnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType()
-        {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType))}.cs",
-                Array.Empty<string>());
-        }
-
-        [Test]
-        public async Task AnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType()
-        {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType))}.cs",
-                Array.Empty<string>());
         }
     }
 }

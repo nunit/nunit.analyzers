@@ -25,9 +25,12 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfAssertThat = "That";
 
         public const string FullNameOfTypeTestCaseAttribute = "NUnit.Framework.TestCaseAttribute";
+        public const string FullNameOfTypeTestAttribute = "NUnit.Framework.TestAttribute";
 
         public const string NameOfTestCaseAttribute = "TestCaseAttribute";
-        public const string NameOfTestCaseAttributeExpectedResult = "ExpectedResult";
+        public const string NameOfTestAttribute = "TestAttribute";
+
+        public const string NameOfExpectedResult = "ExpectedResult";
 
         public const string AssemblyQualifiedNameOfTypeAssert =
             "NUnit.Framework.Assert, nunit.framework, Version=3.10.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb";
