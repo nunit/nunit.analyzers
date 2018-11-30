@@ -68,6 +68,10 @@
     <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNull.cs" />
     <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsSameTypeAsThis.cs" />
     <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenThisIsNull.cs" />
+    <Compile Remove="Targets\TestCaseSourceUsage\TestCaseSourceUsesStringAnalyzerTestsAnalyzeWhenMultipleUnrelatedAttributes.cs" />
+    <Compile Remove="Targets\TestCaseSourceUsage\TestCaseSourceUsesStringAnalyzerTestsAnalyzeWhenNameOf.cs" />
+    <Compile Remove="Targets\TestCaseSourceUsage\TestCaseSourceUsesStringAnalyzerTestsAnalyzeWhenStringConstant.cs" />
+    <Compile Remove="Targets\TestCaseSourceUsage\TestCaseSourceUsesStringAnalyzerTestsAnalyzeWhenTypeOf.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsACast.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsAPrefixedValue.cs" />
     <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsAReferenceToConstant.cs" />
@@ -93,6 +97,11 @@
     <Compile Remove="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid.cs" />
     <Compile Remove="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect.cs" />
     <Compile Remove="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedCorrectly.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Targets\TestCaseSourceUsage\TestCaseSourceUsesStringAnalyzerTestsAnalyzeWhenNameOf.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenInvocationIsNotWithinAMethod.cs">
@@ -275,6 +284,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenThisIsNull.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestCaseSourceUsage\TestCaseSourceUsesStringAnalyzerTestsAnalyzeWhenMultipleUnrelatedAttributes.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestCaseSourceUsage\TestCaseSourceUsesStringAnalyzerTestsAnalyzeWhenStringConstant.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Targets\TestCaseSourceUsage\TestCaseSourceUsesStringAnalyzerTestsAnalyzeWhenTypeOf.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsACast.cs">
