@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -52,10 +53,12 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
                 if (firstArgumentIsStringConstant)
                 {
+                    var stringConstant = ((LiteralExpressionSyntax)firstArgument).Token.ValueText;
                     context.ReportDiagnostic(Diagnostic.Create(
-                        CreateDescriptor(
-                            TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage),
-                        attributeNode.GetLocation()));
+                        CreateDescriptor( string.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, stringConstant)),
+                        attributeNode.GetLocation(),
+                        ImmutableDictionary.Create<string,string>().Add("StringConstant", stringConstant)
+                        ));
                 }
             }
         }

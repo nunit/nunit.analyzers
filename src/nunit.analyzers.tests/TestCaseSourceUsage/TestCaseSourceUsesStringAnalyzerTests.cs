@@ -31,13 +31,14 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [Test]
         public async Task AnalyzeWhenStringConstant()
         {
+            string expectedMessage = string.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, "Tests");
             await TestHelpers.RunAnalysisAsync<TestCaseSourceUsesStringAnalyzer>(
                 $"{BasePath}{(nameof(this.AnalyzeWhenStringConstant))}.cs",
                 new[] { AnalyzerIdentifiers.TestCaseSourceStringUsage },
                 diagnostics =>
                 {
                     var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage),
+                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(expectedMessage),
                         nameof(diagnostic.GetMessage));
                 });
         }
@@ -45,13 +46,14 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [Test]
         public async Task AnalyzeWhenMultipleUnrelatedAttributes()
         {
+            string expectedMessage = string.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, "StringConstant");
             await TestHelpers.RunAnalysisAsync<TestCaseSourceUsesStringAnalyzer>(
                 $"{BasePath}{(nameof(this.AnalyzeWhenMultipleUnrelatedAttributes))}.cs",
                 new[] { AnalyzerIdentifiers.TestCaseSourceStringUsage },
                 diagnostics =>
                 {
                     var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage),
+                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(expectedMessage),
                         nameof(diagnostic.GetMessage));
                 });
         }
