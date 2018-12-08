@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -22,7 +21,6 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             CreateDescriptor(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage));
-
 
         public override void Initialize(AnalysisContext context)
         {
@@ -55,9 +53,9 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 {
                     var stringConstant = ((LiteralExpressionSyntax)firstArgument).Token.ValueText;
                     context.ReportDiagnostic(Diagnostic.Create(
-                        CreateDescriptor( string.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, stringConstant)),
+                        CreateDescriptor(string.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, stringConstant)),
                         attributeNode.GetLocation(),
-                        ImmutableDictionary.Create<string,string>().Add("StringConstant", stringConstant)
+                        ImmutableDictionary.Create<string, string>().Add("StringConstant", stringConstant)
                         ));
                 }
             }
