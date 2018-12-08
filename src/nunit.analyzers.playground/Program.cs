@@ -27,9 +27,14 @@ namespace NUnit.Analyzers.Playground
             Program.Foo(22);
         }
 
-        public static void Foo(short a) { }
+        public static void Foo(short a)
+        {
+        }
 
         [TestCase(3d, "a value", 123, ExpectedResult = 22)]
-        public int RunTest(double a, string b, int c) { return 22; }
+        public int RunTest(double a, string b, int c)
+        {
+            return 22;
+        }
     }
 }
