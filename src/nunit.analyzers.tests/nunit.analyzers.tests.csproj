@@ -72,25 +72,6 @@
     <Compile Remove="Targets\TestCaseSourceUsage\TestCaseSourceUsesStringAnalyzerTestsAnalyzeWhenNameOf.cs" />
     <Compile Remove="Targets\TestCaseSourceUsage\TestCaseSourceUsesStringAnalyzerTestsAnalyzeWhenStringConstant.cs" />
     <Compile Remove="Targets\TestCaseSourceUsage\TestCaseSourceUsesStringAnalyzerTestsAnalyzeWhenTypeOf.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsACast.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsAPrefixedValue.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsAReferenceToConstant.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsCorrect.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesNullToNullableType.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesNullToValueType.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesValueToNullableType.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentTypeIsIncorrect.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeHasNoArguments.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsNotInNUnit.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsTestAttribute.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenNotEnoughRequiredArgumentsAreProvided.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided.cs" />
-    <Compile Remove="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredArgumentsAreProvided.cs" />
     <Compile Remove="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType.cs" />
     <Compile Remove="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType.cs" />
     <Compile Remove="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType.cs" />
@@ -295,63 +276,6 @@
     <None Include="Targets\TestCaseSourceUsage\TestCaseSourceUsesStringAnalyzerTestsAnalyzeWhenTypeOf.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsACast.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsAPrefixedValue.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsAReferenceToConstant.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentIsCorrect.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesNullToNullableType.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesNullToValueType.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentPassesValueToNullableType.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenArgumentTypeIsIncorrect.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeHasNoArguments.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsNotInNUnit.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenAttributeIsTestAttribute.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenNotEnoughRequiredArgumentsAreProvided.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\TestCaseUsage\TestCaseUsageAnalyzerTestsAnalyzeWhenTooManyRequiredArgumentsAreProvided.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
 	<None Include="Targets\TestMethodUsage\TestMethodUsageAnalyzerTestsAnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -373,8 +297,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.2.1" />
+    <PackageReference Include="Gu.Roslyn.Asserts" Version="2.6.3" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.0.0" />
     <PackageReference Include="NUnit" Version="3.10.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.11.2" />
   </ItemGroup>
 
   <ItemGroup>
