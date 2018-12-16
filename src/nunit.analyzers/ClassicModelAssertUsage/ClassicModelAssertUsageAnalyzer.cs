@@ -12,10 +12,9 @@ using static NUnit.Analyzers.Extensions.ITypeSymbolExtensions;
 namespace NUnit.Analyzers.ClassicModelAssertUsage
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class ClassicModelAssertUsageAnalyzer
-        : DiagnosticAnalyzer
+    public sealed class ClassicModelAssertUsageAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly ImmutableDictionary<string, DiagnosticDescriptor> Names =
+        private static readonly ImmutableDictionary<string, DiagnosticDescriptor> name =
           new Dictionary<string, DiagnosticDescriptor>
           {
               { NameOfAssertIsTrue, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.IsTrueUsage) },
@@ -31,7 +30,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 ClassicModelUsageAnalyzerConstants.Message, Categories.Usage,
                 DiagnosticSeverity.Warning, true);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.Names.Values.ToImmutableArray();
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.name.Values.ToImmutableArray();
 
         public override void Initialize(AnalysisContext context)
         {
@@ -52,10 +51,10 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 {
                     context.CancellationToken.ThrowIfCancellationRequested();
 
-                    if (ClassicModelAssertUsageAnalyzer.Names.ContainsKey(invocationSymbol.Name))
+                    if (ClassicModelAssertUsageAnalyzer.name.ContainsKey(invocationSymbol.Name))
                     {
                         context.ReportDiagnostic(Diagnostic.Create(
-                            ClassicModelAssertUsageAnalyzer.Names[invocationSymbol.Name],
+                            ClassicModelAssertUsageAnalyzer.name[invocationSymbol.Name],
                             invocationNode.GetLocation(),
                             ClassicModelAssertUsageAnalyzer.GetProperties(invocationSymbol)));
                     }

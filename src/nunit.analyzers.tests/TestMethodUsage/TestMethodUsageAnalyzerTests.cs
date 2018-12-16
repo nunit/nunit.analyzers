@@ -1,9 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.TestCaseUsage;
 using NUnit.Framework;
@@ -13,7 +13,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     [TestFixture]
     public sealed class TestMethodUsageAnalyzerTests
     {
-        private static readonly string BasePath =
+        private static readonly string basePath =
             $@"{TestContext.CurrentContext.TestDirectory}\Targets\TestMethodUsage\{nameof(TestMethodUsageAnalyzerTests)}";
 
         [Test]
@@ -22,12 +22,15 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             var analyzer = new TestMethodUsageAnalyzer();
             var diagnostics = analyzer.SupportedDiagnostics;
 
-            Assert.That(diagnostics.Length, Is.EqualTo(2), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
+            var expectedIdentifiers = new List<string>
+            {
+                AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
+                AnalyzerIdentifiers.TestMethodSpecifiedExpectedResultForVoidUsage
+            };
+            CollectionAssert.AreEquivalent(expectedIdentifiers, diagnostics.Select(d => d.Id));
 
             foreach (var diagnostic in diagnostics)
             {
-                Assert.That(diagnostic.Id, Is.EqualTo(AnalyzerIdentifiers.TestCaseUsage),
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Id)}");
                 Assert.That(diagnostic.Title.ToString(), Is.EqualTo(TestMethodUsageAnalyzerConstants.Title),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
                 Assert.That(diagnostic.Category, Is.EqualTo(Categories.Usage),
@@ -48,7 +51,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenExpectedResultIsProvidedCorrectly()
         {
             await TestHelpers.RunAnalysisAsync<TestMethodUsageAnalyzer>(
-                $"{TestMethodUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedCorrectly))}.cs",
+                $"{TestMethodUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedCorrectly))}.cs",
                 Array.Empty<string>());
         }
 
@@ -56,8 +59,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid()
         {
             await TestHelpers.RunAnalysisAsync<TestMethodUsageAnalyzer>(
-                $"{TestMethodUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseUsage },
+                $"{TestMethodUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid))}.cs",
+                new[] { AnalyzerIdentifiers.TestMethodSpecifiedExpectedResultForVoidUsage },
                 diagnostics =>
                 {
                     var diagnostic = diagnostics[0];
@@ -71,8 +74,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect()
         {
             await TestHelpers.RunAnalysisAsync<TestMethodUsageAnalyzer>(
-                $"{TestMethodUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseUsage },
+                $"{TestMethodUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect))}.cs",
+                new[] { AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage },
                 diagnostics =>
                 {
                     var diagnostic = diagnostics[0];
@@ -86,8 +89,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType()
         {
             await TestHelpers.RunAnalysisAsync<TestMethodUsageAnalyzer>(
-                $"{TestMethodUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseUsage },
+                $"{TestMethodUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType))}.cs",
+                new[] { AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage },
                 diagnostics =>
                 {
                     var diagnostic = diagnostics[0];
@@ -101,7 +104,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType()
         {
             await TestHelpers.RunAnalysisAsync<TestMethodUsageAnalyzer>(
-                $"{TestMethodUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType))}.cs",
+                $"{TestMethodUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType))}.cs",
                 Array.Empty<string>());
         }
 
@@ -109,7 +112,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType()
         {
             await TestHelpers.RunAnalysisAsync<TestMethodUsageAnalyzer>(
-                $"{TestMethodUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType))}.cs",
+                $"{TestMethodUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType))}.cs",
                 Array.Empty<string>());
         }
     }

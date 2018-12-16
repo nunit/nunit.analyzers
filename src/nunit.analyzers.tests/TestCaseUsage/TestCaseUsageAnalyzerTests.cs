@@ -1,9 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.TestCaseUsage;
 using NUnit.Framework;
@@ -13,7 +13,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     [TestFixture]
     public sealed class TestCaseUsageAnalyzerTests
     {
-        private static readonly string BasePath =
+        private static readonly string basePath =
             $@"{TestContext.CurrentContext.TestDirectory}\Targets\TestCaseUsage\{nameof(TestCaseUsageAnalyzerTests)}";
 
         [Test]
@@ -22,12 +22,16 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             var analyzer = new TestCaseUsageAnalyzer();
             var diagnostics = analyzer.SupportedDiagnostics;
 
-            Assert.That(diagnostics.Length, Is.EqualTo(3), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
+            var expectedIdentifiers = new List<string>
+            {
+                AnalyzerIdentifiers.TestCaseNotEnoughArgumentsUsage,
+                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
+                AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage
+            };
+            CollectionAssert.AreEquivalent(expectedIdentifiers, diagnostics.Select(d => d.Id));
 
             foreach (var diagnostic in diagnostics)
             {
-                Assert.That(diagnostic.Id, Is.EqualTo(AnalyzerIdentifiers.TestCaseUsage),
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Id)}");
                 Assert.That(diagnostic.Title.ToString(), Is.EqualTo(TestCaseUsageAnalyzerConstants.Title),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
                 Assert.That(diagnostic.Category, Is.EqualTo(Categories.Usage),
@@ -50,7 +54,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenAttributeIsNotInNUnit()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenAttributeIsNotInNUnit))}.cs",
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenAttributeIsNotInNUnit))}.cs",
                 Array.Empty<string>());
         }
 
@@ -58,7 +62,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenAttributeIsTestAttribute()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenAttributeIsTestAttribute))}.cs",
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenAttributeIsTestAttribute))}.cs",
                 Array.Empty<string>());
         }
 
@@ -66,7 +70,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenAttributeHasNoArguments()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenAttributeHasNoArguments))}.cs",
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenAttributeHasNoArguments))}.cs",
                 Array.Empty<string>());
         }
 
@@ -74,7 +78,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenArgumentIsCorrect()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenArgumentIsCorrect))}.cs",
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentIsCorrect))}.cs",
                 Array.Empty<string>());
         }
 
@@ -82,7 +86,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenArgumentIsACast()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenArgumentIsACast))}.cs",
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentIsACast))}.cs",
                 Array.Empty<string>());
         }
 
@@ -90,7 +94,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenArgumentIsAPrefixedValue()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenArgumentIsAPrefixedValue))}.cs",
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentIsAPrefixedValue))}.cs",
                 Array.Empty<string>());
         }
 
@@ -98,7 +102,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenArgumentIsAReferenceToConstant()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenArgumentIsAReferenceToConstant))}.cs",
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentIsAReferenceToConstant))}.cs",
                 Array.Empty<string>());
         }
 
@@ -106,8 +110,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenArgumentTypeIsIncorrect()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenArgumentTypeIsIncorrect))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseUsage },
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentTypeIsIncorrect))}.cs",
+                new[] { AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage },
                 diagnostics =>
                 {
                     var diagnostic = diagnostics[0];
@@ -121,8 +125,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenArgumentPassesNullToValueType()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenArgumentPassesNullToValueType))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseUsage },
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentPassesNullToValueType))}.cs",
+                new[] { AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage },
                 diagnostics =>
                 {
                     var diagnostic = diagnostics[0];
@@ -136,7 +140,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenArgumentPassesNullToNullableType()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenArgumentPassesNullToNullableType))}.cs",
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentPassesNullToNullableType))}.cs",
                 Array.Empty<string>());
         }
 
@@ -144,7 +148,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenArgumentPassesValueToNullableType()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenArgumentPassesValueToNullableType))}.cs",
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentPassesValueToNullableType))}.cs",
                 Array.Empty<string>());
         }
 
@@ -152,8 +156,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenNotEnoughRequiredArgumentsAreProvided()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenNotEnoughRequiredArgumentsAreProvided))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseUsage },
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenNotEnoughRequiredArgumentsAreProvided))}.cs",
+                new[] { AnalyzerIdentifiers.TestCaseNotEnoughArgumentsUsage },
                 diagnostics =>
                 {
                     var diagnostic = diagnostics[0];
@@ -166,8 +170,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenTooManyRequiredArgumentsAreProvided()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenTooManyRequiredArgumentsAreProvided))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseUsage },
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenTooManyRequiredArgumentsAreProvided))}.cs",
+                new[] { AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage },
                 diagnostics =>
                 {
                     var diagnostic = diagnostics[0];
@@ -180,8 +184,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseUsage },
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided))}.cs",
+                new[] { AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage },
                 diagnostics =>
                 {
                     var diagnostic = diagnostics[0];
@@ -194,7 +198,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided))}.cs",
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided))}.cs",
                 Array.Empty<string>());
         }
 
@@ -202,7 +206,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided))}.cs",
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided))}.cs",
                 Array.Empty<string>());
         }
 
@@ -210,7 +214,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect))}.cs",
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect))}.cs",
                 Array.Empty<string>());
         }
 
@@ -218,8 +222,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseUsage },
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect))}.cs",
+                new[] { AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage },
                 diagnostics =>
                 {
                     var diagnostic = diagnostics[0];
@@ -233,8 +237,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public async Task AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType()
         {
             await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseUsage },
+                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType))}.cs",
+                new[] { AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage },
                 diagnostics =>
                 {
                     var diagnostic = diagnostics[0];

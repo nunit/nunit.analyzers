@@ -11,16 +11,22 @@ using NUnit.Analyzers.Extensions;
 namespace NUnit.Analyzers.TestCaseUsage
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class TestMethodUsageAnalyzer
-        : DiagnosticAnalyzer
+    public sealed class TestMethodUsageAnalyzer : DiagnosticAnalyzer
     {
-        private static DiagnosticDescriptor CreateDescriptor(string message) =>
-            new DiagnosticDescriptor(AnalyzerIdentifiers.TestCaseUsage, TestMethodUsageAnalyzerConstants.Title,
+        private static DiagnosticDescriptor CreateDescriptor(string id, string message) =>
+            new DiagnosticDescriptor(id, TestMethodUsageAnalyzerConstants.Title,
                 message, Categories.Usage, DiagnosticSeverity.Error, true);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            TestMethodUsageAnalyzer.CreateDescriptor(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage),
-            TestMethodUsageAnalyzer.CreateDescriptor(TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage));
+        private static readonly DiagnosticDescriptor expectedResultTypeMismatch = TestMethodUsageAnalyzer.CreateDescriptor(
+                AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
+                TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage);
+
+        private static readonly DiagnosticDescriptor specifiedExpectedResultForVoid = TestMethodUsageAnalyzer.CreateDescriptor(
+                AnalyzerIdentifiers.TestMethodSpecifiedExpectedResultForVoidUsage,
+                TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage);
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+            ImmutableArray.Create(expectedResultTypeMismatch, specifiedExpectedResultForVoid);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -80,20 +86,15 @@ namespace NUnit.Analyzers.TestCaseUsage
 
                 if (methodReturnValueType.SpecialType == SpecialType.System_Void)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        TestMethodUsageAnalyzer.CreateDescriptor(
-                            TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
+                    context.ReportDiagnostic(Diagnostic.Create(specifiedExpectedResultForVoid,
                         expectedResultNamedArgument.GetLocation()));
                 }
                 else
                 {
                     if (!expectedResultNamedArgument.CanAssignTo(methodReturnValueType, context.SemanticModel))
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            TestMethodUsageAnalyzer.CreateDescriptor(
-                                string.Format(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage,
-                                    methodReturnValueType.MetadataName)),
-                            expectedResultNamedArgument.GetLocation()));
+                        context.ReportDiagnostic(Diagnostic.Create(expectedResultTypeMismatch,
+                            expectedResultNamedArgument.GetLocation(), methodReturnValueType.MetadataName));
                     }
                 }
             }
