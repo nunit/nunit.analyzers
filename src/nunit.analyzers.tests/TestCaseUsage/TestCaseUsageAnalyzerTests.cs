@@ -2,19 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading.Tasks;
+using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.TestCaseUsage;
 using NUnit.Framework;
+
+[assembly: MetadataReferences(typeof(Assert), typeof(object))]
 
 namespace NUnit.Analyzers.Tests.TestCaseUsage
 {
     [TestFixture]
     public sealed class TestCaseUsageAnalyzerTests
     {
-        private static readonly string basePath =
-            $@"{TestContext.CurrentContext.TestDirectory}\Targets\TestCaseUsage\{nameof(TestCaseUsageAnalyzerTests)}";
+        private DiagnosticAnalyzer analyzer = new TestCaseUsageAnalyzer();
 
         [Test]
         public void VerifySupportedDiagnostics()
@@ -51,201 +53,275 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
-        public async Task AnalyzeWhenAttributeIsNotInNUnit()
+        public void AnalyzeWhenAttributeIsNotInNUnit()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenAttributeIsNotInNUnit))}.cs",
-                Array.Empty<string>());
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenAttributeIsNotInNUnit
+    {
+        [TestCase]
+        public void ATest() { }
+
+        private sealed class TestCaseAttribute : Attribute
+        { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenAttributeIsTestAttribute()
+        public void AnalyzeWhenAttributeIsTestAttribute()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenAttributeIsTestAttribute))}.cs",
-                Array.Empty<string>());
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenAttributeIsTestAttribute
+    {
+        [Test]
+        public void ATest() { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenAttributeHasNoArguments()
+        public void AnalyzeWhenAttributeHasNoArguments()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenAttributeHasNoArguments))}.cs",
-                Array.Empty<string>());
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenAttributeHasNoArguments
+    {
+        [TestCase]
+        public void ATest() { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenArgumentIsCorrect()
+        public void AnalyzeWhenArgumentIsCorrect()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentIsCorrect))}.cs",
-                Array.Empty<string>());
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentIsCorrect
+    {
+        [TestCase(2)]
+        public void Test(int a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenArgumentIsACast()
+        public void AnalyzeWhenArgumentIsACast()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentIsACast))}.cs",
-                Array.Empty<string>());
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeWhenArgumentIsACast
+    {
+        [TestCase((byte)2)]
+        public void Test(byte a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenArgumentIsAPrefixedValue()
+        public void AnalyzeWhenArgumentIsAPrefixedValue()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentIsAPrefixedValue))}.cs",
-                Array.Empty<string>());
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeWhenArgumentIsAPrefixedValue
+    {
+        [TestCase(-2)]
+        public void Test(int a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenArgumentIsAReferenceToConstant()
+        public void AnalyzeWhenArgumentIsAReferenceToConstant()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentIsAReferenceToConstant))}.cs",
-                Array.Empty<string>());
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeWhenArgumentIsAReferenceToConstant
+    {
+        const int value = 42;
+
+        [TestCase(value)]
+        public void Test(int a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenArgumentTypeIsIncorrect()
+        public void AnalyzeWhenArgumentTypeIsIncorrect()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentTypeIsIncorrect))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(
-                        string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, "0", "a")),
-                        nameof(diagnostic.GetMessage));
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
+                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "a"));
+
+        var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentTypeIsIncorrect
+    {
+        [TestCase(↓2)]
+        public void Test(char a) { }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenArgumentPassesNullToValueType()
+        public void AnalyzeWhenArgumentPassesNullToValueType()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentPassesNullToValueType))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(
-                        string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, "0", "a")),
-                        nameof(diagnostic.GetMessage));
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
+                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "a"));
+
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesNullToValueType
+    {
+        [TestCase(↓null)]
+        public void Test(char a) { }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenArgumentPassesNullToNullableType()
+        public void AnalyzeWhenArgumentPassesNullToNullableType()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentPassesNullToNullableType))}.cs",
-                Array.Empty<string>());
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesNullToNullableType
+    {
+        [TestCase(null)]
+        public void Test(int? a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenArgumentPassesValueToNullableType()
+        public void AnalyzeWhenArgumentPassesValueToNullableType()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenArgumentPassesValueToNullableType))}.cs",
-                Array.Empty<string>());
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesValueToNullableType
+    {
+        [TestCase(2)]
+        public void Test(int? a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenNotEnoughRequiredArgumentsAreProvided()
+        public void AnalyzeWhenNotEnoughRequiredArgumentsAreProvided()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenNotEnoughRequiredArgumentsAreProvided))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseNotEnoughArgumentsUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
-                        nameof(diagnostic.GetMessage));
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestCaseNotEnoughArgumentsUsage,
+                TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage);
+
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenNotEnoughRequiredArgumentsAreProvided
+    {
+        [↓TestCase(2)]
+        public void Test(int a, char b) { }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenTooManyRequiredArgumentsAreProvided()
+        public void AnalyzeWhenTooManyRequiredArgumentsAreProvided()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenTooManyRequiredArgumentsAreProvided))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage),
-                        nameof(diagnostic.GetMessage));
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage,
+                TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage);
+
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTooManyRequiredArgumentsAreProvided
+    {
+        [↓TestCase(2, 'b')]
+        public void Test(int a) { }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided()
+        public void AnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage),
-                        nameof(diagnostic.GetMessage));
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage,
+                TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage);
+
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided
+    {
+        [↓TestCase(2, 'b', 2d)]
+        public void Test(int a, char b = 'c') { }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided()
+        public void AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided))}.cs",
-                Array.Empty<string>());
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided
+    {
+        [TestCase(1, 2, 3, 4)]
+        public void Test(int a, int b, params int[] c) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided()
+        public void AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided))}.cs",
-                Array.Empty<string>());
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided
+    {
+        [TestCase]
+        public void Test(params object[] a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect()
+        public void AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect))}.cs",
-                Array.Empty<string>());
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect
+    {
+        [TestCase(""a"")]
+        public void Test(params string[] a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect()
+        public void AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(
-                        string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, "0", "a")),
-                        nameof(diagnostic.GetMessage));
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
+                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "a"));
+
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect
+    {
+        [TestCase(↓2)]
+        public void Test(params string[] a) { }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType()
+        public void AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseUsageAnalyzer>(
-                $"{TestCaseUsageAnalyzerTests.basePath}{(nameof(this.AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(
-                        string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, "0", "a")),
-                        nameof(diagnostic.GetMessage));
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
+                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "a"));
+
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType
+    {
+        [TestCase(↓null)]
+        public void Test(params int[] a) { }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        private string WrapClassInNamespaceAndAddUsing(string code)
+        {
+            return $@"
+using System;
+using NUnit.Framework;
+
+namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
+{{{code}
+}}";
         }
     }
 }
