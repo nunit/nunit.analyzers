@@ -55,125 +55,89 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [Test]
         public void AnalyzeWhenAttributeIsNotInNUnit()
         {
-            var testCode = @"
-using System;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenAttributeIsNotInNUnit
     {
         [TestCase]
         public void ATest() { }
 
-        private sealed class TestCaseAttribute
-            : Attribute
+        private sealed class TestCaseAttribute : Attribute
         { }
-    }
-}";
+    }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
         public void AnalyzeWhenAttributeIsTestAttribute()
         {
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenAttributeIsTestAttribute
     {
         [Test]
         public void ATest() { }
-    }
-}";
+    }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
         public void AnalyzeWhenAttributeHasNoArguments()
         {
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenAttributeHasNoArguments
     {
         [TestCase]
         public void ATest() { }
-    }
-}";
+    }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
         public void AnalyzeWhenArgumentIsCorrect()
         {
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentIsCorrect
     {
         [TestCase(2)]
         public void Test(int a) { }
-    }
-}";
+    }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
         public void AnalyzeWhenArgumentIsACast()
         {
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     class AnalyzeWhenArgumentIsACast
     {
         [TestCase((byte)2)]
         public void Test(byte a) { }
-    }
-}";
+    }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
         public void AnalyzeWhenArgumentIsAPrefixedValue()
         {
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     class AnalyzeWhenArgumentIsAPrefixedValue
     {
         [TestCase(-2)]
         public void Test(int a) { }
-    }
-}";
+    }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
         public void AnalyzeWhenArgumentIsAReferenceToConstant()
         {
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     class AnalyzeWhenArgumentIsAReferenceToConstant
     {
         const int value = 42;
 
         [TestCase(value)]
         public void Test(int a) { }
-    }
-}";
+    }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
@@ -184,17 +148,12 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
                 String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "a"));
 
-        var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+        var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentTypeIsIncorrect
     {
         [TestCase(↓2)]
         public void Test(char a) { }
-    }
-}";
+    }");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
@@ -205,51 +164,36 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
                 String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "a"));
 
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentPassesNullToValueType
     {
         [TestCase(↓null)]
         public void Test(char a) { }
-    }
-}";
+    }");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
         public void AnalyzeWhenArgumentPassesNullToNullableType()
         {
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentPassesNullToNullableType
     {
         [TestCase(null)]
         public void Test(int? a) { }
-    }
-}";
+    }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
         public void AnalyzeWhenArgumentPassesValueToNullableType()
         {
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentPassesValueToNullableType
     {
         [TestCase(2)]
         public void Test(int? a) { }
-    }
-}";
+    }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
@@ -260,17 +204,12 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
                 AnalyzerIdentifiers.TestCaseNotEnoughArgumentsUsage,
                 TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage);
 
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenNotEnoughRequiredArgumentsAreProvided
     {
         [↓TestCase(2)]
         public void Test(int a, char b) { }
-    }
-}";
+    }");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
@@ -281,17 +220,12 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
                 AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage,
                 TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage);
 
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenTooManyRequiredArgumentsAreProvided
     {
         [↓TestCase(2, 'b')]
         public void Test(int a) { }
-    }
-}";
+    }");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
@@ -302,68 +236,48 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
                 AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage,
                 TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage);
 
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided
     {
         [↓TestCase(2, 'b', 2d)]
         public void Test(int a, char b = 'c') { }
-    }
-}";
+    }");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
         public void AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided()
         {
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided
     {
         [TestCase(1, 2, 3, 4)]
         public void Test(int a, int b, params int[] c) { }
-    }
-}";
+    }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
         public void AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided()
         {
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided
     {
         [TestCase]
         public void Test(params object[] a) { }
-    }
-}";
+    }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
         public void AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect()
         {
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect
     {
         [TestCase(""a"")]
         public void Test(params string[] a) { }
-    }
-}";
+    }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
@@ -374,17 +288,12 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
                 String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "a"));
 
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect
     {
         [TestCase(↓2)]
         public void Test(params string[] a) { }
-    }
-}";
+    }");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
@@ -395,18 +304,24 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
                 String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "a"));
 
-            var testCode = @"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{
+            var testCode = WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType
     {
         [TestCase(↓null)]
         public void Test(params int[] a) { }
-    }
-}";
+    }");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        private string WrapClassInNamespaceAndAddUsing(string code)
+        {
+            return $@"
+using System;
+using NUnit.Framework;
+
+namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
+{{{code}
+}}";
         }
     }
 }
