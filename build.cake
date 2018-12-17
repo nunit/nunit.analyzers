@@ -135,6 +135,13 @@ Task("Test")
     .Does(() =>
     {
         NUnit3(TEST_FILE);
+    })
+    .Finally(() =>
+    {
+        if (AppVeyor.IsRunningOnAppVeyor)
+        {
+            AppVeyor.UploadTestResults("TestResult.xml", AppVeyorTestResultsType.NUnit3);
+        }
     });
 
 
