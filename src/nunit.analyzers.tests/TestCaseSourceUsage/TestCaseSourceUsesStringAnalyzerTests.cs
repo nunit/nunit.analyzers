@@ -1,5 +1,6 @@
 using System;
-using System.Threading.Tasks;
+using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.TestCaseSourceUsage;
 using NUnit.Framework;
@@ -9,53 +10,82 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     [TestFixture]
     public sealed class TestCaseSourceUsesStringAnalyzerTests
     {
-        private static readonly string BasePath =
-            $@"{TestContext.CurrentContext.TestDirectory}\Targets\TestCaseSourceUsage\{nameof(TestCaseSourceUsesStringAnalyzerTests)}";
+        private DiagnosticAnalyzer analyzer = new TestCaseSourceUsesStringAnalyzer();
 
         [Test]
-        public async Task AnalyzeWhenNameOf()
+        public void AnalyzeWhenNameOf()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseSourceUsesStringAnalyzer>(
-                $"{BasePath}{(nameof(this.AnalyzeWhenNameOf))}.cs",
-                Array.Empty<string>());
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class AnalyzeWhenNameOf
+    {
+        string Tests;
+
+        [TestCaseSource(nameof(Tests))]
+        public void Test()
+        {
+        }
+    }");
+            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenTypeOf()
+        public void AnalyzeWhenTypeOf()
         {
-            await TestHelpers.RunAnalysisAsync<TestCaseSourceUsesStringAnalyzer>(
-                $"{BasePath}{(nameof(this.AnalyzeWhenTypeOf))}.cs",
-                Array.Empty<string>());
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class AnalyzeWhenTypeOf
+    {
+        [TestCaseSource(typeof(MyTests))]
+        public void Test()
+        {
+        }
+    }
+
+    class MyTests
+    {
+    }");
+            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenStringConstant()
+        public void AnalyzeWhenStringConstant()
         {
-            string expectedMessage = string.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, "Tests");
-            await TestHelpers.RunAnalysisAsync<TestCaseSourceUsesStringAnalyzer>(
-                $"{BasePath}{(nameof(this.AnalyzeWhenStringConstant))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseSourceStringUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(expectedMessage),
-                        nameof(diagnostic.GetMessage));
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestCaseSourceStringUsage,
+                String.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, "Tests"));
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class AnalyzeWhenStringConstant
+    {
+        [↓TestCaseSource(""Tests"")]
+        public void Test()
+        {
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenMultipleUnrelatedAttributes()
+        public void AnalyzeWhenMultipleUnrelatedAttributes()
         {
-            string expectedMessage = string.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, "StringConstant");
-            await TestHelpers.RunAnalysisAsync<TestCaseSourceUsesStringAnalyzer>(
-                $"{BasePath}{(nameof(this.AnalyzeWhenMultipleUnrelatedAttributes))}.cs",
-                new[] { AnalyzerIdentifiers.TestCaseSourceStringUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.GetMessage(), Is.EqualTo(expectedMessage),
-                        nameof(diagnostic.GetMessage));
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestCaseSourceStringUsage,
+                String.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, "StringConstant"));
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenMultipleUnrelatedAttributes
+    {
+        [Test]
+        public void UnrelatedTest()
+        {
+        }
+
+        [↓TestCaseSource(""StringConstant"")]
+        public void Test()
+        {
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
     }
 }
