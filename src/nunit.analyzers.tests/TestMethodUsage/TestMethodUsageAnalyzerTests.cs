@@ -25,7 +25,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             var expectedIdentifiers = new List<string>
             {
                 AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
-                AnalyzerIdentifiers.TestMethodSpecifiedExpectedResultForVoidUsage
+                AnalyzerIdentifiers.TestMethodSpecifiedExpectedResultForVoidUsage,
+                AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType
             };
             CollectionAssert.AreEquivalent(expectedIdentifiers, diagnostics.Select(d => d.Id));
 
@@ -129,6 +130,36 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public int? Test(int a) { return 2; }
     }");
             AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTestAttributeExpectedResultIsNotProvidedAndReturnTypeIsNotVoid()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTestAttributeExpectedResultIsNotProvidedAndReturnTypeIsNotVoid
+    {
+        [↓Test]
+        public string Test3() => ""12"";
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTestCaseAttributeExpectedResultIsNotProvidedAndReturnTypeIsNotVoid()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTestCaseAttributeExpectedResultIsNotProvidedAndReturnTypeIsNotVoid
+    {
+        [↓TestCase(1)]
+        public string Test4(int i) => ""12"";
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
     }
 }

@@ -18,15 +18,19 @@ namespace NUnit.Analyzers.TestCaseUsage
                 message, Categories.Usage, DiagnosticSeverity.Error, true);
 
         private static readonly DiagnosticDescriptor expectedResultTypeMismatch = TestMethodUsageAnalyzer.CreateDescriptor(
-                AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
-                TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage);
+            AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
+            TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage);
 
         private static readonly DiagnosticDescriptor specifiedExpectedResultForVoid = TestMethodUsageAnalyzer.CreateDescriptor(
-                AnalyzerIdentifiers.TestMethodSpecifiedExpectedResultForVoidUsage,
-                TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage);
+            AnalyzerIdentifiers.TestMethodSpecifiedExpectedResultForVoidUsage,
+            TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage);
+
+        private static readonly DiagnosticDescriptor noExpectedResultButNonVoidReturnType = TestMethodUsageAnalyzer.CreateDescriptor(
+            AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType,
+            TestMethodUsageAnalyzerConstants.NoExpectedResultButNonVoidReturnType);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(expectedResultTypeMismatch, specifiedExpectedResultForVoid);
+            ImmutableArray.Create(expectedResultTypeMismatch, specifiedExpectedResultForVoid, noExpectedResultButNonVoidReturnType);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -59,12 +63,9 @@ namespace NUnit.Analyzers.TestCaseUsage
                         context.CancellationToken.ThrowIfCancellationRequested();
 
                         var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodNode);
-                        var attributePositionalAndNamedArguments = attributeNode.GetArguments();
-                        var attributeNamedArguments = attributePositionalAndNamedArguments.Item2;
 
                         context.CancellationToken.ThrowIfCancellationRequested();
-                        TestMethodUsageAnalyzer.AnalyzeExpectedResult(context,
-                            attributeNamedArguments, methodSymbol);
+                        TestMethodUsageAnalyzer.AnalyzeExpectedResult(context, attributeNode, methodSymbol);
                     }
                 }
             }
@@ -75,15 +76,18 @@ namespace NUnit.Analyzers.TestCaseUsage
             nunitTypeName == attributeSymbol?.ContainingType.Name;
 
         private static void AnalyzeExpectedResult(SyntaxNodeAnalysisContext context,
-            ImmutableArray<AttributeArgumentSyntax> attributeNamedArguments, IMethodSymbol methodSymbol)
+            AttributeSyntax attributeNode, IMethodSymbol methodSymbol)
         {
+            var attributePositionalAndNamedArguments = attributeNode.GetArguments();
+            var attributeNamedArguments = attributePositionalAndNamedArguments.Item2;
+
+            var methodReturnValueType = methodSymbol.ReturnType;
+
             var expectedResultNamedArgument = attributeNamedArguments.SingleOrDefault(
                 _ => _.DescendantTokens().Any(__ => __.Text == NunitFrameworkConstants.NameOfExpectedResult));
 
             if (expectedResultNamedArgument != null)
             {
-                var methodReturnValueType = methodSymbol.ReturnType;
-
                 if (methodReturnValueType.SpecialType == SpecialType.System_Void)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(specifiedExpectedResultForVoid,
@@ -96,6 +100,14 @@ namespace NUnit.Analyzers.TestCaseUsage
                         context.ReportDiagnostic(Diagnostic.Create(expectedResultTypeMismatch,
                             expectedResultNamedArgument.GetLocation(), methodReturnValueType.MetadataName));
                     }
+                }
+            }
+            else
+            {
+                if (methodReturnValueType.SpecialType != SpecialType.System_Void)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(noExpectedResultButNonVoidReturnType,
+                        attributeNode.GetLocation()));
                 }
             }
         }
