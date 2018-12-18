@@ -14,5 +14,7 @@ namespace NUnit.Analyzers.Constants
         internal const string TestCaseTooManyArgumentsUsage = "NUNIT_10";
         internal const string TestMethodExpectedResultTypeMismatchUsage = "NUNIT_11";
         internal const string TestMethodSpecifiedExpectedResultForVoidUsage = "NUNIT_12";
+        internal const string TestMethodNoExpectedResultButNonVoidReturnType = "NUNIT_13";
+
     }
 }
