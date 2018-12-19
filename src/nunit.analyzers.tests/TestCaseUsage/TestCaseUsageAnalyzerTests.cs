@@ -310,5 +310,31 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     }");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenArgumentIsAReferenceToConstantThatNeedsConversion()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeWhenArgumentIsAReferenceToConstantThatNeedsConversion
+    {
+        const int value = 42;
+
+        [TestCase(value)]
+        public void Test(decimal a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenArgumentIsANegativeNumberThatNeedsConversion()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeWhenArgumentIsANegativeNumberThatNeedsConversion
+    {
+        [TestCase(-600)]
+        public void Test(decimal a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
     }
 }

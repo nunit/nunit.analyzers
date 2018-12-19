@@ -13,12 +13,12 @@ namespace NUnit.Analyzers.Extensions
         {
             //See https://github.com/nunit/nunit/blob/f16d12d6fa9e5c879601ad57b4b24ec805c66054/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L396
             //for the reasoning behind this implementation.
+            Optional<object> possibleConstantValue = model.GetConstantValue(@this.Expression);
             object argumentValue = null;
-            if (@this.Expression is LiteralExpressionSyntax syntax)
+            if (possibleConstantValue.HasValue)
             {
-                argumentValue = syntax.Token.Value;
+                argumentValue = possibleConstantValue.Value;
             }
-
             TypeInfo sourceTypeInfo = model.GetTypeInfo(@this.Expression);
             ITypeSymbol argumentType = sourceTypeInfo.Type;
 
