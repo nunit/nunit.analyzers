@@ -21,7 +21,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsNullAndTargetIsReferenceType))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsNullAndTargetIsNullableType))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsNullAndTargetIsValueType))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.False);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.False);
         }
 
         [Test]
@@ -48,7 +48,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsNotNullableAndAssignable))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsNullableAndAssignable))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsNotAssignable))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.False);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.False);
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsInt16AndArgumentIsInt32))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsByteAndArgumentIsInt32))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsSByteAndArgumentIsInt32))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDoubleAndArgumentIsInt32))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -111,7 +111,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDecimalAndArgumentIsDouble))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -120,7 +120,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDecimalAndArgumentIsValidString))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -129,7 +129,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDecimalAndArgumentIsInvalidString))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.False);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.False);
         }
 
         [Test]
@@ -138,7 +138,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDecimalAndArgumentIsInt32))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -147,7 +147,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsNullableInt64AndArgumentIsInt32))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -156,7 +156,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDateTimeAndArgumentIsValidString))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -165,7 +165,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDateTimeAndArgumentIsInvalidString))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.False);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.False);
         }
 
         [Test]
@@ -174,7 +174,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -183,22 +183,22 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsTimeSpanAndArgumentIsInvalidString))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.False);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.False);
         }
 
-        private async static Task<Tuple<AttributeArgumentSyntax, ITypeSymbol, SemanticModel>> GetAttributeSyntaxAsync(string file)
+        private async static Task<(AttributeArgumentSyntax Syntax, ITypeSymbol TypeSymbol, SemanticModel Model)> GetAttributeSyntaxAsync(string file)
         {
             var rootAndModel = await TestHelpers.GetRootAndModel(file);
 
             // It's assumed the code will have one attribute with one argument,
             // along with one method with one parameter
-            return new Tuple<AttributeArgumentSyntax, ITypeSymbol, SemanticModel>(
-                rootAndModel.Item1.DescendantNodes().OfType<AttributeSyntax>().Single(
+            return (
+                rootAndModel.Node.DescendantNodes().OfType<AttributeSyntax>().Single(
                     _ => _.Name.ToFullString() == "Arguments")
                     .DescendantNodes().OfType<AttributeArgumentSyntax>().Single(),
-                rootAndModel.Item2.GetDeclaredSymbol(
-                    rootAndModel.Item1.DescendantNodes().OfType<MethodDeclarationSyntax>().Single()).Parameters[0].Type,
-                rootAndModel.Item2);
+                rootAndModel.Model.GetDeclaredSymbol(
+                    rootAndModel.Node.DescendantNodes().OfType<MethodDeclarationSyntax>().Single()).Parameters[0].Type,
+                rootAndModel.Model);
         }
 
         [Test]
@@ -207,7 +207,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.True);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
         }
 
         [Test]
@@ -216,7 +216,7 @@ namespace NUnit.Analyzers.Tests.Extensions
             var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
                 $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable))}.cs");
 
-            Assert.That(values.Item1.CanAssignTo(values.Item2, values.Item3), Is.False);
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.False);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace NUnit.Analyzers.Tests
 {
     internal static class TestHelpers
     {
-        internal static async Task<Tuple<SyntaxNode, SemanticModel>> GetRootAndModel(string file)
+        internal static async Task<(SyntaxNode Node, SemanticModel Model)> GetRootAndModel(string file)
         {
             var code = File.ReadAllText(file);
             var tree = CSharpSyntaxTree.ParseText(code);
@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Tests
             var model = compilation.GetSemanticModel(tree);
             var root = await tree.GetRootAsync().ConfigureAwait(false);
 
-            return new Tuple<SyntaxNode, SemanticModel>(root, model);
+            return (root, model);
         }
 
         internal static async Task VerifyActionAsync(List<CodeAction> actions, string title, Document document,

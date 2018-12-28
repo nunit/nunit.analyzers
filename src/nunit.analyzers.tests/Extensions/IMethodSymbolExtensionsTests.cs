@@ -31,7 +31,7 @@ namespace NUnit.Analyzers.Tests.Extensions
         {
             var rootAndModel = await TestHelpers.GetRootAndModel(file);
 
-            return rootAndModel.Item2.GetDeclaredSymbol(rootAndModel.Item1
+            return rootAndModel.Model.GetDeclaredSymbol(rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>()
                 .Where(_ => _.Identifier.ValueText == typeName).Single()
                 .DescendantNodes().OfType<MethodDeclarationSyntax>().Single()) as IMethodSymbol;
