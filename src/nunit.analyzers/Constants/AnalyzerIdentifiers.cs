@@ -15,6 +15,8 @@ namespace NUnit.Analyzers.Constants
         internal const string TestMethodExpectedResultTypeMismatchUsage = "NUNIT_11";
         internal const string TestMethodSpecifiedExpectedResultForVoidUsage = "NUNIT_12";
         internal const string TestMethodNoExpectedResultButNonVoidReturnType = "NUNIT_13";
-
+        internal const string ParallelScopeSelfNoEffectOnAssemblyUsage = "NUNIT_14";
+        internal const string ParallelScopeChildrenOnNonParameterizedTestMethodUsage = "NUNIT_15";
+        internal const string ParallelScopeFixturesOnTestMethodUsage = "NUNIT_16";
     }
 }
