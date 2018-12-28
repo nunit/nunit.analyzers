@@ -40,7 +40,7 @@ namespace NUnit.Analyzers.Tests.Extensions
         {
             var rootAndModel = await TestHelpers.GetRootAndModel(file);
 
-            return rootAndModel.Item1
+            return rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>()
                 .Where(_ => _.Identifier.ValueText == typeName).Single()
                 .DescendantNodes().OfType<AttributeSyntax>().Single();

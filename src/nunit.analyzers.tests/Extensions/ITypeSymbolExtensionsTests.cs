@@ -134,7 +134,7 @@ namespace NUnit.Analyzers.Tests.Extensions
 
             foreach (var typeName in typeNames)
             {
-                types.Add(rootAndModel.Item2.GetDeclaredSymbol(rootAndModel.Item1
+                types.Add(rootAndModel.Model.GetDeclaredSymbol(rootAndModel.Node
                     .DescendantNodes().OfType<TypeDeclarationSyntax>()
                     .Where(_ => _.Identifier.ValueText == typeName).Single()));
             }
@@ -146,12 +146,12 @@ namespace NUnit.Analyzers.Tests.Extensions
         {
             var rootAndModel = await TestHelpers.GetRootAndModel(file);
 
-            var fieldNode = rootAndModel.Item1
+            var fieldNode = rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>()
                 .Where(_ => _.Identifier.ValueText == typeName).Single()
                 .DescendantNodes().OfType<FieldDeclarationSyntax>().Single();
 
-            return (rootAndModel.Item2.GetDeclaredSymbol(fieldNode.Declaration.Variables[0]) as IFieldSymbol).Type;
+            return (rootAndModel.Model.GetDeclaredSymbol(fieldNode.Declaration.Variables[0]) as IFieldSymbol).Type;
         }
     }
 }
