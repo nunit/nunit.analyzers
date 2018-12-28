@@ -27,10 +27,13 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfTypeTestCaseAttribute = "NUnit.Framework.TestCaseAttribute";
         public const string FullNameOfTypeTestCaseSourceAttribute = "NUnit.Framework.TestCaseSourceAttribute";
         public const string FullNameOfTypeTestAttribute = "NUnit.Framework.TestAttribute";
+        public const string FullNameOfTypeParallelizableAttribute = "NUnit.Framework.ParallelizableAttribute";
+        public const string FullNameOfTypeITestBuilder = "NUnit.Framework.Interfaces.ITestBuilder";
 
         public const string NameOfTestCaseAttribute = "TestCaseAttribute";
         public const string NameOfTestCaseSourceAttribute = "TestCaseSourceAttribute";
         public const string NameOfTestAttribute = "TestAttribute";
+        public const string NameOfParallelizableAttribute = "ParallelizableAttribute";
 
         public const string NameOfExpectedResult = "ExpectedResult";
 
