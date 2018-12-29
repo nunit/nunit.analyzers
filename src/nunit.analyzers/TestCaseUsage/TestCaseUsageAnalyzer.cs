@@ -70,7 +70,21 @@ namespace NUnit.Analyzers.TestCaseUsage
 
                         var attributePositionalAndNamedArguments = attributeNode.GetArguments();
                         var attributePositionalArguments = attributePositionalAndNamedArguments.Item1;
-                        var attributeNamedArguments = attributePositionalAndNamedArguments.Item2;
+
+                        // From NUnit.Framework.TestCaseAttribute.GetParametersForTestCase
+                        // Special handling when sole method parameter is an object[].
+                        // If more than one argument - or one of a different type - is provided
+                        // then the argument is wrapped within a object[], as the only element,
+                        // hence the resulting code will always be valid.
+                        if (IsSoleParameterAnObjectArray(methodSymbol))
+                        {
+                            if (attributePositionalArguments.Length > 1 ||
+                                (attributePositionalArguments.Length == 1 &&
+                                IsExpressionNotAnObjectArray(context, attributePositionalArguments[0].Expression)))
+                            {
+                                return;
+                            }
+                        }
 
                         if (attributePositionalArguments.Length < methodRequiredParameters)
                         {
@@ -90,6 +104,27 @@ namespace NUnit.Analyzers.TestCaseUsage
                     }
                 }
             }
+        }
+
+        private static bool IsSoleParameterAnObjectArray(IMethodSymbol methodSymbol)
+        {
+            if (methodSymbol.Parameters.Count() != 1)
+                return false;
+
+            var parameterType = methodSymbol.Parameters[0].Type;
+            return IsTypeAnObjectArray(parameterType);
+        }
+
+        private static bool IsExpressionNotAnObjectArray(SyntaxNodeAnalysisContext context, ExpressionSyntax expressionSyntax)
+        {
+            TypeInfo typeInfo = context.SemanticModel.GetTypeInfo(expressionSyntax);
+            return !IsTypeAnObjectArray(typeInfo.Type);
+        }
+
+        private static bool IsTypeAnObjectArray(ITypeSymbol typeSymbol)
+        {
+            return typeSymbol.TypeKind == TypeKind.Array &&
+                ((IArrayTypeSymbol)typeSymbol).ElementType.SpecialType == SpecialType.System_Object;
         }
 
         private static Tuple<ITypeSymbol, string> GetParameterType(ImmutableArray<IParameterSymbol> methodParameter,
