@@ -336,5 +336,53 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenSoleParameterIsObjectArrayAndProvidedOneArg()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeWhenSoleParameterIsObjectArrayAndProvidedOneArg
+    {
+        [TestCase(""a"")]
+        public void Test(object[] array) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSoleParameterIsObjectArrayAndProvidedTwoArgs()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeWhenSoleParameterIsObjectArrayAndProvidedTwoArgs
+    {
+        [TestCase(""a"", ""b"")]
+        public void Test(object[] array) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSoleParameterIsObjectArrayAndProvidedThreeArgs()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeWhenSoleParameterIsObjectArrayAndProvidedThreeArgs
+    {
+        [TestCase(""a"", ""b"", ""c"")]
+        public void Test(object[] array) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSoleParameterIsObjectArrayAndProvidedDifferentTypes()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeWhenSoleParameterIsObjectArrayAndProvidedDifferentTypes
+    {
+        [TestCase(1, ""b"")]
+        public void Test(object[] array) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
     }
 }
