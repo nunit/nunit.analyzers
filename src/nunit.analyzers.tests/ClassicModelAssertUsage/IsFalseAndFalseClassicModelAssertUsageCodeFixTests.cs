@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
-using System.Threading.Tasks;
+using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.ClassicModelAssertUsage;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
@@ -8,10 +10,9 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 {
     [TestFixture]
     public sealed class IsFalseAndFalseClassicModelAssertUsageCodeFixTests
-        : CodeFixTests
     {
-        private static readonly string BasePath =
-            $@"{TestContext.CurrentContext.TestDirectory}\Targets\ClassicModelAssertUsage\{nameof(IsFalseAndFalseClassicModelAssertUsageCodeFixTests)}";
+        private static readonly DiagnosticAnalyzer analyzer = new ClassicModelAssertUsageAnalyzer();
+        private static readonly CodeFixProvider fix = new IsFalseAndFalseClassicModelAssertUsageCodeFix();
 
         [Test]
         public void VerifyGetFixableDiagnosticIds()
@@ -20,37 +21,65 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var ids = fix.FixableDiagnosticIds.ToImmutableArray();
 
             Assert.That(ids.Length, Is.EqualTo(2), nameof(ids.Length));
-            Assert.That(ids, Contains.Item(AnalyzerIdentifiers.IsFalseUsage),
-                nameof(AnalyzerIdentifiers.IsFalseUsage));
-            Assert.That(ids, Contains.Item(AnalyzerIdentifiers.FalseUsage),
-                nameof(AnalyzerIdentifiers.FalseUsage));
+            Assert.That(ids, Contains.Item(AnalyzerIdentifiers.IsFalseUsage), nameof(AnalyzerIdentifiers.IsFalseUsage));
+            Assert.That(ids, Contains.Item(AnalyzerIdentifiers.FalseUsage), nameof(AnalyzerIdentifiers.FalseUsage));
         }
 
-        [Test]
-        public async Task VerifyGetFixes()
+        [TestCase("IsFalse", AnalyzerIdentifiers.IsFalseUsage)]
+        [TestCase("False", AnalyzerIdentifiers.FalseUsage)]
+        public void VerifyIsFalseAndFalseFixes(string assertion, string diagnosticId)
         {
-            await this.VerifyGetFixes<ClassicModelAssertUsageAnalyzer, IsFalseAndFalseClassicModelAssertUsageCodeFix>(
-                $"{IsFalseAndFalseClassicModelAssertUsageCodeFixTests.BasePath}{(nameof(this.VerifyGetFixes))}.cs",
-                1, CodeFixConstants.TransformToConstraintModelDescription,
-                new[] { "That", ", Is.False" }.ToImmutableArray());
+            var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            ↓Assert.{assertion}(false);
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(false, Is.False);
+        }");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
-        [Test]
-        public async Task VerifyGetFixesWithMessage()
+        [TestCase("IsFalse", AnalyzerIdentifiers.IsFalseUsage)]
+        [TestCase("False", AnalyzerIdentifiers.FalseUsage)]
+        public void VerifyIsFalseAndFalseFixesWithMessage(string assertion, string diagnosticId)
         {
-            await this.VerifyGetFixes<ClassicModelAssertUsageAnalyzer, IsFalseAndFalseClassicModelAssertUsageCodeFix>(
-                $"{IsFalseAndFalseClassicModelAssertUsageCodeFixTests.BasePath}{(nameof(this.VerifyGetFixesWithMessage))}.cs",
-                1, CodeFixConstants.TransformToConstraintModelDescription,
-                new[] { "That", "Is.False, " }.ToImmutableArray());
+            var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            ↓Assert.{assertion}(false, ""message"");
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(false, Is.False, ""message"");
+        }");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
-        [Test]
-        public async Task VerifyGetFixesWithMessageAndParams()
+        [TestCase("IsFalse", AnalyzerIdentifiers.IsFalseUsage)]
+        [TestCase("False", AnalyzerIdentifiers.FalseUsage)]
+        public void VerifyIsFalseAndFalseFixesWithMessageAndParams(string assertion, string diagnosticId)
         {
-            await this.VerifyGetFixes<ClassicModelAssertUsageAnalyzer, IsFalseAndFalseClassicModelAssertUsageCodeFix>(
-                $"{IsFalseAndFalseClassicModelAssertUsageCodeFixTests.BasePath}{(nameof(this.VerifyGetFixesWithMessageAndParams))}.cs",
-                1, CodeFixConstants.TransformToConstraintModelDescription,
-                new[] { "That", "Is.False, " }.ToImmutableArray());
+            var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            ↓Assert.{assertion}(false, ""message"", Guid.NewGuid());
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(false, Is.False, ""message"", Guid.NewGuid());
+        }");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
     }
 }

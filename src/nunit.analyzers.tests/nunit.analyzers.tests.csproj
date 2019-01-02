@@ -8,15 +8,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExists.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExistsWithMessage.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExistsWithMessageAndParams.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\AreNotEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\AreNotEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\AreNotEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs" />
     <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreEqualIsUsed.cs" />
     <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreEqualIsUsedWithTolerance.cs" />
     <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreNotEqualIsUsed.cs" />
@@ -28,12 +19,6 @@
     <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenIsTrueIsUsed.cs" />
     <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenThatIsUsed.cs" />
     <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenTrueIsUsed.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNotAssignable.cs" />
@@ -75,33 +60,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExists.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExistsWithMessage.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWhenToleranceExistsWithMessageAndParams.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\AreEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\AreNotEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\AreNotEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\AreNotEqualClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreEqualIsUsed.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -130,24 +88,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenTrueIsUsed.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\IsFalseAndFalseClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixes.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessage.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\IsTrueAndTrueClassicModelAssertUsageCodeFixTestsVerifyGetFixesWithMessageAndParams.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable.cs">

@@ -35,26 +35,6 @@ namespace NUnit.Analyzers.Tests
             return (root, model);
         }
 
-        internal static async Task VerifyActionAsync(List<CodeAction> actions, string title, Document document,
-            SyntaxTree tree, ImmutableArray<string> expectedNewTexts)
-        {
-            var action = actions.Where(_ => _.Title == title).First();
-
-            var operation = (await action.GetOperationsAsync(
-                new CancellationToken(false))).ToArray()[0] as ApplyChangesOperation;
-            var newDoc = operation.ChangedSolution.GetDocument(document.Id);
-            var newTree = await newDoc.GetSyntaxTreeAsync();
-            var changes = newTree.GetChanges(tree);
-
-            Assert.That(changes.Count, Is.EqualTo(expectedNewTexts.Length), nameof(changes.Count));
-
-            foreach (var expectedNewText in expectedNewTexts)
-            {
-                Assert.That(changes.Any(_ => _.NewText == expectedNewText), Is.True,
-                    string.Join($"{Environment.NewLine}{Environment.NewLine}", changes.Select(_ => $"Change text: {_.NewText}")));
-            }
-        }
-
         internal static async Task RunAnalysisAsync<T>(string path, string[] diagnosticIds,
             Action<ImmutableArray<Diagnostic>> diagnosticInspector = null)
             where T : DiagnosticAnalyzer, new()
