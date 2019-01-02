@@ -18,8 +18,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             Assert.That(codeFix.GetFixAllProvider(), Is.EqualTo(WellKnownFixAllProviders.BatchFixer));
         }
 
-        private sealed class TestableClassicModelAssertUsageCodeFix
-            : ClassicModelAssertUsageCodeFix
+        private sealed class TestableClassicModelAssertUsageCodeFix : ClassicModelAssertUsageCodeFix
         {
             public override ImmutableArray<string> FixableDiagnosticIds
             {

@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
-using System.Threading.Tasks;
+using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.ClassicModelAssertUsage;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
@@ -8,10 +10,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 {
     [TestFixture]
     public sealed class AreNotEqualClassicModelAssertUsageCodeFixTests
-        : CodeFixTests
     {
-        private static readonly string BasePath =
-            $@"{TestContext.CurrentContext.TestDirectory}\Targets\ClassicModelAssertUsage\{nameof(AreNotEqualClassicModelAssertUsageCodeFixTests)}";
+        private static readonly DiagnosticAnalyzer analyzer = new ClassicModelAssertUsageAnalyzer();
+        private static readonly CodeFixProvider fix = new AreNotEqualClassicModelAssertUsageCodeFix();
+        private static readonly ExpectedDiagnostic expectedDiagnostic =
+            ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreNotEqualUsage);
 
         [Test]
         public void VerifyGetFixableDiagnosticIds()
@@ -20,35 +23,55 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var ids = fix.FixableDiagnosticIds.ToImmutableArray();
 
             Assert.That(ids.Length, Is.EqualTo(1), nameof(ids.Length));
-            Assert.That(ids[0], Is.EqualTo(AnalyzerIdentifiers.AreNotEqualUsage),
-                nameof(AnalyzerIdentifiers.AreNotEqualUsage));
+            Assert.That(ids[0], Is.EqualTo(AnalyzerIdentifiers.AreNotEqualUsage), nameof(AnalyzerIdentifiers.AreNotEqualUsage));
         }
 
         [Test]
-        public async Task VerifyGetFixes()
+        public void VerifyAreNotEqualFix()
         {
-            await this.VerifyGetFixes<ClassicModelAssertUsageAnalyzer, AreNotEqualClassicModelAssertUsageCodeFix>(
-                $"{AreNotEqualClassicModelAssertUsageCodeFixTests.BasePath}{(nameof(this.VerifyGetFixes))}.cs",
-                1, CodeFixConstants.TransformToConstraintModelDescription,
-                new[] { "That(", ", Is.Not.EqualTo(2d)" }.ToImmutableArray());
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            ↓Assert.AreNotEqual(2d, 3d);
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(3d, Is.Not.EqualTo(2d));
+        }");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public async Task VerifyGetFixesWithMessage()
+        public void VerifyAreNotEqualFixWithMessage()
         {
-            await this.VerifyGetFixes<ClassicModelAssertUsageAnalyzer, AreNotEqualClassicModelAssertUsageCodeFix>(
-                $"{AreNotEqualClassicModelAssertUsageCodeFixTests.BasePath}{(nameof(this.VerifyGetFixesWithMessage))}.cs",
-                1, CodeFixConstants.TransformToConstraintModelDescription,
-                new[] { "That(", "Is.Not.EqualTo(2d), " }.ToImmutableArray());
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            ↓Assert.AreNotEqual(2d, 3d, ""message"");
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(3d, Is.Not.EqualTo(2d), ""message"");
+        }");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public async Task VerifyGetFixesWithMessageAndParams()
+        public void VerifyAreNotEqualFixWithMessageAndParams()
         {
-            await this.VerifyGetFixes<ClassicModelAssertUsageAnalyzer, AreNotEqualClassicModelAssertUsageCodeFix>(
-                $"{AreNotEqualClassicModelAssertUsageCodeFixTests.BasePath}{(nameof(this.VerifyGetFixesWithMessageAndParams))}.cs",
-                1, CodeFixConstants.TransformToConstraintModelDescription,
-                new[] { "That(", "Is.Not.EqualTo(2d), " }.ToImmutableArray());
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            ↓Assert.AreNotEqual(2d, 3d, ""message"", Guid.NewGuid());
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(3d, Is.Not.EqualTo(2d), ""message"", Guid.NewGuid());
+        }");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
     }
 }

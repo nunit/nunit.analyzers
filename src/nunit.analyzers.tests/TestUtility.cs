@@ -18,5 +18,13 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
 }}";
         }
 
+        internal static string WrapMethodInClassNamespaceAndAddUsings(string method)
+        {
+            return WrapClassInNamespaceAndAddUsing($@"
+    [TestFixture]
+    public class TestClass
+    {{{method}
+    }}");
+        }
     }
 }
