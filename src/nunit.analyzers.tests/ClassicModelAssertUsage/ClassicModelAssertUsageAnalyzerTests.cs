@@ -1,7 +1,6 @@
-using System;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading.Tasks;
+using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.ClassicModelAssertUsage;
@@ -13,8 +12,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     [TestFixture]
     public sealed class ClassicModelAssertUsageAnalyzerTests
     {
-        private static readonly string BasePath =
-            $@"{TestContext.CurrentContext.TestDirectory}\Targets\ClassicModelAssertUsage\{nameof(ClassicModelAssertUsageAnalyzerTests)}";
+        private readonly DiagnosticAnalyzer analyzer = new ClassicModelAssertUsageAnalyzer();
 
         [Test]
         public void VerifySupportedDiagnostics()
@@ -53,148 +51,173 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public async Task AnalyzeWhenThatIsUsed()
+        public void AnalyzeWhenThatIsUsed()
         {
-            await TestHelpers.RunAnalysisAsync<ClassicModelAssertUsageAnalyzer>(
-                $"{ClassicModelAssertUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenThatIsUsed))}.cs",
-                Array.Empty<string>());
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenThatIsUsed
+    {
+        public void Test()
+        {
+            Assert.That(true, Is.True);
+        }
+    }");
+            AnalyzerAssert.Valid<ClassicModelAssertUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenDiagnosticIssuesExist()
+        public void AnalyzeWhenInvocationIsNotFromAssert()
         {
-            await TestHelpers.RunAnalysisAsync<ClassicModelAssertUsageAnalyzer>(
-                $"{ClassicModelAssertUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenDiagnosticIssuesExist))}.cs",
-                Array.Empty<string>());
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenInvocationIsNotFromAssert
+    {
+        public void Test()
+        {
+            Assert.AreEqual(3, 4);
+        }
+
+        private static class Assert
+        {
+            public static bool AreEqual(int a, int b) => false;
+        }
+    }");
+            AnalyzerAssert.Valid<ClassicModelAssertUsageAnalyzer>(testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenInvocationIsNotFromAssert()
+        public void AnalyzeWhenIsTrueIsUsed()
         {
-            await TestHelpers.RunAnalysisAsync<ClassicModelAssertUsageAnalyzer>(
-                $"{ClassicModelAssertUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenInvocationIsNotFromAssert))}.cs",
-                Array.Empty<string>());
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.IsTrueUsage,
+                ClassicModelUsageAnalyzerConstants.Message);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsTrueIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsTrue(true);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenIsTrueIsUsed()
+        public void AnalyzeWhenTrueIsUsed()
         {
-            await TestHelpers.RunAnalysisAsync<ClassicModelAssertUsageAnalyzer>(
-                $"{ClassicModelAssertUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenIsTrueIsUsed))}.cs",
-                new[] { AnalyzerIdentifiers.IsTrueUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.ModelName], Is.EqualTo(nameof(Assert.IsTrue)),
-                        AnalyzerPropertyKeys.ModelName);
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.HasToleranceValue], Is.EqualTo(false.ToString()),
-                        AnalyzerPropertyKeys.HasToleranceValue);
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TrueUsage,
+                ClassicModelUsageAnalyzerConstants.Message);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTrueIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.True(true);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenTrueIsUsed()
+        public void AnalyzeWhenIsFalseIsUsed()
         {
-            await TestHelpers.RunAnalysisAsync<ClassicModelAssertUsageAnalyzer>(
-                $"{ClassicModelAssertUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenTrueIsUsed))}.cs",
-                new[] { AnalyzerIdentifiers.TrueUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.ModelName], Is.EqualTo(nameof(Assert.True)),
-                        AnalyzerPropertyKeys.ModelName);
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.HasToleranceValue], Is.EqualTo(false.ToString()),
-                        AnalyzerPropertyKeys.HasToleranceValue);
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.IsFalseUsage,
+                ClassicModelUsageAnalyzerConstants.Message);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsFalseIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsFalse(false);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenIsFalseIsUsed()
+        public void AnalyzeWhenFalseIsUsed()
         {
-            await TestHelpers.RunAnalysisAsync<ClassicModelAssertUsageAnalyzer>(
-                $"{ClassicModelAssertUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenIsFalseIsUsed))}.cs",
-                new[] { AnalyzerIdentifiers.IsFalseUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.ModelName], Is.EqualTo(nameof(Assert.IsFalse)),
-                       AnalyzerPropertyKeys.ModelName);
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.HasToleranceValue], Is.EqualTo(false.ToString()),
-                        AnalyzerPropertyKeys.HasToleranceValue);
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.FalseUsage,
+                ClassicModelUsageAnalyzerConstants.Message);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenFalseIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.False(false);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenFalseIsUsed()
+        public void AnalyzeWhenAreEqualIsUsed()
         {
-            await TestHelpers.RunAnalysisAsync<ClassicModelAssertUsageAnalyzer>(
-                $"{ClassicModelAssertUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenFalseIsUsed))}.cs",
-                new[] { AnalyzerIdentifiers.FalseUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.ModelName], Is.EqualTo(nameof(Assert.False)),
-                       AnalyzerPropertyKeys.ModelName);
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.HasToleranceValue], Is.EqualTo(false.ToString()),
-                        AnalyzerPropertyKeys.HasToleranceValue);
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.AreEqualUsage,
+                ClassicModelUsageAnalyzerConstants.Message);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenAreEqualIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.AreEqual(2, 2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenAreEqualIsUsed()
+        public void AnalyzeWhenAreEqualIsUsedWithTolerance()
         {
-            await TestHelpers.RunAnalysisAsync<ClassicModelAssertUsageAnalyzer>(
-                $"{ClassicModelAssertUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenAreEqualIsUsed))}.cs",
-                new[] { AnalyzerIdentifiers.AreEqualUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.ModelName], Is.EqualTo(nameof(Assert.AreEqual)),
-                       AnalyzerPropertyKeys.ModelName);
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.HasToleranceValue], Is.EqualTo(false.ToString()),
-                        AnalyzerPropertyKeys.HasToleranceValue);
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.AreEqualUsage,
+                ClassicModelUsageAnalyzerConstants.Message);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenAreEqualIsUsedWithTolerance
+    {
+        public void Test()
+        {
+            ↓Assert.AreEqual(2d, 2d, 0.0000001d);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenAreEqualIsUsedWithTolerance()
+        public void AnalyzeWhenAreNotEqualIsUsed()
         {
-            await TestHelpers.RunAnalysisAsync<ClassicModelAssertUsageAnalyzer>(
-                $"{ClassicModelAssertUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenAreEqualIsUsedWithTolerance))}.cs",
-                new[] { AnalyzerIdentifiers.AreEqualUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.ModelName], Is.EqualTo(nameof(Assert.AreEqual)),
-                        AnalyzerPropertyKeys.ModelName);
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.HasToleranceValue], Is.EqualTo(true.ToString()),
-                      AnalyzerPropertyKeys.HasToleranceValue);
-                });
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.AreNotEqualUsage,
+                ClassicModelUsageAnalyzerConstants.Message);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenAreNotEqualIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.AreNotEqual(2, 3);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public async Task AnalyzeWhenAreNotEqualIsUsed()
+        public void AnalyzeWhenInvocationIsNotWithinAMethod()
         {
-            await TestHelpers.RunAnalysisAsync<ClassicModelAssertUsageAnalyzer>(
-                $"{ClassicModelAssertUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenAreNotEqualIsUsed))}.cs",
-                new[] { AnalyzerIdentifiers.AreNotEqualUsage },
-                diagnostics =>
-                {
-                    var diagnostic = diagnostics[0];
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.ModelName], Is.EqualTo(nameof(Assert.AreNotEqual)),
-                        AnalyzerPropertyKeys.ModelName);
-                    Assert.That(diagnostic.Properties[AnalyzerPropertyKeys.HasToleranceValue], Is.EqualTo(false.ToString()),
-                       AnalyzerPropertyKeys.HasToleranceValue);
-                });
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenInvocationIsNotWithinAMethod
+    {
+        private static readonly string fullTypeName = typeof(string).GetType().FullName;
+    }");
+            AnalyzerAssert.Valid<ClassicModelAssertUsageAnalyzer>(testCode);
         }
-
-        [Test]
-        public async Task AnalyzeWhenInvocationIsNotWithinAMethod()
-        {
-            await TestHelpers.RunAnalysisAsync<ClassicModelAssertUsageAnalyzer>(
-                $"{ClassicModelAssertUsageAnalyzerTests.BasePath}{(nameof(this.AnalyzeWhenInvocationIsNotWithinAMethod))}.cs",
-                Array.Empty<string>());
-        }
-
     }
 }
