@@ -8,17 +8,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreEqualIsUsed.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreEqualIsUsedWithTolerance.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreNotEqualIsUsed.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenDiagnosticIssuesExist.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenFalseIsUsed.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenInvocationIsNotFromAssert.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenInvocationIsNotWithinAMethod.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenIsFalseIsUsed.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenIsTrueIsUsed.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenThatIsUsed.cs" />
-    <Compile Remove="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenTrueIsUsed.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsNotAssignable.cs" />
@@ -55,41 +44,6 @@
     <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenThisIsNull.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenInvocationIsNotWithinAMethod.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreEqualIsUsed.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreEqualIsUsedWithTolerance.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenAreNotEqualIsUsed.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenDiagnosticIssuesExist.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenFalseIsUsed.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenInvocationIsNotFromAssert.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenIsFalseIsUsed.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenIsTrueIsUsed.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenThatIsUsed.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\ClassicModelAssertUsage\ClassicModelAssertUsageAnalyzerTestsAnalyzeWhenTrueIsUsed.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
