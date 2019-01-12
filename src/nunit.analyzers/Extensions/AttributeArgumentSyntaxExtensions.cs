@@ -22,7 +22,7 @@ namespace NUnit.Analyzers.Extensions
             TypeInfo sourceTypeInfo = model.GetTypeInfo(@this.Expression);
             ITypeSymbol argumentType = sourceTypeInfo.Type;
 
-            if (sourceTypeInfo.Type == null)
+            if (argumentType == null)
             {
                 return target.IsReferenceType ||
                     target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
