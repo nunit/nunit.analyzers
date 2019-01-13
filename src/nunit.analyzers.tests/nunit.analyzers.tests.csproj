@@ -29,12 +29,6 @@
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsSByteAndArgumentIsInt32.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsInvalidString.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString.cs" />
-    <Compile Remove="Targets\Extensions\AttributeSyntaxExtensionsTestsGetArguments.cs" />
-    <Compile Remove="Targets\Extensions\AttributeSyntaxExtensionsTestsGetArgumentsWhenNoneExist.cs" />
-    <Compile Remove="Targets\Extensions\IMethodSymbolExtensionsTestsGetParameterCounts.cs" />
-    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsAssertType.cs" />
-    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsInNUnitAssemblyAndNotAssertType.cs" />
-    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsNotInNUnitAssembly.cs" />
     <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherImplementsInterface.cs" />
     <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsASubclass.cs" />
     <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsInDifferentAssembly.cs" />
@@ -105,24 +99,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\AttributeSyntaxExtensionsTestsGetArguments.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\AttributeSyntaxExtensionsTestsGetArgumentsWhenNoneExist.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\IMethodSymbolExtensionsTestsGetParameterCounts.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsAssertType.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsInNUnitAssemblyAndNotAssertType.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssertWhenSymbolIsNotInNUnitAssembly.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherImplementsInterface.cs">

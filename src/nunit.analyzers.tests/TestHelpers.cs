@@ -12,6 +12,11 @@ namespace NUnit.Analyzers.Tests
         internal static async Task<(SyntaxNode Node, SemanticModel Model)> GetRootAndModel(string file)
         {
             var code = File.ReadAllText(file);
+            return await GetRootAndModelFromString(code);
+        }
+
+        internal static async Task<(SyntaxNode Node, SemanticModel Model)> GetRootAndModelFromString(string code)
+        {
             var tree = CSharpSyntaxTree.ParseText(code);
 
             var compilation = CSharpCompilation.Create(Guid.NewGuid().ToString("N"),

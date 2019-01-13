@@ -105,25 +105,52 @@ namespace NUnit.Analyzers.Tests.Extensions
         [Test]
         public async Task IsAssertWhenSymbolIsNotInNUnitAssembly()
         {
-            Assert.That((await this.GetTypeSymbolFromFieldAsync(
-                $"{ITypeSymbolExtensionsTests.BasePath}{(nameof(this.IsAssertWhenSymbolIsNotInNUnitAssembly))}.cs",
-                $"{nameof(ITypeSymbolExtensionsTests)}{nameof(IsAssertWhenSymbolIsNotInNUnitAssembly)}")).IsAssert(), Is.False);
+            var testCode = @"
+using System;
+
+namespace NUnit.Analyzers.Tests.Targets.Extensions
+{
+    public sealed class IsAssertWhenSymbolIsNotInNUnitAssembly
+    {
+        public Guid x;
+    }
+}";
+            var typeSymbol = await this.GetTypeSymbolFromFieldAsync(testCode, "IsAssertWhenSymbolIsNotInNUnitAssembly");
+            Assert.That(typeSymbol.IsAssert(), Is.False);
         }
 
         [Test]
         public async Task IsAssertWhenSymbolIsInNUnitAssemblyAndNotAssertType()
         {
-            Assert.That((await this.GetTypeSymbolFromFieldAsync(
-                $"{ITypeSymbolExtensionsTests.BasePath}{(nameof(this.IsAssertWhenSymbolIsInNUnitAssemblyAndNotAssertType))}.cs",
-                $"{nameof(ITypeSymbolExtensionsTests)}{nameof(IsAssertWhenSymbolIsInNUnitAssemblyAndNotAssertType)}")).IsAssert(), Is.False);
+            var testCode = @"
+using NUnit.Framework;
+
+namespace NUnit.Analyzers.Tests.Targets.Extensions
+{
+    public sealed class IsAssertWhenSymbolIsInNUnitAssemblyAndNotAssertType
+    {
+        public Is x;
+    }
+}";
+            var typeSymbol = await this.GetTypeSymbolFromFieldAsync(testCode, "IsAssertWhenSymbolIsInNUnitAssemblyAndNotAssertType");
+            Assert.That(typeSymbol.IsAssert(), Is.False);
         }
 
         [Test]
         public async Task IsAssertWhenSymbolIsAssertType()
         {
-            Assert.That((await this.GetTypeSymbolFromFieldAsync(
-                $"{ITypeSymbolExtensionsTests.BasePath}{(nameof(this.IsAssertWhenSymbolIsAssertType))}.cs",
-                $"{nameof(ITypeSymbolExtensionsTests)}{nameof(IsAssertWhenSymbolIsAssertType)}")).IsAssert(), Is.True);
+            var testCode = @"
+using NUnit.Framework;
+
+namespace NUnit.Analyzers.Tests.Targets.Extensions
+{
+    public sealed class IsAssertWhenSymbolIsAssertType
+    {
+        public Assert x;
+    }
+}";
+            var typeSymbol = await this.GetTypeSymbolFromFieldAsync(testCode, "IsAssertWhenSymbolIsAssertType");
+            Assert.That(typeSymbol.IsAssert(), Is.True);
         }
 
         private async Task<ImmutableArray<ITypeSymbol>> GetTypeSymbolAsync(string file, string[] typeNames)
@@ -142,9 +169,9 @@ namespace NUnit.Analyzers.Tests.Extensions
             return types.ToImmutableArray();
         }
 
-        private async Task<ITypeSymbol> GetTypeSymbolFromFieldAsync(string file, string typeName)
+        private async Task<ITypeSymbol> GetTypeSymbolFromFieldAsync(string code, string typeName)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModel(file);
+            var rootAndModel = await TestHelpers.GetRootAndModelFromString(code);
 
             var fieldNode = rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>()
