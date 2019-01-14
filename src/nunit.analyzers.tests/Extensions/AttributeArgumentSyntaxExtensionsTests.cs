@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -6,217 +6,98 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Extensions;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 namespace NUnit.Analyzers.Tests.Extensions
 {
     [TestFixture]
     public sealed class AttributeArgumentSyntaxExtensionsTests
     {
-        private static readonly string BasePath =
-            $@"{TestContext.CurrentContext.TestDirectory}\Targets\Extensions\{nameof(AttributeArgumentSyntaxExtensionsTests)}";
-
-        [Test]
-        public async Task CanAssignToWhenArgumentIsNullAndTargetIsReferenceType()
+        static IEnumerable<TestCaseData> GetTestData()
         {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsNullAndTargetIsReferenceType))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
+            yield return new TestCaseData("null", "object", "object", Is.True).
+                SetName("CanAssignToWhenArgumentIsNullAndTargetIsReferenceType");
+            yield return new TestCaseData("null", "int?", "object", Is.True).
+                SetName("CanAssignToWhenArgumentIsNullAndTargetIsNullableType");
+            yield return new TestCaseData("null", "int", "object", Is.False).
+                SetName("CanAssignToWhenArgumentIsNullAndTargetIsValueType");
+            yield return new TestCaseData("\"x\"", "object", "string", Is.True).
+                SetName("CanAssignToWhenArgumentIsNotNullableAndAssignable");
+            yield return new TestCaseData("3", "int", "int?", Is.True).
+                SetName("CanAssignToWhenArgumentIsNullableAndAssignable");
+            yield return new TestCaseData("\"x\"", "Guid", "string", Is.False).
+                SetName("CanAssignToWhenArgumentIsNotAssignable");
+            yield return new TestCaseData("3", "short", "int", Is.True).
+                SetName("CanAssignToWhenParameterIsInt16AndArgumentIsInt32");
+            yield return new TestCaseData("3", "byte", "int", Is.True).
+                SetName("CanAssignToWhenParameterIsByteAndArgumentIsInt32");
+            yield return new TestCaseData("3", "sbyte", "int", Is.True).
+                SetName("CanAssignToWhenParameterIsSByteAndArgumentIsInt32");
+            yield return new TestCaseData("3", "double", "int", Is.True).
+                SetName("CanAssignToWhenParameterIsDoubleAndArgumentIsInt32");
+            yield return new TestCaseData("3d", "decimal", "double", Is.True).
+                SetName("CanAssignToWhenParameterIsDecimalAndArgumentIsDouble");
+            yield return new TestCaseData("\"3\"", "decimal", "string", Is.True).
+                SetName("CanAssignToWhenParameterIsDecimalAndArgumentIsValidString");
+            yield return new TestCaseData("\"x\"", "decimal", "string", Is.False).
+                SetName("CanAssignToWhenParameterIsDecimalAndArgumentIsInvalidString");
+            yield return new TestCaseData("3", "decimal", "int", Is.True).
+                SetName("CanAssignToWhenParameterIsDecimalAndArgumentIsInt32");
+            yield return new TestCaseData("3", "long?", "int", Is.True).
+                SetName("CanAssignToWhenParameterIsNullableInt64AndArgumentIsInt32");
+            yield return new TestCaseData("\"1/1/2000\"", "DateTime", "string", Is.True).
+                SetName("CanAssignToWhenParameterIsDateTimeAndArgumentIsValidString");
+            yield return new TestCaseData("\"x\"", "DateTime", "string", Is.False).
+                SetName("CanAssignToWhenParameterIsDateTimeAndArgumentIsInvalidString");
+            yield return new TestCaseData("\"00:03:00\"", "TimeSpan", "string", Is.True).
+                SetName("CanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString");
+            yield return new TestCaseData("\"x\"", "TimeSpan", "string", Is.False).
+                SetName("CanAssignToWhenParameterIsTimeSpanAndArgumentIsInvalidString");
+            yield return new TestCaseData("new[] { \"a\", \"b\", \"c\" }", "string[]", "string[]", Is.True).
+                SetName("CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable");
+            yield return new TestCaseData("new[] { \"a\", \"b\", \"c\" }", "int[]", "string[]", Is.False).
+                SetName("CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable");
         }
 
-        [Test]
-        public async Task CanAssignToWhenArgumentIsNullAndTargetIsNullableType()
+        [TestCaseSource(nameof(GetTestData))]
+        public async Task CanAssignToTests(string arguments, string methodParameterType,
+            string attributeParameterType, Constraint expectedResult)
         {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsNullAndTargetIsNullableType))}.cs");
+            var testCode = $@"
+using System;
 
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
+namespace NUnit.Analyzers.Tests.Targets.Extensions
+{{
+    public sealed class CanAssignToWhenArgumentIsNullAndTargetIsReferenceType
+    {{
+        [Arguments({arguments})]
+        public void Foo({methodParameterType} a) {{ }}
+
+        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+        public sealed class ArgumentsAttribute : Attribute
+        {{
+            public ArgumentsAttribute({attributeParameterType} x) {{ }}
+        }}
+    }}
+}}";
+            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(testCode);
+
+            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), expectedResult);
         }
 
-        [Test]
-        public async Task CanAssignToWhenArgumentIsNullAndTargetIsValueType()
+        private async static Task<(AttributeArgumentSyntax Syntax, ITypeSymbol TypeSymbol, SemanticModel Model)> GetAttributeSyntaxAsync(string code)
         {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsNullAndTargetIsValueType))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.False);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenArgumentIsNotNullableAndAssignable()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsNotNullableAndAssignable))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenArgumentIsNullableAndAssignable()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsNullableAndAssignable))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenArgumentIsNotAssignable()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsNotAssignable))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.False);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenParameterIsInt16AndArgumentIsInt32()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsInt16AndArgumentIsInt32))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenParameterIsByteAndArgumentIsInt32()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsByteAndArgumentIsInt32))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenParameterIsSByteAndArgumentIsInt32()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsSByteAndArgumentIsInt32))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenParameterIsDoubleAndArgumentIsInt32()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDoubleAndArgumentIsInt32))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenParameterIsDecimalAndArgumentIsDouble()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDecimalAndArgumentIsDouble))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenParameterIsDecimalAndArgumentIsValidString()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDecimalAndArgumentIsValidString))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenParameterIsDecimalAndArgumentIsInvalidString()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDecimalAndArgumentIsInvalidString))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.False);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenParameterIsDecimalAndArgumentIsInt32()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDecimalAndArgumentIsInt32))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenParameterIsNullableInt64AndArgumentIsInt32()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsNullableInt64AndArgumentIsInt32))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenParameterIsDateTimeAndArgumentIsValidString()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDateTimeAndArgumentIsValidString))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenParameterIsDateTimeAndArgumentIsInvalidString()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsDateTimeAndArgumentIsInvalidString))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.False);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenParameterIsTimeSpanAndArgumentIsInvalidString()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenParameterIsTimeSpanAndArgumentIsInvalidString))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.False);
-        }
-
-        private async static Task<(AttributeArgumentSyntax Syntax, ITypeSymbol TypeSymbol, SemanticModel Model)> GetAttributeSyntaxAsync(string file)
-        {
-            var rootAndModel = await TestHelpers.GetRootAndModel(file);
+            var rootAndModel = await TestHelpers.GetRootAndModel(code);
 
             // It's assumed the code will have one attribute with one argument,
             // along with one method with one parameter
-            return (
-                rootAndModel.Node.DescendantNodes().OfType<AttributeSyntax>().Single(
-                    _ => _.Name.ToFullString() == "Arguments")
-                    .DescendantNodes().OfType<AttributeArgumentSyntax>().Single(),
-                rootAndModel.Model.GetDeclaredSymbol(
-                    rootAndModel.Node.DescendantNodes().OfType<MethodDeclarationSyntax>().Single()).Parameters[0].Type,
-                rootAndModel.Model);
-        }
+            var attributeArgumentSyntax = rootAndModel.Node.DescendantNodes().OfType<AttributeSyntax>()
+                .Single(_ => _.Name.ToFullString() == "Arguments")
+                .DescendantNodes().OfType<AttributeArgumentSyntax>().Single();
+            var typeSymbol = rootAndModel.Model.GetDeclaredSymbol(
+                    rootAndModel.Node.DescendantNodes().OfType<MethodDeclarationSyntax>().Single()).Parameters[0].Type;
 
-        [Test]
-        public async Task CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.True);
-        }
-
-        [Test]
-        public async Task CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable()
-        {
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(
-                $"{AttributeArgumentSyntaxExtensionsTests.BasePath}{(nameof(this.CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable))}.cs");
-
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), Is.False);
+            return (attributeArgumentSyntax, typeSymbol, rootAndModel.Model);
         }
     }
 }

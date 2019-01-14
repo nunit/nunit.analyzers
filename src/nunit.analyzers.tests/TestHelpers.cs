@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -9,9 +8,8 @@ namespace NUnit.Analyzers.Tests
 {
     internal static class TestHelpers
     {
-        internal static async Task<(SyntaxNode Node, SemanticModel Model)> GetRootAndModel(string file)
+        internal static async Task<(SyntaxNode Node, SemanticModel Model)> GetRootAndModel(string code)
         {
-            var code = File.ReadAllText(file);
             var tree = CSharpSyntaxTree.ParseText(code);
 
             var compilation = CSharpCompilation.Create(Guid.NewGuid().ToString("N"),
