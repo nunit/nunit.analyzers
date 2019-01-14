@@ -67,7 +67,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
         private async static Task<AttributeSyntax> GetAttributeSyntaxAsync(string code, string typeName)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModelFromString(code);
+            var rootAndModel = await TestHelpers.GetRootAndModel(code);
 
             return rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>()

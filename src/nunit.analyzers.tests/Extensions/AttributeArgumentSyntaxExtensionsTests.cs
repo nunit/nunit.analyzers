@@ -87,7 +87,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
         private async static Task<(AttributeArgumentSyntax Syntax, ITypeSymbol TypeSymbol, SemanticModel Model)> GetAttributeSyntaxAsync(string code)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModelFromString(code);
+            var rootAndModel = await TestHelpers.GetRootAndModel(code);
 
             // It's assumed the code will have one attribute with one argument,
             // along with one method with one parameter

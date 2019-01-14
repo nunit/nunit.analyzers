@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
         private async Task<IMethodSymbol> GetMethodSymbolAsync(string code)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModelFromString(code);
+            var rootAndModel = await TestHelpers.GetRootAndModel(code);
 
             return rootAndModel.Model.GetDeclaredSymbol(rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>().Single()

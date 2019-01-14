@@ -202,7 +202,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
         private async Task<ImmutableArray<ITypeSymbol>> GetTypeSymbolAsync(string code, string[] typeNames)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModelFromString(code);
+            var rootAndModel = await TestHelpers.GetRootAndModel(code);
 
             var types = new List<ITypeSymbol>();
 
@@ -218,7 +218,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
         private async Task<ITypeSymbol> GetTypeSymbolFromFieldAsync(string code, string typeName)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModelFromString(code);
+            var rootAndModel = await TestHelpers.GetRootAndModel(code);
 
             var fieldNode = rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>()
