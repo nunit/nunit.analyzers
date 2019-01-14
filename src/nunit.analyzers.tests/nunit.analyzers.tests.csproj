@@ -29,13 +29,6 @@
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsSByteAndArgumentIsInt32.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsInvalidString.cs" />
     <Compile Remove="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString.cs" />
-    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherImplementsInterface.cs" />
-    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsASubclass.cs" />
-    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsInDifferentAssembly.cs" />
-    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNotASubclass.cs" />
-    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNull.cs" />
-    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsSameTypeAsThis.cs" />
-    <Compile Remove="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenThisIsNull.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable.cs">
@@ -99,27 +92,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Targets\Extensions\AttributeArgumentSyntaxExtensionsTestsCanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherImplementsInterface.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsASubclass.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsInDifferentAssembly.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNotASubclass.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsNull.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenOtherIsSameTypeAsThis.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Targets\Extensions\ITypeSymbolExtensionsTestsIsAssignableFromWhenThisIsNull.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
