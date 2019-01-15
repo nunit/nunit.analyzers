@@ -43,22 +43,41 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             {
                 context.CancellationToken.ThrowIfCancellationRequested();
 
-                var arguments = attributeNode.ArgumentList.Arguments;
-
-                // If the First Argument is a String Constant we're in trouble
-                var firstArgument = arguments.FirstOrDefault().Expression;
-                var firstArgumentIsStringConstant = firstArgument.Kind() == SyntaxKind.StringLiteralExpression;
-
-                if (firstArgumentIsStringConstant)
+                if (attributeNode.ArgumentList is AttributeArgumentListSyntax argumentList &&
+                    argumentList.Arguments.Count == 1 &&
+                    argumentList.Arguments.FirstOrDefault()?.Expression is LiteralExpressionSyntax literal &&
+                    literal.IsKind(SyntaxKind.StringLiteralExpression))
                 {
-                    var stringConstant = ((LiteralExpressionSyntax)firstArgument).Token.ValueText;
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        CreateDescriptor(string.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, stringConstant)),
-                        attributeNode.GetLocation(),
-                        ImmutableDictionary.Create<string, string>().Add("StringConstant", stringConstant)
-                        ));
+                    if (HasMember(context, literal))
+                    {
+                        var stringConstant = literal.Token.ValueText;
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            CreateDescriptor(string.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, stringConstant)),
+                            literal.GetLocation()));
+                    }
                 }
             }
+        }
+
+        private static bool HasMember(SyntaxNodeAnalysisContext context, LiteralExpressionSyntax literal)
+        {
+            if (!SyntaxFacts.IsValidIdentifier(literal.Token.ValueText))
+            {
+                return false;
+            }
+
+
+            foreach (var symbol in context.SemanticModel.LookupSymbols(literal.SpanStart, container: context.ContainingSymbol.ContainingType, name: literal.Token.ValueText))
+            {
+                switch (symbol.Kind)
+                {
+                    case SymbolKind.Field:
+                    case SymbolKind.Property:
+                        return true;
+                }
+            }
+
+            return false;
         }
     }
 }
