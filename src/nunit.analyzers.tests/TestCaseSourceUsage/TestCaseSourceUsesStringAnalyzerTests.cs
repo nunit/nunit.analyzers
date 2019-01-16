@@ -10,9 +10,9 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     [TestFixture]
     public sealed class TestCaseSourceUsesStringAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer Analyzer = new TestCaseSourceUsesStringAnalyzer();
-        private static readonly ExpectedDiagnostic ExpectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseSourceStringUsage);
-        private static readonly CodeFixProvider Fix = new UseNameofFix();
+        private static readonly DiagnosticAnalyzer analyzer = new TestCaseSourceUsesStringAnalyzer();
+        private static readonly ExpectedDiagnostic expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseSourceStringUsage);
+        private static readonly CodeFixProvider fix = new UseNameofFix();
 
         [Test]
         public void AnalyzeWhenNameOf()
@@ -49,7 +49,23 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
-        public void FixWhenStringLiteral()
+        public void NoWarningWhenStringLiteralMissingMember()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class AnalyzeWhenTypeOf
+    {
+        [TestCaseSource(""Missing"")]
+        public void Test()
+        {
+        }
+    }");
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]
+        [TestCase("private static readonly TestCaseData[] TestCases => new TestCaseData[0];")]
+        [TestCase("private static readonly TestCaseData[] TestCases() => new TestCaseData[0];")]
+        public void FixWhenStringLiteral(string testCaseMemmber)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public class AnalyzeWhenStringConstant
@@ -60,7 +76,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         public void Test()
         {
         }
-    }");
+    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMemmber);
 
             var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public class AnalyzeWhenStringConstant
@@ -71,9 +87,10 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         public void Test()
         {
         }
-    }");
+    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMemmber);
+
             var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
-            AnalyzerAssert.CodeFix(Analyzer, Fix, ExpectedDiagnostic.WithMessage(message), testCode, fixedCode, allowCompilationErrors: AllowCompilationErrors.Yes);
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode, allowCompilationErrors: AllowCompilationErrors.Yes);
         }
 
         [Test]
@@ -114,7 +131,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     }");
 
             var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
-            AnalyzerAssert.CodeFix(Analyzer, Fix, ExpectedDiagnostic.WithMessage(message), testCode, fixedCode, allowCompilationErrors: AllowCompilationErrors.Yes);
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode, allowCompilationErrors: AllowCompilationErrors.Yes);
         }
     }
 }

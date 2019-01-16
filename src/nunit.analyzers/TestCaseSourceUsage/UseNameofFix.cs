@@ -35,12 +35,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                                 context.Document.WithSyntaxRoot(
                                     syntaxRoot.ReplaceNode(
                                         literal,
-                                        SyntaxFactory.InvocationExpression(
-                                            SyntaxFactory.IdentifierName(SyntaxFacts.GetText(SyntaxKind.NameOfKeyword)),
-                                            SyntaxFactory.ArgumentList(
-                                                SyntaxFactory.SingletonSeparatedList(
-                                                    SyntaxFactory.Argument(
-                                                        SyntaxFactory.IdentifierName(literal.Token.ValueText)))))))),
+                                        SyntaxFactory.ParseExpression($"nameof({literal.Token.ValueText})")))),
                             nameof(UseNameofFix)),
                         diagnostic);
                 }

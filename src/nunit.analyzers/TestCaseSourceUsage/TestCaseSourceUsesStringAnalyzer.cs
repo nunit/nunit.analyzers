@@ -24,10 +24,10 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterSyntaxNodeAction(AnalyzeAttribute, SyntaxKind.Attribute);
+            context.RegisterSyntaxNodeAction(x => AnalyzeAttribute(x), SyntaxKind.Attribute);
         }
 
-        private void AnalyzeAttribute(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context)
         {
             var testCaseSourceType = context.SemanticModel.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute);
             if (testCaseSourceType == null)
@@ -45,7 +45,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
                 if (attributeNode.ArgumentList is AttributeArgumentListSyntax argumentList &&
                     argumentList.Arguments.Count == 1 &&
-                    argumentList.Arguments.FirstOrDefault()?.Expression is LiteralExpressionSyntax literal &&
+                    argumentList.Arguments[0]?.Expression is LiteralExpressionSyntax literal &&
                     literal.IsKind(SyntaxKind.StringLiteralExpression))
                 {
                     if (HasMember(context, literal))
@@ -66,13 +66,13 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 return false;
             }
 
-
             foreach (var symbol in context.SemanticModel.LookupSymbols(literal.SpanStart, container: context.ContainingSymbol.ContainingType, name: literal.Token.ValueText))
             {
                 switch (symbol.Kind)
                 {
                     case SymbolKind.Field:
                     case SymbolKind.Property:
+                    case SymbolKind.Method:
                         return true;
                 }
             }
