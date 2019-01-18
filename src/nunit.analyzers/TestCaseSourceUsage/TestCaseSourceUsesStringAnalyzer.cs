@@ -10,6 +10,14 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TestCaseSourceUsesStringAnalyzer : DiagnosticAnalyzer
     {
+        private static readonly DiagnosticDescriptor MissingSource = new DiagnosticDescriptor(
+            AnalyzerIdentifiers.TestCaseSourceIsMissing,
+            "TestCaseSource argument does not specify an existing member.",
+            "TestCaseSource argument does not specify an existing member.",
+            Categories.Usage,
+            DiagnosticSeverity.Warning,
+            true);
+
         private static DiagnosticDescriptor CreateDescriptor(string message) =>
             new DiagnosticDescriptor(
                 AnalyzerIdentifiers.TestCaseSourceStringUsage,
@@ -20,7 +28,8 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 true);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            CreateDescriptor(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage));
+            CreateDescriptor(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage),
+            MissingSource);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -54,6 +63,10 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                         context.ReportDiagnostic(Diagnostic.Create(
                             CreateDescriptor(string.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, stringConstant)),
                             literal.GetLocation()));
+                    }
+                    else
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(MissingSource, literal.GetLocation()));
                     }
                 }
             }
