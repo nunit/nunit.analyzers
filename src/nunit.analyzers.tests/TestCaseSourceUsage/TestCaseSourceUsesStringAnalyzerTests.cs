@@ -1,5 +1,5 @@
-using System;
 using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.TestCaseSourceUsage;
@@ -10,7 +10,9 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     [TestFixture]
     public sealed class TestCaseSourceUsesStringAnalyzerTests
     {
-        private DiagnosticAnalyzer analyzer = new TestCaseSourceUsesStringAnalyzer();
+        private static readonly DiagnosticAnalyzer analyzer = new TestCaseSourceUsesStringAnalyzer();
+        private static readonly ExpectedDiagnostic expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseSourceStringUsage);
+        private static readonly CodeFixProvider fix = new UseNameofFix();
 
         [Test]
         public void AnalyzeWhenNameOf()
@@ -47,45 +49,89 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
-        public void AnalyzeWhenStringConstant()
+        public void NoWarningWhenStringLiteralMissingMember()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestCaseSourceStringUsage,
-                String.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, "Tests"));
-
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenStringConstant
+    public class AnalyzeWhenTypeOf
     {
-        [↓TestCaseSource(""Tests"")]
+        [TestCaseSource(""Missing"")]
         public void Test()
         {
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]
+        [TestCase("private static TestCaseData[] TestCases => new TestCaseData[0];")]
+        [TestCase("private static TestCaseData[] TestCases() => new TestCaseData[0];")]
+        public void FixWhenStringLiteral(string testCaseMember)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class AnalyzeWhenStringConstant
+    {
+        private static readonly TestCaseData[] TestCases = new TestCaseData[0];
+
+        [TestCaseSource(↓""TestCases"")]
+        public void Test()
+        {
+        }
+    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMember);
+
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class AnalyzeWhenStringConstant
+    {
+        private static readonly TestCaseData[] TestCases = new TestCaseData[0];
+
+        [TestCaseSource(nameof(TestCases))]
+        public void Test()
+        {
+        }
+    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMember);
+
+            var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
 
         [Test]
-        public void AnalyzeWhenMultipleUnrelatedAttributes()
+        public void FixWhenMultipleUnrelatedAttributes()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestCaseSourceStringUsage,
-                String.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, "StringConstant"));
-
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     [TestFixture]
     public class AnalyzeWhenMultipleUnrelatedAttributes
     {
+        private static readonly TestCaseData[] TestCases = new TestCaseData[0];
+
         [Test]
         public void UnrelatedTest()
         {
         }
 
-        [↓TestCaseSource(""StringConstant"")]
+        [TestCaseSource(↓""TestCases"")]
         public void Test()
         {
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenMultipleUnrelatedAttributes
+    {
+        private static readonly TestCaseData[] TestCases = new TestCaseData[0];
+
+        [Test]
+        public void UnrelatedTest()
+        {
+        }
+
+        [TestCaseSource(nameof(TestCases))]
+        public void Test()
+        {
+        }
+    }");
+
+            var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
     }
 }
