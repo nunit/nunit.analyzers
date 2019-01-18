@@ -1,4 +1,4 @@
-using Gu.Roslyn.Asserts;
+﻿using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.TestCaseSourceUsage;
@@ -12,12 +12,12 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         private static readonly ExpectedDiagnostic expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseSourceIsMissing);
 
         [Test]
-        public void WarnsWhenStringLiteral()
+        public void ErrorsWhenSourceDoesNotExists()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public class Tests
     {
-        [TestCaseSource(""Missing"")]
+        [TestCaseSource(↓""Missing"")]
         public void Test()
         {
         }
