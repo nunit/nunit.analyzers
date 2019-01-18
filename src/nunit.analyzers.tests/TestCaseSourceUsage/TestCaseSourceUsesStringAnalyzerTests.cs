@@ -63,9 +63,9 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]
-        [TestCase("private static readonly TestCaseData[] TestCases => new TestCaseData[0];")]
-        [TestCase("private static readonly TestCaseData[] TestCases() => new TestCaseData[0];")]
-        public void FixWhenStringLiteral(string testCaseMemmber)
+        [TestCase("private static TestCaseData[] TestCases => new TestCaseData[0];")]
+        [TestCase("private static TestCaseData[] TestCases() => new TestCaseData[0];")]
+        public void FixWhenStringLiteral(string testCaseMember)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public class AnalyzeWhenStringConstant
@@ -76,7 +76,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         public void Test()
         {
         }
-    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMemmber);
+    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMember);
 
             var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public class AnalyzeWhenStringConstant
@@ -87,10 +87,10 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         public void Test()
         {
         }
-    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMemmber);
+    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMember);
 
             var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode, allowCompilationErrors: AllowCompilationErrors.Yes);
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
 
         [Test]
@@ -131,7 +131,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     }");
 
             var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode, allowCompilationErrors: AllowCompilationErrors.Yes);
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
     }
 }
