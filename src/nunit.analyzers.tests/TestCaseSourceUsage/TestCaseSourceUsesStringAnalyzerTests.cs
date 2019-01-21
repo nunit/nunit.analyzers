@@ -1,4 +1,5 @@
 using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -59,7 +60,8 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         {
         }
     }");
-            AnalyzerAssert.Valid(analyzer, testCode);
+            var descriptor = new DiagnosticDescriptor(AnalyzerIdentifiers.TestCaseSourceStringUsage, string.Empty, string.Empty, string.Empty, DiagnosticSeverity.Warning, true);
+            AnalyzerAssert.Valid(analyzer, descriptor, testCode);
         }
 
         [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]
