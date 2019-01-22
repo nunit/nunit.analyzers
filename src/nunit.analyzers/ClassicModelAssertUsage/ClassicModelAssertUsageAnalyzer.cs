@@ -17,11 +17,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
         private static readonly ImmutableDictionary<string, DiagnosticDescriptor> name =
           new Dictionary<string, DiagnosticDescriptor>
           {
-              { "IsTrue", NUnit3.Descriptor },
-              { NameOfAssertTrue, ClassicModelAssertUsageAnalyzer.CreateDescriptor(NUnit4.Id) },
-              { "IsFalse", NUnit2.Descriptor },
               { "False", NUnit1.Descriptor },
-              { NameOfAssertAreEqual, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.AreEqualUsage) },
+              { "IsFalse", NUnit2.Descriptor },
+              { "IsTrue", NUnit3.Descriptor },
+              { "True", NUnit4.Descriptor },
+              { "AreEqual", NUnit5.Descriptor },
               { NameOfAssertAreNotEqual, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.AreNotEqualUsage) }
           }.ToImmutableDictionary();
 
@@ -68,7 +68,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             {
                 { AnalyzerPropertyKeys.ModelName, invocationSymbol.Name },
                 { AnalyzerPropertyKeys.HasToleranceValue,
-                    (invocationSymbol.Name == NameOfAssertAreEqual &&
+                    (invocationSymbol.Name == "AreEqual" &&
                         invocationSymbol.Parameters.Length >= 3 &&
                         invocationSymbol.Parameters[2].Type.SpecialType == SpecialType.System_Double).ToString() }
             }.ToImmutableDictionary();

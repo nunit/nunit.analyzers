@@ -36,8 +36,6 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             var diagnosticIds = diagnostics.Select(_ => _.Id).ToImmutableArray();
 
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreEqualUsage),
-                $"{AnalyzerIdentifiers.AreEqualUsage} is missing.");
             Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreNotEqualUsage),
                 $"{AnalyzerIdentifiers.AreNotEqualUsage} is missing.");
             Assert.That(diagnosticIds, Contains.Item(NUnit1.Id), 
@@ -48,6 +46,8 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 $"{NUnit3.Descriptor.Title} is missing.");
             Assert.That(diagnosticIds, Contains.Item(NUnit4.Id),
                 $"{NUnit4.Descriptor.Title} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(NUnit5.Id),
+                $"{NUnit5.Descriptor.Title} is missing.");
         }
 
         [Test]
@@ -158,9 +158,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void AnalyzeWhenAreEqualIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.AreEqualUsage,
-                ClassicModelUsageAnalyzerConstants.Message);
+            var expectedDiagnostic = ExpectedDiagnostic.Create(NUnit5.Descriptor);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenAreEqualIsUsed
@@ -176,9 +174,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void AnalyzeWhenAreEqualIsUsedWithTolerance()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.AreEqualUsage,
-                ClassicModelUsageAnalyzerConstants.Message);
+            var expectedDiagnostic = ExpectedDiagnostic.Create(NUnit5.Descriptor);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenAreEqualIsUsedWithTolerance

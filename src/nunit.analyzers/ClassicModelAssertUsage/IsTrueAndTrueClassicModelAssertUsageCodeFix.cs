@@ -5,7 +5,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using NUnit.Analyzers.Constants;
 
 namespace NUnit.Analyzers.ClassicModelAssertUsage
 {
@@ -23,7 +22,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             arguments.Insert(1, SyntaxFactory.Argument(
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIs),
+                    SyntaxFactory.IdentifierName("Is"),
                     SyntaxFactory.IdentifierName("True"))));
         }
     }
