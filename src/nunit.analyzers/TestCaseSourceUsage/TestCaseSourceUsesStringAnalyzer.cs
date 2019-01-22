@@ -42,11 +42,10 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 {
                     if (HasMember(context, literal))
                     {
-                        var stringConstant = literal.Token.ValueText;
                         context.ReportDiagnostic(Diagnostic.Create(
                             NUnit8.Descriptor,
                             literal.GetLocation(),
-                            stringConstant));
+                            literal.Token.ValueText));
                     }
                     else
                     {
