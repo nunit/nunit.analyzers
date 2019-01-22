@@ -9,7 +9,7 @@ namespace NUnit.Analyzers
 
         public static readonly DiagnosticDescriptor Descriptor = new DiagnosticDescriptor(
             Id,
-            TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantAnalyzerTitle,
+            "Find TestCaseSource(StringConstant) Usage",
             "Consider using nameof({0}) instead of \"{0}\"",
             Categories.Usage,
             DiagnosticSeverity.Warning,
