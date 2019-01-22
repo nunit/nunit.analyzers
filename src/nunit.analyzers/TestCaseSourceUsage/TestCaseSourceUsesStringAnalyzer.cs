@@ -10,17 +10,8 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TestCaseSourceUsesStringAnalyzer : DiagnosticAnalyzer
     {
-        private static DiagnosticDescriptor CreateDescriptor(string message) =>
-            new DiagnosticDescriptor(
-                AnalyzerIdentifiers.TestCaseSourceStringUsage,
-                TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantAnalyzerTitle,
-                message,
-                Categories.Usage,
-                DiagnosticSeverity.Warning,
-                true);
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            CreateDescriptor(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage),
+            NUnit8.Descriptor,
             NUnit17.Descriptor);
 
         public override void Initialize(AnalysisContext context)
@@ -53,8 +44,9 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                     {
                         var stringConstant = literal.Token.ValueText;
                         context.ReportDiagnostic(Diagnostic.Create(
-                            CreateDescriptor(string.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, stringConstant)),
-                            literal.GetLocation()));
+                            NUnit8.Descriptor,
+                            literal.GetLocation(),
+                            stringConstant));
                     }
                     else
                     {

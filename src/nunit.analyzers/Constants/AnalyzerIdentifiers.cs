@@ -9,7 +9,6 @@ namespace NUnit.Analyzers.Constants
         internal const string AreEqualUsage = "NUNIT_5";
         internal const string AreNotEqualUsage = "NUNIT_6";
         internal const string TestCaseParameterTypeMismatchUsage = "NUNIT_7";
-        internal const string TestCaseSourceStringUsage = "NUNIT_8";
         internal const string TestCaseNotEnoughArgumentsUsage = "NUNIT_9";
         internal const string TestCaseTooManyArgumentsUsage = "NUNIT_10";
         internal const string TestMethodExpectedResultTypeMismatchUsage = "NUNIT_11";

@@ -12,7 +12,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     public sealed class TestCaseSourceUsesStringAnalyzerTests
     {
         private static readonly DiagnosticAnalyzer analyzer = new TestCaseSourceUsesStringAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseSourceStringUsage);
+        private static readonly ExpectedDiagnostic expectedDiagnostic = ExpectedDiagnostic.Create(NUnit8.Descriptor);
         private static readonly CodeFixProvider fix = new UseNameofFix();
 
         [Test]
@@ -60,8 +60,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         {
         }
     }");
-            var descriptor = new DiagnosticDescriptor(AnalyzerIdentifiers.TestCaseSourceStringUsage, string.Empty, string.Empty, string.Empty, DiagnosticSeverity.Warning, true);
-            AnalyzerAssert.Valid(analyzer, descriptor, testCode);
+            AnalyzerAssert.Valid(analyzer, NUnit8.Descriptor, testCode);
         }
 
         [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]

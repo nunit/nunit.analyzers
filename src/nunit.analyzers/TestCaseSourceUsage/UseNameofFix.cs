@@ -15,7 +15,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
     public class UseNameofFix : CodeFixProvider
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
-            AnalyzerIdentifiers.TestCaseSourceStringUsage);
+            NUnit8.Id);
 
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
