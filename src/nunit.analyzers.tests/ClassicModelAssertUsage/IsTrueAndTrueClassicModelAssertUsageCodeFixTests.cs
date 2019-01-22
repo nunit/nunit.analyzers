@@ -21,11 +21,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var ids = fix.FixableDiagnosticIds.ToImmutableArray();
 
             Assert.That(ids.Length, Is.EqualTo(2), nameof(ids.Length));
-            Assert.That(ids, Contains.Item(AnalyzerIdentifiers.IsTrueUsage), nameof(AnalyzerIdentifiers.IsTrueUsage));
+            Assert.That(ids, Contains.Item(NUnit3.Id), nameof(NUnit3.Id));
             Assert.That(ids, Contains.Item(AnalyzerIdentifiers.TrueUsage), nameof(AnalyzerIdentifiers.TrueUsage));
         }
 
-        [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
+        [TestCase("IsTrue", NUnit3.Id)]
         [TestCase("True", AnalyzerIdentifiers.TrueUsage)]
         public void VerifyIsTrueAndTrueFixes(string assertion, string diagnosticId)
         {
@@ -44,7 +44,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
-        [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
+        [TestCase("IsTrue", NUnit3.Id)]
         [TestCase("True", AnalyzerIdentifiers.TrueUsage)]
         public void VerifyIsTrueAndTrueFixesWithMessage(string assertion, string diagnosticId)
         {
@@ -63,7 +63,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
-        [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
+        [TestCase("IsTrue", NUnit3.Id)]
         [TestCase("True", AnalyzerIdentifiers.TrueUsage)]
         public void VerifyIsTrueAndTrueFixesWithMessageAndParams(string assertion, string diagnosticId)
         {

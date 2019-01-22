@@ -17,7 +17,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
         private static readonly ImmutableDictionary<string, DiagnosticDescriptor> name =
           new Dictionary<string, DiagnosticDescriptor>
           {
-              { NameOfAssertIsTrue, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.IsTrueUsage) },
+              { "IsTrue", NUnit3.Descriptor },
               { NameOfAssertTrue, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.TrueUsage) },
               { "IsFalse", NUnit2.Descriptor },
               { "False", NUnit1.Descriptor },

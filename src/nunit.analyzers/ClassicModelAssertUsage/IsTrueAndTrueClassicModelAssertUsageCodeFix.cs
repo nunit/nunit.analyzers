@@ -15,7 +15,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
         : ClassicModelAssertUsageCodeFix
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
-            AnalyzerIdentifiers.IsTrueUsage,
+            NUnit3.Id,
             AnalyzerIdentifiers.TrueUsage);
 
         protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)

@@ -44,8 +44,8 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 $"{NUnit1.Descriptor.Title} is missing.");
             Assert.That(diagnosticIds, Contains.Item(NUnit2.Id),
                 $"{NUnit2.Descriptor.Title} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsTrueUsage),
-                $"{AnalyzerIdentifiers.IsTrueUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(NUnit3.Id),
+                $"{NUnit3.Descriptor.Title} is missing.");
             Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.TrueUsage),
                 $"{AnalyzerIdentifiers.TrueUsage} is missing.");
         }
@@ -87,7 +87,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void AnalyzeWhenIsTrueIsUsed()
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.IsTrueUsage,
+                NUnit3.Id,
                 ClassicModelUsageAnalyzerConstants.Message);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
