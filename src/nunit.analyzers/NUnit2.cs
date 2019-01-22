@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using NUnit.Analyzers.Constants;
 
 namespace NUnit.Analyzers
@@ -9,8 +9,8 @@ namespace NUnit.Analyzers
 
         public static readonly DiagnosticDescriptor Descriptor = new DiagnosticDescriptor(
             Id,
-            "Find Classic Assertion Usage",
-            "Consider changing from the classic model for assertions to the constraint model instead.",
+            ClassicModelUsageAnalyzerConstants.Title,
+            ClassicModelUsageAnalyzerConstants.Message,
             Categories.Usage,
             DiagnosticSeverity.Warning,
             true);
