@@ -19,7 +19,6 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfAssertIsTrue = "IsTrue";
         public const string NameOfAssertTrue = "True";
         public const string NameOfAssertIsFalse = "IsFalse";
-        public const string NameOfAssertFalse = "False";
         public const string NameOfAssertAreEqual = "AreEqual";
         public const string NameOfAssertAreNotEqual = "AreNotEqual";
         public const string NameOfAssertThat = "That";

@@ -20,7 +20,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
               { NameOfAssertIsTrue, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.IsTrueUsage) },
               { NameOfAssertTrue, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.TrueUsage) },
               { NameOfAssertIsFalse, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.IsFalseUsage) },
-              { NameOfAssertFalse, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.FalseUsage) },
+              { "False", NUnit1.Descriptor },
               { NameOfAssertAreEqual, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.AreEqualUsage) },
               { NameOfAssertAreNotEqual, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.AreNotEqualUsage) }
           }.ToImmutableDictionary();

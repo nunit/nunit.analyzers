@@ -22,11 +22,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             Assert.That(ids.Length, Is.EqualTo(2), nameof(ids.Length));
             Assert.That(ids, Contains.Item(AnalyzerIdentifiers.IsFalseUsage), nameof(AnalyzerIdentifiers.IsFalseUsage));
-            Assert.That(ids, Contains.Item(AnalyzerIdentifiers.FalseUsage), nameof(AnalyzerIdentifiers.FalseUsage));
+            Assert.That(ids, Contains.Item(NUnit1.Id), nameof(NUnit1));
         }
 
         [TestCase("IsFalse", AnalyzerIdentifiers.IsFalseUsage)]
-        [TestCase("False", AnalyzerIdentifiers.FalseUsage)]
+        [TestCase("False", NUnit1.Id)]
         public void VerifyIsFalseAndFalseFixes(string assertion, string diagnosticId)
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
@@ -45,7 +45,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [TestCase("IsFalse", AnalyzerIdentifiers.IsFalseUsage)]
-        [TestCase("False", AnalyzerIdentifiers.FalseUsage)]
+        [TestCase("False", NUnit1.Id)]
         public void VerifyIsFalseAndFalseFixesWithMessage(string assertion, string diagnosticId)
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
@@ -64,7 +64,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [TestCase("IsFalse", AnalyzerIdentifiers.IsFalseUsage)]
-        [TestCase("False", AnalyzerIdentifiers.FalseUsage)]
+        [TestCase("False", NUnit1.Id)]
         public void VerifyIsFalseAndFalseFixesWithMessageAndParams(string assertion, string diagnosticId)
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
