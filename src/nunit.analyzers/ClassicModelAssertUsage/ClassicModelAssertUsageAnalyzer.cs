@@ -6,7 +6,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
-using static NUnit.Analyzers.Constants.NunitFrameworkConstants;
 using static NUnit.Analyzers.Extensions.ITypeSymbolExtensions;
 
 namespace NUnit.Analyzers.ClassicModelAssertUsage
@@ -22,13 +21,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
               { "IsTrue", NUnit3.Descriptor },
               { "True", NUnit4.Descriptor },
               { "AreEqual", NUnit5.Descriptor },
-              { NameOfAssertAreNotEqual, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.AreNotEqualUsage) }
+              { "AreNotEqual", NUnit6.Descriptor }
           }.ToImmutableDictionary();
-
-        private static DiagnosticDescriptor CreateDescriptor(string identifier) =>
-            new DiagnosticDescriptor(identifier, ClassicModelUsageAnalyzerConstants.Title,
-                ClassicModelUsageAnalyzerConstants.Message, Categories.Usage,
-                DiagnosticSeverity.Warning, true);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.name.Values.ToImmutableArray();
 

@@ -18,7 +18,6 @@ namespace NUnit.Analyzers.Tests.Constants
         [TestCase(NunitFrameworkConstants.NameOfIsNot, nameof(Is.Not))]
         [TestCase(NunitFrameworkConstants.NameOfIsNotEqualTo, nameof(Is.Not.EqualTo))]
         [TestCase(NunitFrameworkConstants.NameOfAssert, nameof(Assert))]
-        [TestCase(NunitFrameworkConstants.NameOfAssertAreNotEqual, nameof(Assert.AreNotEqual))]
         [TestCase(NunitFrameworkConstants.NameOfAssertThat, nameof(Assert.That))]
         [TestCase(NunitFrameworkConstants.NameOfTestCaseAttribute, nameof(TestCaseAttribute))]
         [TestCase(NunitFrameworkConstants.NameOfExpectedResult, nameof(TestCaseAttribute.ExpectedResult))]

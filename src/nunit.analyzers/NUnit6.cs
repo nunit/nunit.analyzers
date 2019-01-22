@@ -1,11 +1,11 @@
-namespace NUnit.Analyzers
+﻿namespace NUnit.Analyzers
 {
     using Microsoft.CodeAnalysis;
     using NUnit.Analyzers.Constants;
 
-    public class NUnit5
+    public class NUnit6
     {
-        public const string Id = "NUNIT_5";
+        public const string Id = "NUNIT_6";
 
         public static readonly DiagnosticDescriptor Descriptor = new DiagnosticDescriptor(
             Id,

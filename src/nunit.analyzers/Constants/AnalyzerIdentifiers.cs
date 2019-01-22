@@ -2,7 +2,6 @@ namespace NUnit.Analyzers.Constants
 {
     internal static class AnalyzerIdentifiers
     {
-        internal const string AreNotEqualUsage = "NUNIT_6";
         internal const string TestCaseParameterTypeMismatchUsage = "NUNIT_7";
         internal const string TestCaseNotEnoughArgumentsUsage = "NUNIT_9";
         internal const string TestCaseTooManyArgumentsUsage = "NUNIT_10";

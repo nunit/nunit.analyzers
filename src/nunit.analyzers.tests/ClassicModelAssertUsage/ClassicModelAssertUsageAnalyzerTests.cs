@@ -36,8 +36,6 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             var diagnosticIds = diagnostics.Select(_ => _.Id).ToImmutableArray();
 
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreNotEqualUsage),
-                $"{AnalyzerIdentifiers.AreNotEqualUsage} is missing.");
             Assert.That(diagnosticIds, Contains.Item(NUnit1.Id), 
                 $"{NUnit1.Descriptor.Title} is missing.");
             Assert.That(diagnosticIds, Contains.Item(NUnit2.Id),
@@ -48,6 +46,8 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 $"{NUnit4.Descriptor.Title} is missing.");
             Assert.That(diagnosticIds, Contains.Item(NUnit5.Id),
                 $"{NUnit5.Descriptor.Title} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(NUnit6.Id),
+                $"{NUnit6.Descriptor.Title} is missing.");
         }
 
         [Test]
@@ -190,9 +190,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void AnalyzeWhenAreNotEqualIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.AreNotEqualUsage,
-                ClassicModelUsageAnalyzerConstants.Message);
+            var expectedDiagnostic = ExpectedDiagnostic.Create(NUnit6.Descriptor);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenAreNotEqualIsUsed

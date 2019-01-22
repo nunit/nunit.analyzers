@@ -13,8 +13,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         private static readonly DiagnosticAnalyzer analyzer = new ClassicModelAssertUsageAnalyzer();
         private static readonly CodeFixProvider fix = new AreNotEqualClassicModelAssertUsageCodeFix();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreNotEqualUsage);
+        private static readonly ExpectedDiagnostic expectedDiagnostic = ExpectedDiagnostic.Create(NUnit6.Descriptor);
 
         [Test]
         public void VerifyGetFixableDiagnosticIds()
@@ -23,7 +22,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var ids = fix.FixableDiagnosticIds.ToImmutableArray();
 
             Assert.That(ids.Length, Is.EqualTo(1), nameof(ids.Length));
-            Assert.That(ids[0], Is.EqualTo(AnalyzerIdentifiers.AreNotEqualUsage), nameof(AnalyzerIdentifiers.AreNotEqualUsage));
+            Assert.That(ids[0], Is.EqualTo(NUnit6.Id), nameof(NUnit6));
         }
 
         [Test]

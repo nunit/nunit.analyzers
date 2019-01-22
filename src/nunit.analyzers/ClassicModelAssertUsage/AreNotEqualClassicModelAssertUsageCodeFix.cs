@@ -14,7 +14,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
     public sealed class AreNotEqualClassicModelAssertUsageCodeFix
         : ClassicModelAssertUsageCodeFix
     {
-        public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(AnalyzerIdentifiers.AreNotEqualUsage);
+        public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(NUnit6.Id);
 
         protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
         {
