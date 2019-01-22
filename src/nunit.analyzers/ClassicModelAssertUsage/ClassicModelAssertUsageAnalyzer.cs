@@ -18,7 +18,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
           new Dictionary<string, DiagnosticDescriptor>
           {
               { "IsTrue", NUnit3.Descriptor },
-              { NameOfAssertTrue, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.TrueUsage) },
+              { NameOfAssertTrue, ClassicModelAssertUsageAnalyzer.CreateDescriptor(NUnit4.Id) },
               { "IsFalse", NUnit2.Descriptor },
               { "False", NUnit1.Descriptor },
               { NameOfAssertAreEqual, ClassicModelAssertUsageAnalyzer.CreateDescriptor(AnalyzerIdentifiers.AreEqualUsage) },

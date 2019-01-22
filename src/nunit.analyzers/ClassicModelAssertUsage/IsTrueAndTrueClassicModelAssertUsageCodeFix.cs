@@ -16,7 +16,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
             NUnit3.Id,
-            AnalyzerIdentifiers.TrueUsage);
+            NUnit4.Id);
 
         protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
         {
@@ -24,7 +24,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIs),
-                    SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsTrue))));
+                    SyntaxFactory.IdentifierName("True"))));
         }
     }
 }

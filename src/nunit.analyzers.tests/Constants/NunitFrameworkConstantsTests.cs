@@ -14,7 +14,6 @@ namespace NUnit.Analyzers.Tests.Constants
         [TestCase(NunitFrameworkConstants.NameOfEqualConstraintWithin, nameof(EqualConstraint.Within))]
         [TestCase(NunitFrameworkConstants.NameOfIs, nameof(Is))]
         [TestCase(NunitFrameworkConstants.NameOfIsFalse, nameof(Is.False))]
-        [TestCase(NunitFrameworkConstants.NameOfIsTrue, nameof(Is.True))]
         [TestCase(NunitFrameworkConstants.NameOfIsEqualTo, nameof(Is.EqualTo))]
         [TestCase(NunitFrameworkConstants.NameOfIsNot, nameof(Is.Not))]
         [TestCase(NunitFrameworkConstants.NameOfIsNotEqualTo, nameof(Is.Not.EqualTo))]

@@ -10,7 +10,6 @@ namespace NUnit.Analyzers.Constants
 
         public const string NameOfIs = "Is";
         public const string NameOfIsFalse = "False";
-        public const string NameOfIsTrue = "True";
         public const string NameOfIsEqualTo = "EqualTo";
         public const string NameOfIsNot = "Not";
         public const string NameOfIsNotEqualTo = "EqualTo";

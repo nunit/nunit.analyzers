@@ -22,11 +22,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             Assert.That(ids.Length, Is.EqualTo(2), nameof(ids.Length));
             Assert.That(ids, Contains.Item(NUnit3.Id), nameof(NUnit3.Id));
-            Assert.That(ids, Contains.Item(AnalyzerIdentifiers.TrueUsage), nameof(AnalyzerIdentifiers.TrueUsage));
+            Assert.That(ids, Contains.Item(NUnit4.Id), nameof(NUnit4.Id));
         }
 
         [TestCase("IsTrue", NUnit3.Id)]
-        [TestCase("True", AnalyzerIdentifiers.TrueUsage)]
+        [TestCase("True", NUnit4.Id)]
         public void VerifyIsTrueAndTrueFixes(string assertion, string diagnosticId)
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
@@ -45,7 +45,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [TestCase("IsTrue", NUnit3.Id)]
-        [TestCase("True", AnalyzerIdentifiers.TrueUsage)]
+        [TestCase("True", NUnit4.Id)]
         public void VerifyIsTrueAndTrueFixesWithMessage(string assertion, string diagnosticId)
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
@@ -64,7 +64,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [TestCase("IsTrue", NUnit3.Id)]
-        [TestCase("True", AnalyzerIdentifiers.TrueUsage)]
+        [TestCase("True", NUnit4.Id)]
         public void VerifyIsTrueAndTrueFixesWithMessageAndParams(string assertion, string diagnosticId)
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
