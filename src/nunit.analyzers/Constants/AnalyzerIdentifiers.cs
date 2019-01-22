@@ -2,7 +2,6 @@ namespace NUnit.Analyzers.Constants
 {
     internal static class AnalyzerIdentifiers
     {
-        internal const string IsFalseUsage = "NUNIT_2";
         internal const string IsTrueUsage = "NUNIT_3";
         internal const string TrueUsage = "NUNIT_4";
         internal const string AreEqualUsage = "NUNIT_5";

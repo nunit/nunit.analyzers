@@ -40,10 +40,10 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 $"{AnalyzerIdentifiers.AreEqualUsage} is missing.");
             Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreNotEqualUsage),
                 $"{AnalyzerIdentifiers.AreNotEqualUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.FalseUsage),
-                $"{AnalyzerIdentifiers.FalseUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsFalseUsage),
-                $"{AnalyzerIdentifiers.IsFalseUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(NUnit1.Id), 
+                $"{NUnit1.Descriptor.Title} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(NUnit2.Id),
+                $"{NUnit2.Descriptor.Title} is missing.");
             Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsTrueUsage),
                 $"{AnalyzerIdentifiers.IsTrueUsage} is missing.");
             Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.TrueUsage),
@@ -123,7 +123,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void AnalyzeWhenIsFalseIsUsed()
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.IsFalseUsage,
+                NUnit2.Id,
                 ClassicModelUsageAnalyzerConstants.Message);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
@@ -141,7 +141,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void AnalyzeWhenFalseIsUsed()
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.FalseUsage,
+                NUnit1.Id,
                 ClassicModelUsageAnalyzerConstants.Message);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"

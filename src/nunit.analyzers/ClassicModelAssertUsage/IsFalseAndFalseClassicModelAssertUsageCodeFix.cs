@@ -16,7 +16,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
             NUnit1.Id,
-            AnalyzerIdentifiers.IsFalseUsage);
+            NUnit2.Id);
 
         protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
         {
