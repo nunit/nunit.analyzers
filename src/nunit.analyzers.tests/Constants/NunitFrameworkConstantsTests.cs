@@ -1,3 +1,4 @@
+using System.Linq;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
@@ -40,6 +41,17 @@ namespace NUnit.Analyzers.Tests.Constants
             Assert.That(
                 NunitFrameworkConstants.FullNameOfTypeTestCaseAttribute,
                 Is.EqualTo(typeof(TestCaseAttribute).FullName));
+        }
+
+        [Test]
+        public void NameOfActualParameter()
+        {
+            var parameterNames = typeof(Assert).GetMethods()
+                .First(m => m.Name == nameof(Assert.AreEqual))
+                .GetParameters()
+                .Select(p => p.Name);
+
+            Assert.That(parameterNames, Does.Contain(NunitFrameworkConstants.NameOfActualParameter));
         }
 
         [Test]
