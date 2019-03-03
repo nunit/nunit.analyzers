@@ -7,8 +7,7 @@ namespace NUnit.Analyzers.Tests.ActualConstValueUsage
 {
     public class ActualConstValueUsageAnalyzerTests
     {
-        private readonly DiagnosticAnalyzer analyzer = new ActualConstValueUsageAnalyzer();
-
+        private static readonly DiagnosticAnalyzer analyzer = new ActualConstValueUsageAnalyzer();
 
         [Test]
         public void AnalyzeWhenLiteralArgumentIsProvidedForAreEqual()
@@ -20,7 +19,7 @@ namespace NUnit.Analyzers.Tests.ActualConstValueUsage
                     Assert.AreEqual(expected, ↓1);
                 }");
 
-            AnalyzerAssert.Diagnostics(this.analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
         }
 
         [Test]
@@ -32,7 +31,7 @@ namespace NUnit.Analyzers.Tests.ActualConstValueUsage
                     Assert.That(↓true, Is.EqualTo(false));
                 }");
 
-            AnalyzerAssert.Diagnostics(this.analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
         }
 
         [Test]
@@ -46,7 +45,7 @@ namespace NUnit.Analyzers.Tests.ActualConstValueUsage
                     Assert.AreEqual(expected, ↓actual);
                 }");
 
-            AnalyzerAssert.Diagnostics(this.analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
         }
 
         [Test]
@@ -60,7 +59,7 @@ namespace NUnit.Analyzers.Tests.ActualConstValueUsage
                     Assert.That(↓actual, Is.EqualTo(expected));
                 }");
 
-            AnalyzerAssert.Diagnostics(this.analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
         }
 
         [Test]
@@ -78,7 +77,7 @@ namespace NUnit.Analyzers.Tests.ActualConstValueUsage
                 }
             }");
 
-            AnalyzerAssert.Diagnostics(this.analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
         }
 
         [Test]
@@ -96,7 +95,7 @@ namespace NUnit.Analyzers.Tests.ActualConstValueUsage
                 }
             }");
 
-            AnalyzerAssert.Diagnostics(this.analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
         }
 
         [Test]
@@ -114,7 +113,7 @@ namespace NUnit.Analyzers.Tests.ActualConstValueUsage
                 }
             }");
 
-            AnalyzerAssert.Valid(this.analyzer, testCode);
+            AnalyzerAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -132,7 +131,7 @@ namespace NUnit.Analyzers.Tests.ActualConstValueUsage
                 }
             }");
 
-            AnalyzerAssert.Valid(this.analyzer, testCode);
+            AnalyzerAssert.Valid(analyzer, testCode);
         }
     }
 }
