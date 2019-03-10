@@ -10,10 +10,10 @@ using NUnit.Analyzers.Extensions;
 namespace NUnit.Analyzers.ConstActualValueUsage
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class ActualConstValueUsageAnalyzer : DiagnosticAnalyzer
+    public class ConstActualValueUsageAnalyzer : DiagnosticAnalyzer
     {
         private static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
-            AnalyzerIdentifiers.ConstActualValueUsageAnalyzer,
+            AnalyzerIdentifiers.ConstActualValueUsage,
             ConstActualValueUsageAnalyzerConstants.Title,
             ConstActualValueUsageAnalyzerConstants.Message,
             Categories.Usage,
@@ -61,4 +61,3 @@ namespace NUnit.Analyzers.ConstActualValueUsage
         }
     }
 }
-

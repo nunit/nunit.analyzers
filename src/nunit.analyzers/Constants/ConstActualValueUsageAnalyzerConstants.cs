@@ -4,6 +4,6 @@ namespace NUnit.Analyzers.Constants
     {
         public const string Title = "Actual value should not be constant";
         public const string Message = "Actual value should not be constant - " +
-            "possible that actual and expected values are switched places";
+            "perhaps the actual and expected values have switched places";
     }
 }

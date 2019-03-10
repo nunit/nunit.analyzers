@@ -3,11 +3,11 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.ConstActualValueUsage;
 using NUnit.Framework;
 
-namespace NUnit.Analyzers.Tests.ActualConstValueUsage
+namespace NUnit.Analyzers.Tests.ConstActualValueUsage
 {
-    public class ActualConstValueUsageAnalyzerTests
+    public class ConstActualValueUsageAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new ActualConstValueUsageAnalyzer();
+        private static readonly DiagnosticAnalyzer analyzer = new ConstActualValueUsageAnalyzer();
 
         [Test]
         public void AnalyzeWhenLiteralArgumentIsProvidedForAreEqual()
@@ -17,6 +17,19 @@ namespace NUnit.Analyzers.Tests.ActualConstValueUsage
                 {
                     int expected = 5;
                     Assert.AreEqual(expected, ↓1);
+                }");
+
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenLiteralNamedArgumentIsProvidedForAreEqual()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public void Test()
+                {
+                    int expected = 5;
+                    Assert.AreEqual(↓actual: 1, expected: expected);
                 }");
 
             AnalyzerAssert.Diagnostics(analyzer, testCode);
@@ -43,6 +56,20 @@ namespace NUnit.Analyzers.Tests.ActualConstValueUsage
                     const string actual = ""act"";
                     string expected = ""exp"";
                     Assert.AreEqual(expected, ↓actual);
+                }");
+
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenLocalConstNamedArgumentIsProvidedForAreEqual()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public void Test()
+                {
+                    const string actual = ""act"";
+                    string expected = ""exp"";
+                    Assert.AreEqual(↓actual: actual, expected: expected);
                 }");
 
             AnalyzerAssert.Diagnostics(analyzer, testCode);
@@ -99,7 +126,7 @@ namespace NUnit.Analyzers.Tests.ActualConstValueUsage
         }
 
         [Test]
-        public void ValidWhenNonConstValueIsProvidedAsActualForAreEqual()
+        public void ValidWhenNonConstValueIsProvidedAsActualArgumentForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
             public class TestFixure
@@ -117,7 +144,25 @@ namespace NUnit.Analyzers.Tests.ActualConstValueUsage
         }
 
         [Test]
-        public void ValidWhenNonConstValueIsProvidedAsActualForAssertThat()
+        public void ValidWhenNonConstValueIsProvidedAsActualNamedArgumentForAreEqual()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixure
+            {
+                private const string expected = ""exp"";
+
+                public void Test()
+                {
+                    string actual = ""act"";
+                    Assert.AreEqual(actual: actual, expected: expected);
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenNonConstValueIsProvidedAsActualArgumentForAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
             public class TestFixure
