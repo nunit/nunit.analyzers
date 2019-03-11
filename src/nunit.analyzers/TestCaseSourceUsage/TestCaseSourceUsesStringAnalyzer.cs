@@ -33,6 +33,8 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
         public override void Initialize(AnalysisContext context)
         {
+            context.EnableConcurrentExecution();
+
             context.RegisterSyntaxNodeAction(x => AnalyzeAttribute(x), SyntaxKind.Attribute);
         }
 

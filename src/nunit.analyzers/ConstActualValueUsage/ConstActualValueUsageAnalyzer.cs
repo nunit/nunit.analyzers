@@ -24,6 +24,8 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
         public override void Initialize(AnalysisContext context)
         {
+            context.EnableConcurrentExecution();
+
             context.RegisterSyntaxNodeAction(AnalyzeInvocation, SyntaxKind.Argument);
         }
 
