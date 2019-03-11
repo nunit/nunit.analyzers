@@ -34,6 +34,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
         public override void Initialize(AnalysisContext context)
         {
+            context.EnableConcurrentExecution();
+
             context.RegisterSyntaxNodeAction(
                 ClassicModelAssertUsageAnalyzer.AnalyzeInvocation, SyntaxKind.InvocationExpression);
         }

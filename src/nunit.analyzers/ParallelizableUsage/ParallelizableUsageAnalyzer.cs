@@ -43,6 +43,8 @@ namespace NUnit.Analyzers.ParallelizableUsage
 
         public override void Initialize(AnalysisContext context)
         {
+            context.EnableConcurrentExecution();
+
             context.RegisterSyntaxNodeAction(ParallelizableUsageAnalyzer.AnalyzeAttribute, SyntaxKind.Attribute);
         }
 
