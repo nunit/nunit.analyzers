@@ -125,13 +125,13 @@ namespace NUnit.Analyzers.Extensions
         {
             // Note that this does not take into account generics,
             // so if that's ever added to attributes this will have to change.
-            var namespaces = new List<string>();
+            var namespaces = new Stack<string>();
 
             var @namespace = targetType.ContainingNamespace;
 
             while (!@namespace.IsGlobalNamespace)
             {
-                namespaces.Add(@namespace.Name);
+                namespaces.Push(@namespace.Name);
                 @namespace = @namespace.ContainingNamespace;
             }
 
