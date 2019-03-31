@@ -20,5 +20,7 @@ namespace NUnit.Analyzers.Constants
         internal const string ParallelScopeFixturesOnTestMethodUsage = "NUNIT_16";
         internal const string TestCaseSourceIsMissing = "NUNIT_17";
         internal const string ConstActualValueUsage = "NUNIT_18";
+        internal const string TestMethodAsyncNoExpectedResultAndVoidReturnTypeUsage = "NUNIT_19";
+        internal const string TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage = "NUNIT_20";
     }
 }

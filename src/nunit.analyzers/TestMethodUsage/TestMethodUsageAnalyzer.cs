@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -13,6 +12,8 @@ namespace NUnit.Analyzers.TestCaseUsage
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TestMethodUsageAnalyzer : DiagnosticAnalyzer
     {
+        private const string fullyQualifiedNameOfTask = "System.Threading.Tasks.Task";
+
         private static DiagnosticDescriptor CreateDescriptor(string id, string message) =>
             new DiagnosticDescriptor(id, TestMethodUsageAnalyzerConstants.Title,
                 message, Categories.Usage, DiagnosticSeverity.Error, true);
@@ -29,8 +30,17 @@ namespace NUnit.Analyzers.TestCaseUsage
             AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType,
             TestMethodUsageAnalyzerConstants.NoExpectedResultButNonVoidReturnType);
 
+        private static readonly DiagnosticDescriptor asyncNoExpectedResultAndVoidReturnType = TestMethodUsageAnalyzer.CreateDescriptor(
+            AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndVoidReturnTypeUsage,
+            TestMethodUsageAnalyzerConstants.AsyncNoExpectedResultAndVoidReturnType);
+
+        private static readonly DiagnosticDescriptor asyncNoExpectedResultAndNonTaskReturnType = TestMethodUsageAnalyzer.CreateDescriptor(
+            AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage,
+            TestMethodUsageAnalyzerConstants.AsyncNoExpectedResultAndNonTaskReturnType);
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-            ImmutableArray.Create(expectedResultTypeMismatch, specifiedExpectedResultForVoid, noExpectedResultButNonVoidReturnType);
+            ImmutableArray.Create(expectedResultTypeMismatch, specifiedExpectedResultForVoid, noExpectedResultButNonVoidReturnType,
+                asyncNoExpectedResultAndVoidReturnType, asyncNoExpectedResultAndNonTaskReturnType);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -83,24 +93,58 @@ namespace NUnit.Analyzers.TestCaseUsage
             var attributePositionalAndNamedArguments = attributeNode.GetArguments();
             var attributeNamedArguments = attributePositionalAndNamedArguments.Item2;
 
-            var methodReturnValueType = methodSymbol.ReturnType;
-
             var expectedResultNamedArgument = attributeNamedArguments.SingleOrDefault(
                 _ => _.DescendantTokens().Any(__ => __.Text == NunitFrameworkConstants.NameOfExpectedResult));
 
             if (expectedResultNamedArgument != null)
             {
+                ExpectedResultSupplied(context, methodSymbol.ReturnType, expectedResultNamedArgument);
+            }
+            else
+            {
+                NoExpectedResultSupplied(context, methodSymbol, attributeNode);
+            }
+        }
+
+        private static void ExpectedResultSupplied(
+            SyntaxNodeAnalysisContext context,
+            ITypeSymbol methodReturnValueType,
+            AttributeArgumentSyntax expectedResultNamedArgument)
+        {
+            if (methodReturnValueType.SpecialType == SpecialType.System_Void)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(specifiedExpectedResultForVoid,
+                    expectedResultNamedArgument.GetLocation()));
+            }
+            else
+            {
+                if (!expectedResultNamedArgument.CanAssignTo(methodReturnValueType, context.SemanticModel))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(expectedResultTypeMismatch,
+                        expectedResultNamedArgument.GetLocation(), methodReturnValueType.MetadataName));
+                }
+            }
+        }
+
+        private static void NoExpectedResultSupplied(
+            SyntaxNodeAnalysisContext context,
+            IMethodSymbol methodSymbol,
+            AttributeSyntax attributeNode)
+        {
+            var methodReturnValueType = methodSymbol.ReturnType;
+
+            if (methodSymbol.IsAsync || IsTaskType(context.Compilation, methodReturnValueType))
+            {
                 if (methodReturnValueType.SpecialType == SpecialType.System_Void)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(specifiedExpectedResultForVoid,
-                        expectedResultNamedArgument.GetLocation()));
+                    context.ReportDiagnostic(Diagnostic.Create(asyncNoExpectedResultAndVoidReturnType, attributeNode.GetLocation()));
                 }
                 else
                 {
-                    if (!expectedResultNamedArgument.CanAssignTo(methodReturnValueType, context.SemanticModel))
+                    var isTaskType = methodReturnValueType.Equals(context.Compilation.GetTypeByMetadataName(fullyQualifiedNameOfTask));
+                    if (!isTaskType)
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(expectedResultTypeMismatch,
-                            expectedResultNamedArgument.GetLocation(), methodReturnValueType.MetadataName));
+                        context.ReportDiagnostic(Diagnostic.Create(asyncNoExpectedResultAndNonTaskReturnType, attributeNode.GetLocation()));
                     }
                 }
             }
@@ -112,6 +156,21 @@ namespace NUnit.Analyzers.TestCaseUsage
                         attributeNode.GetLocation()));
                 }
             }
+        }
+
+        private static bool IsTaskType(Compilation compilation, ITypeSymbol typeSymbol)
+        {
+            var taskTypeSymbol = compilation.GetTypeByMetadataName(fullyQualifiedNameOfTask);
+
+            for (; typeSymbol != null; typeSymbol = typeSymbol.BaseType)
+            {
+                if (typeSymbol.Equals(taskTypeSymbol))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
