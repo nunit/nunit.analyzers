@@ -22,5 +22,6 @@ namespace NUnit.Analyzers.Constants
         internal const string ConstActualValueUsage = "NUNIT_18";
         internal const string TestMethodAsyncNoExpectedResultAndVoidReturnTypeUsage = "NUNIT_19";
         internal const string TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage = "NUNIT_20";
+        internal const string TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage = "NUNIT_21";
     }
 }

@@ -29,6 +29,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType,
                 AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndVoidReturnTypeUsage,
                 AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage,
+                AnalyzerIdentifiers.TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage
             };
             CollectionAssert.AreEquivalent(expectedIdentifiers, diagnostics.Select(d => d.Id));
 
@@ -237,6 +238,72 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
     }");
             AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenAsyncTestMethodHasGenericTaskReturnTypeAndExpectedResult()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenAsyncTestMethodHasGenericTaskReturnTypeAndExpectedResult
+    {
+        [TestCase(ExpectedResult = 1)]
+        public async Task<int> AsyncGenericTaskTestCaseWithExpectedResult()
+        {
+          return await Task.Run(() => 1);
+        }
+    }");
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTestMethodHasGenericTaskReturnTypeAndExpectedResult()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTestMethodHasGenericTaskReturnTypeAndExpectedResult
+    {
+        [TestCase(ExpectedResult = 1)]
+        public Task<int> GenericTaskTestCaseWithExpectedResult()
+        {
+          return Task.Run(() => 1);
+        }
+    }");
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenAsyncTestMethodHasTaskReturnTypeAndExpectedResult()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenAsyncTestMethodHasTaskReturnTypeAndExpectedResult
+    {
+        [↓TestCase(ExpectedResult = 1)]
+        public async Task AsyncTaskTestCaseWithExpectedResult()
+        {
+          await Task.Run(() => 1);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTestMethodHasTaskReturnTypeAndExpectedResult()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTestMethodHasTaskReturnTypeAndExpectedResult
+    {
+        [↓TestCase(ExpectedResult = 1)]
+        public Task TaskTestCaseWithExpectedResult()
+        {
+          return Task.Run(() => 1);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
     }
 }

@@ -13,6 +13,7 @@ namespace NUnit.Analyzers.TestCaseUsage
     public sealed class TestMethodUsageAnalyzer : DiagnosticAnalyzer
     {
         private const string fullyQualifiedNameOfTask = "System.Threading.Tasks.Task";
+        private const string fullyQualifiedNameOfGenericTask = "System.Threading.Tasks.Task`1";
 
         private static DiagnosticDescriptor CreateDescriptor(string id, string message) =>
             new DiagnosticDescriptor(id, TestMethodUsageAnalyzerConstants.Title,
@@ -38,9 +39,15 @@ namespace NUnit.Analyzers.TestCaseUsage
             AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage,
             TestMethodUsageAnalyzerConstants.AsyncNoExpectedResultAndNonTaskReturnType);
 
+        private static readonly DiagnosticDescriptor asyncExpectedResultButReturnTypeNotGenericTask =
+            TestMethodUsageAnalyzer.CreateDescriptor(
+                AnalyzerIdentifiers.TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage,
+                TestMethodUsageAnalyzerConstants.AsyncExpectedResultAndNonGenericTaskReturnType2);
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(expectedResultTypeMismatch, specifiedExpectedResultForVoid, noExpectedResultButNonVoidReturnType,
-                asyncNoExpectedResultAndVoidReturnType, asyncNoExpectedResultAndNonTaskReturnType);
+                asyncNoExpectedResultAndVoidReturnType, asyncNoExpectedResultAndNonTaskReturnType,
+                asyncExpectedResultButReturnTypeNotGenericTask);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -98,7 +105,7 @@ namespace NUnit.Analyzers.TestCaseUsage
 
             if (expectedResultNamedArgument != null)
             {
-                ExpectedResultSupplied(context, methodSymbol.ReturnType, expectedResultNamedArgument);
+                ExpectedResultSupplied(context, methodSymbol, attributeNode, expectedResultNamedArgument);
             }
             else
             {
@@ -108,21 +115,55 @@ namespace NUnit.Analyzers.TestCaseUsage
 
         private static void ExpectedResultSupplied(
             SyntaxNodeAnalysisContext context,
-            ITypeSymbol methodReturnValueType,
+            IMethodSymbol methodSymbol,
+            AttributeSyntax attributeNode,
             AttributeArgumentSyntax expectedResultNamedArgument)
         {
-            if (methodReturnValueType.SpecialType == SpecialType.System_Void)
+            var methodReturnValueType = methodSymbol.ReturnType;
+
+            if (IsTestMethodAsync(context.Compilation, methodSymbol))
             {
-                context.ReportDiagnostic(Diagnostic.Create(specifiedExpectedResultForVoid,
-                    expectedResultNamedArgument.GetLocation()));
+                var genericTaskType = context.Compilation.GetTypeByMetadataName(fullyQualifiedNameOfGenericTask);
+                if (!methodReturnValueType.OriginalDefinition.Equals(genericTaskType))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(asyncExpectedResultButReturnTypeNotGenericTask,
+                        attributeNode.GetLocation()));
+                }
+                else
+                {
+                    var namedTypeSymbol = methodReturnValueType as INamedTypeSymbol;
+                    if (namedTypeSymbol == null)
+                        return;
+
+                    var taskTypeParameter = namedTypeSymbol.TypeArguments.First();
+                    ReportIfExpectedResultTypeCannotBeAssignedToReturnType(
+                        ref context, expectedResultNamedArgument, taskTypeParameter);
+                }
             }
             else
             {
-                if (!expectedResultNamedArgument.CanAssignTo(methodReturnValueType, context.SemanticModel))
+                if (methodReturnValueType.SpecialType == SpecialType.System_Void)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(expectedResultTypeMismatch,
-                        expectedResultNamedArgument.GetLocation(), methodReturnValueType.MetadataName));
+                    context.ReportDiagnostic(Diagnostic.Create(specifiedExpectedResultForVoid,
+                        expectedResultNamedArgument.GetLocation()));
                 }
+                else
+                {
+                    ReportIfExpectedResultTypeCannotBeAssignedToReturnType(
+                        ref context, expectedResultNamedArgument, methodReturnValueType);
+                }
+            }
+        }
+
+        private static void ReportIfExpectedResultTypeCannotBeAssignedToReturnType(
+            ref SyntaxNodeAnalysisContext context,
+            AttributeArgumentSyntax expectedResultNamedArgument,
+            ITypeSymbol typeSymbol)
+        {
+            if (!expectedResultNamedArgument.CanAssignTo(typeSymbol, context.SemanticModel))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(expectedResultTypeMismatch,
+                    expectedResultNamedArgument.GetLocation(), typeSymbol.MetadataName));
             }
         }
 
@@ -133,7 +174,7 @@ namespace NUnit.Analyzers.TestCaseUsage
         {
             var methodReturnValueType = methodSymbol.ReturnType;
 
-            if (methodSymbol.IsAsync || IsTaskType(context.Compilation, methodReturnValueType))
+            if (IsTestMethodAsync(context.Compilation, methodSymbol))
             {
                 if (methodReturnValueType.SpecialType == SpecialType.System_Void)
                 {
@@ -156,6 +197,12 @@ namespace NUnit.Analyzers.TestCaseUsage
                         attributeNode.GetLocation()));
                 }
             }
+        }
+
+        private static bool IsTestMethodAsync(Compilation compilation, IMethodSymbol methodSymbol)
+        {
+            var methodReturnValueType = methodSymbol.ReturnType;
+            return methodSymbol.IsAsync || IsTaskType(compilation, methodReturnValueType);
         }
 
         private static bool IsTaskType(Compilation compilation, ITypeSymbol typeSymbol)
