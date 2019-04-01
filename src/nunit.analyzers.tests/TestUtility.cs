@@ -1,7 +1,8 @@
+using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
 using NUnit.Framework;
 
-[assembly: MetadataReferences(typeof(Assert), typeof(object))]
+[assembly: MetadataReferences(typeof(Assert), typeof(object), typeof(Task))]
 
 namespace NUnit.Analyzers.Tests
 {
@@ -11,6 +12,7 @@ namespace NUnit.Analyzers.Tests
         {
             return $@"
 using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
