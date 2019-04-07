@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.Extensions;
 
 namespace NUnit.Analyzers.ConstActualValueUsage
 {
@@ -14,6 +15,19 @@ namespace NUnit.Analyzers.ConstActualValueUsage
     [Shared]
     public class ConstActualValueUsageCodeFix : CodeFixProvider
     {
+        private static readonly string[] SupportedClassicAsserts = new[] {
+            NunitFrameworkConstants.NameOfAssertAreEqual,
+            NunitFrameworkConstants.NameOfAssertAreNotEqual,
+            NunitFrameworkConstants.NameOfAssertAreSame,
+            NunitFrameworkConstants.NameOfAssertAreNotSame
+        };
+
+        private static readonly string[] SupportedIsConstraints = new[] {
+            NunitFrameworkConstants.NameOfIsEqualTo,
+            NunitFrameworkConstants.NameOfIsSameAs,
+            NunitFrameworkConstants.NameOfIsSamePath
+        };
+
         public override ImmutableArray<string> FixableDiagnosticIds
             => ImmutableArray.Create(AnalyzerIdentifiers.ConstActualValueUsage);
 
@@ -57,24 +71,21 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
             var methodSymbol = semanticModel.GetSymbolInfo(invocationSyntax).Symbol as IMethodSymbol;
 
-            if (methodSymbol == null)
+            if (methodSymbol == null || !methodSymbol.ContainingType.IsAssert())
                 return false;
 
-            // option 1: Assert with 'expected' and 'actual' parameters (e.g. Assert.AreEqual(expected, actual) )
-            if (methodSymbol.Parameters.Length >= 2
-                && methodSymbol.Parameters[0].Name == NunitFrameworkConstants.NameOfExpectedParameter
-                && methodSymbol.Parameters[1].Name == NunitFrameworkConstants.NameOfActualParameter)
+            // option 1: Classic assert (e.g. Assert.AreEqual(expected, actual) )
+            if (SupportedClassicAsserts.Contains(methodSymbol.Name) && methodSymbol.Parameters.Length >= 2)
             {
                 expectedArgument = invocationSyntax.ArgumentList.Arguments[0].Expression;
                 actualArgument = invocationSyntax.ArgumentList.Arguments[1].Expression;
                 return true;
             }
 
-            // option 2: Assert with 'actual' and 'constraint' parameters, and provided constraint has 'expected' parameter
+            // option 2: Assert with 'actual' and 'constraint' parameters
             // (e.g. Assert.That(actual, Is.EqualTo(expected)))
-            if (methodSymbol.Parameters.Length >= 2
-                && methodSymbol.Parameters[0].Name == NunitFrameworkConstants.NameOfActualParameter
-                && methodSymbol.Parameters[1].Name == NunitFrameworkConstants.NameOfExpressionParameter)
+            if (methodSymbol.Name == NunitFrameworkConstants.NameOfAssertThat
+                && methodSymbol.Parameters.Length >= 2)
             {
                 actualArgument = invocationSyntax.ArgumentList.Arguments[0].Expression;
 
@@ -83,16 +94,25 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                 if (constraintExpression == null)
                     return false;
 
-                var constraintMethod = semanticModel.GetSymbolInfo(constraintExpression).Symbol as IMethodSymbol;
+                expectedArgument = constraintExpression.ArgumentList.Arguments.FirstOrDefault()?.Expression;
 
-                if (constraintMethod == null)
+                if (expectedArgument == null)
                     return false;
 
-                if (constraintMethod.Parameters.Length == 1
-                    && constraintMethod.Parameters[0].Name == NunitFrameworkConstants.NameOfExpectedParameter)
+                if (constraintExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression
+                    && SupportedIsConstraints.Contains(memberAccessExpression.Name.ToString()))
                 {
-                    expectedArgument = constraintExpression.ArgumentList.Arguments[0].Expression;
-                    return true;
+                    var expressionString = memberAccessExpression.Expression.ToString();
+
+                    // e.g. Is.EqualTo or Is.Not.EqualTo
+                    if (expressionString == NunitFrameworkConstants.NameOfIs
+                        || expressionString == $"{NunitFrameworkConstants.NameOfIs}.{NunitFrameworkConstants.NameOfIsNot}")
+                    {
+                        return true;
+                    }
+
+                    // other cases are not supported
+                    return false;
                 }
             }
 
