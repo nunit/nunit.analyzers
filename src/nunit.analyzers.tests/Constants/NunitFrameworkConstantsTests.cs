@@ -17,6 +17,9 @@ namespace NUnit.Analyzers.Tests.Constants
         [TestCase(NunitFrameworkConstants.NameOfIsFalse, nameof(Is.False))]
         [TestCase(NunitFrameworkConstants.NameOfIsTrue, nameof(Is.True))]
         [TestCase(NunitFrameworkConstants.NameOfIsEqualTo, nameof(Is.EqualTo))]
+        [TestCase(NunitFrameworkConstants.NameOfIsEquivalentTo, nameof(Is.EquivalentTo))]
+        [TestCase(NunitFrameworkConstants.NameOfIsSubsetOf, nameof(Is.SubsetOf))]
+        [TestCase(NunitFrameworkConstants.NameOfIsSupersetOf, nameof(Is.SupersetOf))]
         [TestCase(NunitFrameworkConstants.NameOfIsNot, nameof(Is.Not))]
         [TestCase(NunitFrameworkConstants.NameOfIsNotEqualTo, nameof(Is.Not.EqualTo))]
         [TestCase(NunitFrameworkConstants.NameOfIsSameAs, nameof(Is.SameAs))]
@@ -34,6 +37,7 @@ namespace NUnit.Analyzers.Tests.Constants
         [TestCase(NunitFrameworkConstants.NameOfTestCaseAttribute, nameof(TestCaseAttribute))]
         [TestCase(NunitFrameworkConstants.NameOfExpectedResult, nameof(TestCaseAttribute.ExpectedResult))]
         [TestCase(NunitFrameworkConstants.NameOfExpectedResult, nameof(TestAttribute.ExpectedResult))]
+        [TestCase(NunitFrameworkConstants.NameOfIgnoreCase, nameof(EqualConstraint.IgnoreCase))]
         public void TestConstant(string constant, string nameOfArgument)
         {
             Assert.That(constant, Is.EqualTo(nameOfArgument));

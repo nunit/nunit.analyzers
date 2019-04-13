@@ -28,5 +28,14 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
     {{{method}
     }}");
         }
+
+        internal static string WrapInTestMethod(string code)
+        {
+            return WrapMethodInClassNamespaceAndAddUsings($@"
+        [Test]
+        public void TestMethod()
+        {{{code}
+        }}");
+        }
     }
 }

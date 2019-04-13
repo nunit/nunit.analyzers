@@ -31,6 +31,11 @@ namespace NUnit.Analyzers.ConstActualValueUsage
         public override ImmutableArray<string> FixableDiagnosticIds
             => ImmutableArray.Create(AnalyzerIdentifiers.ConstActualValueUsage);
 
+        public sealed override FixAllProvider GetFixAllProvider()
+        {
+            return WellKnownFixAllProviders.BatchFixer;
+        }
+
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
@@ -57,10 +62,12 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                 .ReplaceNodes(new[] { expectedArgument, actualArgument },
                     (node, _) => node == actualArgument ? expectedArgument : actualArgument);
 
-            context.RegisterCodeFix(
-                CodeAction.Create(
-                    CodeFixConstants.SwapArgumentsDescription,
-                    _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot))), context.Diagnostics);
+            var codeAction = CodeAction.Create(
+                CodeFixConstants.SwapArgumentsDescription,
+                _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
+                CodeFixConstants.SwapArgumentsDescription);
+
+            context.RegisterCodeFix(codeAction, context.Diagnostics);
         }
 
         private static bool TryFindArguments(SemanticModel semanticModel, InvocationExpressionSyntax invocationSyntax,
