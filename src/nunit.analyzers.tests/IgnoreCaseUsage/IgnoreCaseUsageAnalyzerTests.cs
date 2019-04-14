@@ -33,6 +33,20 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
         }
 
         [Test]
+        public void AnalyzeWhenDictionaryWithNonStringValueProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = new[] {""a"",""b""};
+                var expected = new System.Collections.Generic.Dictionary<string, int>
+                {
+                    [""key1""] = 1
+                };
+                Assert.That(actual, Is.EqualTo(expected).↓IgnoreCase);");
+
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
+        }
+
+        [Test]
         public void ValidWhenIgnoreCaseUsedForStringEqualToArgument()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
@@ -67,13 +81,13 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
         }
 
         [Test]
-        public void ValidWhenStringDictionaryProvided()
+        public void ValidWhenDictionaryWithStringValueProvided()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = new[] {""a"",""b""};
-                var expected = new System.Collections.Generic.Dictionary<string, string>
+                var expected = new System.Collections.Generic.Dictionary<int, string>
                 {
-                    [""key1""] = ""value1""
+                    [1] = ""value1""
                 };
                 Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
 

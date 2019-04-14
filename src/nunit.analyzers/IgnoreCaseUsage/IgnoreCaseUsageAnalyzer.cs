@@ -47,11 +47,8 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
                 return;
 
             // Allowed - string, char
-            if (expectedType.SpecialType == SpecialType.System_String
-                || expectedType.SpecialType == SpecialType.System_Char)
-            {
+            if (IsStringOrChar(expectedType))
                 return;
-            }
 
             var allInterfaces = expectedType.AllInterfaces.ToList();
 
@@ -63,11 +60,8 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
             var genericArgument = iEnumerableInterface?.TypeArguments.FirstOrDefault();
 
             // Collection of strings/chars is allowed
-            if (genericArgument != null && (genericArgument.SpecialType == SpecialType.System_String
-                || genericArgument.SpecialType == SpecialType.System_Char))
-            {
+            if (genericArgument != null && IsStringOrChar(genericArgument))
                 return;
-            }
 
             // Dictionary with string/char value is allowed
             if (genericArgument != null && genericArgument.Name == "KeyValuePair"
@@ -76,11 +70,8 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
             {
                 var valueType = namedType.TypeArguments[1];
 
-                if (valueType.SpecialType == SpecialType.System_String
-                    || valueType.SpecialType == SpecialType.System_Char)
-                {
+                if (IsStringOrChar(valueType))
                     return;
-                }
             }
 
             // Exception - if it implements only non-generic IEnumerable.
@@ -94,6 +85,12 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
             context.ReportDiagnostic(Diagnostic.Create(
                 descriptor,
                 ignoreCaseAccessSyntax.Name.GetLocation()));
+        }
+
+        private static bool IsStringOrChar(ITypeSymbol typeSymbol)
+        {
+            return typeSymbol.SpecialType == SpecialType.System_String
+                || typeSymbol.SpecialType == SpecialType.System_Char;
         }
 
         private static ITypeSymbol GetExpectedTypeSymbol(MemberAccessExpressionSyntax ignoreCaseAccessSyntax, SyntaxNodeAnalysisContext context)
