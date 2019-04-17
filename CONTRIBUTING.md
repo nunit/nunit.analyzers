@@ -4,21 +4,21 @@ There are several ways to contribute to this project. One can try things out, re
 
 ## Try Things Out
 
-This project is still very much in its early stages, so the more eyes that take a look at the code, try out the analyzer on existing test etc. the better. So please try to use the analyzer with your NUnit test projects and provide feedback. The input is much appreciated.
+This project is still very much in its early stages, so the more eyes that take a look at the code, try out the analyzers on existing test etc. the better. So please try to use the analyzers with your NUnit test projects and provide feedback. The input is much appreciated.
 
 ## Report Bugs and Propose Improvements and New Functionality
 
-The analyzer is still in its alpha release, so it is likely to contain a number of unknown bugs and/or missing some essential features. So try it out and provide feedback, such as bug reports or requests for improvements or new functionality.
+The analyzers are still in its alpha release, so it is likely to contain a number of unknown bugs and/or missing some essential features. So try it out and provide feedback, such as bug reports or requests for improvements or new functionality.
 
 ### Bug Reports
 
 For bug reports please provide as much information as possible:
 * A short and clear title that describes the bug
-* Version of the analyzer
+* Version of the package
 * Include steps to reproduce the issue
 * The expected and the actual behaviour (preferably including small code examples)
 
-If the analyzer unexpectedly do not report a diagnostic, then try to compile the analyzer and run the analyzer as a VSIX extension as this will make thrown exceptions visible in Visual Studio, see the [Readme](README.md) for more information.
+If the analyzers unexpectedly do not report a diagnostic, then try to compile the analyzers and run the analyzers as a VSIX extension as this will make them throw exceptions visible in Visual Studio, see the section **Building using Visual Studio** below for more information.
 
 ### Requests for Improvements and New Functionality
 
@@ -42,4 +42,18 @@ Note that by contributing to NUnit.Analyzers, you assert that:
 
 ## Building the Project
 
-The project can be built from within **Visual Studio 2017** or using the **Cake** script in the root folder. The command `.\build.ps1` will restore the packages necessary to build the solution, build the projects (which require **Visual Studio 2017** and the **.NET Compiler Platform SDK**), and then run the tests. The script can also build the projects in **Release** mode using the option `-Configuration Release` or create NuGet Packages using the option `-Target Pack`.
+First, make sure you have the right tools and templates on your machine. You'll need **Visual Studio 2017** or **Visual Studio 2019** and the **.NET Compiler Platform SDK**. The **.NET Compiler Platform SDK** can be installed via the **Visual Studio Installer**. Either 
+* check the **Visual Studio extension development** workload; open the **Visual Studio extension development** node in the summary tree to the right; and check the box for **.NET Compiler Platform SDK** (last under the optional components), or
+* select the **Individual components** tab and check the box for **.NET Compiler Platform SDK** (at the top under the Compilers, build tools, and runtimes section).
+
+The project can now be built from within **Visual Studio 2017** or **Visual Studio 2019**, or by using the **Cake** script in the root folder.
+
+### Building using Visual Studio
+
+From Visual Studio one can debug the analyzers by setting the **nunit.analyzers.vsix** project as the StartUp project and pressing F5 (Start Debugging). This will compile the analyzers as an extension and start a new (experimental) instance of Visual Studio with the extension.
+
+### Building using Cake
+
+The command `.\build.ps1` will restore the packages necessary to build the solution, build the projects, and then run the tests. The script can also build the projects in **Release** mode using the option `-Configuration Release` or create NuGet Packages using the option `-Target Pack`. This will create a NuGet package under `package\Debug\` (for a `Debug` build) and the file will be named `NUnit.Analyzers.***.nupkg` where `***` depends upon the build type (`Debug` vs. `Release`) and the version. The NuGet package can then be referenced from another project.
+
+See [NuGet package vs. extension](https://docs.microsoft.com/en-us/visualstudio/code-quality/roslyn-analyzers-overview#nuget-package-vs-extension) for more information about the difference between installing a Roslyn analyzer as a NuGet package or as a Visual Studio extension.
