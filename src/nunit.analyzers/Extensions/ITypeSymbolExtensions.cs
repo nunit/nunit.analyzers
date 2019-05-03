@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using NUnit.Analyzers.Constants;
@@ -20,6 +21,23 @@ namespace NUnit.Analyzers.Extensions
             return @this != null &&
                 NunitFrameworkConstants.AssemblyQualifiedNameOfTypeAssert.Contains(@this.ContainingAssembly.Name) &&
                 @this.Name == NunitFrameworkConstants.NameOfAssert;
+        }
+
+        internal static string GetFullMetadataName(this ITypeSymbol @this)
+        {
+            // e.g. System.Collections.Generic.IEnumerable`1
+
+            var namespaces = new Stack<string>();
+
+            var @namespace = @this.ContainingNamespace;
+
+            while (!@namespace.IsGlobalNamespace)
+            {
+                namespaces.Push(@namespace.Name);
+                @namespace = @namespace.ContainingNamespace;
+            }
+
+            return $"{string.Join(".", namespaces)}.{@this.MetadataName}";
         }
     }
 }

@@ -47,6 +47,56 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
         }
 
         [Test]
+        public void AnalyzeWhenValueTupleWithNoStringMemberProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = (1, 2, false);
+                Assert.That(actual, Is.EqualTo((1, 2, false)).↓IgnoreCase);");
+
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTupleWithNoStringMemberProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = System.Tuple.Create(1, 2);
+                var expected = System.Tuple.Create(1, 2);
+                Assert.That(actual, Is.EqualTo(expected).↓IgnoreCase);");
+
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNonStringKeyValuePairProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var expected = new System.Collections.Generic.KeyValuePair<bool, int>(false, 1);
+                var actual = new System.Collections.Generic.KeyValuePair<bool, int>(true, 1);
+                Assert.That(actual, Is.EqualTo(expected).↓IgnoreCase);");
+
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNonStringRecurseGenericArgumentProvided()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                class RecurseClass : System.Collections.Generic.List<RecurseClass>
+                { }
+
+                [Test]
+                public void TestMethod()
+                {
+                    var actual = new RecurseClass();
+                    var expected = new RecurseClass();
+                    Assert.That(actual, Is.EqualTo(expected).↓IgnoreCase);
+                }");
+
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
+        }
+
+        [Test]
         public void ValidWhenIgnoreCaseUsedForStringEqualToArgument()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
@@ -89,6 +139,71 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 {
                     [1] = ""value1""
                 };
+                Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidForValueTupleWithStringMember()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = (""a"", 2, false);
+                Assert.That(actual, Is.EqualTo((""A"", 2, false)).IgnoreCase);");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidForTupleWithStringMember()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = System.Tuple.Create(1, ""a"");
+                var expected = System.Tuple.Create(1, ""A"");
+                Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidForKeyValuePairWithStringKey()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var expected = new System.Collections.Generic.KeyValuePair<string, int>(""a"", 1);
+                var actual = new System.Collections.Generic.KeyValuePair<string, int>(""A"", 1);
+                Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidForKeyValuePairWithStringValue()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var expected = new System.Collections.Generic.KeyValuePair<int, string>(1, ""a"");
+                var actual = new System.Collections.Generic.KeyValuePair<int, string>(1, ""A"");
+                Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidForDictionaryEntry()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var expected = new System.Collections.DictionaryEntry(1, ""a"");
+                var actual = new System.Collections.DictionaryEntry(1, ""A"");
+                Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidForDeepNesting()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = (1, new[] { new[] { ""a"" } });
+                var expected = (1, new[] { new[] { ""A"" } });
                 Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
 
             AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);

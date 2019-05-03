@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.Extensions;
 
 namespace NUnit.Analyzers.IgnoreCaseUsage
 {
@@ -46,51 +47,74 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
             if (expectedType == null)
                 return;
 
+            if (!IsTypeSupported(expectedType))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    descriptor,
+                    ignoreCaseAccessSyntax.Name.GetLocation()));
+            }
+        }
+
+        private static bool IsTypeSupported(ITypeSymbol type, HashSet<ITypeSymbol> checkedTypes = null)
+        {
+            // Protection against possible infinite recursion
+            checkedTypes = checkedTypes ?? new HashSet<ITypeSymbol>();
+            if (!checkedTypes.Add(type))
+                return false;
+
             // Allowed - string, char
-            if (IsStringOrChar(expectedType))
-                return;
+            if (type.SpecialType == SpecialType.System_String || type.SpecialType == SpecialType.System_Char)
+                return true;
 
-            var allInterfaces = expectedType.AllInterfaces.ToList();
+            if (type is IArrayTypeSymbol arrayType)
+                return IsTypeSupported(arrayType.ElementType, checkedTypes);
 
-            if (expectedType.TypeKind == TypeKind.Interface && expectedType is INamedTypeSymbol namedInterface)
-                allInterfaces.Add(namedInterface);
+            if (!(type is INamedTypeSymbol namedType))
+                return false;
 
-            var iEnumerableInterface = allInterfaces
-                .FirstOrDefault(i => i.Name == nameof(IEnumerable) && i.IsGenericType);
-            var genericArgument = iEnumerableInterface?.TypeArguments.FirstOrDefault();
+            if (namedType.IsTupleType)
+                return namedType.TupleElements.Any(e => IsTypeSupported(e.Type, checkedTypes));
 
-            // Collection of strings/chars is allowed
-            if (genericArgument != null && IsStringOrChar(genericArgument))
-                return;
+            var fullName = namedType.GetFullMetadataName();
 
-            // Dictionary with string/char value is allowed
-            if (genericArgument != null && genericArgument.Name == "KeyValuePair"
-                && genericArgument is INamedTypeSymbol namedType
+            // Cannot determine if DictionaryEntry is valid
+            if (fullName == "System.Collections.DictionaryEntry")
+                return true;
+
+            if (fullName == "System.Collections.Generic.KeyValuePair`2"
+                || fullName == "System.Tuple`2")
+            {
+                return namedType.TypeArguments.Any(t => IsTypeSupported(t, checkedTypes));
+            }
+
+            // Only value might be supported for Dictionary
+            if (fullName == "System.Collections.Generic.Dictionary`2"
                 && namedType.TypeArguments.Length == 2)
             {
-                var valueType = namedType.TypeArguments[1];
-
-                if (IsStringOrChar(valueType))
-                    return;
+                return IsTypeSupported(namedType.TypeArguments[1], checkedTypes);
             }
+
+            var allInterfaces = namedType.AllInterfaces.ToList();
+
+            if (namedType.TypeKind == TypeKind.Interface)
+                allInterfaces.Add(namedType);
+
+            var iEnumerableInterface = allInterfaces.FirstOrDefault(i =>
+                i.GetFullMetadataName() == "System.Collections.Generic.IEnumerable`1");
+            var genericArgument = iEnumerableInterface?.TypeArguments.FirstOrDefault();
+
+            if (genericArgument != null)
+                return IsTypeSupported(genericArgument, checkedTypes);
 
             // Exception - if it implements only non-generic IEnumerable.
             // It might be invalid, but we cannot determine that
-            if (genericArgument == null && allInterfaces
-                .Any(i => i.Name == nameof(IEnumerable) && !i.IsGenericType))
+            if (genericArgument == null && allInterfaces.Any(i =>
+                i.GetFullMetadataName() == "System.Collections.IEnumerable"))
             {
-                return;
+                return true;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(
-                descriptor,
-                ignoreCaseAccessSyntax.Name.GetLocation()));
-        }
-
-        private static bool IsStringOrChar(ITypeSymbol typeSymbol)
-        {
-            return typeSymbol.SpecialType == SpecialType.System_String
-                || typeSymbol.SpecialType == SpecialType.System_Char;
+            return false;
         }
 
         private static ITypeSymbol GetExpectedTypeSymbol(MemberAccessExpressionSyntax ignoreCaseAccessSyntax, SyntaxNodeAnalysisContext context)
