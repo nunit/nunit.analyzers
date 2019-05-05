@@ -77,15 +77,15 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
 
             var fullName = namedType.GetFullMetadataName();
 
-            // Cannot determine if DictionaryEntry is valid
+            // Cannot determine if DictionaryEntry is valid, since not generic
             if (fullName == "System.Collections.DictionaryEntry")
                 return true;
 
-            if (fullName == "System.Collections.Generic.KeyValuePair`2"
-                || fullName == "System.Tuple`2")
-            {
+            if (fullName == "System.Collections.Generic.KeyValuePair`2")
                 return namedType.TypeArguments.Any(t => IsTypeSupported(t, checkedTypes));
-            }
+
+            if (fullName.StartsWith("System.Tuple`"))
+                return namedType.TypeArguments.Any(t => IsTypeSupported(t, checkedTypes));
 
             // Only value might be supported for Dictionary
             if (fullName == "System.Collections.Generic.Dictionary`2"
