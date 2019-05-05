@@ -12,6 +12,9 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfIsFalse = "False";
         public const string NameOfIsTrue = "True";
         public const string NameOfIsEqualTo = "EqualTo";
+        public const string NameOfIsEquivalentTo = "EquivalentTo";
+        public const string NameOfIsSubsetOf = "SubsetOf";
+        public const string NameOfIsSupersetOf = "SupersetOf";
         public const string NameOfIsNot = "Not";
         public const string NameOfIsNotEqualTo = "EqualTo";
         public const string NameOfIsSameAs = "SameAs";
@@ -44,6 +47,8 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfActualParameter = "actual";
         public const string NameOfExpectedParameter = "expected";
         public const string NameOfExpressionParameter = "expression";
+
+        public const string NameOfIgnoreCase = "IgnoreCase";
 
         public const string AssemblyQualifiedNameOfTypeAssert =
             "NUnit.Framework.Assert, nunit.framework, Version=3.10.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb";
