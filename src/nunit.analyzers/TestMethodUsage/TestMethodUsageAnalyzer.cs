@@ -160,6 +160,9 @@ namespace NUnit.Analyzers.TestCaseUsage
             AttributeArgumentSyntax expectedResultNamedArgument,
             ITypeSymbol typeSymbol)
         {
+            if (typeSymbol.IsTypeParameterAndDeclaredOnMethod())
+                return;
+
             if (!expectedResultNamedArgument.CanAssignTo(typeSymbol, context.SemanticModel))
             {
                 context.ReportDiagnostic(Diagnostic.Create(expectedResultTypeMismatch,

@@ -162,6 +162,9 @@ namespace NUnit.Analyzers.TestCaseUsage
                 var methodParameterType = methodParametersSymbol.Item1;
                 var methodParameterName = methodParametersSymbol.Item2;
 
+                if (methodParameterType.IsTypeParameterAndDeclaredOnMethod())
+                    continue;
+
                 if (!attributeArgument.CanAssignTo(methodParameterType, model))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(parameterTypeMismatch,

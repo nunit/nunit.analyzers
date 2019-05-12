@@ -305,5 +305,20 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     }");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenTestMethodHasTypeParameterAsReturnType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTestMethodHasTypeParameterAsReturnType
+    {
+        [TestCase(1, ExpectedResult = 1)]
+        public T TestWithGenericReturnType<T>(T arg1)
+        {
+            return arg1;
+        }
+    }");
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
     }
 }

@@ -384,5 +384,17 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenTestMethodHasTypeParameterArgumentType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTestMethodHasTypeParameterArgumentType
+    {
+        [TestCase(1)]
+        public void TestWithGenericParameter<T>(T arg1) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
     }
 }
