@@ -16,10 +16,5 @@
     <GetAssemblyIdentity AssemblyFiles="$(OutDir)\$(AssemblyName).dll">
       <Output TaskParameter="Assemblies" ItemName="AnalyzerAssemblyInfo" />
     </GetAssemblyIdentity>
-<!--
-    <Exec Command="&quot;$(SolutionDir)packages\NuGet.CommandLine.3.4.3\tools\NuGet.exe&quot; pack nunit.analyzers.nuspec -NoPackageAnalysis -Version %(AnalyzerAssemblyInfo.Version) -OutputDirectory ." WorkingDirectory="$(OutDir)" LogStandardErrorAsError="true" ConsoleToMSBuild="true">
-      <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />
-    </Exec>
--->
   </Target>
 </Project>
