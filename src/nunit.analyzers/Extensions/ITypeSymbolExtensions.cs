@@ -39,5 +39,9 @@ namespace NUnit.Analyzers.Extensions
 
             return $"{string.Join(".", namespaces)}.{@this.MetadataName}";
         }
+
+        internal static bool IsTypeParameterAndDeclaredOnMethod(this ITypeSymbol typeSymbol)
+            => typeSymbol.TypeKind == TypeKind.TypeParameter &&
+               (typeSymbol as ITypeParameterSymbol)?.DeclaringMethod != null;
     }
 }
