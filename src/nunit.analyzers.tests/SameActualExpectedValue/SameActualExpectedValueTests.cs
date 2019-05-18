@@ -31,7 +31,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
         }
 
         [Test]
-        public void AnalyzeForCombinedConstraintViaProperty()
+        public void AnalyzeForTwoCombinedConstraintsViaProperty()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var str = ""test"";
@@ -41,11 +41,39 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
         }
 
         [Test]
-        public void AnalyzeForCombinedConstraintViaOperator()
+        public void AnalyzeForMultipleCombinedConstraintsViaProperty()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var str = ""test"";
+                var str2 = ""test2"";
+                Assert.That(str, Is.EqualTo(↓str)
+                    .Or.Contains(str2)
+                    .Or.EquivalentTo(↓str)
+                    .And.StartsWith(↓str));");
+
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeForTwoCombinedConstraintsViaOperator()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var str = ""test"";
                 Assert.That(str, Is.EqualTo(↓str) | Is.EquivalentTo(↓str));");
+
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeForMultipleCombinedConstraintsViaOperator()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var str = ""test"";
+                var str2 = ""test2"";
+                Assert.That(str, Is.EqualTo(↓str) 
+                    | Is.EquivalentTo(str2)
+                    & Does.Contain(↓str)
+                    | Does.StartWith(↓str));");
 
             AnalyzerAssert.Diagnostics(analyzer, testCode);
         }
