@@ -2,7 +2,7 @@ namespace NUnit.Analyzers.Constants
 {
     internal static class SameActualExpectedValueAnalyzerConstants
     {
-        internal const string Title = "Find same values provided as actual and expected arguments";
-        internal const string Message = "Actual and expected arguments are same!";
+        internal const string Title = "Find same value provided as actual and expected argument";
+        internal const string Message = "Actual and expected arguments are the same";
     }
 }
