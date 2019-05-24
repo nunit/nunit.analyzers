@@ -97,6 +97,15 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
         }
 
         [Test]
+        public void AnalyzeWhenIgnoreCaseUsedInConstraintCombinedByOperators()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                Assert.That(1, Is.EqualTo(1).↓IgnoreCase | Is.EqualTo(true).↓IgnoreCase);");
+
+            AnalyzerAssert.Diagnostics(analyzer, testCode);
+        }
+
+        [Test]
         public void ValidWhenIgnoreCaseUsedForStringEqualToArgument()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
