@@ -16,7 +16,7 @@ namespace NUnit.Analyzers.ParallelizableUsage
 
         private static DiagnosticDescriptor CreateDescriptor(string id, string message, DiagnosticSeverity severity) =>
             new DiagnosticDescriptor(id, ParallelizableUsageAnalyzerConstants.Title,
-                message, Categories.Usage, severity, true);
+                message, Categories.Structure, severity, true);
 
         private static readonly DiagnosticDescriptor scopeSelfNoEffectOnAssemblyUsage =
             ParallelizableUsageAnalyzer.CreateDescriptor(

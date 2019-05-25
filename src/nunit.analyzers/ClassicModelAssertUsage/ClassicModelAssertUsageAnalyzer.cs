@@ -27,7 +27,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
         private static DiagnosticDescriptor CreateDescriptor(string identifier) =>
             new DiagnosticDescriptor(identifier, ClassicModelUsageAnalyzerConstants.Title,
-                ClassicModelUsageAnalyzerConstants.Message, Categories.Usage,
+                ClassicModelUsageAnalyzerConstants.Message, Categories.Assertion,
                 DiagnosticSeverity.Warning, true);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.name.Values.ToImmutableArray();

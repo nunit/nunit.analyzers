@@ -2,28 +2,37 @@ namespace NUnit.Analyzers.Constants
 {
     internal static class AnalyzerIdentifiers
     {
-        internal const string FalseUsage = "NUNIT_1";
-        internal const string IsFalseUsage = "NUNIT_2";
-        internal const string IsTrueUsage = "NUNIT_3";
-        internal const string TrueUsage = "NUNIT_4";
-        internal const string AreEqualUsage = "NUNIT_5";
-        internal const string AreNotEqualUsage = "NUNIT_6";
-        internal const string TestCaseParameterTypeMismatchUsage = "NUNIT_7";
-        internal const string TestCaseSourceStringUsage = "NUNIT_8";
-        internal const string TestCaseNotEnoughArgumentsUsage = "NUNIT_9";
-        internal const string TestCaseTooManyArgumentsUsage = "NUNIT_10";
-        internal const string TestMethodExpectedResultTypeMismatchUsage = "NUNIT_11";
-        internal const string TestMethodSpecifiedExpectedResultForVoidUsage = "NUNIT_12";
-        internal const string TestMethodNoExpectedResultButNonVoidReturnType = "NUNIT_13";
-        internal const string ParallelScopeSelfNoEffectOnAssemblyUsage = "NUNIT_14";
-        internal const string ParallelScopeChildrenOnNonParameterizedTestMethodUsage = "NUNIT_15";
-        internal const string ParallelScopeFixturesOnTestMethodUsage = "NUNIT_16";
-        internal const string TestCaseSourceIsMissing = "NUNIT_17";
-        internal const string ConstActualValueUsage = "NUNIT_18";
-        internal const string TestMethodAsyncNoExpectedResultAndVoidReturnTypeUsage = "NUNIT_19";
-        internal const string TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage = "NUNIT_20";
-        internal const string TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage = "NUNIT_21";
-        internal const string IgnoreCaseUsage = "NUNIT_22";
-        internal const string SameActualExpectedValue = "NUNIT_23";
+        #region Structure
+
+        internal const string TestCaseParameterTypeMismatchUsage = "NUnit1001";
+        internal const string TestCaseSourceStringUsage = "NUnit1002";
+        internal const string TestCaseNotEnoughArgumentsUsage = "NUnit1003";
+        internal const string TestCaseTooManyArgumentsUsage = "NUnit1004";
+        internal const string TestMethodExpectedResultTypeMismatchUsage = "NUnit1005";
+        internal const string TestMethodSpecifiedExpectedResultForVoidUsage = "NUnit1006";
+        internal const string TestMethodNoExpectedResultButNonVoidReturnType = "NUnit1007";
+        internal const string ParallelScopeSelfNoEffectOnAssemblyUsage = "NUnit1008";
+        internal const string ParallelScopeChildrenOnNonParameterizedTestMethodUsage = "NUnit1009";
+        internal const string ParallelScopeFixturesOnTestMethodUsage = "NUnit1010";
+        internal const string TestCaseSourceIsMissing = "NUnit1011";
+        internal const string TestMethodAsyncNoExpectedResultAndVoidReturnTypeUsage = "NUnit1012";
+        internal const string TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage = "NUnit1013";
+        internal const string TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage = "NUnit1014";
+
+        #endregion Structure
+
+        #region Assertion
+
+        internal const string FalseUsage = "NUnit2001";
+        internal const string IsFalseUsage = "NUnit2002";
+        internal const string IsTrueUsage = "NUnit2003";
+        internal const string TrueUsage = "NUnit2004";
+        internal const string AreEqualUsage = "NUnit2005";
+        internal const string AreNotEqualUsage = "NUnit2006";
+        internal const string ConstActualValueUsage = "NUnit2007";
+        internal const string IgnoreCaseUsage = "NUnit2008";
+        internal const string SameActualExpectedValue = "NUnit2009";
+
+        #endregion Assertion
     }
 }
