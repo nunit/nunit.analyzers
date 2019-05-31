@@ -7,11 +7,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
+using NUnit.Analyzers.Helpers;
 
 namespace NUnit.Analyzers.IgnoreCaseUsage
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class IgnoreCaseUsageAnalyzer : DiagnosticAnalyzer
+    public class IgnoreCaseUsageAnalyzer : BaseAssertionAnalyzer
     {
         private static readonly string[] SupportedIsMethods = new[]
         {
@@ -31,27 +32,35 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-        public override void Initialize(AnalysisContext context)
+        protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
+            InvocationExpressionSyntax invocationSyntax, IMethodSymbol methodSymbol)
         {
-            context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(AnalyzeMemberAccess, SyntaxKind.SimpleMemberAccessExpression);
-        }
-
-        private static void AnalyzeMemberAccess(SyntaxNodeAnalysisContext context)
-        {
-            // e.g. Is.EqualTo(expected).IgnoreCase
-            // Need to check type of expected 
-            var ignoreCaseAccessSyntax = context.Node as MemberAccessExpressionSyntax;
-            var expectedType = GetExpectedTypeSymbol(ignoreCaseAccessSyntax, context);
-
-            if (expectedType == null)
-                return;
-
-            if (!IsTypeSupported(expectedType))
+            if (!AssertExpressionHelper.TryGetActualAndConstraintExpressions(invocationSyntax,
+                out _, out var constraintExpression))
             {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    descriptor,
-                    ignoreCaseAccessSyntax.Name.GetLocation()));
+                return;
+            }
+
+            var constraintParts = AssertExpressionHelper.SplitConstraintByOperators(constraintExpression);
+
+            foreach (var constraintPart in constraintParts)
+            {
+                // e.g. Is.EqualTo(expected).IgnoreCase
+                // Need to check type of expected 
+                if (constraintPart is MemberAccessExpressionSyntax ignoreCaseAccessSyntax)
+                {
+                    var expectedType = GetExpectedTypeSymbol(ignoreCaseAccessSyntax, context);
+
+                    if (expectedType == null)
+                        return;
+
+                    if (!IsTypeSupported(expectedType))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            descriptor,
+                            ignoreCaseAccessSyntax.Name.GetLocation()));
+                    }
+                }
             }
         }
 

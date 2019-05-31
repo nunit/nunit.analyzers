@@ -46,7 +46,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     int expected = 5;
-                    Assert.AreEqual(↓actual: 1, expected: expected);
+                    Assert.AreEqual(actual: ↓1, expected: expected);
                 }");
 
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
