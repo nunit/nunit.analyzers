@@ -2,6 +2,7 @@ namespace NUnit.Analyzers.Constants
 {
     internal static class Categories
     {
-        internal const string Usage = "Usage";
+        internal const string Structure = nameof(Structure);
+        internal const string Assertion = nameof(Assertion);
     }
 }

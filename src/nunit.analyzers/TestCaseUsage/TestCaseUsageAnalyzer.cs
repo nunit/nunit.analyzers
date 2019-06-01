@@ -15,7 +15,7 @@ namespace NUnit.Analyzers.TestCaseUsage
     {
         private static DiagnosticDescriptor CreateDescriptor(string id, string message) =>
             new DiagnosticDescriptor(id, TestCaseUsageAnalyzerConstants.Title,
-                message, Categories.Usage, DiagnosticSeverity.Error, true);
+                message, Categories.Structure, DiagnosticSeverity.Error, true);
 
         private static readonly DiagnosticDescriptor notEnoughArguments =
             TestCaseUsageAnalyzer.CreateDescriptor(

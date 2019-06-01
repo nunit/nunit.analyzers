@@ -14,7 +14,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             AnalyzerIdentifiers.TestCaseSourceIsMissing,
             "TestCaseSource argument does not specify an existing member.",
             "TestCaseSource argument does not specify an existing member.",
-            Categories.Usage,
+            Categories.Structure,
             DiagnosticSeverity.Error,
             true);
 
@@ -23,7 +23,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 AnalyzerIdentifiers.TestCaseSourceStringUsage,
                 TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantAnalyzerTitle,
                 message,
-                Categories.Usage,
+                Categories.Structure,
                 DiagnosticSeverity.Warning,
                 true);
 

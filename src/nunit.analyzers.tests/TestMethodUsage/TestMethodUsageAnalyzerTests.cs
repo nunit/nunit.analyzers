@@ -37,7 +37,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             {
                 Assert.That(diagnostic.Title.ToString(), Is.EqualTo(TestMethodUsageAnalyzerConstants.Title),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
-                Assert.That(diagnostic.Category, Is.EqualTo(Categories.Usage),
+                Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
                 Assert.That(diagnostic.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Error),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.DefaultSeverity)}");

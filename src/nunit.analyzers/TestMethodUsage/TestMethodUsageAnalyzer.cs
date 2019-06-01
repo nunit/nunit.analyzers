@@ -17,7 +17,7 @@ namespace NUnit.Analyzers.TestCaseUsage
 
         private static DiagnosticDescriptor CreateDescriptor(string id, string message) =>
             new DiagnosticDescriptor(id, TestMethodUsageAnalyzerConstants.Title,
-                message, Categories.Usage, DiagnosticSeverity.Error, true);
+                message, Categories.Structure, DiagnosticSeverity.Error, true);
 
         private static readonly DiagnosticDescriptor expectedResultTypeMismatch = TestMethodUsageAnalyzer.CreateDescriptor(
             AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,

@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
             {
                 Assert.That(diagnostic.Title.ToString(), Is.EqualTo(ParallelizableUsageAnalyzerConstants.Title),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
-                Assert.That(diagnostic.Category, Is.EqualTo(Categories.Usage),
+                Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
             }
 

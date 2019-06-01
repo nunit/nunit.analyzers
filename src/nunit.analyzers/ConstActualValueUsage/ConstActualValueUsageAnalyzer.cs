@@ -15,7 +15,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
             AnalyzerIdentifiers.ConstActualValueUsage,
             ConstActualValueUsageAnalyzerConstants.Title,
             ConstActualValueUsageAnalyzerConstants.Message,
-            Categories.Usage,
+            Categories.Assertion,
             DiagnosticSeverity.Warning,
             true);
 

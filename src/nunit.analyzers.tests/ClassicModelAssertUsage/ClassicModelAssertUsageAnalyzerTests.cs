@@ -28,7 +28,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
                 Assert.That(diagnostic.MessageFormat.ToString(), Is.EqualTo(ClassicModelUsageAnalyzerConstants.Message),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.MessageFormat)}");
-                Assert.That(diagnostic.Category, Is.EqualTo(Categories.Usage),
+                Assert.That(diagnostic.Category, Is.EqualTo(Categories.Assertion),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
                 Assert.That(diagnostic.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Warning),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.DefaultSeverity)}");

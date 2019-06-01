@@ -26,7 +26,7 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
             AnalyzerIdentifiers.IgnoreCaseUsage,
             IgnoreCaseUsageAnalyzerConstants.Title,
             IgnoreCaseUsageAnalyzerConstants.Message,
-            Categories.Usage,
+            Categories.Assertion,
             DiagnosticSeverity.Warning,
             true);
 
