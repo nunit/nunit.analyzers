@@ -8,8 +8,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit.analyzers.vsix", "nun
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit.analyzers.tests", "nunit.analyzers.tests\nunit.analyzers.tests.csproj", "{070974CB-B483-4347-BA5A-53ED977E639C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit.analyzers.playground", "nunit.analyzers.playground\nunit.analyzers.playground.csproj", "{AAEF264E-AA3D-4C46-9FA3-73CAD7A0BC13}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,10 +26,6 @@ Global
 		{070974CB-B483-4347-BA5A-53ED977E639C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{070974CB-B483-4347-BA5A-53ED977E639C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{070974CB-B483-4347-BA5A-53ED977E639C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AAEF264E-AA3D-4C46-9FA3-73CAD7A0BC13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AAEF264E-AA3D-4C46-9FA3-73CAD7A0BC13}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AAEF264E-AA3D-4C46-9FA3-73CAD7A0BC13}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AAEF264E-AA3D-4C46-9FA3-73CAD7A0BC13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
