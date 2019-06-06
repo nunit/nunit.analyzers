@@ -11,37 +11,14 @@ Prerelease nuget packages can be found on [MyGet](https://www.myget.org/feed/nun
 
 ## Analyzers ##
 
-| Id       | Title
-| :--      | :--
-| [NUnit1001]()| Find Incorrect TestCaseAttribute Usage
-| [NUnit1002]()| Find TestCaseSource(StringConstant) Usage
-| [NUnit1003]()| Find Incorrect TestCaseAttribute Usage
-| [NUnit1004]()| Find Incorrect TestCaseAttribute Usage
-| [NUnit1005]()| Find Incorrect TestAttribute or TestCaseAttribute Usage
-| [NUnit1006]()| Find Incorrect TestAttribute or TestCaseAttribute Usage
-| [NUnit1007]()| Find Incorrect TestAttribute or TestCaseAttribute Usage
-| [NUnit1008]()| Find Incorrect ParallelizableAttribute Usage
-| [NUnit1009]()| Find Incorrect ParallelizableAttribute Usage
-| [NUnit1010]()| Find Incorrect ParallelizableAttribute Usage
-| [NUnit1011]()| TestCaseSource argument does not specify an existing member.
-| [NUnit1012]()| Find Incorrect TestAttribute or TestCaseAttribute Usage
-| [NUnit1013]()| Find Incorrect TestAttribute or TestCaseAttribute Usage
-| [NUnit1014]()| Find Incorrect TestAttribute or TestCaseAttribute Usage
-| [NUnit2001]()| Find Classic Assertion Usage
-| [NUnit2002]()| Find Classic Assertion Usage
-| [NUnit2003]()| Find Classic Assertion Usage
-| [NUnit2004]()| Find Classic Assertion Usage
-| [NUnit2005]()| Find Classic Assertion Usage
-| [NUnit2006]()| Find Classic Assertion Usage
-| [NUnit2007]()| Actual value should not be constant
-| [NUnit2008]()| Find incorrect IgnoreCase usage
-| [NUnit2009]()| Find same value provided as actual and expected argument
+The full list of analyzers can be found in the [documentation](documentation/index.md).
 
-Below we give two examples of analyzers. One will look for methods with the `[TestCase]` attribute and makes sure the argument values are correct for the types of the method parameters along with the `ExpectedResult` value if it is provided. 
-<!-- ![testcase](https://user-images.githubusercontent.com/1007631/44311794-269a7200-a3ee-11e8-86a0-1d290b355ac5.gif) -->
+Below we give two examples of analyzers. One will look for methods with the `[TestCase]` attribute and makes sure the argument values are correct for the types of the method parameters along with the `ExpectedResult` value if it is provided.
+
 <img src="https://user-images.githubusercontent.com/1007631/44311794-269a7200-a3ee-11e8-86a0-1d290b355ac5.gif" alt="testcase analyzers" width="750"/>
 
 The other analyzer looks for classic model assertions (e.g. `Assert.AreEqual()`, `Assert.IsTrue()`, etc.). This analyzer contains a fixer that can translate the classic model assertions into constraint model assertions (`Assert.That()`).
+
 <img src="https://user-images.githubusercontent.com/1007631/44311791-213d2780-a3ee-11e8-90b8-6d144c0e3dbd.gif" alt="classic model assertions analyzers" width="1000"/>
 
 ## License ##

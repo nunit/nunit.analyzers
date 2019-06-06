@@ -1,41 +1,45 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
+using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
+using NUnit.Framework;
+
 namespace NUnit.Analyzers.Tests
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-    using Gu.Roslyn.Asserts;
-    using Microsoft.CodeAnalysis;
-    using Microsoft.CodeAnalysis.Diagnostics;
-    using NUnit.Framework;
-
     public class DocumentationTests
     {
-        private static readonly IReadOnlyList<DiagnosticAnalyzer> Analyzers = typeof(BaseAssertionAnalyzer)
-                                                                              .Assembly
-                                                                              .GetTypes()
-                                                                              .Where(t => typeof(DiagnosticAnalyzer).IsAssignableFrom(t) && !t.IsAbstract)
-                                                                              .OrderBy(x => x.Name)
-                                                                              .Select(t => (DiagnosticAnalyzer)Activator.CreateInstance(t))
-                                                                              .ToArray();
+        private static readonly IReadOnlyList<DiagnosticAnalyzer> analyzers =
+            typeof(BaseAssertionAnalyzer)
+                .Assembly
+                .GetTypes()
+                .Where(t => typeof(DiagnosticAnalyzer).IsAssignableFrom(t) && !t.IsAbstract)
+                .OrderBy(x => x.Name)
+                .Select(t => (DiagnosticAnalyzer)Activator.CreateInstance(t))
+                .ToArray();
 
-        private static readonly IReadOnlyList<DescriptorInfo> DescriptorInfos = Analyzers
-                                                                                .SelectMany(DescriptorInfo.Create)
-                                                                                .ToArray();
+        private static readonly IReadOnlyList<DescriptorInfo> descriptorInfos =
+            analyzers
+            .SelectMany(DescriptorInfo.Create)
+            .ToArray();
 
-        private static IReadOnlyList<DescriptorInfo> DescriptorsWithDocs => DescriptorInfos.Where(d => d.DocumentationFile.Exists)
-                                                                                           .ToArray();
+        private static IReadOnlyList<DescriptorInfo> DescriptorsWithDocs =>
+            descriptorInfos.Where(d => d.DocumentationFile.Exists).ToArray();
 
-        private static DirectoryInfo RepositoryDirectory => SolutionFile.Find("nunit.analyzers.sln").Directory.Parent;
+        private static DirectoryInfo RepositoryDirectory =>
+            SolutionFile.Find("nunit.analyzers.sln").Directory.Parent;
 
-        private static DirectoryInfo DocumentsDirectory => RepositoryDirectory.EnumerateDirectories("documentation", SearchOption.TopDirectoryOnly).Single();
+        private static DirectoryInfo DocumentsDirectory =>
+            RepositoryDirectory.EnumerateDirectories("documentation", SearchOption.TopDirectoryOnly).Single();
 
-        [TestCaseSource(nameof(DescriptorInfos))]
-        public void MissingDocs(DescriptorInfo descriptorInfo)
+        [TestCaseSource(nameof(descriptorInfos))]
+        public void EnsureAllDescriptorsHaveDocumentation(DescriptorInfo descriptorInfo)
         {
             if (!descriptorInfo.DocumentationFile.Exists)
             {
@@ -47,28 +51,30 @@ namespace NUnit.Analyzers.Tests
             }
         }
 
-        [TestCaseSource(nameof(DescriptorInfos))]
-        public void UniqueIds(DescriptorInfo descriptorInfo)
+        [TestCaseSource(nameof(descriptorInfos))]
+        public void EnsureThatAllIdsAreUnique(DescriptorInfo descriptorInfo)
         {
-            Assert.AreEqual(1, DescriptorInfos.Select(x => x.Descriptor)
+            Assert.AreEqual(1, descriptorInfos.Select(x => x.Descriptor)
                                               .Distinct()
                                               .Count(d => d.Id == descriptorInfo.Descriptor.Id));
         }
 
         [TestCaseSource(nameof(DescriptorsWithDocs))]
-        public void TitleId(DescriptorInfo descriptorInfo)
+        public void EnsureThatFirstLineMatchesId(DescriptorInfo descriptorInfo)
         {
-            Assert.AreEqual($"# {descriptorInfo.Descriptor.Id}", descriptorInfo.DocumentationFile.AllLines.First());
+            var firstLine = descriptorInfo.DocumentationFile.AllLines.First();
+            Assert.That(firstLine, Is.EqualTo($"# {descriptorInfo.Descriptor.Id}"));
         }
 
         [TestCaseSource(nameof(DescriptorsWithDocs))]
-        public void Title(DescriptorInfo descriptorInfo)
+        public void EnsureThatTitleIsAsExpected(DescriptorInfo descriptorInfo)
         {
             var expected = $"## {descriptorInfo.Descriptor.Title}";
-            var actual = descriptorInfo.DocumentationFile.AllLines
-                                       .Skip(1)
-                                       .First()
-                                       .Replace("`", string.Empty);
+            var actual = descriptorInfo
+                .DocumentationFile.AllLines
+                .Skip(1)
+                .First()
+                .Replace("`", string.Empty);
             Assert.AreEqual(expected, actual);
         }
 
@@ -77,16 +83,18 @@ namespace NUnit.Analyzers.Tests
         public void Description(DescriptorInfo descriptorInfo)
         {
             Assert.Inconclusive("VS test runner does not filter out [Explicit]");
-            var expected = descriptorInfo.Descriptor
-                                         .Description
-                                         .ToString(CultureInfo.InvariantCulture)
-                                         .Split('\n')
-                                         .First();
-            var actual = descriptorInfo.DocumentationFile.AllLines
-                                       .SkipWhile(l => !l.StartsWith("## Description", StringComparison.OrdinalIgnoreCase))
-                                       .Skip(1)
-                                       .FirstOrDefault(l => !string.IsNullOrWhiteSpace(l))
-                                       ?.Replace("`", string.Empty);
+            var expected =
+                descriptorInfo.Descriptor
+                              .Description
+                              .ToString(CultureInfo.InvariantCulture)
+                              .Split('\n')
+                              .First();
+            var actual =
+                descriptorInfo.DocumentationFile.AllLines
+                              .SkipWhile(l => !l.StartsWith("## Description", StringComparison.OrdinalIgnoreCase))
+                              .Skip(1)
+                              .FirstOrDefault(l => !string.IsNullOrWhiteSpace(l))
+                              ?.Replace("`", string.Empty);
 
             DumpIfDebug(expected);
             DumpIfDebug(actual);
@@ -94,7 +102,7 @@ namespace NUnit.Analyzers.Tests
         }
 
         [TestCaseSource(nameof(DescriptorsWithDocs))]
-        public void Table(DescriptorInfo descriptorInfo)
+        public void EnsureThatTableIsAsExpected(DescriptorInfo descriptorInfo)
         {
             const string HeaderRow = "| Topic    | Value";
             var expected = GetTable(descriptorInfo.Stub, HeaderRow);
@@ -104,7 +112,7 @@ namespace NUnit.Analyzers.Tests
         }
 
         [TestCaseSource(nameof(DescriptorsWithDocs))]
-        public void ConfigSeverity(DescriptorInfo descriptorInfo)
+        public void EnsureThatConfigSeverityIsAsExpected(DescriptorInfo descriptorInfo)
         {
             var expected = GetConfigSeverity(descriptorInfo.Stub);
             DumpIfDebug(expected);
@@ -125,15 +133,17 @@ namespace NUnit.Analyzers.Tests
         }
 
         [Test]
-        public void Index()
+        public void EnsureThatIndexIsAsExpected()
         {
             var builder = new StringBuilder();
             const string HeaderRow = "| Id       | Title";
             builder.AppendLine(HeaderRow)
                    .AppendLine("| :--      | :--");
-            foreach (var descriptor in DescriptorsWithDocs.Select(x => x.Descriptor)
-                                                          .Distinct()
-                                                          .OrderBy(x => x.Id))
+
+            var descriptors = DescriptorsWithDocs.Select(x => x.Descriptor)
+                                                 .Distinct()
+                                                 .OrderBy(x => x.Id);
+            foreach (var descriptor in descriptors)
             {
                 builder.Append($"| [{descriptor.Id}]({descriptor.HelpLinkUri})")
                        .AppendLine($"| {descriptor.Title}");
@@ -141,7 +151,7 @@ namespace NUnit.Analyzers.Tests
 
             var expected = builder.ToString();
             DumpIfDebug(expected);
-            var actual = GetTable(File.ReadAllText(Path.Combine(RepositoryDirectory.FullName, "Readme.md")), HeaderRow);
+            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), HeaderRow);
             CodeAssert.AreEqual(expected, actual);
         }
 
@@ -217,7 +227,7 @@ namespace NUnit.Analyzers.Tests
             private static string CreateStub(DiagnosticDescriptor descriptor)
             {
                 var builder = new StringBuilder();
-                foreach (var analyzer in Analyzers.Where(x => x.SupportedDiagnostics.Any(d => d.Id == descriptor.Id)))
+                foreach (var analyzer in analyzers.Where(x => x.SupportedDiagnostics.Any(d => d.Id == descriptor.Id)))
                 {
                     _ = builder.Append($"|{(builder.Length == 0 ? " Code     " : "          ")}| ")
                                .AppendLine($"[{analyzer.GetType().Name}]({CodeFile.Find(analyzer.GetType()).Uri})");
@@ -304,7 +314,10 @@ Or put this at the top of the file to disable all instances.
 
         public class CodeFile
         {
-            private static readonly ConcurrentDictionary<Type, CodeFile> Cache = new ConcurrentDictionary<Type, CodeFile>();
+            private const string repoOnMaster = "https://github.com/nunit/nunit.analyzers/blob/master";
+
+            private static readonly ConcurrentDictionary<Type, CodeFile> cache =
+                new ConcurrentDictionary<Type, CodeFile>();
 
             public CodeFile(string name)
             {
@@ -313,16 +326,17 @@ Or put this at the top of the file to disable all instances.
 
             public string Name { get; }
 
-            public string Uri => "https://github.com/nunit/nunit.analyzers/blob/master" + this.Name.Substring(RepositoryDirectory.FullName.Length).Replace("\\", "/");
+            public string Uri => repoOnMaster + this.Name.Substring(RepositoryDirectory.FullName.Length).Replace("\\", "/");
 
             public static CodeFile Find(Type type)
             {
-                return Cache.GetOrAdd(type, x => FindCore(x.Name + ".cs"));
+                return cache.GetOrAdd(type, x => FindCore(x.Name + ".cs"));
             }
 
             private static CodeFile FindCore(string name)
             {
-                var fileName = Cache.Values.Select(x => Path.GetDirectoryName(x.Name))
+                var fileName = cache.Values
+                                    .Select(x => Path.GetDirectoryName(x.Name))
                                     .Distinct()
                                     .SelectMany(d => Directory.EnumerateFiles(d, name, SearchOption.TopDirectoryOnly))
                                     .FirstOrDefault() ??
