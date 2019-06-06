@@ -1,12 +1,41 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit.analyzers", "nunit.analyzers\nunit.analyzers.csproj", "{74151914-3C12-4EAC-8FD5-5766EBEA35A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nunit.analyzers", "nunit.analyzers\nunit.analyzers.csproj", "{74151914-3C12-4EAC-8FD5-5766EBEA35A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit.analyzers.vsix", "nunit.analyzers.vsix\nunit.analyzers.vsix.csproj", "{5D87311B-74DE-4DF9-BCC3-E14D8EE4E7B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit.analyzers.tests", "nunit.analyzers.tests\nunit.analyzers.tests.csproj", "{070974CB-B483-4347-BA5A-53ED977E639C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nunit.analyzers.tests", "nunit.analyzers.tests\nunit.analyzers.tests.csproj", "{070974CB-B483-4347-BA5A-53ED977E639C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{2F501E14-35D4-432A-9F93-810A0AAEA128}"
+	ProjectSection(SolutionItems) = preProject
+		..\documentation\NUnit1001.md = ..\documentation\NUnit1001.md
+		..\documentation\NUnit1002.md = ..\documentation\NUnit1002.md
+		..\documentation\NUnit1003.md = ..\documentation\NUnit1003.md
+		..\documentation\NUnit1004.md = ..\documentation\NUnit1004.md
+		..\documentation\NUnit1005.md = ..\documentation\NUnit1005.md
+		..\documentation\NUnit1006.md = ..\documentation\NUnit1006.md
+		..\documentation\NUnit1007.md = ..\documentation\NUnit1007.md
+		..\documentation\NUnit1008.md = ..\documentation\NUnit1008.md
+		..\documentation\NUnit1009.md = ..\documentation\NUnit1009.md
+		..\documentation\NUnit1010.md = ..\documentation\NUnit1010.md
+		..\documentation\NUnit1011.md = ..\documentation\NUnit1011.md
+		..\documentation\NUnit1012.md = ..\documentation\NUnit1012.md
+		..\documentation\NUnit1013.md = ..\documentation\NUnit1013.md
+		..\documentation\NUnit1014.md = ..\documentation\NUnit1014.md
+		..\documentation\NUnit2001.md = ..\documentation\NUnit2001.md
+		..\documentation\NUnit2002.md = ..\documentation\NUnit2002.md
+		..\documentation\NUnit2003.md = ..\documentation\NUnit2003.md
+		..\documentation\NUnit2004.md = ..\documentation\NUnit2004.md
+		..\documentation\NUnit2005.md = ..\documentation\NUnit2005.md
+		..\documentation\NUnit2006.md = ..\documentation\NUnit2006.md
+		..\documentation\NUnit2007.md = ..\documentation\NUnit2007.md
+		..\documentation\NUnit2008.md = ..\documentation\NUnit2008.md
+		..\documentation\NUnit2009.md = ..\documentation\NUnit2009.md
+		..\README.md = ..\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
