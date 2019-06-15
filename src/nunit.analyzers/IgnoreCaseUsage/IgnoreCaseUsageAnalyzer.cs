@@ -22,13 +22,13 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
             NunitFrameworkConstants.NameOfIsSubsetOf
         };
 
-        private static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
-            AnalyzerIdentifiers.IgnoreCaseUsage,
-            IgnoreCaseUsageAnalyzerConstants.Title,
-            IgnoreCaseUsageAnalyzerConstants.Message,
-            Categories.Assertion,
-            DiagnosticSeverity.Warning,
-            true);
+        private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.IgnoreCaseUsage,
+            title: IgnoreCaseUsageAnalyzerConstants.Title,
+            messageFormat: IgnoreCaseUsageAnalyzerConstants.Message,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: IgnoreCaseUsageAnalyzerConstants.Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 

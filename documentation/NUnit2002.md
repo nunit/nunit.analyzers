@@ -1,5 +1,5 @@
 # NUnit2002
-## Find Classic Assertion Usage
+## Consider using Assert.That(expr, Is.False) instead of Assert.IsFalse(expr).
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+Consider using the constraint model, Assert.That(expr, Is.False), instead of the classic model, Assert.IsFalse(expr).
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit2002 // Find Classic Assertion Usage
+#pragma warning disable NUnit2002 // Consider using Assert.That(expr, Is.False) instead of Assert.IsFalse(expr).
 Code violating the rule here
-#pragma warning restore NUnit2002 // Find Classic Assertion Usage
+#pragma warning restore NUnit2002 // Consider using Assert.That(expr, Is.False) instead of Assert.IsFalse(expr).
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit2002 // Find Classic Assertion Usage
+#pragma warning disable NUnit2002 // Consider using Assert.That(expr, Is.False) instead of Assert.IsFalse(expr).
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
-    "NUnit2002:Find Classic Assertion Usage", 
+    "NUnit2002:Consider using Assert.That(expr, Is.False) instead of Assert.IsFalse(expr).",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

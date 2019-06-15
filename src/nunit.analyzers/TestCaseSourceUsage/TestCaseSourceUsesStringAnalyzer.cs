@@ -10,26 +10,25 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TestCaseSourceUsesStringAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly DiagnosticDescriptor MissingSourceDescriptor = new DiagnosticDescriptor(
-            AnalyzerIdentifiers.TestCaseSourceIsMissing,
-            "TestCaseSource argument does not specify an existing member.",
-            "TestCaseSource argument does not specify an existing member.",
-            Categories.Structure,
-            DiagnosticSeverity.Error,
-            true);
+        private static readonly DiagnosticDescriptor missingSourceDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseSourceIsMissing,
+            title: "TestCaseSource argument does not specify an existing member.",
+            messageFormat: "TestCaseSource argument '{0}' does not specify an existing member.",
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: "TestCaseSource argument does not specify an existing member. This will lead to an error at run-time.");
 
-        private static DiagnosticDescriptor CreateDescriptor(string message) =>
-            new DiagnosticDescriptor(
-                AnalyzerIdentifiers.TestCaseSourceStringUsage,
-                TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantAnalyzerTitle,
-                message,
-                Categories.Structure,
-                DiagnosticSeverity.Warning,
-                true);
+        private static readonly DiagnosticDescriptor considerNameOfDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseSourceStringUsage,
+            title: TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantAnalyzerTitle,
+            messageFormat: TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantDescription);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            CreateDescriptor(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage),
-            MissingSourceDescriptor);
+            considerNameOfDescriptor,
+            missingSourceDescriptor);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -63,12 +62,14 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                     {
                         var stringConstant = literal.Token.ValueText;
                         context.ReportDiagnostic(Diagnostic.Create(
-                            CreateDescriptor(string.Format(TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantMessage, stringConstant)),
-                            literal.GetLocation()));
+                            considerNameOfDescriptor,
+                            literal.GetLocation(),
+                            stringConstant));
                     }
                     else
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(MissingSourceDescriptor, literal.GetLocation()));
+                        var literalText = literal.Token.ValueText;
+                        context.ReportDiagnostic(Diagnostic.Create(missingSourceDescriptor, literal.GetLocation(), literalText));
                     }
                 }
             }

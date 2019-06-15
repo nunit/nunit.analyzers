@@ -1,5 +1,5 @@
 # NUnit1009
-## Find Incorrect ParallelizableAttribute Usage
+## No ParallelScope.Children on a non-parameterized test method.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+One may not specify ParallelScope.Children on a non-parameterized test method.
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1009 // Find Incorrect ParallelizableAttribute Usage
+#pragma warning disable NUnit1009 // No ParallelScope.Children on a non-parameterized test method.
 Code violating the rule here
-#pragma warning restore NUnit1009 // Find Incorrect ParallelizableAttribute Usage
+#pragma warning restore NUnit1009 // No ParallelScope.Children on a non-parameterized test method.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1009 // Find Incorrect ParallelizableAttribute Usage
+#pragma warning disable NUnit1009 // No ParallelScope.Children on a non-parameterized test method.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1009:Find Incorrect ParallelizableAttribute Usage", 
+    "NUnit1009:No ParallelScope.Children on a non-parameterized test method.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

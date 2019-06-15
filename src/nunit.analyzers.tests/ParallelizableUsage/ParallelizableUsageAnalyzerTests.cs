@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
 
             foreach (var diagnostic in diagnostics)
             {
-                Assert.That(diagnostic.Title.ToString(), Is.EqualTo(ParallelizableUsageAnalyzerConstants.Title),
+                Assert.That(diagnostic.Title.ToString(), Is.Not.Empty,
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
                 Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");

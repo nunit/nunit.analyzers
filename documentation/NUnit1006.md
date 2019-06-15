@@ -1,5 +1,5 @@
 # NUnit1006
-## Find Incorrect TestAttribute or TestCaseAttribute Usage
+## ExpectedResult must not be specified when the method returns void.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+ExpectedResult must not be specified when the method returns void. This will lead to an error at run-time.
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1006 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning disable NUnit1006 // ExpectedResult must not be specified when the method returns void.
 Code violating the rule here
-#pragma warning restore NUnit1006 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning restore NUnit1006 // ExpectedResult must not be specified when the method returns void.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1006 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning disable NUnit1006 // ExpectedResult must not be specified when the method returns void.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1006:Find Incorrect TestAttribute or TestCaseAttribute Usage", 
+    "NUnit1006:ExpectedResult must not be specified when the method returns void.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

@@ -1,5 +1,5 @@
 # NUnit1013
-## Find Incorrect TestAttribute or TestCaseAttribute Usage
+## Async test method must have non-generic Task return type when no result is expected.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+Async test method must have non-generic Task return type when no result is expected.
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1013 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning disable NUnit1013 // Async test method must have non-generic Task return type when no result is expected.
 Code violating the rule here
-#pragma warning restore NUnit1013 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning restore NUnit1013 // Async test method must have non-generic Task return type when no result is expected.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1013 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning disable NUnit1013 // Async test method must have non-generic Task return type when no result is expected.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1013:Find Incorrect TestAttribute or TestCaseAttribute Usage", 
+    "NUnit1013:Async test method must have non-generic Task return type when no result is expected.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

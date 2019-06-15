@@ -1,5 +1,5 @@
 # NUnit1010
-## Find Incorrect ParallelizableAttribute Usage
+## No ParallelScope.Fixtures on a test method.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+One may not specify ParallelScope.Fixtures on a test method.
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1010 // Find Incorrect ParallelizableAttribute Usage
+#pragma warning disable NUnit1010 // No ParallelScope.Fixtures on a test method.
 Code violating the rule here
-#pragma warning restore NUnit1010 // Find Incorrect ParallelizableAttribute Usage
+#pragma warning restore NUnit1010 // No ParallelScope.Fixtures on a test method.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1010 // Find Incorrect ParallelizableAttribute Usage
+#pragma warning disable NUnit1010 // No ParallelScope.Fixtures on a test method.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1010:Find Incorrect ParallelizableAttribute Usage", 
+    "NUnit1010:No ParallelScope.Fixtures on a test method.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

@@ -13,24 +13,29 @@ namespace NUnit.Analyzers.TestCaseUsage
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TestCaseUsageAnalyzer : DiagnosticAnalyzer
     {
-        private static DiagnosticDescriptor CreateDescriptor(string id, string message) =>
-            new DiagnosticDescriptor(id, TestCaseUsageAnalyzerConstants.Title,
-                message, Categories.Structure, DiagnosticSeverity.Error, true);
+        private static readonly DiagnosticDescriptor notEnoughArguments = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseNotEnoughArgumentsUsage,
+            title: TestCaseUsageAnalyzerConstants.NotEnoughArgumentsTitle,
+            messageFormat: TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseUsageAnalyzerConstants.NotEnoughArgumentsDescription);
 
-        private static readonly DiagnosticDescriptor notEnoughArguments =
-            TestCaseUsageAnalyzer.CreateDescriptor(
-                AnalyzerIdentifiers.TestCaseNotEnoughArgumentsUsage,
-                TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage);
+        private static readonly DiagnosticDescriptor parameterTypeMismatch = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
+            title: TestCaseUsageAnalyzerConstants.ParameterTypeMismatchTitle,
+            messageFormat: TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseUsageAnalyzerConstants.ParameterTypeMismatchDescription);
 
-        private static readonly DiagnosticDescriptor parameterTypeMismatch =
-            TestCaseUsageAnalyzer.CreateDescriptor(
-                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage);
-
-        private static readonly DiagnosticDescriptor tooManyArguments =
-            TestCaseUsageAnalyzer.CreateDescriptor(
-                AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage,
-                TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage);
+        private static readonly DiagnosticDescriptor tooManyArguments = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage,
+            title: TestCaseUsageAnalyzerConstants.TooManyArgumentsTitle,
+            messageFormat: TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseUsageAnalyzerConstants.TooManyArgumentsDescription);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             notEnoughArguments,
@@ -90,12 +95,20 @@ namespace NUnit.Analyzers.TestCaseUsage
 
                         if (attributePositionalArguments.Length < methodRequiredParameters)
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(notEnoughArguments, attributeNode.GetLocation()));
+                            context.ReportDiagnostic(Diagnostic.Create(
+                                notEnoughArguments,
+                                attributeNode.GetLocation(),
+                                methodRequiredParameters,
+                                attributePositionalArguments.Length));
                         }
                         else if (methodParamsParameters == 0 &&
                             attributePositionalArguments.Length > methodRequiredParameters + methodOptionalParameters)
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(tooManyArguments, attributeNode.GetLocation()));
+                            context.ReportDiagnostic(Diagnostic.Create(
+                                tooManyArguments,
+                                attributeNode.GetLocation(),
+                                methodRequiredParameters + methodOptionalParameters,
+                                attributePositionalArguments.Length));
                         }
                         else
                         {
@@ -169,7 +182,8 @@ namespace NUnit.Analyzers.TestCaseUsage
                 {
                     context.ReportDiagnostic(Diagnostic.Create(parameterTypeMismatch,
                       attributeArgument.GetLocation(),
-                      i, methodParameterName));
+                      i,
+                      methodParameterName));
                 }
 
                 context.CancellationToken.ThrowIfCancellationRequested();

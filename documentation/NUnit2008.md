@@ -1,5 +1,5 @@
 # NUnit2008
-## Find incorrect IgnoreCase usage
+## Incorrect IgnoreCase usage.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+IgnoreCase modifier should only be used for string or char arguments. Using it on another type will not have any effect.
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit2008 // Find incorrect IgnoreCase usage
+#pragma warning disable NUnit2008 // Incorrect IgnoreCase usage.
 Code violating the rule here
-#pragma warning restore NUnit2008 // Find incorrect IgnoreCase usage
+#pragma warning restore NUnit2008 // Incorrect IgnoreCase usage.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit2008 // Find incorrect IgnoreCase usage
+#pragma warning disable NUnit2008 // Incorrect IgnoreCase usage.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
-    "NUnit2008:Find incorrect IgnoreCase usage", 
+    "NUnit2008:Incorrect IgnoreCase usage.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

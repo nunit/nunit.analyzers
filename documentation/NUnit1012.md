@@ -1,5 +1,5 @@
 # NUnit1012
-## Find Incorrect TestAttribute or TestCaseAttribute Usage
+## Async test method must have non-void return type.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+Async test method must have non-void return type.
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1012 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning disable NUnit1012 // Async test method must have non-void return type.
 Code violating the rule here
-#pragma warning restore NUnit1012 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning restore NUnit1012 // Async test method must have non-void return type.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1012 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning disable NUnit1012 // Async test method must have non-void return type.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1012:Find Incorrect TestAttribute or TestCaseAttribute Usage", 
+    "NUnit1012:Async test method must have non-void return type.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

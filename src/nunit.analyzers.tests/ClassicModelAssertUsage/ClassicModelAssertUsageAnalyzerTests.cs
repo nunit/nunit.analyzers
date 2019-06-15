@@ -24,9 +24,9 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             foreach (var diagnostic in diagnostics)
             {
-                Assert.That(diagnostic.Title.ToString(), Is.EqualTo(ClassicModelUsageAnalyzerConstants.Title),
+                Assert.That(diagnostic.Title.ToString(), Is.Not.Empty,
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
-                Assert.That(diagnostic.MessageFormat.ToString(), Is.EqualTo(ClassicModelUsageAnalyzerConstants.Message),
+                Assert.That(diagnostic.MessageFormat.ToString(), Is.Not.Empty,
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.MessageFormat)}");
                 Assert.That(diagnostic.Category, Is.EqualTo(Categories.Assertion),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
@@ -86,9 +86,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void AnalyzeWhenIsTrueIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.IsTrueUsage,
-                ClassicModelUsageAnalyzerConstants.Message);
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsTrueUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenIsTrueIsUsed
@@ -104,9 +102,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void AnalyzeWhenTrueIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TrueUsage,
-                ClassicModelUsageAnalyzerConstants.Message);
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.TrueUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenTrueIsUsed
@@ -122,9 +118,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void AnalyzeWhenIsFalseIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.IsFalseUsage,
-                ClassicModelUsageAnalyzerConstants.Message);
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsFalseUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenIsFalseIsUsed
@@ -140,9 +134,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void AnalyzeWhenFalseIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.FalseUsage,
-                ClassicModelUsageAnalyzerConstants.Message);
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.FalseUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenFalseIsUsed
@@ -158,9 +150,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void AnalyzeWhenAreEqualIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.AreEqualUsage,
-                ClassicModelUsageAnalyzerConstants.Message);
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreEqualUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenAreEqualIsUsed
@@ -176,9 +166,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void AnalyzeWhenAreEqualIsUsedWithTolerance()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.AreEqualUsage,
-                ClassicModelUsageAnalyzerConstants.Message);
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreEqualUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenAreEqualIsUsedWithTolerance
@@ -194,9 +182,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void AnalyzeWhenAreNotEqualIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.AreNotEqualUsage,
-                ClassicModelUsageAnalyzerConstants.Message);
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreNotEqualUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenAreNotEqualIsUsed

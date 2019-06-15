@@ -32,8 +32,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 
             foreach (var diagnostic in diagnostics)
             {
-                Assert.That(diagnostic.Title.ToString(), Is.EqualTo(TestCaseUsageAnalyzerConstants.Title),
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
+                Assert.That(diagnostic.Title.ToString(), Is.Not.Empty);
                 Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
                 Assert.That(diagnostic.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Error),
@@ -208,7 +207,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [↓TestCase(2)]
         public void Test(int a, char b) { }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var message = "There are not enough arguments provided by the TestCaseAttribute. Expected '2', but got '1'.";
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -224,7 +224,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [↓TestCase(2, 'b')]
         public void Test(int a) { }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var message = "There are too many arguments provided by the TestCaseAttribute. Expected '1', but got '2'.";
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -240,7 +241,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [↓TestCase(2, 'b', 2d)]
         public void Test(int a, char b = 'c') { }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var message = "There are too many arguments provided by the TestCaseAttribute. Expected '2', but got '3'.";
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]

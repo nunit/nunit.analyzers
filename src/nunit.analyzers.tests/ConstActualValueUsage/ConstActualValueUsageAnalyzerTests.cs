@@ -1,6 +1,7 @@
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.ConstActualValueUsage;
+using NUnit.Analyzers.Constants;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.ConstActualValueUsage
@@ -8,6 +9,8 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
     public class ConstActualValueUsageAnalyzerTests
     {
         private static readonly DiagnosticAnalyzer analyzer = new ConstActualValueUsageAnalyzer();
+        private static readonly ExpectedDiagnostic expectedDiagnostic =
+            ExpectedDiagnostic.Create(AnalyzerIdentifiers.ConstActualValueUsage);
 
         [Test]
         public void AnalyzeWhenLiteralArgumentIsProvidedForAreEqual()
@@ -19,7 +22,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.AreEqual(expected, ↓1);
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -32,7 +35,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.AreEqual(actual: ↓1, expected: expected);
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -44,7 +47,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.That(↓true, Is.EqualTo(false));
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -58,7 +61,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.AreEqual(expected, ↓actual);
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -72,7 +75,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.AreEqual(actual: ↓actual, expected: expected);
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -86,7 +89,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.That(↓actual, Is.EqualTo(expected));
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -104,7 +107,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             }");
 
-            AnalyzerAssert.Diagnostics(analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -122,7 +125,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             }");
 
-            AnalyzerAssert.Diagnostics(analyzer, testCode);
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]

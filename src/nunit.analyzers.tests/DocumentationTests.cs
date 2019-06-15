@@ -59,6 +59,14 @@ namespace NUnit.Analyzers.Tests
                                               .Count(d => d.Id == descriptorInfo.Descriptor.Id));
         }
 
+        [TestCaseSource(nameof(descriptorInfos))]
+        public void EnsureThatHelpLinkUriIsCorrect(DescriptorInfo descriptorInfo)
+        {
+            Assert.That(descriptorInfo.Descriptor.HelpLinkUri, Is.Not.Null.And.Not.Empty);
+            var expectedUri = $"https://github.com/nunit/nunit.analyzers/tree/master/documentation/{descriptorInfo.Descriptor.Id}.md";
+            Assert.That(descriptorInfo.Descriptor.HelpLinkUri, Is.EqualTo(expectedUri));
+        }
+
         [TestCaseSource(nameof(DescriptorsWithDocs))]
         public void EnsureThatFirstLineMatchesId(DescriptorInfo descriptorInfo)
         {
@@ -78,11 +86,9 @@ namespace NUnit.Analyzers.Tests
             Assert.AreEqual(expected, actual);
         }
 
-        [Explicit("No descriptions. Remove this test and update doc stubs if we don't want descriptions.")]
         [TestCaseSource(nameof(DescriptorsWithDocs))]
         public void Description(DescriptorInfo descriptorInfo)
         {
-            Assert.Inconclusive("VS test runner does not filter out [Explicit]");
             var expected =
                 descriptorInfo.Descriptor
                               .Description
@@ -281,10 +287,11 @@ Or put this at the top of the file to disable all instances.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage(""{descriptor.Category}"", 
-    ""{descriptor.Id}:{descriptor.Title.ToString(CultureInfo.InvariantCulture)}"", 
+    ""{descriptor.Id}:{descriptor.Title.ToString(CultureInfo.InvariantCulture)}"",
     Justification = ""Reason..."")]
 ```
-<!-- end generated config severity -->";
+<!-- end generated config severity -->
+";
 
                 return stub.Replace("| Code     | [<TYPENAME>](<URL>)\r\n", text)
                            .Replace("| Code     | [<TYPENAME>](<URL>)\n", text);

@@ -1,5 +1,5 @@
 # NUnit1007
-## Find Incorrect TestAttribute or TestCaseAttribute Usage
+## Method has non-void return type, but no result is expected in ExpectedResult.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+Method has non-void return type, but no result is expected in ExpectedResult.
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1007 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning disable NUnit1007 // Method has non-void return type, but no result is expected in ExpectedResult.
 Code violating the rule here
-#pragma warning restore NUnit1007 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning restore NUnit1007 // Method has non-void return type, but no result is expected in ExpectedResult.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1007 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning disable NUnit1007 // Method has non-void return type, but no result is expected in ExpectedResult.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1007:Find Incorrect TestAttribute or TestCaseAttribute Usage", 
+    "NUnit1007:Method has non-void return type, but no result is expected in ExpectedResult.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

@@ -1,5 +1,5 @@
 # NUnit1005
-## Find Incorrect TestAttribute or TestCaseAttribute Usage
+## The type of ExpectedResult must match the return type.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+The type of ExpectedResult must match the return type. This will lead to an error at run-time.
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1005 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning disable NUnit1005 // The type of ExpectedResult must match the return type.
 Code violating the rule here
-#pragma warning restore NUnit1005 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning restore NUnit1005 // The type of ExpectedResult must match the return type.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1005 // Find Incorrect TestAttribute or TestCaseAttribute Usage
+#pragma warning disable NUnit1005 // The type of ExpectedResult must match the return type.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1005:Find Incorrect TestAttribute or TestCaseAttribute Usage", 
+    "NUnit1005:The type of ExpectedResult must match the return type.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->
