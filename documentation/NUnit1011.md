@@ -12,7 +12,7 @@
 
 ## Description
 
-
+TestCaseSource argument does not specify an existing member. This will lead to an error at run-time.
 
 ## Motivation
 
@@ -45,7 +45,7 @@ Or put this at the top of the file to disable all instances.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1011:TestCaseSource argument does not specify an existing member.", 
+    "NUnit1011:TestCaseSource argument does not specify an existing member.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

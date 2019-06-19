@@ -11,13 +11,13 @@ namespace NUnit.Analyzers.SameActualExpectedValue
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class SameActualExpectedValueAnalyzer : BaseAssertionAnalyzer
     {
-        private static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
-            AnalyzerIdentifiers.SameActualExpectedValue,
-            SameActualExpectedValueAnalyzerConstants.Title,
-            SameActualExpectedValueAnalyzerConstants.Message,
-            Categories.Structure,
-            DiagnosticSeverity.Warning,
-            true);
+        private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.SameActualExpectedValue,
+            title: SameActualExpectedValueAnalyzerConstants.Title,
+            messageFormat: SameActualExpectedValueAnalyzerConstants.Message,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: SameActualExpectedValueAnalyzerConstants.Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
@@ -37,7 +37,8 @@ namespace NUnit.Analyzers.SameActualExpectedValue
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     descriptor,
-                    expected.GetLocation()));
+                    expected.GetLocation(),
+                    expected.ToString()));
             }
         }
     }

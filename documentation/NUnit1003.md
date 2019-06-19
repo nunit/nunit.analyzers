@@ -1,5 +1,5 @@
 # NUnit1003
-## Find Incorrect TestCaseAttribute Usage
+## Too few arguments provided by TestCaseAttribute.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+The number of arguments provided by a TestCaseAttribute must match the number of parameters of the method.
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1003 // Find Incorrect TestCaseAttribute Usage
+#pragma warning disable NUnit1003 // Too few arguments provided by TestCaseAttribute.
 Code violating the rule here
-#pragma warning restore NUnit1003 // Find Incorrect TestCaseAttribute Usage
+#pragma warning restore NUnit1003 // Too few arguments provided by TestCaseAttribute.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1003 // Find Incorrect TestCaseAttribute Usage
+#pragma warning disable NUnit1003 // Too few arguments provided by TestCaseAttribute.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1003:Find Incorrect TestCaseAttribute Usage", 
+    "NUnit1003:Too few arguments provided by TestCaseAttribute.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

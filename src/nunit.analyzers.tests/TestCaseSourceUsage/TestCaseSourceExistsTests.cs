@@ -1,4 +1,4 @@
-﻿using Gu.Roslyn.Asserts;
+using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.TestCaseSourceUsage;
@@ -22,7 +22,8 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         {
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var message = "TestCaseSource argument 'Missing' does not specify an existing member.";
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 
             foreach (var diagnostic in diagnostics)
             {
-                Assert.That(diagnostic.Title.ToString(), Is.EqualTo(TestMethodUsageAnalyzerConstants.Title),
+                Assert.That(diagnostic.Title.ToString(), Is.Not.Empty,
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
                 Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
@@ -147,7 +147,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [↓Test]
         public string Test3() => ""12"";
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var message = "Method has non-void return type 'string', but no result is expected in ExpectedResult.";
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -160,9 +161,10 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     public sealed class AnalyzeWhenTestCaseAttributeExpectedResultIsNotProvidedAndReturnTypeIsNotVoid
     {
         [↓TestCase(1)]
-        public string Test4(int i) => ""12"";
+        public int Test4(int i) => ""12"";
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var message = "Method has non-void return type 'int', but no result is expected in ExpectedResult.";
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -177,7 +179,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [↓Test]
         public async Task<int> AsyncGenericTaskTest() => await Task.FromResult(1);
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var message = "Async test method must have non-generic Task return type when no result is expected, but the return type was 'System.Threading.Tasks.Task<int>'.";
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -192,7 +195,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [↓Test]
         public Task<int> AsyncGenericTaskTest() => Task.FromResult(1);
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var message = "Async test method must have non-generic Task return type when no result is expected, but the return type was 'System.Threading.Tasks.Task<int>'.";
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -285,7 +289,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
           await Task.Run(() => 1);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var message = "Async test method must have Task<T> return type when a result is expected, but the return type was 'System.Threading.Tasks.Task'.";
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -303,7 +308,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
           return Task.Run(() => 1);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var message = "Async test method must have Task<T> return type when a result is expected, but the return type was 'System.Threading.Tasks.Task'.";
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]

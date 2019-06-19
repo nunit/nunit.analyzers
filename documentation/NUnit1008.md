@@ -1,5 +1,5 @@
 # NUnit1008
-## Find Incorrect ParallelizableAttribute Usage
+## Specifying ParallelScope.Self on assembly level has no effect.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+Specifying ParallelScope.Self on assembly level has no effect.
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1008 // Find Incorrect ParallelizableAttribute Usage
+#pragma warning disable NUnit1008 // Specifying ParallelScope.Self on assembly level has no effect.
 Code violating the rule here
-#pragma warning restore NUnit1008 // Find Incorrect ParallelizableAttribute Usage
+#pragma warning restore NUnit1008 // Specifying ParallelScope.Self on assembly level has no effect.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1008 // Find Incorrect ParallelizableAttribute Usage
+#pragma warning disable NUnit1008 // Specifying ParallelScope.Self on assembly level has no effect.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1008:Find Incorrect ParallelizableAttribute Usage", 
+    "NUnit1008:Specifying ParallelScope.Self on assembly level has no effect.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

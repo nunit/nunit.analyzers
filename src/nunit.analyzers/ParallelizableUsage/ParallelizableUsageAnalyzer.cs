@@ -14,27 +14,29 @@ namespace NUnit.Analyzers.ParallelizableUsage
     {
         internal const string AssemblyAttributeTargetSpecifier = "assembly";
 
-        private static DiagnosticDescriptor CreateDescriptor(string id, string message, DiagnosticSeverity severity) =>
-            new DiagnosticDescriptor(id, ParallelizableUsageAnalyzerConstants.Title,
-                message, Categories.Structure, severity, true);
+        private static readonly DiagnosticDescriptor scopeSelfNoEffectOnAssemblyUsage = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.ParallelScopeSelfNoEffectOnAssemblyUsage,
+            title: ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyTitle,
+            messageFormat: ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyDescription);
 
-        private static readonly DiagnosticDescriptor scopeSelfNoEffectOnAssemblyUsage =
-            ParallelizableUsageAnalyzer.CreateDescriptor(
-                AnalyzerIdentifiers.ParallelScopeSelfNoEffectOnAssemblyUsage,
-                ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage,
-                DiagnosticSeverity.Warning);
+        private static readonly DiagnosticDescriptor scopeChildrenOnNonParameterizedTest = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.ParallelScopeChildrenOnNonParameterizedTestMethodUsage,
+            title: ParallelizableUsageAnalyzerConstants.ParallelScopeChildrenOnNonParameterizedTestMethodTitle,
+            messageFormat: ParallelizableUsageAnalyzerConstants.ParallelScopeChildrenOnNonParameterizedTestMethodMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: ParallelizableUsageAnalyzerConstants.ParallelScopeChildrenOnNonParameterizedTestMethodDescription);
 
-        private static readonly DiagnosticDescriptor scopeChildrenOnNonParameterizedTest =
-            ParallelizableUsageAnalyzer.CreateDescriptor(
-                AnalyzerIdentifiers.ParallelScopeChildrenOnNonParameterizedTestMethodUsage,
-                ParallelizableUsageAnalyzerConstants.ParallelScopeChildrenOnNonParameterizedTestMethodMessage,
-                DiagnosticSeverity.Error);
-
-        private static readonly DiagnosticDescriptor scopeFixturesOnTest =
-            ParallelizableUsageAnalyzer.CreateDescriptor(
-                AnalyzerIdentifiers.ParallelScopeFixturesOnTestMethodUsage,
-                ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage,
-                DiagnosticSeverity.Error);
+        private static readonly DiagnosticDescriptor scopeFixturesOnTest = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.ParallelScopeFixturesOnTestMethodUsage,
+            title: ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodTitle,
+            messageFormat: ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodDescription);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             scopeSelfNoEffectOnAssemblyUsage,

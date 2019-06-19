@@ -1,5 +1,5 @@
 # NUnit2007
-## Actual value should not be constant
+## Actual value should not be constant.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+Actual value should not be constant. This indicates that the actual and expected values have switched places.
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit2007 // Actual value should not be constant
+#pragma warning disable NUnit2007 // Actual value should not be constant.
 Code violating the rule here
-#pragma warning restore NUnit2007 // Actual value should not be constant
+#pragma warning restore NUnit2007 // Actual value should not be constant.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit2007 // Actual value should not be constant
+#pragma warning disable NUnit2007 // Actual value should not be constant.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
-    "NUnit2007:Actual value should not be constant", 
+    "NUnit2007:Actual value should not be constant.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

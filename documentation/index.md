@@ -2,27 +2,27 @@
 
 | Id       | Title
 | :--      | :--
-| [NUnit1001]()| Find Incorrect TestCaseAttribute Usage
-| [NUnit1002]()| Find TestCaseSource(StringConstant) Usage
-| [NUnit1003]()| Find Incorrect TestCaseAttribute Usage
-| [NUnit1004]()| Find Incorrect TestCaseAttribute Usage
-| [NUnit1005]()| Find Incorrect TestAttribute or TestCaseAttribute Usage
-| [NUnit1006]()| Find Incorrect TestAttribute or TestCaseAttribute Usage
-| [NUnit1007]()| Find Incorrect TestAttribute or TestCaseAttribute Usage
-| [NUnit1008]()| Find Incorrect ParallelizableAttribute Usage
-| [NUnit1009]()| Find Incorrect ParallelizableAttribute Usage
-| [NUnit1010]()| Find Incorrect ParallelizableAttribute Usage
-| [NUnit1011]()| TestCaseSource argument does not specify an existing member.
-| [NUnit1012]()| Find Incorrect TestAttribute or TestCaseAttribute Usage
-| [NUnit1013]()| Find Incorrect TestAttribute or TestCaseAttribute Usage
-| [NUnit1014]()| Find Incorrect TestAttribute or TestCaseAttribute Usage
-| [NUnit2001]()| Find Classic Assertion Usage
-| [NUnit2002]()| Find Classic Assertion Usage
-| [NUnit2003]()| Find Classic Assertion Usage
-| [NUnit2004]()| Find Classic Assertion Usage
-| [NUnit2005]()| Find Classic Assertion Usage
-| [NUnit2006]()| Find Classic Assertion Usage
-| [NUnit2007]()| Actual value should not be constant
-| [NUnit2008]()| Find incorrect IgnoreCase usage
-| [NUnit2009]()| Find same value provided as actual and expected argument
+| [NUnit1001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1001.md)| The individual arguments provided by a TestCaseAttribute must match the type of the matching parameter of the method.
+| [NUnit1002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1002.md)| TestCaseSource should use nameof operator to specify target.
+| [NUnit1003](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1003.md)| Too few arguments provided by TestCaseAttribute.
+| [NUnit1004](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1004.md)| Too many arguments provided by TestCaseAttribute.
+| [NUnit1005](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1005.md)| The type of ExpectedResult must match the return type.
+| [NUnit1006](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1006.md)| ExpectedResult must not be specified when the method returns void.
+| [NUnit1007](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1007.md)| Method has non-void return type, but no result is expected in ExpectedResult.
+| [NUnit1008](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1008.md)| Specifying ParallelScope.Self on assembly level has no effect.
+| [NUnit1009](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1009.md)| No ParallelScope.Children on a non-parameterized test method.
+| [NUnit1010](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1010.md)| No ParallelScope.Fixtures on a test method.
+| [NUnit1011](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1011.md)| TestCaseSource argument does not specify an existing member.
+| [NUnit1012](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1012.md)| Async test method must have non-void return type.
+| [NUnit1013](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1013.md)| Async test method must have non-generic Task return type when no result is expected.
+| [NUnit1014](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1014.md)| Async test method must have Task<T> return type when a result is expected
+| [NUnit2001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2001.md)| Consider using Assert.That(expr, Is.False) instead of Assert.False(expr).
+| [NUnit2002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2002.md)| Consider using Assert.That(expr, Is.False) instead of Assert.IsFalse(expr).
+| [NUnit2003](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2003.md)| Consider using Assert.That(expr, Is.True) instead of Assert.IsTrue(expr).
+| [NUnit2004](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2004.md)| Consider using Assert.That(expr, Is.True) instead of Assert.True(expr).
+| [NUnit2005](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2005.md)| Consider using Assert.That(expr1, Is.EqualTo(expr2)) instead of Assert.AreEqual(expr1, expr2).
+| [NUnit2006](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2006.md)| Consider using Assert.That(expr1, Is.Not.EqualTo(expr2)) instead of Assert.AreNotEqual(expr1, expr2).
+| [NUnit2007](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2007.md)| Actual value should not be constant.
+| [NUnit2008](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2008.md)| Incorrect IgnoreCase usage.
+| [NUnit2009](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2009.md)| Same value provided as actual and expected argument.
 

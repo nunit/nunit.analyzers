@@ -15,34 +15,55 @@ namespace NUnit.Analyzers.TestCaseUsage
         private const string fullyQualifiedNameOfTask = "System.Threading.Tasks.Task";
         private const string fullyQualifiedNameOfGenericTask = "System.Threading.Tasks.Task`1";
 
-        private static DiagnosticDescriptor CreateDescriptor(string id, string message) =>
-            new DiagnosticDescriptor(id, TestMethodUsageAnalyzerConstants.Title,
-                message, Categories.Structure, DiagnosticSeverity.Error, true);
+        private static readonly DiagnosticDescriptor expectedResultTypeMismatch = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
+            title: TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchTitle,
+            messageFormat: TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchDescription);
 
-        private static readonly DiagnosticDescriptor expectedResultTypeMismatch = TestMethodUsageAnalyzer.CreateDescriptor(
-            AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
-            TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage);
+        private static readonly DiagnosticDescriptor specifiedExpectedResultForVoid = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestMethodSpecifiedExpectedResultForVoidUsage,
+            title: TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodTitle,
+            messageFormat: TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodDescription);
 
-        private static readonly DiagnosticDescriptor specifiedExpectedResultForVoid = TestMethodUsageAnalyzer.CreateDescriptor(
-            AnalyzerIdentifiers.TestMethodSpecifiedExpectedResultForVoidUsage,
-            TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage);
 
-        private static readonly DiagnosticDescriptor noExpectedResultButNonVoidReturnType = TestMethodUsageAnalyzer.CreateDescriptor(
-            AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType,
-            TestMethodUsageAnalyzerConstants.NoExpectedResultButNonVoidReturnType);
+        private static readonly DiagnosticDescriptor noExpectedResultButNonVoidReturnType = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType,
+            title: TestMethodUsageAnalyzerConstants.NoExpectedResultButNonVoidReturnTypeTitle,
+            messageFormat: TestMethodUsageAnalyzerConstants.NoExpectedResultButNonVoidReturnTypeMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestMethodUsageAnalyzerConstants.NoExpectedResultButNonVoidReturnTypeDescription);
 
-        private static readonly DiagnosticDescriptor asyncNoExpectedResultAndVoidReturnType = TestMethodUsageAnalyzer.CreateDescriptor(
-            AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndVoidReturnTypeUsage,
-            TestMethodUsageAnalyzerConstants.AsyncNoExpectedResultAndVoidReturnType);
+        private static readonly DiagnosticDescriptor asyncNoExpectedResultAndVoidReturnType = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndVoidReturnTypeUsage,
+            title: TestMethodUsageAnalyzerConstants.AsyncNoExpectedResultAndVoidReturnTypeTitle,
+            messageFormat: TestMethodUsageAnalyzerConstants.AsyncNoExpectedResultAndVoidReturnTypeMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestMethodUsageAnalyzerConstants.AsyncNoExpectedResultAndVoidReturnTypeDescription);
 
-        private static readonly DiagnosticDescriptor asyncNoExpectedResultAndNonTaskReturnType = TestMethodUsageAnalyzer.CreateDescriptor(
-            AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage,
-            TestMethodUsageAnalyzerConstants.AsyncNoExpectedResultAndNonTaskReturnType);
+        private static readonly DiagnosticDescriptor asyncNoExpectedResultAndNonTaskReturnType = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage,
+            title: TestMethodUsageAnalyzerConstants.AsyncNoExpectedResultAndNonTaskReturnTypeTitle,
+            messageFormat: TestMethodUsageAnalyzerConstants.AsyncNoExpectedResultAndNonTaskReturnTypeMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestMethodUsageAnalyzerConstants.AsyncNoExpectedResultAndNonTaskReturnTypeDescription);
 
         private static readonly DiagnosticDescriptor asyncExpectedResultButReturnTypeNotGenericTask =
-            TestMethodUsageAnalyzer.CreateDescriptor(
-                AnalyzerIdentifiers.TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage,
-                TestMethodUsageAnalyzerConstants.AsyncExpectedResultAndNonGenericTaskReturnType2);
+            DiagnosticDescriptorCreator.Create(
+                id: AnalyzerIdentifiers.TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage,
+                title: TestMethodUsageAnalyzerConstants.AsyncExpectedResultAndNonGenericTaskReturnTypeTitle,
+                messageFormat: TestMethodUsageAnalyzerConstants.AsyncExpectedResultAndNonGenericTaskReturnTypeMessage,
+                category: Categories.Structure,
+                defaultSeverity: DiagnosticSeverity.Error,
+                description: TestMethodUsageAnalyzerConstants.AsyncExpectedResultAndNonGenericTaskReturnTypeDescription);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(expectedResultTypeMismatch, specifiedExpectedResultForVoid, noExpectedResultButNonVoidReturnType,
@@ -127,7 +148,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                 if (!methodReturnValueType.OriginalDefinition.Equals(genericTaskType))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(asyncExpectedResultButReturnTypeNotGenericTask,
-                        attributeNode.GetLocation()));
+                        attributeNode.GetLocation(), methodReturnValueType.ToDisplayString()));
                 }
                 else
                 {
@@ -188,7 +209,8 @@ namespace NUnit.Analyzers.TestCaseUsage
                     var isTaskType = methodReturnValueType.Equals(context.Compilation.GetTypeByMetadataName(fullyQualifiedNameOfTask));
                     if (!isTaskType)
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(asyncNoExpectedResultAndNonTaskReturnType, attributeNode.GetLocation()));
+                        context.ReportDiagnostic(Diagnostic.Create(asyncNoExpectedResultAndNonTaskReturnType,
+                            attributeNode.GetLocation(), methodReturnValueType.ToDisplayString()));
                     }
                 }
             }
@@ -197,7 +219,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                 if (methodReturnValueType.SpecialType != SpecialType.System_Void)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(noExpectedResultButNonVoidReturnType,
-                        attributeNode.GetLocation()));
+                        attributeNode.GetLocation(), methodReturnValueType.ToDisplayString()));
                 }
             }
         }

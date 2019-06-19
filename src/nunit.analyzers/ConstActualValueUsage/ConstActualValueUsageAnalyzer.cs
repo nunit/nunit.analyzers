@@ -11,13 +11,13 @@ namespace NUnit.Analyzers.ConstActualValueUsage
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ConstActualValueUsageAnalyzer : BaseAssertionAnalyzer
     {
-        private static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
-            AnalyzerIdentifiers.ConstActualValueUsage,
-            ConstActualValueUsageAnalyzerConstants.Title,
-            ConstActualValueUsageAnalyzerConstants.Message,
-            Categories.Assertion,
-            DiagnosticSeverity.Warning,
-            true);
+        private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.ConstActualValueUsage,
+            title: ConstActualValueUsageAnalyzerConstants.Title,
+            messageFormat: ConstActualValueUsageAnalyzerConstants.Message,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ConstActualValueUsageAnalyzerConstants.Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 

@@ -91,7 +91,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMember);
 
-            var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
+            var message = "Consider using nameof(TestCases) instead of \"TestCases\".";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
 
@@ -132,7 +132,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }");
 
-            var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
+            var message = "Consider using nameof(TestCases) instead of \"TestCases\".";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
     }

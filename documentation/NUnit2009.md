@@ -1,5 +1,5 @@
 # NUnit2009
-## Find same value provided as actual and expected argument
+## Same value provided as actual and expected argument.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+The same value has been provided as both actual and expected argument. This indicates a coding error.
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit2009 // Find same value provided as actual and expected argument
+#pragma warning disable NUnit2009 // Same value provided as actual and expected argument.
 Code violating the rule here
-#pragma warning restore NUnit2009 // Find same value provided as actual and expected argument
+#pragma warning restore NUnit2009 // Same value provided as actual and expected argument.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit2009 // Find same value provided as actual and expected argument
+#pragma warning disable NUnit2009 // Same value provided as actual and expected argument.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit2009:Find same value provided as actual and expected argument", 
+    "NUnit2009:Same value provided as actual and expected argument.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

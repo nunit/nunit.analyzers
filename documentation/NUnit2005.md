@@ -1,5 +1,5 @@
 # NUnit2005
-## Find Classic Assertion Usage
+## Consider using Assert.That(expr1, Is.EqualTo(expr2)) instead of Assert.AreEqual(expr1, expr2).
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-
+Consider using the constraint model, Assert.That(expr1, Is.EqualTo(expr2)), instead of the classic model, Assert.AreEqual(expr1, expr2).
 
 ## Motivation
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit2005 // Find Classic Assertion Usage
+#pragma warning disable NUnit2005 // Consider using Assert.That(expr1, Is.EqualTo(expr2)) instead of Assert.AreEqual(expr1, expr2).
 Code violating the rule here
-#pragma warning restore NUnit2005 // Find Classic Assertion Usage
+#pragma warning restore NUnit2005 // Consider using Assert.That(expr1, Is.EqualTo(expr2)) instead of Assert.AreEqual(expr1, expr2).
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit2005 // Find Classic Assertion Usage
+#pragma warning disable NUnit2005 // Consider using Assert.That(expr1, Is.EqualTo(expr2)) instead of Assert.AreEqual(expr1, expr2).
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
-    "NUnit2005:Find Classic Assertion Usage", 
+    "NUnit2005:Consider using Assert.That(expr1, Is.EqualTo(expr2)) instead of Assert.AreEqual(expr1, expr2).",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->
