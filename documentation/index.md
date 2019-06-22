@@ -20,8 +20,8 @@
 | [NUnit2002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2002.md)| Consider using Assert.That(expr, Is.False) instead of Assert.IsFalse(expr).
 | [NUnit2003](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2003.md)| Consider using Assert.That(expr, Is.True) instead of Assert.IsTrue(expr).
 | [NUnit2004](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2004.md)| Consider using Assert.That(expr, Is.True) instead of Assert.True(expr).
-| [NUnit2005](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2005.md)| Consider using Assert.That(expr1, Is.EqualTo(expr2)) instead of Assert.AreEqual(expr1, expr2).
-| [NUnit2006](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2006.md)| Consider using Assert.That(expr1, Is.Not.EqualTo(expr2)) instead of Assert.AreNotEqual(expr1, expr2).
+| [NUnit2005](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2005.md)| Consider using Assert.That(expr2, Is.EqualTo(expr1)) instead of Assert.AreEqual(expr1, expr2).
+| [NUnit2006](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2006.md)| Consider using Assert.That(expr2, Is.Not.EqualTo(expr1)) instead of Assert.AreNotEqual(expr1, expr2).
 | [NUnit2007](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2007.md)| Actual value should not be constant.
 | [NUnit2008](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2008.md)| Incorrect IgnoreCase usage.
 | [NUnit2009](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2009.md)| Same value provided as actual and expected argument.

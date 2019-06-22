@@ -1,5 +1,5 @@
 # NUnit2006
-## Consider using Assert.That(expr1, Is.Not.EqualTo(expr2)) instead of Assert.AreNotEqual(expr1, expr2).
+## Consider using Assert.That(expr2, Is.Not.EqualTo(expr1)) instead of Assert.AreNotEqual(expr1, expr2).
 
 | Topic    | Value
 | :--      | :--
@@ -12,15 +12,33 @@
 
 ## Description
 
-Consider using the constraint model, Assert.That(expr1, Is.Not.EqualTo(expr2)), instead of the classic model, Assert.AreNotEqual(expr1, expr2).
+Consider using the constraint model, Assert.That(expr2, Is.Not.EqualTo(expr1)), instead of the classic model, Assert.AreNotEqual(expr1, expr2).
 
 ## Motivation
 
-ADD MOTIVATION HERE
+The classic Assert model contains less flexibility and reads more clumsy than the constraint model,
+so this analyzer marks usages of `Assert.AreNotEqual` from the classic Assert model.
+
+```csharp
+[Test]
+public void Test()
+{
+    Assert.AreNotEqual(expression1, expression2)
+}
+```
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+The analyzer comes with a code fix that will replace `Assert.AreNotEqual(expression1, expression2)`
+with `Assert.That(expression2, Is.Not.EqualTo(expression1))`. So the code block above will be changed into.
+
+```csharp
+[Test]
+public void Test()
+{
+    Assert.That(expression2, Is.Not.EqualTo(expression1));
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
@@ -31,21 +49,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit2006 // Consider using Assert.That(expr1, Is.Not.EqualTo(expr2)) instead of Assert.AreNotEqual(expr1, expr2).
+#pragma warning disable NUnit2006 // Consider using Assert.That(expr2, Is.Not.EqualTo(expr1)) instead of Assert.AreNotEqual(expr1, expr2).
 Code violating the rule here
-#pragma warning restore NUnit2006 // Consider using Assert.That(expr1, Is.Not.EqualTo(expr2)) instead of Assert.AreNotEqual(expr1, expr2).
+#pragma warning restore NUnit2006 // Consider using Assert.That(expr2, Is.Not.EqualTo(expr1)) instead of Assert.AreNotEqual(expr1, expr2).
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit2006 // Consider using Assert.That(expr1, Is.Not.EqualTo(expr2)) instead of Assert.AreNotEqual(expr1, expr2).
+#pragma warning disable NUnit2006 // Consider using Assert.That(expr2, Is.Not.EqualTo(expr1)) instead of Assert.AreNotEqual(expr1, expr2).
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
-    "NUnit2006:Consider using Assert.That(expr1, Is.Not.EqualTo(expr2)) instead of Assert.AreNotEqual(expr1, expr2).",
+    "NUnit2006:Consider using Assert.That(expr2, Is.Not.EqualTo(expr1)) instead of Assert.AreNotEqual(expr1, expr2).",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->
