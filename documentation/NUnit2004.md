@@ -16,11 +16,29 @@ Consider using the constraint model, Assert.That(expr, Is.True), instead of the 
 
 ## Motivation
 
-ADD MOTIVATION HERE
+The classic Assert model contains less flexibility and reads more clumsy than the constraint model,
+so this analyzer marks usages of `Assert.True` from the classic Assert model.
+
+```csharp
+[Test]
+public void Test()
+{
+    Assert.True(expression);
+}
+```
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+The analyzer comes with a code fix that will replace `Assert.True(expression)` with
+`Assert.That(expression, Is.True)`. So the code block above will be changed into.
+
+```csharp
+[Test]
+public void Test()
+{
+    Assert.That(expression, Is.True);
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
