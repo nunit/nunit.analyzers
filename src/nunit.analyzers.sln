@@ -11,6 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nunit.analyzers.tests", "nu
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{2F501E14-35D4-432A-9F93-810A0AAEA128}"
 	ProjectSection(SolutionItems) = preProject
+		..\documentation\index.md = ..\documentation\index.md
 		..\documentation\NUnit1001.md = ..\documentation\NUnit1001.md
 		..\documentation\NUnit1002.md = ..\documentation\NUnit1002.md
 		..\documentation\NUnit1003.md = ..\documentation\NUnit1003.md
@@ -34,6 +35,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{2F501E14-3
 		..\documentation\NUnit2007.md = ..\documentation\NUnit2007.md
 		..\documentation\NUnit2008.md = ..\documentation\NUnit2008.md
 		..\documentation\NUnit2009.md = ..\documentation\NUnit2009.md
+		..\documentation\NUnit2010.md = ..\documentation\NUnit2010.md
+		..\documentation\NUnit2011.md = ..\documentation\NUnit2011.md
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject

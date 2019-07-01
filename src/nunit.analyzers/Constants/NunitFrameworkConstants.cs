@@ -45,6 +45,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfExpectedResult = "ExpectedResult";
 
         public const string NameOfActualParameter = "actual";
+        public const string NameOfConditionParameter = "condition";
         public const string NameOfExpectedParameter = "expected";
         public const string NameOfExpressionParameter = "expression";
 
