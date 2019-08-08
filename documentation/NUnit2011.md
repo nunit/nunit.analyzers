@@ -1,5 +1,5 @@
 # NUnit2011
-## Use Is.Not.EqualTo constraint
+## Use Is.Not.EqualTo constraint.
 
 | Topic    | Value
 | :--      | :--
@@ -12,13 +12,13 @@
 
 ## Description
 
-Using Is.Not.EqualTo constraint will lead to better assertion messages in case of failure
+Using Is.Not.EqualTo constraint will lead to better assertion messages in case of failure.
 
 ## Motivation
 
 Using `Is.Not.EqualTo` constraint will lead to better assertion messages in case of failure, 
 so this analyzer marks all usages of `!=` operator and negated `Equals` method where it is possible to replace 
-with `Is.Not.EqualTo` constraint
+with `Is.Not.EqualTo` constraint.
 
 ```csharp
 [Test]
@@ -49,21 +49,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit2011 // Use Is.Not.EqualTo constraint
+#pragma warning disable NUnit2011 // Use Is.Not.EqualTo constraint.
 Code violating the rule here
-#pragma warning restore NUnit2011 // Use Is.Not.EqualTo constraint
+#pragma warning restore NUnit2011 // Use Is.Not.EqualTo constraint.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit2011 // Use Is.Not.EqualTo constraint
+#pragma warning disable NUnit2011 // Use Is.Not.EqualTo constraint.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
-    "NUnit2011:Use Is.Not.EqualTo constraint",
+    "NUnit2011:Use Is.Not.EqualTo constraint.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

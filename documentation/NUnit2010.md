@@ -1,5 +1,5 @@
 # NUnit2010
-## Use Is.EqualTo constraint
+## Use Is.EqualTo constraint.
 
 | Topic    | Value
 | :--      | :--
@@ -12,13 +12,13 @@
 
 ## Description
 
-Using `Is.EqualTo` constraint will lead to better assertion messages in case of failure
+Using `Is.EqualTo` constraint will lead to better assertion messages in case of failure.
 
 ## Motivation
 
 Using `Is.EqualTo` constraint will lead to better assertion messages in case of failure, 
 so this analyzer marks all usages of `==` operator and `Equals` method where it is possible to replace 
-with `Is.EqualTo` constraint
+with `Is.EqualTo` constraint.
 
 ```csharp
 [Test]
@@ -49,21 +49,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit2010 // Use Is.EqualTo constraint
+#pragma warning disable NUnit2010 // Use Is.EqualTo constraint.
 Code violating the rule here
-#pragma warning restore NUnit2010 // Use Is.EqualTo constraint
+#pragma warning restore NUnit2010 // Use Is.EqualTo constraint.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit2010 // Use Is.EqualTo constraint
+#pragma warning disable NUnit2010 // Use Is.EqualTo constraint.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
-    "NUnit2010:Use Is.EqualTo constraint",
+    "NUnit2010:Use Is.EqualTo constraint.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

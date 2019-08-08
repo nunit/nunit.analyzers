@@ -39,17 +39,17 @@ namespace NUnit.Analyzers.ConstraintUsage
             NunitFrameworkConstants.NameOfAssertIsFalse
         };
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-            equalToDescriptor, notEqualToDescriptor);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+            => ImmutableArray.Create(equalToDescriptor, notEqualToDescriptor);
 
-
-        protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
+        protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
+            InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
         {
             var negated = false;
 
             if (SupportedNegativeAssertMethods.Contains(methodSymbol.Name))
             {
-                negated = !negated;
+                negated = true;
             }
             else if (!SupportedPositiveAssertMethods.Contains(methodSymbol.Name))
             {
@@ -69,7 +69,8 @@ namespace NUnit.Analyzers.ConstraintUsage
                 {
                     return;
                 }
-                else if (memberAccess.Name.Identifier.Text == NunitFrameworkConstants.NameOfIsFalse)
+
+                if (memberAccess.Name.Identifier.Text == NunitFrameworkConstants.NameOfIsFalse)
                 {
                     negated = !negated;
                 }
@@ -80,33 +81,43 @@ namespace NUnit.Analyzers.ConstraintUsage
 
             var shouldReport = false;
 
+            // 'actual == expected', 'Equals(actual, expected)' or 'actual.Equals(expected)'
             if (actual.IsKind(SyntaxKind.EqualsExpression)
                 || IsStaticObjectEquals(actual, context)
                 || IsInstanceObjectEquals(actual, context))
             {
                 shouldReport = true;
             }
+
+            // 'actual != expected', '!Equals(actual, expected)' or '!actual.Equals(expected)'
             else if (actual.IsKind(SyntaxKind.NotEqualsExpression)
-                || actual is PrefixUnaryExpressionSyntax unarySyntax
-                    && unarySyntax.IsKind(SyntaxKind.LogicalNotExpression)
-                    && (IsStaticObjectEquals(unarySyntax.Operand, context)
-                        || IsInstanceObjectEquals(unarySyntax.Operand, context)))
+                || (IsPrefixNotExpression(actual, out var notOperand)
+                    && (IsStaticObjectEquals(notOperand, context)
+                        || IsInstanceObjectEquals(notOperand, context))))
             {
                 shouldReport = true;
                 negated = !negated;
             }
 
-            if (shouldReport && !negated)
+            if (shouldReport)
             {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    equalToDescriptor,
-                    actual.GetLocation()));
+                var descriptor = negated ? notEqualToDescriptor : equalToDescriptor;
+                context.ReportDiagnostic(Diagnostic.Create(descriptor, actual.GetLocation()));
             }
-            else if (shouldReport && negated)
+        }
+
+        private static bool IsPrefixNotExpression(ExpressionSyntax expression, out ExpressionSyntax operand)
+        {
+            if (expression is PrefixUnaryExpressionSyntax unarySyntax
+                && unarySyntax.IsKind(SyntaxKind.LogicalNotExpression))
             {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    notEqualToDescriptor,
-                    actual.GetLocation()));
+                operand = unarySyntax.Operand;
+                return true;
+            }
+            else
+            {
+                operand = null;
+                return false;
             }
         }
 
