@@ -15,11 +15,9 @@ namespace NUnit.Analyzers.ConstraintUsage
 {
     [ExportCodeFixProvider(LanguageNames.CSharp)]
     [Shared]
-    public class EqualToConstraintUsageCodeFix : CodeFixProvider
+    public class EqualConstraintUsageCodeFix : CodeFixProvider
     {
-        public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
-            AnalyzerIdentifiers.IsEqualToConstraintUsage,
-            AnalyzerIdentifiers.IsNotEqualToConstraintUsage);
+        public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(AnalyzerIdentifiers.EqualConstraintUsage);
 
         public sealed override FixAllProvider GetFixAllProvider()
         {
@@ -28,8 +26,9 @@ namespace NUnit.Analyzers.ConstraintUsage
 
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var negated = context.Diagnostics.Any(d => d.Id == AnalyzerIdentifiers.IsNotEqualToConstraintUsage);
-            var description = negated ? CodeFixConstants.UseIsNotEqualToDescription : CodeFixConstants.UseIsEqualToDescription;
+            var suggestedConstraintString = context.Diagnostics[0].Properties[EqualConstraintUsageAnalyzer.SuggestedConstraintString];
+
+            var description = string.Format(CodeFixConstants.UseConstraintDescriptionFormat, suggestedConstraintString);
 
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
@@ -51,7 +50,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             if (actual == null || expected == null || assertNode == null || assertMethod == null)
                 return;
 
-            var newAssertNode = UpdateAssertNode(assertNode, assertMethod, actual, expected, negated);
+            var newAssertNode = UpdateAssertNode(assertNode, assertMethod, actual, expected, suggestedConstraintString);
             var newRoot = root.ReplaceNode(assertNode, newAssertNode);
 
             var codeAction = CodeAction.Create(
@@ -102,7 +101,7 @@ namespace NUnit.Analyzers.ConstraintUsage
 
         private static InvocationExpressionSyntax UpdateAssertNode(InvocationExpressionSyntax assertNode, IMethodSymbol assertMethod,
             ExpressionSyntax actual, ExpressionSyntax expected,
-            bool negated)
+            string constraintString)
         {
             // Replace Assert method to Assert.That
             var newExpression = ((MemberAccessExpressionSyntax)assertNode.Expression)
@@ -114,10 +113,6 @@ namespace NUnit.Analyzers.ConstraintUsage
             var remainingArguments = hasConstraint
                 ? assertNode.ArgumentList.Arguments.Skip(2)
                 : assertNode.ArgumentList.Arguments.Skip(1);
-
-            var constraintString = negated
-                ? $"{NameOfIs}.{NameOfIsNot}.{NameOfIsEqualTo}"
-                : $"{NameOfIs}.{NameOfIsEqualTo}";
 
             var constraintExpression = SyntaxFactory.InvocationExpression(
                 SyntaxFactory.ParseExpression(constraintString),

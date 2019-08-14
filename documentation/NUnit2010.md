@@ -1,5 +1,5 @@
 # NUnit2010
-## Use Is.EqualTo constraint.
+## Use EqualConstraint.
 
 | Topic    | Value
 | :--      | :--
@@ -7,16 +7,16 @@
 | Severity | Info
 | Enabled  | True
 | Category | Assertion
-| Code     | [EqualToConstraintUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/ConstraintUsage/EqualToConstraintUsageAnalyzer.cs)
+| Code     | [EqualConstraintUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/ConstraintUsage/EqualConstraintUsageAnalyzer.cs)
 
 
 ## Description
 
-Using `Is.EqualTo` constraint will lead to better assertion messages in case of failure.
+Using EqualConstraint will lead to better assertion messages in case of failure.
 
 ## Motivation
 
-Using `Is.EqualTo` constraint will lead to better assertion messages in case of failure, 
+Using `Is.EqualTo` (or `Is.Not.EqualTo`) constraint will lead to better assertion messages in case of failure, 
 so this analyzer marks all usages of `==` operator and `Equals` method where it is possible to replace 
 with `Is.EqualTo` constraint.
 
@@ -49,21 +49,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit2010 // Use Is.EqualTo constraint.
+#pragma warning disable NUnit2010 // Use EqualConstraint.
 Code violating the rule here
-#pragma warning restore NUnit2010 // Use Is.EqualTo constraint.
+#pragma warning restore NUnit2010 // Use EqualConstraint.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit2010 // Use Is.EqualTo constraint.
+#pragma warning disable NUnit2010 // Use EqualConstraint.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
-    "NUnit2010:Use Is.EqualTo constraint.",
+    "NUnit2010:Use EqualConstraint.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

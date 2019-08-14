@@ -6,13 +6,13 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.ConstraintsUsage
 {
-    public class EqualToConstraintUsageAnalyzerTests
+    public class EqualConstraintUsageAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new EqualToConstraintUsageAnalyzer();
+        private static readonly DiagnosticAnalyzer analyzer = new EqualConstraintUsageAnalyzer();
         private static readonly ExpectedDiagnostic isEqualToDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsEqualToConstraintUsage);
+            ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualConstraintUsage, string.Format(EqualConstraintUsageConstants.Message, "Is.EqualTo"));
         private static readonly ExpectedDiagnostic isNotEqualToDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotEqualToConstraintUsage);
+            ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualConstraintUsage, string.Format(EqualConstraintUsageConstants.Message, "Is.Not.EqualTo"));
 
         [Test]
         public void AnalyzeWhenEqualsOperatorUsed()

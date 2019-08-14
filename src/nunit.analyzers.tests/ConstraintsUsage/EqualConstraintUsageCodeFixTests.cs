@@ -7,14 +7,11 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.ConstraintsUsage
 {
-    public class EqualToConstraintUsageCodeFixTests
+    public class EqualConstraintUsageCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new EqualToConstraintUsageAnalyzer();
-        private static readonly CodeFixProvider fix = new EqualToConstraintUsageCodeFix();
-        private static readonly ExpectedDiagnostic isEqualToDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsEqualToConstraintUsage);
-        private static readonly ExpectedDiagnostic isNotEqualToDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotEqualToConstraintUsage);
+        private static readonly DiagnosticAnalyzer analyzer = new EqualConstraintUsageAnalyzer();
+        private static readonly CodeFixProvider fix = new EqualConstraintUsageCodeFix();
+        private static readonly ExpectedDiagnostic equalConstraintDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualConstraintUsage);
 
         [Test]
         public void FixesEqualsOperator()
@@ -27,7 +24,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.EqualTo(""abc""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -41,7 +38,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.Not.EqualTo(""abc""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isNotEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -55,7 +52,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.EqualTo(""abc""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -69,7 +66,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.Not.EqualTo(""bcd""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isNotEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -83,7 +80,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.EqualTo(""abc""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -97,7 +94,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.Not.EqualTo(""bcd""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isNotEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -111,7 +108,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.EqualTo(""abc""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -125,7 +122,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.Not.EqualTo(""bcd""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isNotEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -139,7 +136,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.EqualTo(""abc""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -153,7 +150,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.Not.EqualTo(""bcd""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isNotEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -167,7 +164,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.EqualTo(""abc""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -182,7 +179,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.Not.EqualTo(""bcd""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isNotEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -196,7 +193,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.EqualTo(""abc""), ""Assertion message"");");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -211,7 +208,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.EqualTo(""abc""), ""Assertion message"");");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -226,7 +223,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.EqualTo(""abc""), ""Assertion message"");");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
 
         [Test]
@@ -241,7 +238,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.Not.EqualTo(""bcd""), ""Assertion message"");");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, isNotEqualToDiagnostic, code, fixedCode);
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
     }
 }

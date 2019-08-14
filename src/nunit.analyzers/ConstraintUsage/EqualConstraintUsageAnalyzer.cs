@@ -6,41 +6,38 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
+using static NUnit.Analyzers.Constants.NunitFrameworkConstants;
 
 namespace NUnit.Analyzers.ConstraintUsage
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class EqualToConstraintUsageAnalyzer : BaseAssertionAnalyzer
+    public class EqualConstraintUsageAnalyzer : BaseAssertionAnalyzer
     {
-        private static readonly DiagnosticDescriptor equalToDescriptor = DiagnosticDescriptorCreator.Create(
-            id: AnalyzerIdentifiers.IsEqualToConstraintUsage,
-            title: EqualToConstraintUsageConstants.IsEqualToTitle,
-            messageFormat: EqualToConstraintUsageConstants.IsEqualToMessage,
-            category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Info,
-            description: EqualToConstraintUsageConstants.IsEqualToDescription);
+        internal const string SuggestedConstraintString = nameof(SuggestedConstraintString);
 
-        private static readonly DiagnosticDescriptor notEqualToDescriptor = DiagnosticDescriptorCreator.Create(
-            id: AnalyzerIdentifiers.IsNotEqualToConstraintUsage,
-            title: EqualToConstraintUsageConstants.IsNotEqualToTitle,
-            messageFormat: EqualToConstraintUsageConstants.IsNotEqualToMessage,
+        private static readonly string IsEqualTo = $"{NameOfIs}.{NameOfIsEqualTo}";
+        private static readonly string IsNotEqualTo = $"{NameOfIs}.{NameOfIsNot}.{NameOfIsEqualTo}";
+
+        private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.EqualConstraintUsage,
+            title: EqualConstraintUsageConstants.Title,
+            messageFormat: EqualConstraintUsageConstants.Message,
             category: Categories.Assertion,
             defaultSeverity: DiagnosticSeverity.Info,
-            description: EqualToConstraintUsageConstants.IsNotEqualToDescription);
+            description: EqualConstraintUsageConstants.Description);
 
         private static readonly string[] SupportedPositiveAssertMethods = new[] {
-            NunitFrameworkConstants.NameOfAssertThat,
-            NunitFrameworkConstants.NameOfAssertTrue,
-            NunitFrameworkConstants.NameOfAssertIsTrue
+            NameOfAssertThat,
+            NameOfAssertTrue,
+            NameOfAssertIsTrue
         };
 
         private static readonly string[] SupportedNegativeAssertMethods = new[] {
-            NunitFrameworkConstants.NameOfAssertFalse,
-            NunitFrameworkConstants.NameOfAssertIsFalse
+            NameOfAssertFalse,
+            NameOfAssertIsFalse
         };
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-            => ImmutableArray.Create(equalToDescriptor, notEqualToDescriptor);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
         protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
             InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
@@ -56,28 +53,28 @@ namespace NUnit.Analyzers.ConstraintUsage
                 return;
             }
 
-            var constraint = assertExpression.GetArgumentExpression(methodSymbol, NunitFrameworkConstants.NameOfExpressionParameter);
+            var constraint = assertExpression.GetArgumentExpression(methodSymbol, NameOfExpressionParameter);
 
             // Constraint should be either absent, or Is.True, or Is.False
             if (constraint != null)
             {
                 if (!(constraint is MemberAccessExpressionSyntax memberAccess
                        && memberAccess.Expression is IdentifierNameSyntax identifierSyntax
-                       && identifierSyntax.Identifier.Text == NunitFrameworkConstants.NameOfIs
-                       && (memberAccess.Name.Identifier.Text == NunitFrameworkConstants.NameOfIsTrue
-                           || memberAccess.Name.Identifier.Text == NunitFrameworkConstants.NameOfIsFalse)))
+                       && identifierSyntax.Identifier.Text == NameOfIs
+                       && (memberAccess.Name.Identifier.Text == NameOfIsTrue
+                           || memberAccess.Name.Identifier.Text == NameOfIsFalse)))
                 {
                     return;
                 }
 
-                if (memberAccess.Name.Identifier.Text == NunitFrameworkConstants.NameOfIsFalse)
+                if (memberAccess.Name.Identifier.Text == NameOfIsFalse)
                 {
                     negated = !negated;
                 }
             }
 
-            var actual = assertExpression.GetArgumentExpression(methodSymbol, NunitFrameworkConstants.NameOfActualParameter)
-                ?? assertExpression.GetArgumentExpression(methodSymbol, NunitFrameworkConstants.NameOfConditionParameter);
+            var actual = assertExpression.GetArgumentExpression(methodSymbol, NameOfActualParameter)
+                ?? assertExpression.GetArgumentExpression(methodSymbol, NameOfConditionParameter);
 
             var shouldReport = false;
 
@@ -101,8 +98,9 @@ namespace NUnit.Analyzers.ConstraintUsage
 
             if (shouldReport)
             {
-                var descriptor = negated ? notEqualToDescriptor : equalToDescriptor;
-                context.ReportDiagnostic(Diagnostic.Create(descriptor, actual.GetLocation()));
+                var suggestedConstraint = negated ? IsNotEqualTo : IsEqualTo;
+                var properties = ImmutableDictionary.Create<string, string>().Add(SuggestedConstraintString, suggestedConstraint);
+                context.ReportDiagnostic(Diagnostic.Create(descriptor, actual.GetLocation(), properties, suggestedConstraint));
             }
         }
 
