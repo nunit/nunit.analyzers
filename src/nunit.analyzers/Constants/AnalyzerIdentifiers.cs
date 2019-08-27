@@ -32,6 +32,7 @@ namespace NUnit.Analyzers.Constants
         internal const string ConstActualValueUsage = "NUnit2007";
         internal const string IgnoreCaseUsage = "NUnit2008";
         internal const string SameActualExpectedValue = "NUnit2009";
+        internal const string EqualConstraintUsage = "NUnit2010";
 
         #endregion Assertion
     }
