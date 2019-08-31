@@ -1,4 +1,3 @@
-using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -12,8 +11,6 @@ using static NUnit.Analyzers.Constants.NunitFrameworkConstants;
 
 namespace NUnit.Analyzers.ConstraintUsage
 {
-    [ExportCodeFixProvider(LanguageNames.CSharp)]
-    [Shared]
     public abstract class BaseConditionConstraintCodeFix : CodeFixProvider
     {
         public sealed override FixAllProvider GetFixAllProvider()
