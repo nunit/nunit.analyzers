@@ -36,7 +36,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             if (conditionNode == null)
                 return;
 
-            var (actual, constraintExpression) = GetActualAndConstraintExpression(conditionNode, suggestedConstraintString);
+            var (actual, constraintExpression) = this.GetActualAndConstraintExpression(conditionNode, suggestedConstraintString);
 
             var assertNode = conditionNode.Ancestors()
                 .OfType<InvocationExpressionSyntax>()

@@ -39,7 +39,7 @@ namespace NUnit.Analyzers.ConstraintUsage
         #endregion Descriptors
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
-            = new[] { containsDescriptor, startsWithDescriptor, endsWithDescriptor }.ToImmutableArray();
+            = ImmutableArray.Create(containsDescriptor, startsWithDescriptor, endsWithDescriptor);
 
         private static readonly Dictionary<string, (string doesMethod, DiagnosticDescriptor descriptor)> SupportedMethods
             = new Dictionary<string, (string, DiagnosticDescriptor)>
