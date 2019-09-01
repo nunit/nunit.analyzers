@@ -17,7 +17,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCase(nameof(string.EndsWith), AnalyzerIdentifiers.StringEndsWithConstraintUsage, "Does.EndWith")]
         public void AnalyzeStringBooleanMethodPositiveAssert(string method, string analyzerId, string suggestedConstraint)
         {
-            var code = TestUtility.WrapInTestMethod($@"Assert.True(""abc"".{method}(""ab""));");
+            var code = TestUtility.WrapInTestMethod($@"Assert.True(↓""abc"".{method}(""ab""));");
 
             var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
