@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace NUnit.Analyzers.Extensions
@@ -38,6 +39,21 @@ namespace NUnit.Analyzers.Extensions
             }
 
             return new Tuple<uint, uint, uint>(requiredParameters, optionalParameters, paramsParameters);
+        }
+
+        /// <summary>
+        /// Returns true if method is implementation of method in interface
+        /// </summary>
+        internal static bool IsInterfaceImplementation(this IMethodSymbol @this, string interfaceFullName)
+        {
+            var interfaceType = @this.ContainingType.AllInterfaces.FirstOrDefault(i => i.GetFullMetadataName() == interfaceFullName);
+
+            if (interfaceType == null)
+                return false;
+
+            return interfaceType.GetMembers().OfType<IMethodSymbol>()
+                .Any(interfaceMethod => interfaceMethod.Name == @this.Name
+                    && @this.ContainingType.FindImplementationForInterfaceMember(interfaceMethod).Equals(@this));
         }
     }
 }

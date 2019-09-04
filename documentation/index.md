@@ -29,4 +29,5 @@
 | [NUnit2011](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2011.md)| Use ContainsConstraint.
 | [NUnit2012](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2012.md)| Use StartsWithConstraint.
 | [NUnit2013](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2013.md)| Use EndsWithConstraint.
+| [NUnit2014](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2014.md)| Use SomeItemsConstraint.
 
