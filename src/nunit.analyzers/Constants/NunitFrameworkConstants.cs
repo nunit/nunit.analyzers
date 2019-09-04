@@ -20,6 +20,12 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfIsSameAs = "SameAs";
         public const string NameOfIsSamePath = "SamePath";
 
+        public const string NameOfDoes = "Does";
+        public const string NameOfDoesNot = "Not";
+        public const string NameOfDoesContain = "Contain";
+        public const string NameOfDoesStartWith = "StartWith";
+        public const string NameOfDoesEndWith = "EndWith";
+
         public const string NameOfAssert = "Assert";
         public const string NameOfAssertIsTrue = "IsTrue";
         public const string NameOfAssertTrue = "True";

@@ -26,4 +26,7 @@
 | [NUnit2008](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2008.md)| Incorrect IgnoreCase usage.
 | [NUnit2009](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2009.md)| Same value provided as actual and expected argument.
 | [NUnit2010](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2010.md)| Use EqualConstraint.
+| [NUnit2011](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2011.md)| Use ContainsConstraint.
+| [NUnit2012](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2012.md)| Use StartsWithConstraint.
+| [NUnit2013](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2013.md)| Use EndsWithConstraint.
 
