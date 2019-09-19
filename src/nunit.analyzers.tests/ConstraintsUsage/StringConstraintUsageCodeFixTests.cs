@@ -65,6 +65,16 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
+        public void AnalyzeStringBooleanMethod_AssertThat_Negated(string method, string analyzerId, string suggestedConstraint)
+        {
+            var code = TestUtility.WrapInTestMethod($@"Assert.That(↓!""abc"".{method}(""ab""));");
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
+
+            AnalyzerAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+        }
+
+        [TestCaseSource(nameof(NegativeAssertData))]
         public void AnalyzeStringBooleanMethod_AssertFalse(string method, string analyzerId, string suggestedConstraint)
         {
             var code = TestUtility.WrapInTestMethod($@"Assert.False(↓""abc"".{method}(""ab""));");

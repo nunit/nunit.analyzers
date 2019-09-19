@@ -33,6 +33,12 @@ namespace NUnit.Analyzers.ConstraintUsage
             if (conditionNode == null)
                 return;
 
+            // If condition is logical not expression - use operand
+            if (conditionNode is PrefixUnaryExpressionSyntax unarySyntax && unarySyntax.IsKind(SyntaxKind.LogicalNotExpression))
+            {
+                conditionNode = unarySyntax.Operand;
+            }
+
             var (actual, constraintExpression) = this.GetActualAndConstraintExpression(conditionNode, suggestedConstraintString);
 
             var assertNode = conditionNode.Ancestors()
