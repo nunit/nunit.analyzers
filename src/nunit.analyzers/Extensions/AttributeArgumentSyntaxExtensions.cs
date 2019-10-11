@@ -64,6 +64,11 @@ namespace NUnit.Analyzers.Extensions
                     {
                         canConvert = TimeSpan.TryParse(argumentValue as string, out _);
                     }
+                    else if (argumentType.SpecialType == SpecialType.System_String &&
+                        model.Compilation.GetTypeByMetadataName(typeof(DateTimeOffset).FullName).IsAssignableFrom(targetType))
+                    {
+                        canConvert = DateTimeOffset.TryParse(argumentValue as string, out _);
+                    }
 
                     return canConvert;
                 }

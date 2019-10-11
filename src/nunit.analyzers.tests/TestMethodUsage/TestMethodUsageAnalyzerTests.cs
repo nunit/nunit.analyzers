@@ -51,6 +51,29 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 $"{TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage} is missing.");
         }
 
+
+        private static IEnumerable<TestCaseData> SpecialConversions
+        {
+            get
+            {
+                yield return new TestCaseData("2019-10-10", typeof(DateTime));
+                yield return new TestCaseData("23:59:59", typeof(TimeSpan));
+                yield return new TestCaseData("2019-10-10", typeof(DateTimeOffset));
+            }
+        }
+
+        [TestCaseSource(nameof(SpecialConversions))]
+        public void AnalyzeWhenExpectedResultIsProvidedCorrectlyWithSpecialConversion(string value, Type targetType)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenExpectedResultIsProvidedCorrectlyWithSpecialConversion
+    {
+        [TestCase(""" + value + @""", ExpectedResult = """ + value + @""")]
+        public " + targetType.Name + @" Test(" + targetType.Name + @" a) { return a; }
+    }");
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
         [Test]
         public void AnalyzeWhenExpectedResultIsProvidedCorrectly()
         {

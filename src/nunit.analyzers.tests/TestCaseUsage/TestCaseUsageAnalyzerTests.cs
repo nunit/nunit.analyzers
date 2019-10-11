@@ -15,6 +15,16 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     public sealed class TestCaseUsageAnalyzerTests
     {
         private DiagnosticAnalyzer analyzer = new TestCaseUsageAnalyzer();
+        
+        private static IEnumerable<TestCaseData> SpecialConversions
+        {
+            get
+            {
+                yield return new TestCaseData("2019-10-10", typeof(DateTime));
+                yield return new TestCaseData("23:59:59", typeof(TimeSpan));
+                yield return new TestCaseData("2019-10-10", typeof(DateTimeOffset));
+            }
+        }
 
         [Test]
         public void VerifySupportedDiagnostics()
@@ -96,6 +106,30 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     {
         [TestCase(2)]
         public void Test(int a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [TestCaseSource(nameof(SpecialConversions))]
+        public void AnalyzeWhenArgumentIsSpecialConversion(string value, Type targetType)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentIsSpecialConversion
+    {
+        [TestCase(""" + value + @""")]
+        public void Test(" + targetType.Name + @" a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+        
+        [Test]
+        public void AnalyzeWhenArgumentIsVerySpecialConversion()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentIsCorrect
+    {
+        [TestCase(""2019-10-10"")]
+        public void Test(DateTimeOffset a) { }
     }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
