@@ -66,12 +66,12 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCaseSource(nameof(SpecialConversions))]
         public void AnalyzeWhenExpectedResultIsProvidedCorrectlyWithSpecialConversion(string value, Type targetType)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public sealed class AnalyzeWhenExpectedResultIsProvidedCorrectlyWithSpecialConversion
-    {
-        [TestCase(""" + value + @""", ExpectedResult = """ + value + @""")]
-        public " + targetType.Name + @" Test(" + targetType.Name + @" a) { return a; }
-    }");
+    {{
+        [TestCase(""{value}"", ExpectedResult = ""{value}"")]
+        public {targetType.Name} Test({targetType.Name} a) {{ return a; }}
+    }}");
             AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
         }
 

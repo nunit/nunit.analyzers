@@ -114,12 +114,12 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCaseSource(nameof(SpecialConversions))]
         public void AnalyzeWhenArgumentIsSpecialConversion(string value, Type targetType)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public sealed class AnalyzeWhenArgumentIsSpecialConversion
-    {
-        [TestCase(""" + value + @""")]
-        public void Test(" + targetType.Name + @" a) { }
-    }");
+    {{
+        [TestCase(""{value}"")]
+        public void Test({targetType.Name} a) {{ }}
+    }}");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
