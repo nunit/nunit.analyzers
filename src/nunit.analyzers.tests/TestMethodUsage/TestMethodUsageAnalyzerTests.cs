@@ -59,6 +59,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 yield return new TestCaseData("2019-10-10", typeof(DateTime));
                 yield return new TestCaseData("23:59:59", typeof(TimeSpan));
                 yield return new TestCaseData("2019-10-10", typeof(DateTimeOffset));
+                yield return new TestCaseData("2019-10-14T19:15:25+00:00", typeof(DateTimeOffset));
             }
         }
 
