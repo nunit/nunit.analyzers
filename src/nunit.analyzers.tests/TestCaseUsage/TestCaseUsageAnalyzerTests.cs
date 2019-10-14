@@ -122,18 +122,6 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
-        
-        [Test]
-        public void AnalyzeWhenArgumentIsVerySpecialConversion()
-        {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentIsCorrect
-    {
-        [TestCase(""2019-10-10"")]
-        public void Test(DateTimeOffset a) { }
-    }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
-        }
 
         [Test]
         public void AnalyzeWhenArgumentIsACast()
