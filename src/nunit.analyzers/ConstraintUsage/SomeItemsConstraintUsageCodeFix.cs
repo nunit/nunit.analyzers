@@ -9,7 +9,7 @@ namespace NUnit.Analyzers.ConstraintUsage
 {
     [ExportCodeFixProvider(LanguageNames.CSharp)]
     [Shared]
-    public class CollectionContainsConstraintUsageCodeFix : BaseConditionConstraintCodeFix
+    public class SomeItemsConstraintUsageCodeFix : BaseConditionConstraintCodeFix
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(AnalyzerIdentifiers.CollectionContainsConstraintUsage);
 

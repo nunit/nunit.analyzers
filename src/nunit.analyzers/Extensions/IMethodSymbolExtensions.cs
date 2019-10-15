@@ -53,7 +53,7 @@ namespace NUnit.Analyzers.Extensions
 
             return interfaceType.GetMembers().OfType<IMethodSymbol>()
                 .Any(interfaceMethod => interfaceMethod.Name == @this.Name
-                    && @this.ContainingType.FindImplementationForInterfaceMember(interfaceMethod).Equals(@this));
+                    && @this.ContainingType.FindImplementationForInterfaceMember(interfaceMethod)?.Equals(@this) == true);
         }
     }
 }

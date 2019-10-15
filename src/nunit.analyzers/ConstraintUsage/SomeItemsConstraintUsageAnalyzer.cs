@@ -11,18 +11,18 @@ using static NUnit.Analyzers.Constants.NunitFrameworkConstants;
 namespace NUnit.Analyzers.ConstraintUsage
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class CollectionContainsConstraintUsageAnalyzer : BaseConditionConstraintAnalyzer
+    public class SomeItemsConstraintUsageAnalyzer : BaseConditionConstraintAnalyzer
     {
         private static readonly string DoesContain = $"{NameOfDoes}.{NameOfDoesContain}";
         private static readonly string DoesNotContain = $"{NameOfDoes}.{NameOfDoesNot}.{NameOfDoesContain}";
 
         private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.CollectionContainsConstraintUsage,
-            title: CollectionContainsConstraintUsageConstants.Title,
-            messageFormat: CollectionContainsConstraintUsageConstants.Message,
+            title: SomeItemsConstraintUsageConstants.Title,
+            messageFormat: SomeItemsConstraintUsageConstants.Message,
             category: Categories.Assertion,
             defaultSeverity: DiagnosticSeverity.Info,
-            description: CollectionContainsConstraintUsageConstants.Description);
+            description: SomeItemsConstraintUsageConstants.Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 

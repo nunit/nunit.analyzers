@@ -1,6 +1,6 @@
 namespace NUnit.Analyzers.Constants
 {
-    internal static class CollectionContainsConstraintUsageConstants
+    internal static class SomeItemsConstraintUsageConstants
     {
         internal const string Title = "Use SomeItemsConstraint.";
         internal const string Message = "Use {0} constraint instead of direct comparison.";

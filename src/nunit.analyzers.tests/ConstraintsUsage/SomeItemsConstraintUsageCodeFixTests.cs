@@ -7,17 +7,17 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.ConstraintsUsage
 {
-    public class CollectionContainsConstraintUsageCodeFixTests
+    public class SomeItemsConstraintUsageCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new CollectionContainsConstraintUsageAnalyzer();
+        private static readonly DiagnosticAnalyzer analyzer = new SomeItemsConstraintUsageAnalyzer();
 
-        private static readonly CodeFixProvider fix = new CollectionContainsConstraintUsageCodeFix();
+        private static readonly CodeFixProvider fix = new SomeItemsConstraintUsageCodeFix();
 
         private static readonly ExpectedDiagnostic doesContainDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.CollectionContainsConstraintUsage,
-            string.Format(CollectionContainsConstraintUsageConstants.Message, "Does.Contain"));
+            string.Format(SomeItemsConstraintUsageConstants.Message, "Does.Contain"));
 
         private static readonly ExpectedDiagnostic doesNotContainDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.CollectionContainsConstraintUsage,
-            string.Format(CollectionContainsConstraintUsageConstants.Message, "Does.Not.Contain"));
+            string.Format(SomeItemsConstraintUsageConstants.Message, "Does.Not.Contain"));
 
         [Test]
         public void AnalyzeWhenListContainsUsed_AssertThat()
