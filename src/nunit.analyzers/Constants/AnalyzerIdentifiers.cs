@@ -36,6 +36,7 @@ namespace NUnit.Analyzers.Constants
         internal const string StringContainsConstraintUsage = "NUnit2011";
         internal const string StringStartsWithConstraintUsage = "NUnit2012";
         internal const string StringEndsWithConstraintUsage = "NUnit2013";
+        internal const string CollectionContainsConstraintUsage = "NUnit2014";
 
         #endregion Assertion
     }
