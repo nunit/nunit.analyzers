@@ -53,6 +53,10 @@ namespace NUnit.Analyzers.Tests.Extensions
                 SetName("CanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString");
             yield return new TestCaseData("\"x\"", "TimeSpan", "string", Is.False).
                 SetName("CanAssignToWhenParameterIsTimeSpanAndArgumentIsInvalidString");
+            yield return new TestCaseData("\"2019-10-14T21:11:10+00:00\"", "DateTimeOffset", "string", Is.True).
+                SetName("CanAssignToWhenParameterIsDateTimeOffsetAndArgumentIsValidString");
+            yield return new TestCaseData("\"x\"", "DateTimeOffset", "string", Is.False).
+                SetName("CanAssignToWhenParameterIsDateTimeOffsetAndArgumentIsInvalidString");
             yield return new TestCaseData("new[] { \"a\", \"b\", \"c\" }", "string[]", "string[]", Is.True).
                 SetName("CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable");
             yield return new TestCaseData("new[] { \"a\", \"b\", \"c\" }", "int[]", "string[]", Is.False).

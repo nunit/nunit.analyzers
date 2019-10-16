@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -59,13 +60,22 @@ namespace NUnit.Analyzers.Extensions
                     {
                         return AttributeArgumentSyntaxExtensions.TryChangeType(targetType, argumentValue);
                     }
-                    else if (argumentType.SpecialType == SpecialType.System_String &&
-                        model.Compilation.GetTypeByMetadataName(typeof(TimeSpan).FullName).IsAssignableFrom(targetType))
+
+                    TypeConverter converter = TypeDescriptor.GetConverter(GetTargetReflectionType(targetType));
+                    if (converter.CanConvertFrom(GetTargetReflectionType(argumentType)))
                     {
-                        canConvert = TimeSpan.TryParse(argumentValue as string, out _);
+                        try
+                        {
+                            converter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
+                            return true;
+                        }
+                        catch
+                        {
+                            return false;
+                        }
                     }
 
-                    return canConvert;
+                    return false;
                 }
             }
         }
@@ -107,7 +117,8 @@ namespace NUnit.Analyzers.Extensions
 
         private static Type GetTargetReflectionType(ITypeSymbol targetType)
         {
-            string assembly = ", " + targetType.ContainingAssembly.Identity.ToString();
+            var containingAssembly = targetType.ContainingAssembly ?? targetType.BaseType.ContainingAssembly;
+            string assembly = ", " + containingAssembly.Identity.ToString();
             string typeName = AttributeArgumentSyntaxExtensions.GetQualifiedTypeName(targetType);
 
             // First try to get type using assembly-qualified name, and if that fails try to get type
@@ -127,7 +138,8 @@ namespace NUnit.Analyzers.Extensions
             // so if that's ever added to attributes this will have to change.
             var namespaces = new Stack<string>();
 
-            var @namespace = targetType.ContainingNamespace;
+            var @namespace = targetType.ContainingNamespace ?? targetType.BaseType.ContainingNamespace;
+            var typeName = !string.IsNullOrEmpty(targetType.Name) ? targetType.Name : targetType.BaseType.Name;
 
             while (!@namespace.IsGlobalNamespace)
             {
@@ -135,7 +147,7 @@ namespace NUnit.Analyzers.Extensions
                 @namespace = @namespace.ContainingNamespace;
             }
 
-            return $"{string.Join(".", namespaces)}.{targetType.Name}";
+            return $"{string.Join(".", namespaces)}.{typeName}";
         }
     }
 }
