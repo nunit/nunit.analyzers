@@ -58,6 +58,6 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfIgnoreCase = "IgnoreCase";
 
         public const string AssemblyQualifiedNameOfTypeAssert =
-            "NUnit.Framework.Assert, nunit.framework, Version=3.10.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb";
+            "NUnit.Framework.Assert, nunit.framework, Version=3.12.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb";
     }
 }
