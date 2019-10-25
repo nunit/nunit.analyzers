@@ -23,7 +23,7 @@ namespace NUnit.Analyzers.Extensions
                 var oldIndex = originalArguments.IndexOf(newArgument);
                 var separator = originalSeparators.ElementAtOrDefault(oldIndex - 1);
 
-                if (separator == default)
+                if (separator == default(SyntaxToken))
                 {
                     separator = SyntaxFactory.Token(SyntaxKind.CommaToken);
                 }
