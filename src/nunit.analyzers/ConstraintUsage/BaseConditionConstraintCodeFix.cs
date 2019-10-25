@@ -93,7 +93,7 @@ namespace NUnit.Analyzers.ConstraintUsage
                 SyntaxFactory.Argument(constraintExpression)
             }.Union(remainingArguments);
 
-            var newArgumentsList = SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(newArguments));
+            var newArgumentsList = assertNode.ArgumentList.WithArguments(newArguments);
 
             return assertNode
                 .WithExpression(newExpression)

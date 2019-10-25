@@ -240,5 +240,23 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
+
+        [Test]
+        public void CodeFixPreservesLineBreakBeforeMessage()
+        {
+            var code = TestUtility.WrapInTestMethod(@"
+                var actual = ""abc"";
+
+                Assert.False(actual.Equals(""bcd""),
+                    ""Assertion message from new line"");");
+
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+                var actual = ""abc"";
+
+                Assert.That(actual, Is.Not.EqualTo(""bcd""),
+                    ""Assertion message from new line"");");
+
+            AnalyzerAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+        }
     }
 }
