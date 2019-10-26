@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.Extensions;
 
 namespace NUnit.Analyzers.ClassicModelAssertUsage
 {
@@ -41,26 +42,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             var arguments = invocationNode.ArgumentList.Arguments.ToList();
             this.UpdateArguments(diagnostic, arguments);
 
-            var totalArgumentCount = (2 * arguments.Count) - 1;
-            var newArgumentList = new SyntaxNodeOrToken[totalArgumentCount];
-
-            context.CancellationToken.ThrowIfCancellationRequested();
-
-            for (var x = 0; x < totalArgumentCount; x++)
-            {
-                if (x % 2 == 0)
-                {
-                    newArgumentList[x] = arguments[x / 2];
-                }
-                else
-                {
-                    newArgumentList[x] = SyntaxFactory.Token(SyntaxKind.CommaToken);
-                }
-            }
-
-            newInvocationNode = newInvocationNode.WithArgumentList(
-                SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SeparatedList<ArgumentSyntax>(newArgumentList)));
+            var newArgumentsList = invocationNode.ArgumentList.WithArguments(arguments);
+            newInvocationNode = newInvocationNode.WithArgumentList(newArgumentsList);
 
             context.CancellationToken.ThrowIfCancellationRequested();
 

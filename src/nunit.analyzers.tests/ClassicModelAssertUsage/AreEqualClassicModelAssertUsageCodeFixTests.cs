@@ -121,5 +121,21 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }");
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
+
+        [Test]
+        public void CodeFixPreservesLineBreakBeforeMessage()
+        {
+            var code = TestUtility.WrapInTestMethod($@"
+            Assert.AreEqual(2d, 3d, 0.0000001d,
+                ""message"",
+                Guid.NewGuid());");
+
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+            Assert.That(3d, Is.EqualTo(2d).Within(0.0000001d),
+                ""message"",
+                Guid.NewGuid());");
+
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+        }
     }
 }
