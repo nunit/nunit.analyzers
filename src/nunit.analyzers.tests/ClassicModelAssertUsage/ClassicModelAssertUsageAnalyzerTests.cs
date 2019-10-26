@@ -20,7 +20,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var analyzer = new ClassicModelAssertUsageAnalyzer();
             var diagnostics = analyzer.SupportedDiagnostics;
 
-            Assert.That(diagnostics.Length, Is.EqualTo(6), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
+            Assert.That(diagnostics.Length, Is.EqualTo(7), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
 
             foreach (var diagnostic in diagnostics)
             {
@@ -48,6 +48,8 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 $"{AnalyzerIdentifiers.IsTrueUsage} is missing.");
             Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.TrueUsage),
                 $"{AnalyzerIdentifiers.TrueUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreSameUsage),
+                $"{AnalyzerIdentifiers.AreSameUsage} is missing.");
         }
 
         [Test]
@@ -190,6 +192,22 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void Test()
         {
             ↓Assert.AreNotEqual(2, 3);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenAreSameIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreSameUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenAreSameIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.AreSame(2, 3);
         }
     }");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);

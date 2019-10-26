@@ -25,5 +25,9 @@ namespace NUnit.Analyzers.Constants
         internal const string AreNotEqualTitle = "Consider using Assert.That(expr2, Is.Not.EqualTo(expr1)) instead of Assert.AreNotEqual(expr1, expr2).";
         internal const string AreNotEqualMessage = "Consider using the constraint model, Assert.That(expr2, Is.Not.EqualTo(expr1)), instead of the classic model, Assert.AreNotEqual(expr1, expr2).";
         internal const string AreNotEqualDescription = "Consider using the constraint model, Assert.That(expr2, Is.Not.EqualTo(expr1)), instead of the classic model, Assert.AreNotEqual(expr1, expr2).";
+
+        internal const string AreSameTitle = "Consider using Assert.That(expr2, Is.SameAs(expr1)) instead of Assert.AreSame(expr1, expr2).";
+        internal const string AreSameMessage = "Consider using the constraint model, Assert.That(expr2, Is.SameAs(expr1)), instead of the classic model, Assert.AreSame(expr1, expr2).";
+        internal const string AreSameDescription = "Consider using the constraint model, Assert.That(expr2, Is.SameAs(expr1)), instead of the classic model, Assert.AreSame(expr1, expr2).";
     }
 }
