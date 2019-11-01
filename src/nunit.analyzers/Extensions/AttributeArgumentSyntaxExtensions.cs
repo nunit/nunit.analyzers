@@ -31,6 +31,13 @@ namespace NUnit.Analyzers.Extensions
             else
             {
                 var targetType = GetTargetType(target);
+
+                if (argumentType?.TypeKind == TypeKind.Enum)
+                    argumentType = (argumentType as INamedTypeSymbol)?.EnumUnderlyingType;
+
+                if (targetType == null || argumentType == null)
+                    return false;
+
                 if (targetType.IsAssignableFrom(argumentType))
                 {
                     return true;
@@ -61,17 +68,23 @@ namespace NUnit.Analyzers.Extensions
                         return AttributeArgumentSyntaxExtensions.TryChangeType(targetType, argumentValue);
                     }
 
-                    TypeConverter converter = TypeDescriptor.GetConverter(GetTargetReflectionType(targetType));
-                    if (converter.CanConvertFrom(GetTargetReflectionType(argumentType)))
+                    var reflectionTargetType = GetTargetReflectionType(targetType);
+                    var reflectionArgumentType = GetTargetReflectionType(argumentType);
+
+                    if (reflectionTargetType != null && reflectionArgumentType != null)
                     {
-                        try
+                        TypeConverter converter = TypeDescriptor.GetConverter(reflectionTargetType);
+                        if (converter.CanConvertFrom(reflectionArgumentType))
                         {
-                            converter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
-                            return true;
-                        }
-                        catch
-                        {
-                            return false;
+                            try
+                            {
+                                converter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
+                                return true;
+                            }
+                            catch
+                            {
+                                return false;
+                            }
                         }
                     }
 
@@ -83,7 +96,10 @@ namespace NUnit.Analyzers.Extensions
         private static ITypeSymbol GetTargetType(ITypeSymbol target)
         {
             if (target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
-                return (target as INamedTypeSymbol).TypeArguments.ToArray()[0];
+                target = (target as INamedTypeSymbol)?.TypeArguments.ToArray()[0];
+
+            if (target.TypeKind == TypeKind.Enum)
+                target = (target as INamedTypeSymbol)?.EnumUnderlyingType;
 
             return target;
         }
