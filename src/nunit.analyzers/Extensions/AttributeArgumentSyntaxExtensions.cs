@@ -4,13 +4,16 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NUnit.Analyzers.Extensions
 {
     internal static class AttributeArgumentSyntaxExtensions
     {
-        internal static bool CanAssignTo(this AttributeArgumentSyntax @this, ITypeSymbol target, SemanticModel model)
+        internal static bool CanAssignTo(this AttributeArgumentSyntax @this, ITypeSymbol target, SemanticModel model,
+            bool allowImplicitConversion = false,
+            bool allowEnumToUnderlyingTypeConversion = false)
         {
             //See https://github.com/nunit/nunit/blob/f16d12d6fa9e5c879601ad57b4b24ec805c66054/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L396
             //for the reasoning behind this implementation.
@@ -32,13 +35,17 @@ namespace NUnit.Analyzers.Extensions
             {
                 var targetType = GetTargetType(target);
 
-                if (argumentType?.TypeKind == TypeKind.Enum)
+                if (allowEnumToUnderlyingTypeConversion && targetType?.TypeKind == TypeKind.Enum)
+                    targetType = (targetType as INamedTypeSymbol)?.EnumUnderlyingType;
+
+                if (allowEnumToUnderlyingTypeConversion && argumentType?.TypeKind == TypeKind.Enum)
                     argumentType = (argumentType as INamedTypeSymbol)?.EnumUnderlyingType;
 
                 if (targetType == null || argumentType == null)
                     return false;
 
-                if (targetType.IsAssignableFrom(argumentType))
+                if (targetType.IsAssignableFrom(argumentType)
+                    || (allowImplicitConversion && HasBuiltInImplicitConversion(argumentType, targetType, model)))
                 {
                     return true;
                 }
@@ -96,10 +103,7 @@ namespace NUnit.Analyzers.Extensions
         private static ITypeSymbol GetTargetType(ITypeSymbol target)
         {
             if (target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
-                target = (target as INamedTypeSymbol)?.TypeArguments.ToArray()[0];
-
-            if (target.TypeKind == TypeKind.Enum)
-                target = (target as INamedTypeSymbol)?.EnumUnderlyingType;
+                return (target as INamedTypeSymbol).TypeArguments.ToArray()[0];
 
             return target;
         }
@@ -164,6 +168,12 @@ namespace NUnit.Analyzers.Extensions
             }
 
             return $"{string.Join(".", namespaces)}.{typeName}";
+        }
+
+        private static bool HasBuiltInImplicitConversion(ITypeSymbol argumentType, ITypeSymbol targetType, SemanticModel model)
+        {
+            var conversion = model.Compilation.ClassifyConversion(argumentType, targetType);
+            return conversion.IsImplicit && !conversion.IsUserDefined;
         }
     }
 }

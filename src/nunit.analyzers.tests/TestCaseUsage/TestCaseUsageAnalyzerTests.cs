@@ -183,13 +183,25 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void AnalyzeArgumentIsEnumConvertedToInt()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class AnalyzeArgumentIsIntConvertedToEnum
+    class AnalyzeArgumentIsEnumConvertedToInt
     {
         public enum TestEnum { A,B,C }
 
         [TestCase(TestEnum.A)]
         [TestCase(TestEnum.B)]
         public void Test(int e) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeArgumentHasImplicitConversion()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeArgumentHasImplicitConversion
+    {
+        [TestCase(uint.MaxValue)]
+        public void Test(long e) { }
     }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
