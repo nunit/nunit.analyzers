@@ -37,6 +37,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfAssertAreNotSame = "AreNotSame";
         public const string NameOfAssertThat = "That";
 
+        public const string FullNameOfTypeIs = "NUnit.Framework.Is";
         public const string FullNameOfTypeTestCaseAttribute = "NUnit.Framework.TestCaseAttribute";
         public const string FullNameOfTypeTestCaseSourceAttribute = "NUnit.Framework.TestCaseSourceAttribute";
         public const string FullNameOfTypeTestAttribute = "NUnit.Framework.TestAttribute";

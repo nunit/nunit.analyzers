@@ -176,9 +176,9 @@ namespace NUnit.Analyzers.Tests
                 var length = 0;
                 while (startIndex + length < doc.Length)
                 {
-                    if (doc[startIndex + length] == '\n' &&
-                        doc.Length > startIndex + length &&
-                        doc[startIndex + length +1] != '|')
+                    if (doc.Length > startIndex + length &&
+                        doc[startIndex + length] == '\n' &&
+                        doc.ElementAtOrDefault(startIndex + length + 1) != '|')
                     {
                         length++;
                         return length;
