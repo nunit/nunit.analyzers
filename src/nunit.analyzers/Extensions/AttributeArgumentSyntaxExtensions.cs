@@ -4,13 +4,16 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NUnit.Analyzers.Extensions
 {
     internal static class AttributeArgumentSyntaxExtensions
     {
-        internal static bool CanAssignTo(this AttributeArgumentSyntax @this, ITypeSymbol target, SemanticModel model)
+        internal static bool CanAssignTo(this AttributeArgumentSyntax @this, ITypeSymbol target, SemanticModel model,
+            bool allowImplicitConversion = false,
+            bool allowEnumToUnderlyingTypeConversion = false)
         {
             //See https://github.com/nunit/nunit/blob/f16d12d6fa9e5c879601ad57b4b24ec805c66054/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L396
             //for the reasoning behind this implementation.
@@ -31,7 +34,18 @@ namespace NUnit.Analyzers.Extensions
             else
             {
                 var targetType = GetTargetType(target);
-                if (targetType.IsAssignableFrom(argumentType))
+
+                if (allowEnumToUnderlyingTypeConversion && targetType?.TypeKind == TypeKind.Enum)
+                    targetType = (targetType as INamedTypeSymbol)?.EnumUnderlyingType;
+
+                if (allowEnumToUnderlyingTypeConversion && argumentType?.TypeKind == TypeKind.Enum)
+                    argumentType = (argumentType as INamedTypeSymbol)?.EnumUnderlyingType;
+
+                if (targetType == null || argumentType == null)
+                    return false;
+
+                if (targetType.IsAssignableFrom(argumentType)
+                    || (allowImplicitConversion && HasBuiltInImplicitConversion(argumentType, targetType, model)))
                 {
                     return true;
                 }
@@ -61,17 +75,23 @@ namespace NUnit.Analyzers.Extensions
                         return AttributeArgumentSyntaxExtensions.TryChangeType(targetType, argumentValue);
                     }
 
-                    TypeConverter converter = TypeDescriptor.GetConverter(GetTargetReflectionType(targetType));
-                    if (converter.CanConvertFrom(GetTargetReflectionType(argumentType)))
+                    var reflectionTargetType = GetTargetReflectionType(targetType);
+                    var reflectionArgumentType = GetTargetReflectionType(argumentType);
+
+                    if (reflectionTargetType != null && reflectionArgumentType != null)
                     {
-                        try
+                        TypeConverter converter = TypeDescriptor.GetConverter(reflectionTargetType);
+                        if (converter.CanConvertFrom(reflectionArgumentType))
                         {
-                            converter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
-                            return true;
-                        }
-                        catch
-                        {
-                            return false;
+                            try
+                            {
+                                converter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
+                                return true;
+                            }
+                            catch
+                            {
+                                return false;
+                            }
                         }
                     }
 
@@ -148,6 +168,12 @@ namespace NUnit.Analyzers.Extensions
             }
 
             return $"{string.Join(".", namespaces)}.{typeName}";
+        }
+
+        private static bool HasBuiltInImplicitConversion(ITypeSymbol argumentType, ITypeSymbol targetType, SemanticModel model)
+        {
+            var conversion = model.Compilation.ClassifyConversion(argumentType, targetType);
+            return conversion.IsImplicit && !conversion.IsUserDefined;
         }
     }
 }

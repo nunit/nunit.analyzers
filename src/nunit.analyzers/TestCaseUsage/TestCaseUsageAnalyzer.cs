@@ -178,7 +178,9 @@ namespace NUnit.Analyzers.TestCaseUsage
                 if (methodParameterType.IsTypeParameterAndDeclaredOnMethod())
                     continue;
 
-                if (!attributeArgument.CanAssignTo(methodParameterType, model))
+                if (!attributeArgument.CanAssignTo(methodParameterType, model,
+                    allowImplicitConversion: true,
+                    allowEnumToUnderlyingTypeConversion: true))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(parameterTypeMismatch,
                       attributeArgument.GetLocation(),
