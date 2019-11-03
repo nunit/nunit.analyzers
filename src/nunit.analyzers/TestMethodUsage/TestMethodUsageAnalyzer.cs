@@ -12,9 +12,6 @@ namespace NUnit.Analyzers.TestCaseUsage
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TestMethodUsageAnalyzer : DiagnosticAnalyzer
     {
-        private const string fullyQualifiedNameOfTask = "System.Threading.Tasks.Task";
-        private const string fullyQualifiedNameOfGenericTask = "System.Threading.Tasks.Task`1";
-
         private static readonly DiagnosticDescriptor expectedResultTypeMismatch = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
             title: TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchTitle,
@@ -142,23 +139,17 @@ namespace NUnit.Analyzers.TestCaseUsage
         {
             var methodReturnValueType = methodSymbol.ReturnType;
 
-            if (IsTestMethodAsync(context.Compilation, methodSymbol))
+            if (methodReturnValueType.IsAwaitable(out var awaitReturnType))
             {
-                var genericTaskType = context.Compilation.GetTypeByMetadataName(fullyQualifiedNameOfGenericTask);
-                if (!methodReturnValueType.OriginalDefinition.Equals(genericTaskType))
+                if (awaitReturnType.SpecialType == SpecialType.System_Void)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(asyncExpectedResultButReturnTypeNotGenericTask,
                         attributeNode.GetLocation(), methodReturnValueType.ToDisplayString()));
                 }
                 else
                 {
-                    var namedTypeSymbol = methodReturnValueType as INamedTypeSymbol;
-                    if (namedTypeSymbol == null)
-                        return;
-
-                    var taskTypeParameter = namedTypeSymbol.TypeArguments.First();
                     ReportIfExpectedResultTypeCannotBeAssignedToReturnType(
-                        ref context, expectedResultNamedArgument, taskTypeParameter);
+                        ref context, expectedResultNamedArgument, awaitReturnType);
                 }
             }
             else
@@ -198,20 +189,17 @@ namespace NUnit.Analyzers.TestCaseUsage
         {
             var methodReturnValueType = methodSymbol.ReturnType;
 
-            if (IsTestMethodAsync(context.Compilation, methodSymbol))
+            if (methodSymbol.IsAsync
+                && methodReturnValueType.SpecialType == SpecialType.System_Void)
             {
-                if (methodReturnValueType.SpecialType == SpecialType.System_Void)
+                context.ReportDiagnostic(Diagnostic.Create(asyncNoExpectedResultAndVoidReturnType, attributeNode.GetLocation()));
+            }
+            else if (methodReturnValueType.IsAwaitable(out var awaitReturnType))
+            {
+                if (awaitReturnType.SpecialType != SpecialType.System_Void)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(asyncNoExpectedResultAndVoidReturnType, attributeNode.GetLocation()));
-                }
-                else
-                {
-                    var isTaskType = methodReturnValueType.Equals(context.Compilation.GetTypeByMetadataName(fullyQualifiedNameOfTask));
-                    if (!isTaskType)
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(asyncNoExpectedResultAndNonTaskReturnType,
-                            attributeNode.GetLocation(), methodReturnValueType.ToDisplayString()));
-                    }
+                    context.ReportDiagnostic(Diagnostic.Create(asyncNoExpectedResultAndNonTaskReturnType,
+                        attributeNode.GetLocation(), methodReturnValueType.ToDisplayString()));
                 }
             }
             else
@@ -222,27 +210,6 @@ namespace NUnit.Analyzers.TestCaseUsage
                         attributeNode.GetLocation(), methodReturnValueType.ToDisplayString()));
                 }
             }
-        }
-
-        private static bool IsTestMethodAsync(Compilation compilation, IMethodSymbol methodSymbol)
-        {
-            var methodReturnValueType = methodSymbol.ReturnType;
-            return methodSymbol.IsAsync || IsTaskType(compilation, methodReturnValueType);
-        }
-
-        private static bool IsTaskType(Compilation compilation, ITypeSymbol typeSymbol)
-        {
-            var taskTypeSymbol = compilation.GetTypeByMetadataName(fullyQualifiedNameOfTask);
-
-            for (; typeSymbol != null; typeSymbol = typeSymbol.BaseType)
-            {
-                if (typeSymbol.Equals(taskTypeSymbol))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }
