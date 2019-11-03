@@ -44,6 +44,8 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfTypeParallelizableAttribute = "NUnit.Framework.ParallelizableAttribute";
         public const string FullNameOfTypeITestBuilder = "NUnit.Framework.Interfaces.ITestBuilder";
 
+        public const string FullNameOfSameAsConstraint = "NUnit.Framework.Constraints.SameAsConstraint";
+
         public const string NameOfTestCaseAttribute = "TestCaseAttribute";
         public const string NameOfTestCaseSourceAttribute = "TestCaseSourceAttribute";
         public const string NameOfTestAttribute = "TestAttribute";

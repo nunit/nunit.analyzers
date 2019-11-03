@@ -72,6 +72,28 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
+
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    class A {{ }}
+    class B {{ }}
+
+    public class Tests
+    {{
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        {{
+            var actual = new A();
+            var expected = new B();
+            Assert.That(actual, Is.Not.SameAs(↓expected));
+        }}
+    }}");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
         [Test]
         public void NoDiagnoticWhenActualAndExpectedTypesAreSame()
         {
@@ -79,6 +101,17 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 var actual = """";
                 var expected = """";
                 Assert.That(actual, Is.SameAs(expected));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnoticWhenActualAndExpectedTypesAreSame_WithNegatedAssert()
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                var actual = """";
+                var expected = """";
+                Assert.That(actual, Is.Not.SameAs(expected));");
 
             AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
         }
@@ -93,7 +126,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
     public class Tests
     {{
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided()
+        public void NoDiagnoticWhenExpectedTypeInheritsActual()
         {{
             var actual = new A();
             var expected = new B();
@@ -114,7 +147,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
     public class Tests
     {{
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided()
+        public void NoDiagnoticWhenActualTypeInheritsExpected()
         {{
             var actual = new A();
             var expected = new B();
