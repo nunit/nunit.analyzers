@@ -72,7 +72,6 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
-
         [Test]
         public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
         {
@@ -86,6 +85,89 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
         {{
             var actual = new A();
+            var expected = new B();
+            Assert.That(actual, Is.Not.SameAs(↓expected));
+        }}
+    }}");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided_WithLambdaActualValue()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    class A {{ }}
+    class B {{ }}
+
+    public class Tests
+    {{
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        {{
+            var expected = new B();
+            Assert.That(() => new A(), Is.Not.SameAs(↓expected));
+        }}
+    }}");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided_WithLocalFunctionActualValue()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    class A {{ }}
+    class B {{ }}
+
+    public class Tests
+    {{
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        {{
+            A actual() => new A();
+            var expected = new B();
+            Assert.That(actual, Is.Not.SameAs(↓expected));
+        }}
+    }}");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided_WithFuncActualValue()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    class A {{ }}
+    class B {{ }}
+
+    public class Tests
+    {{
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        {{
+            Func<A> actual = () => new A();
+            var expected = new B();
+            Assert.That(actual, Is.Not.SameAs(↓expected));
+        }}
+    }}");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided_WithTaskActualValue()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    class A {{ }}
+    class B {{ }}
+
+    public class Tests
+    {{
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        {{
+            var actual = Task.FromResult(new A());
             var expected = new B();
             Assert.That(actual, Is.Not.SameAs(↓expected));
         }}
@@ -112,6 +194,49 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 var actual = """";
                 var expected = """";
                 Assert.That(actual, Is.Not.SameAs(expected));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnoticWhenActualAndExpectedTypesAreSame_WithLambdaActualValue()
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                var expected = """";
+                Assert.That(() => """", Is.SameAs(expected));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnoticWhenActualAndExpectedTypesAreSame_WithFuncActualValue()
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                Func<string> actual = () => """";
+                var expected = """";
+                Assert.That(actual, Is.SameAs(expected));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnoticWhenActualAndExpectedTypesAreSame_WithLocalFunctionActualValue()
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                string actual() => """";
+                var expected = """";
+                Assert.That(actual, Is.SameAs(expected));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnoticWhenActualAndExpectedTypesAreSame_WithTaskActualValue()
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                var actual = Task.FromResult("""");
+                var expected = """";
+                Assert.That(actual, Is.SameAs(expected));");
 
             AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
         }

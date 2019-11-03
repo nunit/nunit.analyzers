@@ -45,7 +45,9 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
             if (sameAsExpectedExpressions.Length == 0)
                 return;
 
-            var actualType = semanticModel.GetTypeInfo(actualExpression, cancellationToken).Type;
+            var actualTypeInfo = semanticModel.GetTypeInfo(actualExpression, cancellationToken);
+            var actualType = actualTypeInfo.Type ?? actualTypeInfo.ConvertedType;
+            actualType = UnwrapActualType(actualType);
 
             if (actualType == null)
                 return;
@@ -61,6 +63,17 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
                         expectedArgumentExpression.GetLocation()));
                 }
             }
+        }
+
+        private static ITypeSymbol UnwrapActualType(ITypeSymbol actualType)
+        {
+            if (actualType is INamedTypeSymbol namedType && namedType.DelegateInvokeMethod != null)
+                actualType = namedType.DelegateInvokeMethod.ReturnType;
+
+            if (actualType.IsAwaitable(out var awaitReturnType))
+                actualType = awaitReturnType;
+
+            return actualType;
         }
 
         private static bool CanBeSameType(ITypeSymbol actualType, ITypeSymbol expectedType, SemanticModel semanticModel)
