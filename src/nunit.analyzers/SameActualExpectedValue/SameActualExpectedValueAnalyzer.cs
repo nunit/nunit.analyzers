@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.SameActualExpectedValue
                 return;
             }
 
-            var expectedExpressions = AssertExpressionHelper.GetExpectedArguments(constraintExpression, context.SemanticModel);
+            var expectedExpressions = AssertExpressionHelper.GetExpectedArguments(constraintExpression, context.SemanticModel, context.CancellationToken);
             var sameExpectedExpressions = expectedExpressions.Where(e => e.expectedArgument.IsEquivalentTo(actualExpression));
 
             foreach (var (expected, _) in sameExpectedExpressions)

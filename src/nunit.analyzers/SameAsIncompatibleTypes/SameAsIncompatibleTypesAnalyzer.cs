@@ -36,7 +36,7 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
             }
 
             var sameAsExpectedExpressions = AssertExpressionHelper
-                .GetExpectedArguments(constraintExpression, semanticModel)
+                .GetExpectedArguments(constraintExpression, semanticModel, cancellationToken)
                 .Where(ex => ex.constraintMethod.Name == NunitFrameworkConstants.NameOfIsSameAs
                     && ex.constraintMethod.ReturnType.GetFullMetadataName() == NunitFrameworkConstants.FullNameOfSameAsConstraint)
                 .Select(ex => ex.expectedArgument)
