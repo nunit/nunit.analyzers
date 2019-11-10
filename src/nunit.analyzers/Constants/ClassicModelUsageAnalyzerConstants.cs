@@ -29,5 +29,21 @@ namespace NUnit.Analyzers.Constants
         internal const string AreSameTitle = "Consider using Assert.That(expr2, Is.SameAs(expr1)) instead of Assert.AreSame(expr1, expr2).";
         internal const string AreSameMessage = "Consider using the constraint model, Assert.That(expr2, Is.SameAs(expr1)), instead of the classic model, Assert.AreSame(expr1, expr2).";
         internal const string AreSameDescription = "Consider using the constraint model, Assert.That(expr2, Is.SameAs(expr1)), instead of the classic model, Assert.AreSame(expr1, expr2).";
+
+        internal const string IsNullTitle = "Consider using Assert.That(expr, Is.Null) instead of Assert.IsNull(expr).";
+        internal const string IsNullMessage = "Consider using the constraint model, Assert.That(expr, Is.Null), instead of the classic model, Assert.IsNull(expr).";
+        internal const string IsNullDescription = "Consider using the constraint model, Assert.That(expr, Is.Null), instead of the classic model, Assert.IsNull(expr).";
+
+        internal const string NullTitle = "Consider using Assert.That(expr, Is.Null) instead of Assert.Null(expr).";
+        internal const string NullMessage = "Consider using the constraint model, Assert.That(expr, Is.Null), instead of the classic model, Assert.Null(expr).";
+        internal const string NullDescription = "Consider using the constraint model, Assert.That(expr, Is.Null), instead of the classic model, Assert.Null(expr).";
+
+        internal const string IsNotNullTitle = "Consider using Assert.That(expr, Is.Not.Null) instead of Assert.IsNotNull(expr).";
+        internal const string IsNotNullMessage = "Consider using the constraint model, Assert.That(expr, Is.Not.Null), instead of the classic model, Assert.IsNotNull(expr).";
+        internal const string IsNotNullDescription = "Consider using the constraint model, Assert.That(expr, Is.Not.Null), instead of the classic model, Assert.IsNotNull(expr).";
+
+        internal const string NotNullTitle = "Consider using Assert.That(expr, Is.Not.Null) instead of Assert.NotNull(expr).";
+        internal const string NotNullMessage = "Consider using the constraint model, Assert.That(expr, Is.Not.Null), instead of the classic model, Assert.NotNull(expr).";
+        internal const string NotNullDescription = "Consider using the constraint model, Assert.That(expr, Is.Not.Null), instead of the classic model, Assert.NotNull(expr).";
     }
 }
