@@ -20,7 +20,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var analyzer = new ClassicModelAssertUsageAnalyzer();
             var diagnostics = analyzer.SupportedDiagnostics;
 
-            Assert.That(diagnostics.Length, Is.EqualTo(7), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
+            Assert.That(diagnostics.Length, Is.EqualTo(11), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
 
             foreach (var diagnostic in diagnostics)
             {
@@ -50,6 +50,14 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 $"{AnalyzerIdentifiers.TrueUsage} is missing.");
             Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreSameUsage),
                 $"{AnalyzerIdentifiers.AreSameUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.NullUsage),
+                $"{AnalyzerIdentifiers.NullUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNullUsage),
+                $"{AnalyzerIdentifiers.IsNullUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.NotNullUsage),
+                $"{AnalyzerIdentifiers.NotNullUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotNullUsage),
+                $"{AnalyzerIdentifiers.IsNotNullUsage} is missing.");
         }
 
         [Test]
@@ -208,6 +216,74 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void Test()
         {
             ↓Assert.AreSame(2, 3);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsNullIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNullUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsNullIsUsed
+    {
+        public void Test()
+        {
+            object obj = null;
+            ↓Assert.IsNull(obj);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNullIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.NullUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenNullIsUsed
+    {
+        public void Test()
+        {
+            object obj = null;
+            ↓Assert.Null(obj);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsNotNullIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotNullUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsNotNullIsUsed
+    {
+        public void Test()
+        {
+            object obj = null;
+            ↓Assert.IsNotNull(obj);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNotNullIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.NotNullUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenNotNullIsUsed
+    {
+        public void Test()
+        {
+            object obj = null;
+            ↓Assert.NotNull(obj);
         }
     }");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);

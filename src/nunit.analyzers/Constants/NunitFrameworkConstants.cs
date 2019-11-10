@@ -19,6 +19,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfIsNotEqualTo = "EqualTo";
         public const string NameOfIsSameAs = "SameAs";
         public const string NameOfIsSamePath = "SamePath";
+        public const string NameOfNull = "Null";
 
         public const string NameOfDoes = "Does";
         public const string NameOfDoesNot = "Not";
@@ -35,6 +36,10 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfAssertAreNotEqual = "AreNotEqual";
         public const string NameOfAssertAreSame = "AreSame";
         public const string NameOfAssertAreNotSame = "AreNotSame";
+        public const string NameOfAssertNull = "Null";
+        public const string NameOfAssertIsNull = "IsNull";
+        public const string NameOfAssertNotNull = "NotNull";
+        public const string NameOfAssertIsNotNull = "IsNotNull";
         public const string NameOfAssertThat = "That";
 
         public const string FullNameOfTypeIs = "NUnit.Framework.Is";

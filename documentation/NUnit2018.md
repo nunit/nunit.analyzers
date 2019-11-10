@@ -1,9 +1,9 @@
-# NUnit2016
-## Consider using Assert.That(expr, Is.Null) instead of Assert.Null(expr).
+# NUnit2018
+## Consider using Assert.That(expr, Is.Not.Null) instead of Assert.NotNull(expr).
 
 | Topic    | Value
 | :--      | :--
-| Id       | NUnit2016
+| Id       | NUnit2018
 | Severity | Warning
 | Enabled  | True
 | Category | Assertion
@@ -12,33 +12,33 @@
 
 ## Description
 
-Consider using the constraint model, Assert.That(expr, Is.Null), instead of the classic model, Assert.Null(expr).
+Consider using the constraint model, Assert.That(expr, Is.Not.Null), instead of the classic model, Assert.NotNull(expr).
 
 ## Motivation
 
 The classic Assert model contains less flexibility and reads more clumsy than the constraint model,
-so this analyzer marks usages of `Assert.Null` from the classic Assert model.
+so this analyzer marks usages of `Assert.NotNull` from the classic Assert model.
 
 ```csharp
 [Test]
 public void Test()
 {
     object obj = null;
-    Assert.Null(obj);
+    Assert.NotNull(obj);
 }
 ```
 
 ## How to fix violations
 
-The analyzer comes with a code fix that will replace `Assert.Null(expression)` with
-`Assert.That(expression, Is.Null)`. So the code block above will be changed into.
+The analyzer comes with a code fix that will replace `Assert.NotNull(expression)` with
+`Assert.That(expression, Is.Not.Null)`. So the code block above will be changed into.
 
 ```csharp
 [Test]
 public void Test()
 {
     object obj = null;
-    Assert.That(obj, Is.Null);
+    Assert.That(obj, Is.Not.Null);
 }
 ```
 
@@ -51,21 +51,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit2016 // Consider using Assert.That(expr, Is.Null) instead of Assert.Null(expr).
+#pragma warning disable NUnit2018 // Consider using Assert.That(expr, Is.Not.Null) instead of Assert.NotNull(expr).
 Code violating the rule here
-#pragma warning restore NUnit2016 // Consider using Assert.That(expr, Is.Null) instead of Assert.Null(expr).
+#pragma warning restore NUnit2018 // Consider using Assert.That(expr, Is.Not.Null) instead of Assert.NotNull(expr).
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit2016 // Consider using Assert.That(expr, Is.Null) instead of Assert.Null(expr).
+#pragma warning disable NUnit2018 // Consider using Assert.That(expr, Is.Not.Null) instead of Assert.NotNull(expr).
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
-    "NUnit2016:Consider using Assert.That(expr, Is.Null) instead of Assert.Null(expr).",
+    "NUnit2018:Consider using Assert.That(expr, Is.Not.Null) instead of Assert.NotNull(expr).",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

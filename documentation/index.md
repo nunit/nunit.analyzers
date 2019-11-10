@@ -31,4 +31,8 @@
 | [NUnit2013](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2013.md)| Use EndsWithConstraint.
 | [NUnit2014](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2014.md)| Use SomeItemsConstraint.
 | [NUnit2015](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2015.md)| Consider using Assert.That(expr2, Is.SameAs(expr1)) instead of Assert.AreSame(expr1, expr2).
-| [NUnit2016](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2016.md)| Incompatible types for SameAs constraint.
+| [NUnit2016](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2016.md)| Consider using Assert.That(expr, Is.Null) instead of Assert.Null(expr).
+| [NUnit2017](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2017.md)| Consider using Assert.That(expr, Is.Null) instead of Assert.IsNull(expr).
+| [NUnit2018](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2018.md)| Consider using Assert.That(expr, Is.Not.Null) instead of Assert.NotNull(expr).
+| [NUnit2019](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2019.md)| Consider using Assert.That(expr, Is.Not.Null) instead of Assert.IsNotNull(expr).
+| [NUnit2020](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2020.md)| Incompatible types for SameAs constraint.
