@@ -35,4 +35,4 @@
 | [NUnit2017](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2017.md)| Consider using Assert.That(expr, Is.Null) instead of Assert.IsNull(expr).
 | [NUnit2018](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2018.md)| Consider using Assert.That(expr, Is.Not.Null) instead of Assert.NotNull(expr).
 | [NUnit2019](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2019.md)| Consider using Assert.That(expr, Is.Not.Null) instead of Assert.IsNotNull(expr).
-
+| [NUnit2020](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2020.md)| Incompatible types for SameAs constraint.

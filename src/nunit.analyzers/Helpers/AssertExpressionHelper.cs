@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
@@ -41,7 +42,9 @@ namespace NUnit.Analyzers.Helpers
         /// Returns multiple pairs if multiple constraints are combined.
         /// </summary>
         public static List<(ExpressionSyntax expectedArgument, IMethodSymbol constraintMethod)> GetExpectedArguments(
-            ExpressionSyntax constraintExpression, SemanticModel semanticModel)
+            ExpressionSyntax constraintExpression,
+            SemanticModel semanticModel,
+            CancellationToken cancellationToken)
         {
             var expectedArguments = new List<(ExpressionSyntax, IMethodSymbol)>();
 
@@ -55,7 +58,7 @@ namespace NUnit.Analyzers.Helpers
 
                 foreach (var invocation in invocations)
                 {
-                    var symbol = semanticModel.GetSymbolInfo(invocation).Symbol;
+                    var symbol = semanticModel.GetSymbolInfo(invocation, cancellationToken).Symbol;
 
                     if (symbol is IMethodSymbol methodSymbol
                         && methodSymbol.Parameters.Length == 1

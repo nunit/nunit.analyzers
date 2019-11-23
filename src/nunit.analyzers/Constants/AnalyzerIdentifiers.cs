@@ -42,6 +42,7 @@ namespace NUnit.Analyzers.Constants
         internal const string IsNullUsage = "NUnit2017";
         internal const string NotNullUsage = "NUnit2018";
         internal const string IsNotNullUsage = "NUnit2019";
+        internal const string SameAsIncompatibleTypes = "NUnit2020";
 
         #endregion Assertion
     }
