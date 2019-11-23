@@ -142,24 +142,22 @@ namespace NUnit.Analyzers.TestCaseUsage
                 ((IArrayTypeSymbol)typeSymbol).ElementType.SpecialType == SpecialType.System_Object;
         }
 
-        private static Tuple<ITypeSymbol, string> GetParameterType(ImmutableArray<IParameterSymbol> methodParameter,
+        private static Tuple<ITypeSymbol, string, ITypeSymbol> GetParameterType(
+            ImmutableArray<IParameterSymbol> methodParameter,
             int position)
         {
             var symbol = position >= methodParameter.Length ?
                 methodParameter[methodParameter.Length - 1] : methodParameter[position];
 
-            ITypeSymbol type;
+            ITypeSymbol type = symbol.Type;
+            ITypeSymbol paramsType = null;
 
             if (symbol.IsParams)
             {
-                type = ((IArrayTypeSymbol)symbol.Type).ElementType;
-            }
-            else
-            {
-                type = symbol.Type;
+                paramsType = ((IArrayTypeSymbol)symbol.Type).ElementType;
             }
 
-            return new Tuple<ITypeSymbol, string>(type, symbol.Name);
+            return new Tuple<ITypeSymbol, string, ITypeSymbol>(type, symbol.Name, paramsType);
         }
 
         private static void AnalyzePositionalArgumentsAndParameters(SyntaxNodeAnalysisContext context,
@@ -174,17 +172,31 @@ namespace NUnit.Analyzers.TestCaseUsage
                 var methodParametersSymbol = TestCaseUsageAnalyzer.GetParameterType(methodParameters, i);
                 var methodParameterType = methodParametersSymbol.Item1;
                 var methodParameterName = methodParametersSymbol.Item2;
+                var methodParameterParamsType = methodParametersSymbol.Item3;
 
                 if (methodParameterType.IsTypeParameterAndDeclaredOnMethod())
                     continue;
 
-                if (!attributeArgument.CanAssignTo(methodParameterType, model))
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(parameterTypeMismatch,
-                      attributeArgument.GetLocation(),
-                      i,
-                      methodParameterName));
-                }
+                TypeInfo sourceTypeInfo = model.GetTypeInfo(attributeArgument.Expression);
+                ITypeSymbol argumentType = sourceTypeInfo.Type;
+
+
+                var argumentTypeMatchesParameterType = attributeArgument.CanAssignTo(methodParameterType, model);
+
+                if (methodParameterParamsType == null && argumentTypeMatchesParameterType)
+                    continue;
+
+                if (methodParameterParamsType != null &&
+                    (attributeArgument.CanAssignTo(methodParameterParamsType, model) ||
+                        (argumentTypeMatchesParameterType && (argumentType != null || !methodParameterParamsType.IsValueType))))
+                    continue;
+                
+                context.ReportDiagnostic(Diagnostic.Create(parameterTypeMismatch,
+                    attributeArgument.GetLocation(),
+                    i,
+                    argumentType?.ToDisplayString() ?? "<null>",
+                    methodParameterName,
+                    methodParameterType));
 
                 context.CancellationToken.ThrowIfCancellationRequested();
             }
