@@ -63,11 +63,11 @@ namespace NUnit.Analyzers.Tests.Constants
         }
 
         [Test]
-        public void AssemblyQualifiedNameOfTypeAssertTest()
+        public void NUnitAssemblyNameTest()
         {
             Assert.That(
-                NunitFrameworkConstants.AssemblyQualifiedNameOfTypeAssert,
-                Is.EqualTo(typeof(Assert).AssemblyQualifiedName));
+                NunitFrameworkConstants.NUnitFrameworkAssemblyName,
+                Is.EqualTo(typeof(Assert).Assembly.GetName().Name));
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
@@ -52,21 +53,11 @@ namespace NUnit.Analyzers.Helpers
 
             foreach (var constraintPart in constraintParts)
             {
-                var invocations = constraintPart.SplitCallChain()
-                    .OfType<InvocationExpressionSyntax>()
-                    .Where(i => i.ArgumentList.Arguments.Count == 1);
+                var expected = GetExpectedArgumentFromConstraintPart(constraintPart, semanticModel, cancellationToken);
 
-                foreach (var invocation in invocations)
+                if (expected != null)
                 {
-                    var symbol = semanticModel.GetSymbolInfo(invocation, cancellationToken).Symbol;
-
-                    if (symbol is IMethodSymbol methodSymbol
-                        && methodSymbol.Parameters.Length == 1
-                        && methodSymbol.Parameters[0].Name == NunitFrameworkConstants.NameOfExpectedParameter)
-                    {
-                        var argument = invocation.ArgumentList.Arguments[0];
-                        expectedArguments.Add((argument.Expression, methodSymbol));
-                    }
+                    expectedArguments.Add(expected.Value);
                 }
             }
 
@@ -74,10 +65,50 @@ namespace NUnit.Analyzers.Helpers
         }
 
         /// <summary>
+        /// Split constraints into parts by binary ('&' or '|')  or constraint expression operators
+        /// </summary>
+        public static IEnumerable<ExpressionSyntax> SplitConstraintByOperators(ExpressionSyntax constraintExpression)
+        {
+            return SplitConstraintByBinaryOperators(constraintExpression)
+                .SelectMany(SplitConstraintByConstraintExpressionOperators);
+        }
+
+        public static IEnumerable<ExpressionSyntax> GetConstraintExpressionPrefixes(
+            ExpressionSyntax constraintExpression, SemanticModel semanticModel)
+        {
+            // e.g. Has.Property("Prop").Not.EqualTo("1")
+            // -->
+            // Has.Property("Prop"),
+            // Has.Property("Prop").Not
+
+            // Skip all suffixes and root
+            return GetExpressionsFromCurrentPart(constraintExpression)
+                .Reverse()
+                .SkipWhile(e => !IsConstraintExpressionRoot(e, semanticModel))
+                .Skip(1)
+                .TakeWhile(e => e is MemberAccessExpressionSyntax || e is InvocationExpressionSyntax)
+                .Reverse();
+        }
+
+        public static IEnumerable<ExpressionSyntax> GetConstraintExpressionSuffixes(
+            ExpressionSyntax constraintExpression, SemanticModel semanticModel)
+        {
+            // e.g. Has.Property("Prop").Not.EqualTo("1").IgnoreCase
+            // -->
+            // Has.Property("Prop").Not.EqualTo("1").IgnoreCase
+
+            // Take until root
+            return GetExpressionsFromCurrentPart(constraintExpression)
+                .Reverse()
+                .TakeWhile(e => !IsConstraintExpressionRoot(e, semanticModel))
+                .Reverse();
+        }
+
+        /// <summary>
         /// If provided constraint expression is combined using &, | operators - return multiple split expressions.
         /// Otherwise - returns single <paramref name="constraintExpression"/> value
         /// </summary>
-        public static IEnumerable<ExpressionSyntax> SplitConstraintByOperators(ExpressionSyntax constraintExpression)
+        private static IEnumerable<ExpressionSyntax> SplitConstraintByBinaryOperators(ExpressionSyntax constraintExpression)
         {
             if (constraintExpression is BinaryExpressionSyntax binaryExpression)
             {
@@ -91,6 +122,120 @@ namespace NUnit.Analyzers.Helpers
             {
                 yield return constraintExpression;
             }
+        }
+
+        /// <summary>
+        /// If constraint expression is combined using And, Or, With properties - 
+        /// returns parts of expression split by those properties.
+        /// /// </summary>
+        private static IEnumerable<ExpressionSyntax> SplitConstraintByConstraintExpressionOperators(ExpressionSyntax constraintExpression)
+        {
+            // e.g. Does.Contain(a).IgnoreCase.And.Contain(b).And.Not.Null
+            // --> 
+            // Does.Contain(a).IgnoreCase,
+            // Does.Contain(a).IgnoreCase.And.Contain(b)
+            // Does.Contain(a).IgnoreCase.And.Contain(b).And.Not.Null
+
+            // (You cannot separate only Not.Null part in any way)
+
+            var callChainParts = constraintExpression.SplitCallChain();
+
+            for (var i = 1; i < callChainParts.Count; i++)
+            {
+                if (IsConstraintExpressionOperator(callChainParts[i]))
+                {
+                    yield return callChainParts[i - 1];
+                }
+            }
+
+            yield return constraintExpression;
+        }
+
+        private static (ExpressionSyntax expectedArgument, IMethodSymbol constraintMethod)? GetExpectedArgumentFromConstraintPart(
+            ExpressionSyntax constraintPart,
+            SemanticModel semanticModel,
+            CancellationToken cancellationToken)
+        {
+            // Each constraint part might have only one method, accepting 'expected' argument.
+
+            foreach (var expression in GetExpressionsFromCurrentPart(constraintPart).Reverse())
+            {
+                // Expression, following after constraint expression operator, belong to other 
+                // constraint part, and should not be considered
+                if (IsConstraintExpressionOperator(expression))
+                    break;
+
+                if (expression is InvocationExpressionSyntax invocation && invocation.ArgumentList.Arguments.Count == 1)
+                {
+                    var symbol = semanticModel.GetSymbolInfo(invocation, cancellationToken).Symbol;
+
+                    if (symbol is IMethodSymbol methodSymbol
+                        && methodSymbol.Parameters.Length == 1
+                        && methodSymbol.Parameters[0].Name == NunitFrameworkConstants.NameOfExpectedParameter)
+                    {
+                        var argument = invocation.ArgumentList.Arguments[0];
+
+                        return (argument.Expression, methodSymbol);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private static IEnumerable<ExpressionSyntax> GetExpressionsFromCurrentPart(ExpressionSyntax constraintPart)
+        {
+            return constraintPart.SplitCallChain().AsEnumerable()
+                .Reverse()
+                .TakeWhile(e => !(IsConstraintExpressionOperator(e)))
+                .Reverse();
+        }
+
+        /// <summary>
+        /// Returns true if current expression is And/Or/With constraint operator
+        /// </summary>
+        private static bool IsConstraintExpressionOperator(ExpressionSyntax expressionSyntax)
+        {
+            if (expressionSyntax is MemberAccessExpressionSyntax memberAccessExpression)
+            {
+                var name = memberAccessExpression.Name.Identifier.Text;
+
+                if (name == NunitFrameworkConstants.NameOfConstraintExpressionAnd
+                    || name == NunitFrameworkConstants.NameOfConstraintExpressionOr
+                    || name == NunitFrameworkConstants.NameOfConstraintExpressionWith)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns true if current part is the actual constraint part,
+        /// e.g. in 'Is.Not.EqualTo("a").IgnoreCase' it will return true 
+        /// for 'EqualTo("a")' part.
+        /// </summary>
+        private static bool IsConstraintExpressionRoot(ExpressionSyntax expressionSyntax, SemanticModel semanticModel)
+        {
+            // Criteria - returns Constraint, but defined not in constraint class
+            var symbol = semanticModel.GetSymbolInfo(expressionSyntax).Symbol;
+
+            ITypeSymbol containingType = null;
+            ITypeSymbol returnType = null;
+
+            if (symbol is IMethodSymbol methodSymbol)
+            {
+                containingType = methodSymbol.ContainingType;
+                returnType = methodSymbol.ReturnType;
+            }
+            else if (symbol is IPropertySymbol propertySymbol)
+            {
+                containingType = propertySymbol.ContainingType;
+                returnType = propertySymbol.Type;
+            }
+
+            return returnType.IsConstraint() && !containingType.IsConstraint();
         }
     }
 }

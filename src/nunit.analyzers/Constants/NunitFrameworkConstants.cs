@@ -49,7 +49,10 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfTypeParallelizableAttribute = "NUnit.Framework.ParallelizableAttribute";
         public const string FullNameOfTypeITestBuilder = "NUnit.Framework.Interfaces.ITestBuilder";
 
+        public const string NameOfConstraint = "Constraint";
+
         public const string FullNameOfSameAsConstraint = "NUnit.Framework.Constraints.SameAsConstraint";
+        public const string FullNameOfEqualToConstraint = "NUnit.Framework.Constraints.EqualConstraint";
 
         public const string NameOfTestCaseAttribute = "TestCaseAttribute";
         public const string NameOfTestCaseSourceAttribute = "TestCaseSourceAttribute";
@@ -63,9 +66,13 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfExpectedParameter = "expected";
         public const string NameOfExpressionParameter = "expression";
 
-        public const string NameOfIgnoreCase = "IgnoreCase";
+        public const string NameOfConstraintExpressionAnd = "And";
+        public const string NameOfConstraintExpressionOr = "Or";
+        public const string NameOfConstraintExpressionWith = "With";
 
-        public const string AssemblyQualifiedNameOfTypeAssert =
-            "NUnit.Framework.Assert, nunit.framework, Version=3.12.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb";
+        public const string NameOfIgnoreCase = "IgnoreCase";
+        public const string NameOfUsing = "Using";
+
+        public const string NUnitFrameworkAssemblyName = "nunit.framework";
     }
 }

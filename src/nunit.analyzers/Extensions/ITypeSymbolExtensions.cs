@@ -21,13 +21,23 @@ namespace NUnit.Analyzers.Extensions
         internal static bool IsAssert(this ITypeSymbol @this)
         {
             return @this != null &&
-                NunitFrameworkConstants.AssemblyQualifiedNameOfTypeAssert.Contains(@this.ContainingAssembly.Name) &&
+                NunitFrameworkConstants.NUnitFrameworkAssemblyName == @this.ContainingAssembly.Name &&
                 @this.Name == NunitFrameworkConstants.NameOfAssert;
+        }
+
+        internal static bool IsConstraint(this ITypeSymbol @this)
+        {
+            return @this != null && @this.GetAllBaseTypes()
+                .Any(t => t.Name == NunitFrameworkConstants.NameOfConstraint
+                    && NunitFrameworkConstants.NUnitFrameworkAssemblyName == @this.ContainingAssembly.Name);
         }
 
         internal static string GetFullMetadataName(this ITypeSymbol @this)
         {
             // e.g. System.Collections.Generic.IEnumerable`1
+
+            if (@this.ContainingNamespace == null)
+                return @this.MetadataName;
 
             var namespaces = new Stack<string>();
 
@@ -40,6 +50,17 @@ namespace NUnit.Analyzers.Extensions
             }
 
             return $"{string.Join(".", namespaces)}.{@this.MetadataName}";
+        }
+
+        internal static IEnumerable<INamedTypeSymbol> GetAllBaseTypes(this ITypeSymbol @this)
+        {
+            var current = @this;
+
+            while (current.BaseType != null)
+            {
+                yield return current.BaseType;
+                current = current.BaseType;
+            }
         }
 
         internal static bool IsTypeParameterAndDeclaredOnMethod(this ITypeSymbol typeSymbol)
@@ -93,6 +114,40 @@ namespace NUnit.Analyzers.Extensions
 
             returnType = getResultMethod.ReturnType;
             return true;
+        }
+
+        /// <summary>
+        /// Return value indicates whether type implements IEnumerable interface.
+        /// </summary>
+        /// <param name="elementType">Contains IEnumerable generic argument, or null, if type implements
+        /// only non-generic IEnumerable interface, or no IEnumerable interface at all</param>
+        internal static bool IsIEnumerable(this ITypeSymbol @this, out ITypeSymbol elementType)
+        {
+            elementType = null;
+
+            var allInterfaces = @this.AllInterfaces;
+
+            if (@this is INamedTypeSymbol namedType && namedType.TypeKind == TypeKind.Interface)
+                allInterfaces = allInterfaces.Add(namedType);
+
+            var genericIEnumerableInterface = allInterfaces.FirstOrDefault(i =>
+                i.GetFullMetadataName() == "System.Collections.Generic.IEnumerable`1");
+
+            if (genericIEnumerableInterface != null)
+            {
+                elementType = genericIEnumerableInterface.TypeArguments.FirstOrDefault();
+                return true;
+            }
+
+            var nonGenericIEnumerableInterface = allInterfaces.FirstOrDefault(i =>
+                i.GetFullMetadataName() == "System.Collections.IEnumerable");
+
+            if (nonGenericIEnumerableInterface != null)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
