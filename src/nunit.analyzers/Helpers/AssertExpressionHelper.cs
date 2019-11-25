@@ -217,7 +217,7 @@ namespace NUnit.Analyzers.Helpers
                 returnType = propertySymbol.Type;
             }
 
-            return returnType.IsConstraint();
+            return returnType != null && returnType.IsConstraint();
         }
     }
 }
