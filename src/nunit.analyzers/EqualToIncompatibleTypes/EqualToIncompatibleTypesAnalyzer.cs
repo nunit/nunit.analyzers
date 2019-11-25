@@ -97,7 +97,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
             ITypeSymbol actualType,
             ITypeSymbol expectedType,
             SemanticModel semanticModel,
-            ImmutableHashSet<(ITypeSymbol, ITypeSymbol)> checkedTypes = default)
+            ImmutableHashSet<(ITypeSymbol, ITypeSymbol)> checkedTypes = default(ImmutableHashSet<(ITypeSymbol, ITypeSymbol)>))
         {
             var conversion = semanticModel.Compilation.ClassifyConversion(actualType, expectedType);
 
