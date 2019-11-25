@@ -110,7 +110,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                 return true;
 
             // Protection against possible infinite recursion
-            if (checkedTypes == default)
+            if (checkedTypes == default(ImmutableHashSet<(ITypeSymbol, ITypeSymbol)>))
                 checkedTypes = ImmutableHashSet<(ITypeSymbol, ITypeSymbol)>.Empty;
 
             if (checkedTypes.Contains((actualType, expectedType)))
