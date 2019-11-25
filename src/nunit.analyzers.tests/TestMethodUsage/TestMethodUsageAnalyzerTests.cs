@@ -351,6 +351,36 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeWhenTestMethodHasValueTaskReturnTypeAndExpectedResult()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [TestCase(ExpectedResult = 1)]
+                public async ValueTask<int> GenericTaskTestCaseWithExpectedResult()
+                {
+                    return 1;
+                }");
+
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTestMethodHasValueTaskReturnTypeAndExpectedResultIsIncorrect()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
+                string.Format(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
+
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [TestCase(ExpectedResult = '1')]
+                public async ValueTask<int> GenericTaskTestCaseWithExpectedResult()
+                {
+                    return 1;
+                }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenAsyncTestMethodHasTaskReturnTypeAndExpectedResult()
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
