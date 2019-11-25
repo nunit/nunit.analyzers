@@ -81,13 +81,10 @@ namespace NUnit.Analyzers.Helpers
             // Has.Property("Prop"),
             // Has.Property("Prop").Not
 
-            // Skip all suffixes and root
+            // Take expressions until found expression returning constraint
             return GetExpressionsFromCurrentPart(constraintExpression)
-                .Reverse()
-                .SkipWhile(e => !IsConstraintExpressionRoot(e, semanticModel))
-                .Skip(1)
-                .TakeWhile(e => e is MemberAccessExpressionSyntax || e is InvocationExpressionSyntax)
-                .Reverse();
+                .Where(e => e is MemberAccessExpressionSyntax || e is InvocationExpressionSyntax)
+                .TakeWhile(e => !ReturnsConstraint(e, semanticModel));
         }
 
         public static IEnumerable<ExpressionSyntax> GetConstraintExpressionSuffixes(
@@ -97,11 +94,10 @@ namespace NUnit.Analyzers.Helpers
             // -->
             // Has.Property("Prop").Not.EqualTo("1").IgnoreCase
 
-            // Take until root
+            // Skip all suffixes, and first expression returning constraint (e.g. 'EqualTo("1")')
             return GetExpressionsFromCurrentPart(constraintExpression)
-                .Reverse()
-                .TakeWhile(e => !IsConstraintExpressionRoot(e, semanticModel))
-                .Reverse();
+                .SkipWhile(e => !ReturnsConstraint(e, semanticModel))
+                .Skip(1);
         }
 
         /// <summary>
@@ -211,31 +207,22 @@ namespace NUnit.Analyzers.Helpers
             return false;
         }
 
-        /// <summary>
-        /// Returns true if current part is the actual constraint part,
-        /// e.g. in 'Is.Not.EqualTo("a").IgnoreCase' it will return true 
-        /// for 'EqualTo("a")' part.
-        /// </summary>
-        private static bool IsConstraintExpressionRoot(ExpressionSyntax expressionSyntax, SemanticModel semanticModel)
+        private static bool ReturnsConstraint(ExpressionSyntax expressionSyntax, SemanticModel semanticModel)
         {
-            // Criteria - returns Constraint, but defined not in constraint class
             var symbol = semanticModel.GetSymbolInfo(expressionSyntax).Symbol;
 
-            ITypeSymbol containingType = null;
             ITypeSymbol returnType = null;
 
             if (symbol is IMethodSymbol methodSymbol)
             {
-                containingType = methodSymbol.ContainingType;
                 returnType = methodSymbol.ReturnType;
             }
             else if (symbol is IPropertySymbol propertySymbol)
             {
-                containingType = propertySymbol.ContainingType;
                 returnType = propertySymbol.Type;
             }
 
-            return returnType.IsConstraint() && !containingType.IsConstraint();
+            return returnType.IsConstraint();
         }
     }
 }
