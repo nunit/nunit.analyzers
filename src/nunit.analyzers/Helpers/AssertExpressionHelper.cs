@@ -156,11 +156,6 @@ namespace NUnit.Analyzers.Helpers
 
             foreach (var expression in GetExpressionsFromCurrentPart(constraintPart).Reverse())
             {
-                // Expression, following after constraint expression operator, belong to other 
-                // constraint part, and should not be considered
-                if (IsConstraintExpressionOperator(expression))
-                    break;
-
                 if (expression is InvocationExpressionSyntax invocation && invocation.ArgumentList.Arguments.Count == 1)
                 {
                     var symbol = semanticModel.GetSymbolInfo(invocation, cancellationToken).Symbol;
