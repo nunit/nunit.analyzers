@@ -14,7 +14,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     [TestFixture]
     public sealed class TestMethodUsageAnalyzerTests
     {
-        private DiagnosticAnalyzer analyzer = new TestMethodUsageAnalyzer();
+        private static DiagnosticAnalyzer analyzer = new TestMethodUsageAnalyzer();
 
         [Test]
         public void VerifySupportedDiagnostics()
@@ -296,6 +296,88 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
     }");
             AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResult()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResult
+    {
+        [TestCase(ExpectedResult = 1)]
+        public CustomAwaitable GenericTaskTestCaseWithExpectedResult()
+        {
+            return new CustomAwaitable();
+        }
+    }
+
+    public class CustomAwaitable
+    {
+        public System.Runtime.CompilerServices.TaskAwaiter<int> GetAwaiter()
+        {
+            return Task.FromResult(1).GetAwaiter();
+        }
+    }
+");
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResultIsIncorrect()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
+                string.Format(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResultIsIncorrect
+    {
+        [TestCase(ExpectedResult = '1')]
+        public CustomAwaitable GenericTaskTestCaseWithExpectedResult()
+        {
+            return new CustomAwaitable();
+        }
+    }
+
+    public class CustomAwaitable
+    {
+        public System.Runtime.CompilerServices.TaskAwaiter<int> GetAwaiter()
+        {
+            return Task.FromResult(1).GetAwaiter();
+        }
+    }
+");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTestMethodHasValueTaskReturnTypeAndExpectedResult()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [TestCase(ExpectedResult = 1)]
+                public async ValueTask<int> GenericTaskTestCaseWithExpectedResult()
+                {
+                    return 1;
+                }");
+
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTestMethodHasValueTaskReturnTypeAndExpectedResultIsIncorrect()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
+                string.Format(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
+
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [TestCase(ExpectedResult = '1')]
+                public async ValueTask<int> GenericTaskTestCaseWithExpectedResult()
+                {
+                    return 1;
+                }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
