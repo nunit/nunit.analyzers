@@ -302,7 +302,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResult()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenTestMethodHasGenericTaskReturnTypeAndExpectedResult
+    public sealed class AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResult
     {
         [TestCase(ExpectedResult = 1)]
         public CustomAwaitable GenericTaskTestCaseWithExpectedResult()
@@ -330,7 +330,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 string.Format(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenTestMethodHasGenericTaskReturnTypeAndExpectedResult
+    public sealed class AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResultIsIncorrect
     {
         [TestCase(ExpectedResult = '1')]
         public CustomAwaitable GenericTaskTestCaseWithExpectedResult()
