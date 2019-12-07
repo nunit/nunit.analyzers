@@ -15,7 +15,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     public sealed class TestCaseUsageAnalyzerTests
     {
         private DiagnosticAnalyzer analyzer = new TestCaseUsageAnalyzer();
-        
+
         private static IEnumerable<TestCaseData> SpecialConversions
         {
             get
@@ -148,15 +148,60 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
-        public void AnalyzeWhenArgumentIsAReferenceToConstant()
+        public void AnalyzeArgumentIsEnum()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class AnalyzeWhenArgumentIsAReferenceToConstant
+    class AnalyzeArgumentIsEnum
     {
-        const int value = 42;
+        public enum TestEnum { A,B,C }
 
-        [TestCase(value)]
-        public void Test(int a) { }
+
+        [TestCase(TestEnum.A)]
+        [TestCase(TestEnum.B)]
+        public void Test(TestEnum e) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeArgumentIsIntConvertedToEnum()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeArgumentIsIntConvertedToEnum
+    {
+        public enum TestEnum { A,B,C }
+
+
+        [TestCase(0)]
+        [TestCase(1)]
+        public void Test(TestEnum e) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeArgumentIsEnumConvertedToInt()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeArgumentIsEnumConvertedToInt
+    {
+        public enum TestEnum { A,B,C }
+
+        [TestCase(TestEnum.A)]
+        [TestCase(TestEnum.B)]
+        public void Test(int e) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeArgumentHasImplicitConversion()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeArgumentHasImplicitConversion
+    {
+        [TestCase(uint.MaxValue)]
+        public void Test(long e) { }
     }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
@@ -168,7 +213,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
                 String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "int", "a", "char"));
 
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentTypeIsIncorrect
     {
         [TestCase(↓2)]
@@ -355,6 +400,18 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesExactType
     {
         [TestCase(new int[0])]
+        public void Test(params int[] a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenMethodHasOnlyParamsAndArgumentImplicitlyConvertedToType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentImplicitlyConvertedToType
+    {
+        [TestCase(byte.MaxValue)]
         public void Test(params int[] a) { }
     }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);

@@ -1,9 +1,7 @@
-using System.Linq;
-using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
 using NUnit.Framework;
 
-[assembly: MetadataReferences(typeof(Assert), typeof(object), typeof(Task), typeof(Enumerable))]
+[assembly: TransitiveMetadataReferences(typeof(Assert))]
 
 namespace NUnit.Analyzers.Tests
 {

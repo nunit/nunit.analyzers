@@ -180,16 +180,27 @@ namespace NUnit.Analyzers.TestCaseUsage
                 TypeInfo sourceTypeInfo = model.GetTypeInfo(attributeArgument.Expression);
                 ITypeSymbol argumentType = sourceTypeInfo.Type;
 
-
-                var argumentTypeMatchesParameterType = attributeArgument.CanAssignTo(methodParameterType, model);
+                var argumentTypeMatchesParameterType = attributeArgument.CanAssignTo(
+                    methodParameterType,
+                    model,
+                    allowImplicitConversion: true,
+                    allowEnumToUnderlyingTypeConversion: true);
 
                 if (methodParameterParamsType == null && argumentTypeMatchesParameterType)
                     continue;
 
-                if (methodParameterParamsType != null &&
-                    (attributeArgument.CanAssignTo(methodParameterParamsType, model) ||
-                        (argumentTypeMatchesParameterType && (argumentType != null || !methodParameterParamsType.IsValueType))))
+                if (methodParameterParamsType != null)
+                {
+                    var argumentTypeMatchesElementType = attributeArgument.CanAssignTo(
+                        methodParameterParamsType,
+                        model,
+                        allowImplicitConversion: true,
+                        allowEnumToUnderlyingTypeConversion: true);
+
+                    if (argumentTypeMatchesElementType ||
+                        (argumentTypeMatchesParameterType && (argumentType != null || !methodParameterParamsType.IsValueType)))
                     continue;
+                }
                 
                 context.ReportDiagnostic(Diagnostic.Create(parameterTypeMismatch,
                     attributeArgument.GetLocation(),

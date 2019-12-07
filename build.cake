@@ -1,5 +1,3 @@
-#tool nuget:?package=NUnit.ConsoleRunner&version=3.10.0
-
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 //////////////////////////////////////////////////////////////////////
@@ -27,15 +25,15 @@ var PROJECT_DIR = Context.Environment.WorkingDirectory.FullPath + "/";
 var SRC_DIR = PROJECT_DIR + "src/";
 var PACKAGE_DIR = PROJECT_DIR + "package/" + configuration;
 
-var PLAYGROUND_OUTPUT_DIR = SRC_DIR + "nunit.analyzers.playground/bin/";
 var ANALYZERS_TESTS_OUTPUT_DIR = SRC_DIR + "nunit.analyzers.tests/bin/";
 var ANALYZERS_OUTPUT_DIR = SRC_DIR + "nunit.analyzers/bin/";
 
 // Solution
 var SOLUTION_FILE = PROJECT_DIR + "src/nunit.analyzers.sln";
 
-// Test Assembly
-var TEST_FILE = ANALYZERS_TESTS_OUTPUT_DIR + configuration + "/net461/nunit.analyzers.tests.dll";
+// Projects
+var ANALYZER_PROJECT = SRC_DIR + "nunit.analyzers/nunit.analyzers.csproj";
+var TEST_PROJECT = SRC_DIR + "nunit.analyzers.tests/nunit.analyzers.tests.csproj";
 
 // Package sources for nuget restore
 var PACKAGE_SOURCE = new string[]
@@ -90,7 +88,6 @@ Setup(context =>
 Task("Clean")
     .Does(() =>
     {
-        CleanDirectory(PLAYGROUND_OUTPUT_DIR);
         CleanDirectory(ANALYZERS_TESTS_OUTPUT_DIR);
         CleanDirectory(ANALYZERS_OUTPUT_DIR);
     });
@@ -103,9 +100,9 @@ Task("Clean")
 Task("RestorePackages")
     .Does(() =>
     {
-        NuGetRestore(SOLUTION_FILE, new NuGetRestoreSettings
+        DotNetCoreRestore(SOLUTION_FILE, new DotNetCoreRestoreSettings 
         {
-            Source = PACKAGE_SOURCE,
+            Sources = PACKAGE_SOURCE,
         });
     });
 
@@ -117,13 +114,12 @@ Task("Build")
     .IsDependentOn("RestorePackages")
     .Does(() =>
     {
-        MSBuild(SOLUTION_FILE, new MSBuildSettings()
-            .SetConfiguration(configuration)
-            .SetVerbosity(Verbosity.Minimal)
-            .SetNodeReuse(false)
-            .SetPlatformTarget(PlatformTarget.MSIL)
-            .SetMSBuildPlatform(MSBuildPlatform.x86)
-        );
+        DotNetCoreBuild(ANALYZER_PROJECT, new DotNetCoreBuildSettings
+        {
+            Configuration = configuration,
+            Verbosity = DotNetCoreVerbosity.Minimal,
+            NoRestore = true
+        });
     });
 
 //////////////////////////////////////////////////////////////////////
@@ -134,13 +130,18 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
     {
-        NUnit3(TEST_FILE);
+        DotNetCoreTest(TEST_PROJECT, new DotNetCoreTestSettings
+        {
+            Configuration = configuration,
+            Logger = "trx",
+            VSTestReportPath = "TestResult.xml",
+        });
     })
     .Finally(() =>
     {
         if (AppVeyor.IsRunningOnAppVeyor)
         {
-            AppVeyor.UploadTestResults("TestResult.xml", AppVeyorTestResultsType.NUnit3);
+            AppVeyor.UploadTestResults("TestResult.xml", AppVeyorTestResultsType.MSTest);
         }
     });
 

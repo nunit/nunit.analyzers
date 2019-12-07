@@ -67,6 +67,37 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             defaultSeverity: DiagnosticSeverity.Warning,
             description: ClassicModelUsageAnalyzerConstants.AreSameDescription);
 
+        private static readonly DiagnosticDescriptor isNullDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.IsNullUsage,
+            title: ClassicModelUsageAnalyzerConstants.IsNullTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.IsNullMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.IsNullDescription);
+
+        private static readonly DiagnosticDescriptor nullDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.NullUsage,
+            title: ClassicModelUsageAnalyzerConstants.NullTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.NullMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.NullDescription);
+
+        private static readonly DiagnosticDescriptor isNotNullDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.IsNotNullUsage,
+            title: ClassicModelUsageAnalyzerConstants.IsNotNullTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.IsNotNullMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.IsNotNullDescription);
+
+        private static readonly DiagnosticDescriptor notNullDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.NotNullUsage,
+            title: ClassicModelUsageAnalyzerConstants.NotNullTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.NotNullMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.NotNullDescription);
 
         private static readonly ImmutableDictionary<string, DiagnosticDescriptor> name =
           new Dictionary<string, DiagnosticDescriptor>
@@ -77,7 +108,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
               { NameOfAssertFalse, falseDescriptor },
               { NameOfAssertAreEqual, areEqualDescriptor },
               { NameOfAssertAreNotEqual, areNotEqualDescriptor },
-              { NameOfAssertAreSame, areSameDescriptor }
+              { NameOfAssertAreSame, areSameDescriptor },
+              { NameOfAssertIsNull, isNullDescriptor },
+              { NameOfAssertNull, nullDescriptor },
+              { NameOfAssertIsNotNull, isNotNullDescriptor },
+              { NameOfAssertNotNull, notNullDescriptor }
           }.ToImmutableDictionary();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.name.Values.ToImmutableArray();
