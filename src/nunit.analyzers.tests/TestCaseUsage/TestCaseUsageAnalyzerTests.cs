@@ -211,7 +211,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "a"));
+                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "int", "a", "char"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentTypeIsIncorrect
@@ -227,7 +227,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "a"));
+                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "<null>", "a", "char"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentPassesNullToValueType
@@ -354,7 +354,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "a"));
+                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "int", "a", "string[]"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect
@@ -370,7 +370,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "a"));
+                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "<null>", "a", "int[]"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType
@@ -379,6 +379,42 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void Test(params int[] a) { }
     }");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToReferenceType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToReferenceType
+    {
+        [TestCase(null)]
+        public void Test(params string[] a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesExactType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesExactType
+    {
+        [TestCase(new int[0])]
+        public void Test(params int[] a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenMethodHasOnlyParamsAndArgumentImplicitlyConvertedToType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentImplicitlyConvertedToType
+    {
+        [TestCase(byte.MaxValue)]
+        public void Test(params int[] a) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
         }
 
         [Test]
