@@ -155,6 +155,14 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
 
                     return keysMatching && CanBeAssertedForEquality(actualValueType, expectedValueType, semanticModel, checkedTypes);
                 }
+
+                // KeyValuePairs
+                if (IsKeyValuePair(namedActualType, actualFullName, out actualKeyType, out actualValueType)
+                    && IsKeyValuePair(namedExpectedType, expectedFullName, out expectedKeyType, out expectedValueType))
+                {
+                    return CanBeAssertedForEquality(actualKeyType, expectedKeyType, semanticModel, checkedTypes)
+                        && CanBeAssertedForEquality(actualValueType, expectedValueType, semanticModel, checkedTypes);
+                }
             }
 
             // IEnumerables
@@ -172,24 +180,13 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                 }
             }
 
-            if (namedActualType != null && namedExpectedType != null)
-            {
-                // KeyValuePairs
-                if (IsKeyValuePair(namedActualType, actualFullName, out var actualKeyType, out var actualValueType)
-                    && IsKeyValuePair(namedExpectedType, expectedFullName, out var expectedKeyType, out var expectedValueType))
-                {
-                    return CanBeAssertedForEquality(actualKeyType, expectedKeyType, semanticModel, checkedTypes)
-                        && CanBeAssertedForEquality(actualValueType, expectedValueType, semanticModel, checkedTypes);
-                }
+            // Streams
+            if (IsStream(actualType, actualFullName) && IsStream(expectedType, expectedFullName))
+                return true;
 
-                // Streams
-                if (IsStream(actualType, actualFullName) && IsStream(expectedType, expectedFullName))
-                    return true;
-
-                // IEquatables
-                if (IsIEquatable(actualType, expectedType) || IsIEquatable(expectedType, actualType))
-                    return true;
-            }
+            // IEquatables
+            if (IsIEquatable(actualType, expectedType) || IsIEquatable(expectedType, actualType))
+                return true;
 
             return false;
         }

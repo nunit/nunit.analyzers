@@ -111,8 +111,8 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
                 }
                 else
                 {
-                    // Exception - if it implements only non-generic IEnumerable.
-                    // It might be invalid, but we cannot determine that
+                    // If it implements only non-generic IEnumerable,
+                    // IgnoreCase usage might be invalid, but we cannot determine that.
                     return true;
                 }
             }

@@ -207,7 +207,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
     class B { }
 
     public class Tests
-    {{
+    {
         [Test]
         public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
         {
