@@ -81,7 +81,7 @@ namespace NUnit.Analyzers.Helpers
             // Has.Property("Prop"),
             // Has.Property("Prop").Not
 
-            // Take expressions until found expression returning constraint
+            // Take expressions until found expression returns a constraint
             return GetExpressionsFromCurrentPart(constraintExpression)
                 .Where(e => e is MemberAccessExpressionSyntax || e is InvocationExpressionSyntax)
                 .TakeWhile(e => !ReturnsConstraint(e, semanticModel));

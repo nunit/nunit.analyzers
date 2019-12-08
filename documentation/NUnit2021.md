@@ -26,11 +26,11 @@ var bar = new Bar();
 Assert.That(foo, Is.EqualTo(bar));
 ```
 
-There is no way that instances of types Foo and Bar could be considered equal, therefore such assertion will always fail.
+There is no way that instances of types `Foo` and `Bar` could be considered equal, therefore such assertion will always fail.
 
 ## How to fix violations
 
-Fix your assertion (i.e. fix actual or expected value, or choose another constraint)
+Fix your assertion (i.e. fix actual or expected value, or choose another constraint).
 
 <!-- start generated config severity -->
 ## Configure severity
