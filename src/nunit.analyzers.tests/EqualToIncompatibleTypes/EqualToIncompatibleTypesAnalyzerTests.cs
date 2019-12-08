@@ -263,6 +263,17 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
+        public void AnalyzeWhenActualIsMatchingNullableType()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+            int? actual = 5;
+            string expected = ""5"";
+            Assert.That(actual, Is.EqualTo(expected));");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void NoDiagnosticWhenActualAndExpectedTypesAreSame()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
@@ -593,6 +604,39 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
             var testCode = TestUtility.WrapInTestMethod(@"
             var actual = ""abc"";
             Assert.That(actual, Has.Property(""Length"").EqualTo(3));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticWhenActualIsMatchingNullableType()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+            int? actual = 5;
+            int expected = 5;
+            Assert.That(actual, Is.EqualTo(5));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticWhenExpectedIsMatchingNullableType()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+            int actual = 5;
+            int? expected = 5;
+            Assert.That(actual, Is.EqualTo(expected));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticWhenActualIsNumericNullableType()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+            int? actual = 5;
+            double expected = 5.0;
+            Assert.That(actual, Is.EqualTo(expected));");
 
             AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
         }

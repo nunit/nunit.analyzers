@@ -102,7 +102,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
             var conversion = semanticModel.Compilation.ClassifyConversion(actualType, expectedType);
 
             // Same Type possible
-            if (conversion.IsIdentity || conversion.IsReference)
+            if (conversion.IsIdentity || conversion.IsReference || conversion.IsNullable)
                 return true;
 
             // Numeric conversion
