@@ -263,12 +263,12 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void AnalyzeWhenActualIsMatchingNullableType()
+        public void AnalyzeWhenActualIsIncompatibleNullableType()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
             int? actual = 5;
             string expected = ""5"";
-            Assert.That(actual, Is.EqualTo(expected));");
+            Assert.That(actual, Is.EqualTo(↓expected));");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
