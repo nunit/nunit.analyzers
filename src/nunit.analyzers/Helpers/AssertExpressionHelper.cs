@@ -152,7 +152,7 @@ namespace NUnit.Analyzers.Helpers
             SemanticModel semanticModel,
             CancellationToken cancellationToken)
         {
-            // Each constraint part might have only one method, accepting 'expected' argument.
+            // Each constraint part will at most have one method accepting an 'expected' argument.
 
             foreach (var expression in GetExpressionsFromCurrentPart(constraintPart).Reverse())
             {
