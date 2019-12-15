@@ -20,9 +20,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var fix = new IsNullAndNullClassicModelAssertUsageCodeFix();
             var ids = fix.FixableDiagnosticIds.ToImmutableArray();
 
-            Assert.That(ids.Length, Is.EqualTo(2), nameof(ids.Length));
-            Assert.That(ids, Contains.Item(AnalyzerIdentifiers.IsNullUsage), nameof(AnalyzerIdentifiers.IsNullUsage));
-            Assert.That(ids, Contains.Item(AnalyzerIdentifiers.NullUsage), nameof(AnalyzerIdentifiers.NullUsage));
+            Assert.That(ids, Is.EquivalentTo(new[] { AnalyzerIdentifiers.IsNullUsage, AnalyzerIdentifiers.NullUsage }));
         }
 
         [TestCase("IsNull", AnalyzerIdentifiers.IsNullUsage)]

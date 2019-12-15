@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.MessageFormat)}");
                 Assert.That(diagnostic.Category, Is.EqualTo(Categories.Assertion),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
-                Assert.That(diagnostic.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Warning),
+                Assert.That(diagnostic.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Warning).Or.EqualTo(DiagnosticSeverity.Info),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.DefaultSeverity)}");
             }
 

@@ -16,7 +16,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             title: ClassicModelUsageAnalyzerConstants.IsTrueTitle,
             messageFormat: ClassicModelUsageAnalyzerConstants.IsTrueMessage,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.IsTrueDescription);
 
         private static readonly DiagnosticDescriptor trueDescriptor = DiagnosticDescriptorCreator.Create(
@@ -24,7 +24,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             title: ClassicModelUsageAnalyzerConstants.TrueTitle,
             messageFormat: ClassicModelUsageAnalyzerConstants.TrueMessage,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.TrueDescription);
 
         private static readonly DiagnosticDescriptor isFalseDescriptor = DiagnosticDescriptorCreator.Create(
@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             title: ClassicModelUsageAnalyzerConstants.IsFalseTitle,
             messageFormat: ClassicModelUsageAnalyzerConstants.IsFalseMessage,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.IsFalseDescription);
 
         private static readonly DiagnosticDescriptor falseDescriptor = DiagnosticDescriptorCreator.Create(
@@ -40,7 +40,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             title: ClassicModelUsageAnalyzerConstants.FalseTitle,
             messageFormat: ClassicModelUsageAnalyzerConstants.FalseMessage,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.FalseDescription);
 
         private static readonly DiagnosticDescriptor areEqualDescriptor = DiagnosticDescriptorCreator.Create(
@@ -72,7 +72,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             title: ClassicModelUsageAnalyzerConstants.IsNullTitle,
             messageFormat: ClassicModelUsageAnalyzerConstants.IsNullMessage,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.IsNullDescription);
 
         private static readonly DiagnosticDescriptor nullDescriptor = DiagnosticDescriptorCreator.Create(
@@ -80,7 +80,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             title: ClassicModelUsageAnalyzerConstants.NullTitle,
             messageFormat: ClassicModelUsageAnalyzerConstants.NullMessage,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.NullDescription);
 
         private static readonly DiagnosticDescriptor isNotNullDescriptor = DiagnosticDescriptorCreator.Create(
@@ -88,7 +88,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             title: ClassicModelUsageAnalyzerConstants.IsNotNullTitle,
             messageFormat: ClassicModelUsageAnalyzerConstants.IsNotNullMessage,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.IsNotNullDescription);
 
         private static readonly DiagnosticDescriptor notNullDescriptor = DiagnosticDescriptorCreator.Create(
@@ -96,7 +96,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             title: ClassicModelUsageAnalyzerConstants.NotNullTitle,
             messageFormat: ClassicModelUsageAnalyzerConstants.NotNullMessage,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.NotNullDescription);
 
         private static readonly ImmutableDictionary<string, DiagnosticDescriptor> name =
