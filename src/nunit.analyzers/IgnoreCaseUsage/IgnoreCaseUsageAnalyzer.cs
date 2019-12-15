@@ -103,24 +103,18 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
                 return IsTypeSupported(namedType.TypeArguments[1], checkedTypes);
             }
 
-            var allInterfaces = namedType.AllInterfaces.ToList();
-
-            if (namedType.TypeKind == TypeKind.Interface)
-                allInterfaces.Add(namedType);
-
-            var iEnumerableInterface = allInterfaces.FirstOrDefault(i =>
-                i.GetFullMetadataName() == "System.Collections.Generic.IEnumerable`1");
-            var genericArgument = iEnumerableInterface?.TypeArguments.FirstOrDefault();
-
-            if (genericArgument != null)
-                return IsTypeSupported(genericArgument, checkedTypes);
-
-            // Exception - if it implements only non-generic IEnumerable.
-            // It might be invalid, but we cannot determine that
-            if (genericArgument == null && allInterfaces.Any(i =>
-                i.GetFullMetadataName() == "System.Collections.IEnumerable"))
+            if (namedType.IsIEnumerable(out var elementType))
             {
-                return true;
+                if (elementType != null)
+                {
+                    return IsTypeSupported(elementType, checkedTypes);
+                }
+                else
+                {
+                    // If it implements only non-generic IEnumerable,
+                    // IgnoreCase usage might be invalid, but we cannot determine that.
+                    return true;
+                }
             }
 
             return false;

@@ -177,7 +177,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnoticWhenActualAndExpectedTypesAreSame()
+        public void NoDiagnosticWhenActualAndExpectedTypesAreSame()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = """";
@@ -188,7 +188,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnoticWhenActualAndExpectedTypesAreSame_WithNegatedAssert()
+        public void NoDiagnosticWhenActualAndExpectedTypesAreSame_WithNegatedAssert()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = """";
@@ -199,7 +199,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnoticWhenActualAndExpectedTypesAreSame_WithLambdaActualValue()
+        public void NoDiagnosticWhenActualAndExpectedTypesAreSame_WithLambdaActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var expected = """";
@@ -209,7 +209,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnoticWhenActualAndExpectedTypesAreSame_WithFuncActualValue()
+        public void NoDiagnosticWhenActualAndExpectedTypesAreSame_WithFuncActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 Func<string> actual = () => """";
@@ -220,7 +220,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnoticWhenActualAndExpectedTypesAreSame_WithLocalFunctionActualValue()
+        public void NoDiagnosticWhenActualAndExpectedTypesAreSame_WithLocalFunctionActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 string actual() => """";
@@ -231,7 +231,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnoticWhenActualAndExpectedTypesAreSame_WithTaskActualValue()
+        public void NoDiagnosticWhenActualAndExpectedTypesAreSame_WithTaskActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = Task.FromResult("""");
@@ -242,7 +242,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnoticWhenExpectedTypeInheritsActual()
+        public void NoDiagnosticWhenExpectedTypeInheritsActual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A { }
@@ -251,7 +251,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
     public class Tests
     {
         [Test]
-        public void NoDiagnoticWhenExpectedTypeInheritsActual()
+        public void NoDiagnosticWhenExpectedTypeInheritsActual()
         {
             var actual = new A();
             var expected = new B();
@@ -263,7 +263,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnoticWhenActualTypeInheritsExpected()
+        public void NoDiagnosticWhenActualTypeInheritsExpected()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A : B { }
@@ -272,7 +272,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
     public class Tests
     {
         [Test]
-        public void NoDiagnoticWhenActualTypeInheritsExpected()
+        public void NoDiagnosticWhenActualTypeInheritsExpected()
         {
             var actual = new A();
             var expected = new B();
@@ -284,7 +284,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnoticWhenActualIsDynamic()
+        public void NoDiagnosticWhenActualIsDynamic()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 dynamic actual = 1;
@@ -295,7 +295,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnoticWhenExpectedIsDynamic()
+        public void NoDiagnosticWhenExpectedIsDynamic()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = """";
@@ -306,7 +306,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnoticForOtherConstraints()
+        public void NoDiagnosticForOtherConstraints()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A { }
@@ -315,7 +315,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
     public class Tests
     {
         [Test]
-        public void NoDiagnoticForOtherConstraints()
+        public void NoDiagnosticForOtherConstraints()
         {
             var actual = new A();
             var expected = new B();
