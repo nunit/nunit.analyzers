@@ -4,7 +4,7 @@
 | Topic    | Value
 | :--      | :--
 | Id       | NUnit2002
-| Severity | Warning
+| Severity | Info
 | Enabled  | True
 | Category | Assertion
 | Code     | [ClassicModelAssertUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/ClassicModelAssertUsage/ClassicModelAssertUsageAnalyzer.cs)
@@ -12,11 +12,11 @@
 
 ## Description
 
-Consider using the constraint model, Assert.That(expr, Is.False), instead of the classic model, Assert.IsFalse(expr).
+Consider using the constraint model, `Assert.That(expr, Is.False)`, instead of the classic model, `Assert.IsFalse(expr)`.
 
 ## Motivation
 
-The classic Assert model contains less flexibility and reads more clumsy than the constraint model,
+The classic Assert model contains less flexibility than the constraint model,
 so this analyzer marks usages of `Assert.IsFalse` from the classic Assert model.
 
 ```csharp

@@ -20,9 +20,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var fix = new IsTrueAndTrueClassicModelAssertUsageCodeFix();
             var ids = fix.FixableDiagnosticIds.ToImmutableArray();
 
-            Assert.That(ids.Length, Is.EqualTo(2), nameof(ids.Length));
-            Assert.That(ids, Contains.Item(AnalyzerIdentifiers.IsTrueUsage), nameof(AnalyzerIdentifiers.IsTrueUsage));
-            Assert.That(ids, Contains.Item(AnalyzerIdentifiers.TrueUsage), nameof(AnalyzerIdentifiers.TrueUsage));
+            Assert.That(ids, Is.EquivalentTo(new[] { AnalyzerIdentifiers.IsTrueUsage, AnalyzerIdentifiers.TrueUsage }));
         }
 
         [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]

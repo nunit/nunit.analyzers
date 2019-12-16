@@ -12,11 +12,11 @@
 
 ## Description
 
-Consider using the constraint model, Assert.That(expr2, Is.Not.EqualTo(expr1)), instead of the classic model, Assert.AreNotEqual(expr1, expr2).
+Consider using the constraint model, `Assert.That(expr2, Is.Not.EqualTo(expr1))`, instead of the classic model, `Assert.AreNotEqual(expr1, expr2)`.
 
 ## Motivation
 
-The classic Assert model contains less flexibility and reads more clumsy than the constraint model,
+The classic Assert model, `Assert.AreNotEqual(expected, actual)`, makes it easy to mix the `expected` and the `actual` parameter,
 so this analyzer marks usages of `Assert.AreNotEqual` from the classic Assert model.
 
 ```csharp

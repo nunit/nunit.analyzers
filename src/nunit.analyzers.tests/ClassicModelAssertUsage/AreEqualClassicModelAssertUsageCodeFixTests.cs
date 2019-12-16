@@ -22,8 +22,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var fix = new AreEqualClassicModelAssertUsageCodeFix();
             var ids = fix.FixableDiagnosticIds.ToImmutableArray();
 
-            Assert.That(ids.Length, Is.EqualTo(1), nameof(ids.Length));
-            Assert.That(ids[0], Is.EqualTo(AnalyzerIdentifiers.AreEqualUsage), nameof(AnalyzerIdentifiers.AreEqualUsage));
+            Assert.That(ids, Is.EquivalentTo(new[] { AnalyzerIdentifiers.AreEqualUsage }));
         }
 
         [Test]

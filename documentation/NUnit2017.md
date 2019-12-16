@@ -4,7 +4,7 @@
 | Topic    | Value
 | :--      | :--
 | Id       | NUnit2017
-| Severity | Warning
+| Severity | Info
 | Enabled  | True
 | Category | Assertion
 | Code     | [ClassicModelAssertUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/ClassicModelAssertUsage/ClassicModelAssertUsageAnalyzer.cs)
@@ -12,12 +12,12 @@
 
 ## Description
 
-Consider using the constraint model, Assert.That(expr, Is.Null), instead of the classic model, Assert.IsNull(expr).
+Consider using the constraint model, `Assert.That(expr, Is.Null)`, instead of the classic model, `Assert.IsNull(expr)`.
 
 ## Motivation
 
-The classic Assert model contains less flexibility and reads more clumsy than the constraint model,
-so this analyzer marks usages of `Assert.Null` from the classic Assert model.
+The classic Assert model contains less flexibility than the constraint model,
+so this analyzer marks usages of `Assert.IsNull` from the classic Assert model.
 
 ```csharp
 [Test]
