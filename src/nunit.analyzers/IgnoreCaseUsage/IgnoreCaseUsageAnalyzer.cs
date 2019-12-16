@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
+using NUnit.Analyzers.Syntax;
 
 namespace NUnit.Analyzers.IgnoreCaseUsage
 {
@@ -35,31 +36,35 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
         protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
             InvocationExpressionSyntax invocationSyntax, IMethodSymbol methodSymbol)
         {
-            if (!AssertExpressionHelper.TryGetActualAndConstraintExpressions(invocationSyntax,
+            if (!AssertExpressionHelper.TryGetActualAndConstraintExpressions(invocationSyntax, context.SemanticModel,
                 out _, out var constraintExpression))
             {
                 return;
             }
 
-            var constraintParts = AssertExpressionHelper.SplitConstraintByOperators(constraintExpression);
-
-            foreach (var constraintPart in constraintParts)
+            foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
                 // e.g. Is.EqualTo(expected).IgnoreCase
                 // Need to check type of expected 
-                if (constraintPart is MemberAccessExpressionSyntax ignoreCaseAccessSyntax)
+
+                var ignoreCaseSuffix = constraintPart.GetSuffixExpression(NunitFrameworkConstants.NameOfIgnoreCase) as MemberAccessExpressionSyntax;
+
+                if (ignoreCaseSuffix == null)
+                    continue;
+
+                if (!SupportedIsMethods.Contains(constraintPart.GetConstraintName()))
+                    continue;
+
+                var expectedType = GetExpectedTypeSymbol(constraintPart, context);
+
+                if (expectedType == null)
+                    return;
+
+                if (!IsTypeSupported(expectedType))
                 {
-                    var expectedType = GetExpectedTypeSymbol(ignoreCaseAccessSyntax, context);
-
-                    if (expectedType == null)
-                        return;
-
-                    if (!IsTypeSupported(expectedType))
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            descriptor,
-                            ignoreCaseAccessSyntax.Name.GetLocation()));
-                    }
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        descriptor,
+                        ignoreCaseSuffix.Name.GetLocation()));
                 }
             }
         }
@@ -120,26 +125,14 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
             return false;
         }
 
-        private static ITypeSymbol GetExpectedTypeSymbol(MemberAccessExpressionSyntax ignoreCaseAccessSyntax, SyntaxNodeAnalysisContext context)
+        private static ITypeSymbol GetExpectedTypeSymbol(ConstraintPartExpression constraintPart, SyntaxNodeAnalysisContext context)
         {
-            if (ignoreCaseAccessSyntax?.Name.ToString() != NunitFrameworkConstants.NameOfIgnoreCase)
-                return null;
-
-            if (!(ignoreCaseAccessSyntax.Expression is InvocationExpressionSyntax invocationExpression))
-                return null;
-
-            if (!(invocationExpression.Expression is MemberAccessExpressionSyntax isMethodAccess
-                && SupportedIsMethods.Contains(isMethodAccess.Name.ToString())))
-            {
-                return null;
-            }
-
-            var expectedArgument = invocationExpression.ArgumentList.Arguments.FirstOrDefault();
+            var expectedArgument = constraintPart.GetExpectedArgumentExpression();
 
             if (expectedArgument == null)
                 return null;
 
-            var expectedType = context.SemanticModel.GetTypeInfo(expectedArgument.Expression).Type;
+            var expectedType = context.SemanticModel.GetTypeInfo(expectedArgument).Type;
 
             if (expectedType == null || expectedType is IErrorTypeSymbol)
                 return null;

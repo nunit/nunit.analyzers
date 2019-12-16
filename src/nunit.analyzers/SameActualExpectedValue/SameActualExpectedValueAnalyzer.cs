@@ -24,16 +24,17 @@ namespace NUnit.Analyzers.SameActualExpectedValue
         protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
             InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
         {
-            if (!AssertExpressionHelper.TryGetActualAndConstraintExpressions(assertExpression,
+            if (!AssertExpressionHelper.TryGetActualAndConstraintExpressions(assertExpression, context.SemanticModel,
                 out var actualExpression, out var constraintExpression))
             {
                 return;
             }
 
-            var expectedExpressions = AssertExpressionHelper.GetExpectedArguments(constraintExpression, context.SemanticModel, context.CancellationToken);
-            var sameExpectedExpressions = expectedExpressions.Where(e => e.expectedArgument.IsEquivalentTo(actualExpression));
+            var sameExpectedExpressions = constraintExpression.ConstraintParts
+                .Select(part => part.GetExpectedArgumentExpression())
+                .Where(e => actualExpression.IsEquivalentTo(e));
 
-            foreach (var (expected, _) in sameExpectedExpressions)
+            foreach (var expected in sameExpectedExpressions)
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     descriptor,

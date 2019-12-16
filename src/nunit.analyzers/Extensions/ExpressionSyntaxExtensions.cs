@@ -7,19 +7,19 @@ namespace NUnit.Analyzers.Extensions
 {
     internal static class ExpressionSyntaxExtensions
     {
-        public static List<ExpressionSyntax> SplitCallChain(this ExpressionSyntax expression)
+        public static IEnumerable<ExpressionSyntax> SplitCallChain(this ExpressionSyntax expression)
         {
             // e.g. 'Is.EqualTo(str).IgnoreCase'
             // returns 'Is', 'Is.EqualTo(str)', 'Is.EqualTo(str).IgnoreCase'
 
-            var parts = new List<ExpressionSyntax>();
+            var parts = new Stack<ExpressionSyntax>();
             var currentNode = expression;
 
             while (currentNode != null)
             {
                 if (currentNode is InvocationExpressionSyntax invocation)
                 {
-                    parts.Add(invocation);
+                    parts.Push(invocation);
                     currentNode = invocation.Expression;
                 }
                 else if (currentNode is MemberAccessExpressionSyntax memberAccess)
@@ -29,16 +29,14 @@ namespace NUnit.Analyzers.Extensions
                     // We don't need 'Is.EqualTo' and 'Is.EqualTo(str)' separately, 
                     // therefore add memberAccess only if parent is not invocation syntax
                     if (!(memberAccess.Parent is InvocationExpressionSyntax))
-                        parts.Add(memberAccess);
+                        parts.Push(memberAccess);
                 }
                 else
                 {
-                    parts.Add(currentNode);
+                    parts.Push(currentNode);
                     currentNode = null;
                 }
             }
-
-            parts.Reverse();
 
             return parts;
         }
