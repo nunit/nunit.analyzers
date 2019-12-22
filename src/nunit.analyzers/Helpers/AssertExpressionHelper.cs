@@ -101,6 +101,44 @@ namespace NUnit.Analyzers.Helpers
         }
 
         /// <summary>
+        /// Returns true if <paramref name="constraintExpression"/> has any conditional or variable expressions.
+        /// </summary>
+        public static bool HasUnknownExpressions(ExpressionSyntax constraintExpression, SemanticModel semanticModel)
+        {
+            var expressionParts = constraintExpression.SplitCallChain();
+
+            foreach (var part in expressionParts)
+            {
+                switch (part)
+                {
+                    // e.g. '.EqualTo(1)'
+                    case InvocationExpressionSyntax _:
+                    // e.g. '.IgnoreCase'
+                    case MemberAccessExpressionSyntax _:
+                        break;
+
+                    // Identifier is allowed only if it is type Symbol
+                    // e.g. 'Is', 'Has', etc.
+                    case IdentifierNameSyntax _:
+                        var symbol = semanticModel.GetSymbolInfo(part).Symbol;
+
+                        if (!(symbol is ITypeSymbol typeSymbol)
+                            || typeSymbol.ContainingAssembly.Name != NunitFrameworkConstants.NUnitFrameworkAssemblyName)
+                        {
+                            return true;
+                        }
+
+                        break;
+
+                    default:
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// If provided constraint expression is combined using &, | operators - return multiple split expressions.
         /// Otherwise - returns single <paramref name="constraintExpression"/> value
         /// </summary>
