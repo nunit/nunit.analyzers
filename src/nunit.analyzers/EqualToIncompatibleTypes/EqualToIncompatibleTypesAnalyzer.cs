@@ -37,7 +37,9 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
 
             foreach (var constraintPartExpression in AssertExpressionHelper.SplitConstraintByOperators(constraintExpression))
             {
-                if (HasIncompatibleSuffixes(constraintPartExpression, semanticModel) || HasCustomEqualityComparer(constraintPartExpression, semanticModel))
+                if (HasIncompatibleSuffixes(constraintPartExpression, semanticModel)
+                    || HasCustomEqualityComparer(constraintPartExpression, semanticModel)
+                    || AssertExpressionHelper.HasUnknownExpressions(constraintPartExpression, semanticModel))
                 {
                     continue;
                 }

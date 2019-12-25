@@ -640,5 +640,26 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
 
             AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
         }
+
+        [Test]
+        public void NoDiagnosticWhenConditionalPrefixPresent()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+            bool shouldBePresent = true;
+            Assert.That(new[] { 1, 2, 3 }, (shouldBePresent ? Has.Some : Has.None).EqualTo(2));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticWhenVariableIsPartOfConstraint()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+            bool shouldBePresent = true;
+            var constraintModifier = (shouldBePresent ? Has.Some : Has.None);
+            Assert.That(new[] { 1, 2, 3 }, constraintModifier.EqualTo(2));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
     }
 }

@@ -27,12 +27,13 @@ namespace NUnit.Analyzers.Extensions
                     currentNode = memberAccess.Expression;
 
                     // We don't need 'Is.EqualTo' and 'Is.EqualTo(str)' separately, 
-                    // therefore add memberAccess only if parent is member access as well
-                    if (memberAccess.Parent is MemberAccessExpressionSyntax)
+                    // therefore add memberAccess only if parent is not invocation syntax
+                    if (!(memberAccess.Parent is InvocationExpressionSyntax))
                         parts.Add(memberAccess);
                 }
                 else
                 {
+                    parts.Add(currentNode);
                     currentNode = null;
                 }
             }
