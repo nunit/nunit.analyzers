@@ -66,7 +66,7 @@ namespace NUnit.Analyzers.Syntax
         /// <summary>
         /// If constraint expression is combined using And, Or, With properties - 
         /// returns parts of expression split by those properties.
-        /// /// </summary>
+        /// </summary>
         private static IEnumerable<List<ExpressionSyntax>>
             SplitConstraintByConstraintExpressionOperators(ExpressionSyntax constraintExpression)
         {

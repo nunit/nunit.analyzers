@@ -37,7 +37,7 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
 
             var sameAsExpectedExpressions = constraintExpression.ConstraintParts
                 .Where(part => part.GetConstraintName() == NunitFrameworkConstants.NameOfIsSameAs
-                    && part.GetConstraintMethod()?.ReturnType?.GetFullMetadataName() == NunitFrameworkConstants.FullNameOfSameAsConstraint)
+                    && part.GetConstraintMethod()?.ReturnType.GetFullMetadataName() == NunitFrameworkConstants.FullNameOfSameAsConstraint)
                 .Select(part => part.GetExpectedArgumentExpression())
                 .Where(ex => ex != null)
                 .ToArray();

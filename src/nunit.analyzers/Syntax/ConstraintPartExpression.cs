@@ -100,6 +100,9 @@ namespace NUnit.Analyzers.Syntax
 
         public IMethodSymbol GetConstraintMethod()
         {
+            if (this.RootExpression == null)
+                return null;
+
             var symbol = this.semanticModel.GetSymbolInfo(this.RootExpression).Symbol;
             return symbol as IMethodSymbol;
         }
