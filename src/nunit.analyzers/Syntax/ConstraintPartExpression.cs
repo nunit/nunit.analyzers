@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 
@@ -143,6 +144,35 @@ namespace NUnit.Analyzers.Syntax
             return false;
         }
 
+        public TextSpan Span
+        {
+            get
+            {
+                int spanStart;
+
+                // If constraint is built using And/Or methods, and current part is second operand, 
+                // we need to cut after operator.
+                if (this.expressions[0] is MemberAccessExpressionSyntax memberAccess)
+                    spanStart = memberAccess.Name.Span.Start;
+                else if (this.expressions[0] is InvocationExpressionSyntax invocation && invocation.Expression is MemberAccessExpressionSyntax invokedMemberAccess)
+                    spanStart = invokedMemberAccess.Name.Span.Start;
+                else
+                    spanStart = this.expressions[0].SpanStart;
+
+                var spanEnd = this.expressions.Last().Span.End;
+
+                return TextSpan.FromBounds(spanStart, spanEnd);
+            }
+        }
+
+        public override string ToString()
+        {
+            var lastExpression = this.expressions.Last();
+            var startDelta = this.Span.Start - lastExpression.Span.Start;
+
+            return lastExpression.ToString().Substring(startDelta);
+        }
+
         private static string GetName(ExpressionSyntax expression)
         {
             switch (expression)
@@ -164,7 +194,9 @@ namespace NUnit.Analyzers.Syntax
 
             if (symbol is IMethodSymbol methodSymbol)
             {
-                returnType = methodSymbol.ReturnType;
+                returnType = methodSymbol.MethodKind == MethodKind.Constructor
+                    ? methodSymbol.ContainingType
+                    : methodSymbol.ReturnType;
             }
             else if (symbol is IPropertySymbol propertySymbol)
             {
