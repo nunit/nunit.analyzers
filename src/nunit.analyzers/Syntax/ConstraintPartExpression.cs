@@ -8,6 +8,10 @@ using NUnit.Analyzers.Extensions;
 
 namespace NUnit.Analyzers.Syntax
 {
+    /// <summary>
+    /// Represents part of <see cref="ConstraintExpression"/>, which is combined with others with 
+    /// binary operators ('&', '|')  or methods ('And', 'Or', 'With').
+    /// </summary>
     internal class ConstraintPartExpression
     {
         private readonly SemanticModel semanticModel;
@@ -19,6 +23,10 @@ namespace NUnit.Analyzers.Syntax
             this.semanticModel = semanticModel;
         }
 
+        /// <summary>
+        /// Constraint modifiers that go before actual constraint,
+        /// e.g. 'Not', 'Some', 'Property(propertyName)', etc.
+        /// </summary>
         public IEnumerable<ExpressionSyntax> PrefixExpressions
         {
             get
@@ -35,6 +43,9 @@ namespace NUnit.Analyzers.Syntax
             }
         }
 
+        /// <summary>
+        /// Actual constraint, e.g. 'EqualTo(expected)', 'Null', 'Empty', etc.
+        /// </summary>
         public ExpressionSyntax RootExpression
         {
             get
@@ -43,6 +54,10 @@ namespace NUnit.Analyzers.Syntax
             }
         }
 
+        /// <summary>
+        /// Constraint modifiers that go after actual constraint,
+        /// e.g. 'IgnoreCase', 'After(timeout)', 'Within(range)', etc.
+        /// </summary>
         public IEnumerable<ExpressionSyntax> SuffixExpressions
         {
             get
@@ -58,6 +73,9 @@ namespace NUnit.Analyzers.Syntax
             }
         }
 
+        /// <summary>
+        /// Returns prefixes names (i.e. method or property names).
+        /// </summary>
         public string[] GetPrefixesNames()
         {
             return this.PrefixExpressions
@@ -66,6 +84,9 @@ namespace NUnit.Analyzers.Syntax
                 .ToArray();
         }
 
+        /// <summary>
+        /// Returns suffixes names (i.e. method or property names).
+        /// </summary>
         public string[] GetSuffixesNames()
         {
             return this.SuffixExpressions
@@ -74,21 +95,34 @@ namespace NUnit.Analyzers.Syntax
                 .ToArray();
         }
 
+        /// <summary>
+        /// Returns prefix expression with provided name, or null, if none found.
+        /// </summary>
         public ExpressionSyntax GetPrefixExpression(string name)
         {
             return this.PrefixExpressions.FirstOrDefault(p => GetName(p) == name);
         }
 
+        /// <summary>
+        /// Returns suffix expression with provided name, or null, if none found.
+        /// </summary>
         public ExpressionSyntax GetSuffixExpression(string name)
         {
             return this.SuffixExpressions.FirstOrDefault(s => GetName(s) == name);
         }
 
+        /// <summary>
+        /// Returns constraint root name (i.e. method or property names).
+        /// </summary>
         public string GetConstraintName()
         {
             return GetName(this.RootExpression);
         }
 
+        /// <summary>
+        /// If constraint root is method, returns expected argument expression.
+        /// Otherwise - null.
+        /// </summary>
         public ExpressionSyntax GetExpectedArgumentExpression()
         {
             if (this.RootExpression is InvocationExpressionSyntax invocationExpression)
@@ -99,6 +133,10 @@ namespace NUnit.Analyzers.Syntax
             return null;
         }
 
+        /// <summary>
+        /// If constraint root is method, return corresponding <see cref="IMethodSymbol"/>.
+        /// Otherwise (e.g. if constraint root is property) - null.
+        /// </summary>
         public IMethodSymbol GetConstraintMethod()
         {
             if (this.RootExpression == null)

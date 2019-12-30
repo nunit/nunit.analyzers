@@ -7,6 +7,9 @@ using NUnit.Analyzers.Extensions;
 
 namespace NUnit.Analyzers.Syntax
 {
+    /// <summary>
+    /// Represents assert constraint expression, e.g. 'Is.EqualTo(expected)', 'Is.Not.Null & Is.Not.Empty'
+    /// </summary>
     internal class ConstraintExpression
     {
         private readonly ExpressionSyntax expression;
