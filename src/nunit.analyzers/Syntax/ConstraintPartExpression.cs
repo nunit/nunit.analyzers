@@ -17,6 +17,10 @@ namespace NUnit.Analyzers.Syntax
         private readonly SemanticModel semanticModel;
         private readonly IReadOnlyList<ExpressionSyntax> expressions;
 
+        private IReadOnlyCollection<ExpressionSyntax> prefixes;
+        private ExpressionSyntax root;
+        private IReadOnlyCollection<ExpressionSyntax> suffixes;
+
         public ConstraintPartExpression(IReadOnlyList<ExpressionSyntax> expressions, SemanticModel semanticModel)
         {
             this.expressions = expressions;
@@ -27,19 +31,15 @@ namespace NUnit.Analyzers.Syntax
         /// Constraint modifiers that go before actual constraint,
         /// e.g. 'Not', 'Some', 'Property(propertyName)', etc.
         /// </summary>
-        public IEnumerable<ExpressionSyntax> PrefixExpressions
+        public IReadOnlyCollection<ExpressionSyntax> PrefixExpressions
         {
             get
             {
-                // e.g. Has.Property("Prop").Not.EqualTo("1")
-                // -->
-                // Has.Property("Prop"),
-                // Has.Property("Prop").Not
-
-                // Take expressions until found expression returns a constraint
-                return this.expressions
-                    .Where(e => e is MemberAccessExpressionSyntax || e is InvocationExpressionSyntax)
-                    .TakeWhile(e => !ReturnsConstraint(e, this.semanticModel));
+                if (this.prefixes == null)
+                {
+                    (this.prefixes, this.root, this.suffixes) = SplitExpressions(this.expressions, this.semanticModel);
+                }
+                return this.prefixes;
             }
         }
 
@@ -50,7 +50,11 @@ namespace NUnit.Analyzers.Syntax
         {
             get
             {
-                return this.expressions.FirstOrDefault(e => ReturnsConstraint(e, this.semanticModel));
+                if (this.root == null)
+                {
+                    (this.prefixes, this.root, this.suffixes) = SplitExpressions(this.expressions, this.semanticModel);
+                }
+                return this.root;
             }
         }
 
@@ -58,18 +62,15 @@ namespace NUnit.Analyzers.Syntax
         /// Constraint modifiers that go after actual constraint,
         /// e.g. 'IgnoreCase', 'After(timeout)', 'Within(range)', etc.
         /// </summary>
-        public IEnumerable<ExpressionSyntax> SuffixExpressions
+        public IReadOnlyCollection<ExpressionSyntax> SuffixExpressions
         {
             get
             {
-                // e.g. Has.Property("Prop").Not.EqualTo("1").IgnoreCase
-                // -->
-                // Has.Property("Prop").Not.EqualTo("1").IgnoreCase
-
-                // Skip all suffixes, and first expression returning constraint (e.g. 'EqualTo("1")')
-                return this.expressions
-                    .SkipWhile(e => !ReturnsConstraint(e, this.semanticModel))
-                    .Skip(1);
+                if (this.suffixes == null)
+                {
+                    (this.prefixes, this.root, this.suffixes) = SplitExpressions(this.expressions, this.semanticModel);
+                }
+                return this.suffixes;
             }
         }
 
@@ -222,6 +223,45 @@ namespace NUnit.Analyzers.Syntax
                 default:
                     return null;
             }
+        }
+
+        private static (IReadOnlyCollection<ExpressionSyntax> prefixes, ExpressionSyntax root, IReadOnlyCollection<ExpressionSyntax> suffixes)
+            SplitExpressions(IReadOnlyList<ExpressionSyntax> expressions, SemanticModel semanticModel)
+        {
+            var prefixes = new List<ExpressionSyntax>();
+            ExpressionSyntax root = null;
+            var suffixes = new List<ExpressionSyntax>();
+
+            var rootFound = false;
+
+            foreach (var expression in expressions)
+            {
+                // Skip identifier (e.g. 'Is', 'Has', 'Does')
+                if (expression is IdentifierNameSyntax)
+                    continue;
+
+                if (!rootFound)
+                {
+                    if (!ReturnsConstraint(expression, semanticModel))
+                    {
+                        // Prefixes - take expressions until found expression that returns a constraint.
+                        prefixes.Add(expression);
+                    }
+                    else
+                    {
+                        // Root - first expression that returns a constraint.
+                        root = expression;
+                        rootFound = true;
+                    }
+                }
+                else
+                {
+                    // Suffixes - everything after root.
+                    suffixes.Add(expression);
+                }
+            }
+
+            return (prefixes, root, suffixes);
         }
 
         private static bool ReturnsConstraint(ExpressionSyntax expressionSyntax, SemanticModel semanticModel)
