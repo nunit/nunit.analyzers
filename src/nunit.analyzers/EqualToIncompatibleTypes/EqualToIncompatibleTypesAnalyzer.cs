@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
+using NUnit.Analyzers.Syntax;
 
 namespace NUnit.Analyzers.EqualToIncompatibleTypes
 {
@@ -29,29 +30,30 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
             var cancellationToken = context.CancellationToken;
             var semanticModel = context.SemanticModel;
 
-            if (!AssertExpressionHelper.TryGetActualAndConstraintExpressions(assertExpression,
+            if (!AssertExpressionHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
                 out var actualExpression, out var constraintExpression))
             {
                 return;
             }
 
-            foreach (var constraintPartExpression in AssertExpressionHelper.SplitConstraintByOperators(constraintExpression))
+            foreach (var constraintPartExpression in constraintExpression.ConstraintParts)
             {
-                if (HasIncompatibleSuffixes(constraintPartExpression, semanticModel)
-                    || HasCustomEqualityComparer(constraintPartExpression, semanticModel)
-                    || AssertExpressionHelper.HasUnknownExpressions(constraintPartExpression, semanticModel))
+                if (HasIncompatiblePrefixes(constraintPartExpression)
+                    || HasCustomEqualityComparer(constraintPartExpression)
+                    || constraintPartExpression.HasUnknownExpressions())
+                    continue;
+
+                var constraintMethod = constraintPartExpression.GetConstraintMethod();
+
+                if (constraintMethod?.Name != NunitFrameworkConstants.NameOfIsEqualTo
+                    || constraintMethod.ReturnType?.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfEqualToConstraint)
                 {
                     continue;
                 }
 
-                var equalToExpectedExpressions = AssertExpressionHelper
-                    .GetExpectedArguments(constraintPartExpression, semanticModel, cancellationToken)
-                    .Where(ex => ex.constraintMethod.Name == NunitFrameworkConstants.NameOfIsEqualTo
-                        && ex.constraintMethod.ReturnType.GetFullMetadataName() == NunitFrameworkConstants.FullNameOfEqualToConstraint)
-                    .Select(ex => ex.expectedArgument)
-                    .ToArray();
+                var expectedArgumentExpression = constraintPartExpression.GetExpectedArgumentExpression();
 
-                if (equalToExpectedExpressions.Length == 0)
+                if (expectedArgumentExpression == null)
                     continue;
 
                 var actualTypeInfo = semanticModel.GetTypeInfo(actualExpression, cancellationToken);
@@ -61,38 +63,30 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                 if (actualType == null || actualType.TypeKind == TypeKind.Error)
                     continue;
 
-                foreach (var expectedArgumentExpression in equalToExpectedExpressions)
-                {
-                    var expectedType = semanticModel.GetTypeInfo(expectedArgumentExpression, cancellationToken).Type;
+                var expectedType = semanticModel.GetTypeInfo(expectedArgumentExpression, cancellationToken).Type;
 
-                    if (expectedType != null
-                        && expectedType.TypeKind != TypeKind.Error
-                        && !CanBeAssertedForEquality(actualType, expectedType, semanticModel))
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            descriptor,
-                            expectedArgumentExpression.GetLocation()));
-                    }
+                if (expectedType != null
+                    && expectedType.TypeKind != TypeKind.Error
+                    && !CanBeAssertedForEquality(actualType, expectedType, semanticModel))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        descriptor,
+                        expectedArgumentExpression.GetLocation()));
                 }
             }
         }
 
-        private static bool HasIncompatibleSuffixes(ExpressionSyntax constraintPartExpression, SemanticModel semanticModel)
+        private static bool HasIncompatiblePrefixes(ConstraintPartExpression constraintPartExpression)
         {
             // Currently only 'Not' suffix supported, as all other suffixes change actual type for constraint
             // (e.g. All, Some, Property, Count, etc.)
 
-            return !AssertExpressionHelper.GetConstraintExpressionPrefixes(constraintPartExpression, semanticModel)
-                .All(s => s is MemberAccessExpressionSyntax memberAccessExpression
-                    && memberAccessExpression.Name.Identifier.Text == NunitFrameworkConstants.NameOfIsNot);
+            return constraintPartExpression.GetPrefixesNames().Any(s => s != NunitFrameworkConstants.NameOfIsNot);
         }
 
-        private static bool HasCustomEqualityComparer(ExpressionSyntax constraintPartExpression, SemanticModel semanticModel)
+        private static bool HasCustomEqualityComparer(ConstraintPartExpression constraintPartExpression)
         {
-            return AssertExpressionHelper.GetConstraintExpressionSuffixes(constraintPartExpression, semanticModel)
-                .Any(suffix => suffix is InvocationExpressionSyntax invocationSyntax
-                    && invocationSyntax.Expression is MemberAccessExpressionSyntax memberAccessSyntax
-                    && memberAccessSyntax.Name.Identifier.Text == NunitFrameworkConstants.NameOfUsing);
+            return constraintPartExpression.GetSuffixesNames().Any(s => s == NunitFrameworkConstants.NameOfUsing);
         }
 
         private static bool CanBeAssertedForEquality(

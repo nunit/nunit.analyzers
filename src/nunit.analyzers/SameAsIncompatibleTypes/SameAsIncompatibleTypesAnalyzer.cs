@@ -29,17 +29,17 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
             var cancellationToken = context.CancellationToken;
             var semanticModel = context.SemanticModel;
 
-            if (!AssertExpressionHelper.TryGetActualAndConstraintExpressions(assertExpression,
+            if (!AssertExpressionHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
                 out var actualExpression, out var constraintExpression))
             {
                 return;
             }
 
-            var sameAsExpectedExpressions = AssertExpressionHelper
-                .GetExpectedArguments(constraintExpression, semanticModel, cancellationToken)
-                .Where(ex => ex.constraintMethod.Name == NunitFrameworkConstants.NameOfIsSameAs
-                    && ex.constraintMethod.ReturnType.GetFullMetadataName() == NunitFrameworkConstants.FullNameOfSameAsConstraint)
-                .Select(ex => ex.expectedArgument)
+            var sameAsExpectedExpressions = constraintExpression.ConstraintParts
+                .Where(part => part.GetConstraintName() == NunitFrameworkConstants.NameOfIsSameAs
+                    && part.GetConstraintMethod()?.ReturnType.GetFullMetadataName() == NunitFrameworkConstants.FullNameOfSameAsConstraint)
+                .Select(part => part.GetExpectedArgumentExpression())
+                .Where(ex => ex != null)
                 .ToArray();
 
             if (sameAsExpectedExpressions.Length == 0)
