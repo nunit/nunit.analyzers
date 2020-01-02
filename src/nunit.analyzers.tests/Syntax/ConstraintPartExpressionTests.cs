@@ -192,7 +192,7 @@ namespace NUnit.Analyzers.Tests.Syntax
         }
 
         [Test]
-        public async Task GetExprectedArgumentExpression()
+        public async Task GetExpectedArgumentExpression()
         {
             var constraintPart = await CreateConstraintPart("Has.Exactly(2).Items.EqualTo(new[] {1, 2, 3}).After(1)");
 
