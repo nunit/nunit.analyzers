@@ -63,6 +63,11 @@ namespace NUnit.Analyzers.Extensions
             }
         }
 
+        internal static IEnumerable<ISymbol> GetAllMembers(this ITypeSymbol @this)
+        {
+            return @this.GetMembers().Concat(@this.GetAllBaseTypes().SelectMany(t => t.GetMembers()));
+        }
+
         internal static bool IsTypeParameterAndDeclaredOnMethod(this ITypeSymbol typeSymbol)
             => typeSymbol.TypeKind == TypeKind.TypeParameter &&
                (typeSymbol as ITypeParameterSymbol)?.DeclaringMethod != null;

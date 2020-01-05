@@ -22,7 +22,7 @@ namespace NUnit.Analyzers.Syntax
             {
                 if (this.constraintParts == null)
                 {
-                    this.constraintParts = SplitConstraintByOperators(this.expression)
+                    this.constraintParts = SplitConstraintByOperators(this.expression, this.semanticModel)
                         .Select(part => new ConstraintPartExpression(part, this.semanticModel))
                         .ToArray();
                 }
@@ -40,10 +40,10 @@ namespace NUnit.Analyzers.Syntax
         /// <summary>
         /// Split constraints into parts by binary ('&' or '|')  or constraint expression operators
         /// </summary>
-        private static IEnumerable<List<ExpressionSyntax>> SplitConstraintByOperators(ExpressionSyntax constraintExpression)
+        private static IEnumerable<List<ExpressionSyntax>> SplitConstraintByOperators(ExpressionSyntax constraintExpression, SemanticModel semanticModel)
         {
             return SplitConstraintByBinaryOperators(constraintExpression)
-                .SelectMany(SplitConstraintByConstraintExpressionOperators);
+                .SelectMany(e => SplitConstraintByConstraintExpressionOperators(e, semanticModel));
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace NUnit.Analyzers.Syntax
         /// returns parts of expression split by those properties.
         /// </summary>
         private static IEnumerable<List<ExpressionSyntax>>
-            SplitConstraintByConstraintExpressionOperators(ExpressionSyntax constraintExpression)
+            SplitConstraintByConstraintExpressionOperators(ExpressionSyntax constraintExpression, SemanticModel semanticModel)
         {
             // e.g. Does.Contain(a).IgnoreCase.And.Contain(b).And.Not.Null
             // --> 
@@ -85,7 +85,7 @@ namespace NUnit.Analyzers.Syntax
 
             foreach (var callChainPart in callChainParts)
             {
-                if (IsConstraintExpressionOperator(callChainPart))
+                if (IsConstraintExpressionOperator(callChainPart, semanticModel))
                 {
                     yield return currentPartExpressions;
                     currentPartExpressions = new List<ExpressionSyntax>();
@@ -102,17 +102,29 @@ namespace NUnit.Analyzers.Syntax
         /// <summary>
         /// Returns true if current expression is And/Or/With constraint operator
         /// </summary>
-        private static bool IsConstraintExpressionOperator(ExpressionSyntax expressionSyntax)
+        private static bool IsConstraintExpressionOperator(ExpressionSyntax expressionSyntax, SemanticModel semanticModel)
         {
             if (expressionSyntax is MemberAccessExpressionSyntax memberAccessExpression)
             {
                 var name = memberAccessExpression.Name.Identifier.Text;
 
                 if (name == NunitFrameworkConstants.NameOfConstraintExpressionAnd
-                    || name == NunitFrameworkConstants.NameOfConstraintExpressionOr
-                    || name == NunitFrameworkConstants.NameOfConstraintExpressionWith)
+                    || name == NunitFrameworkConstants.NameOfConstraintExpressionOr)
                 {
                     return true;
+                }
+                else if (name == NunitFrameworkConstants.NameOfConstraintExpressionWith)
+                {
+                    // 'With' is allowed only when defined on Constraint (in this case it is 'And' equivalent).
+                    // When defined in ConstraintExpression - it's NOP, and is not expression operator.
+                    var symbol = semanticModel.GetSymbolInfo(memberAccessExpression).Symbol;
+
+                    if (symbol is IPropertySymbol propertySymbol
+                        && propertySymbol.ContainingType.Name == NunitFrameworkConstants.NameOfConstraint)
+                    {
+                        return true;
+                    }
+
                 }
             }
 

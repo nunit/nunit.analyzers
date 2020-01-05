@@ -61,6 +61,17 @@ namespace NUnit.Analyzers.Tests.Syntax
                 "Is.Not.Empty", "Is.EqualTo(new [] { \"1\" }).IgnoreCase", "EquivalentTo(new[] { \"1\", \"2\" })" }));
         }
 
+        [Test]
+        public async Task WhenWithIsNop()
+        {
+            var constraintExpression = await CreateConstraintExpression(
+                "Has.Property(\"Foo\").With.Property(\"Bar\").EqualTo(\"Baz\")");
+
+            var constraintParts = constraintExpression.ConstraintParts.Select(p => p.ToString());
+            Assert.That(constraintParts, Is.EqualTo(new[] {
+                "Has.Property(\"Foo\").With.Property(\"Bar\").EqualTo(\"Baz\")" }));
+        }
+
         private static async Task<ConstraintExpression> CreateConstraintExpression(string expressionString)
         {
             var testCode = TestUtility.WrapInTestMethod($"Assert.That(1, {expressionString});");

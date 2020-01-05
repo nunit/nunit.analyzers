@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
             var cancellationToken = context.CancellationToken;
             var semanticModel = context.SemanticModel;
 
-            if (!AssertExpressionHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
+            if (!AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
                 out var actualExpression, out var constraintExpression))
             {
                 return;
@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
 
                 var actualTypeInfo = semanticModel.GetTypeInfo(actualExpression, cancellationToken);
                 var actualType = actualTypeInfo.Type ?? actualTypeInfo.ConvertedType;
-                actualType = UnwrapActualType(actualType);
+                actualType = AssertHelper.UnwrapActualType(actualType);
 
                 if (actualType == null || actualType.TypeKind == TypeKind.Error)
                     continue;
@@ -185,17 +185,6 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                 return true;
 
             return false;
-        }
-
-        private static ITypeSymbol UnwrapActualType(ITypeSymbol actualType)
-        {
-            if (actualType is INamedTypeSymbol namedType && namedType.DelegateInvokeMethod != null)
-                actualType = namedType.DelegateInvokeMethod.ReturnType;
-
-            if (actualType.IsAwaitable(out var awaitReturnType))
-                actualType = awaitReturnType;
-
-            return actualType;
         }
 
         private static bool IsStream(ITypeSymbol typeSymbol, string fullName)

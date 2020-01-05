@@ -14,6 +14,8 @@ namespace NUnit.Analyzers.Tests.Syntax
         {
             var constraintPart = await CreateConstraintPart("Does.Contain(1)");
 
+            Assert.That(constraintPart.HelperClassIdentifier.ToString(), Is.EqualTo("Does"));
+
             Assert.That(constraintPart.SuffixExpressions, Is.Empty);
             Assert.That(constraintPart.PrefixExpressions, Is.Empty);
 
@@ -24,6 +26,8 @@ namespace NUnit.Analyzers.Tests.Syntax
         public async Task ConstraintPropertyWithNoPrefixesAndSuffixes()
         {
             var constraintPart = await CreateConstraintPart("Is.Null");
+
+            Assert.That(constraintPart.HelperClassIdentifier.ToString(), Is.EqualTo("Is"));
 
             Assert.That(constraintPart.SuffixExpressions, Is.Empty);
             Assert.That(constraintPart.PrefixExpressions, Is.Empty);
@@ -36,6 +40,8 @@ namespace NUnit.Analyzers.Tests.Syntax
         {
             var constraintPart = await CreateConstraintPart("Has.Some.EqualTo(1)");
 
+            Assert.That(constraintPart.HelperClassIdentifier.ToString(), Is.EqualTo("Has"));
+
             Assert.That(constraintPart.SuffixExpressions, Is.Empty);
             Assert.That(constraintPart.RootExpression, IsInvocation("EqualTo(1)"));
 
@@ -47,6 +53,7 @@ namespace NUnit.Analyzers.Tests.Syntax
         {
             var constraintPart = await CreateConstraintPart("Has.Property(\"Prop\").EqualTo(2)");
 
+            Assert.That(constraintPart.HelperClassIdentifier.ToString(), Is.EqualTo("Has"));
             Assert.That(constraintPart.SuffixExpressions, Is.Empty);
             Assert.That(constraintPart.RootExpression, IsInvocation("EqualTo(2)"));
 
@@ -58,6 +65,7 @@ namespace NUnit.Analyzers.Tests.Syntax
         {
             var constraintPart = await CreateConstraintPart("Is.EqualTo(\"A\").IgnoreCase");
 
+            Assert.That(constraintPart.HelperClassIdentifier.ToString(), Is.EqualTo("Is"));
             Assert.That(constraintPart.PrefixExpressions, Is.Empty);
             Assert.That(constraintPart.RootExpression, IsInvocation("EqualTo(\"A\")"));
 
@@ -69,6 +77,7 @@ namespace NUnit.Analyzers.Tests.Syntax
         {
             var constraintPart = await CreateConstraintPart("Is.EqualTo(1).After(10)");
 
+            Assert.That(constraintPart.HelperClassIdentifier.ToString(), Is.EqualTo("Is"));
             Assert.That(constraintPart.PrefixExpressions, Is.Empty);
             Assert.That(constraintPart.RootExpression, IsInvocation("EqualTo(1)"));
 
@@ -81,11 +90,13 @@ namespace NUnit.Analyzers.Tests.Syntax
             var constraintParts = await CreateConstraintParts("Is.Empty.Or.Some.EqualTo(\"A\").IgnoreCase");
 
             var firstPart = constraintParts[0];
+            Assert.That(firstPart.HelperClassIdentifier.ToString(), Is.EqualTo("Is"));
             Assert.That(firstPart.PrefixExpressions, Is.Empty);
             Assert.That(firstPart.RootExpression, IsMemberAccess("Empty"));
             Assert.That(firstPart.SuffixExpressions, Is.Empty);
 
             var secondPart = constraintParts[1];
+            Assert.That(secondPart.HelperClassIdentifier, Is.Null);
             Assert.That(secondPart.PrefixExpressions.Single(), IsMemberAccess("Some"));
             Assert.That(secondPart.RootExpression, IsInvocation("EqualTo(\"A\")"));
             Assert.That(secondPart.SuffixExpressions.Single(), IsMemberAccess("IgnoreCase"));
@@ -96,6 +107,7 @@ namespace NUnit.Analyzers.Tests.Syntax
         {
             var constraintPart = await CreateConstraintPart("new NUnit.Framework.Constraints.EqualConstraint(1)");
 
+            Assert.That(constraintPart.HelperClassIdentifier, Is.Null);
             Assert.That(constraintPart.PrefixExpressions, Is.Empty);
             Assert.That(constraintPart.SuffixExpressions, Is.Empty);
 
@@ -149,6 +161,14 @@ namespace NUnit.Analyzers.Tests.Syntax
             var constraintPart = await CreateConstraintPart("Is.EqualTo(new[] {1, 2}).IgnoreCase");
 
             Assert.That(constraintPart.GetConstraintName(), Is.EqualTo("EqualTo"));
+        }
+
+        [Test]
+        public async Task GetHelperClassNameReturnsIdentifierName()
+        {
+            var constraintPart = await CreateConstraintPart("Is.EqualTo(1).IgnoreCase");
+
+            Assert.That(constraintPart.GetHelperClassName(), Is.EqualTo("Is"));
         }
 
         [Test]

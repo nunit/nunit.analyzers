@@ -27,6 +27,14 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfDoesStartWith = "StartWith";
         public const string NameOfDoesEndWith = "EndWith";
 
+        public const string NameOfHas = "Has";
+        public const string NameOfHasProperty = "Property";
+        public const string NameOfHasCount = "Count";
+        public const string NameOfHasLength = "Length";
+        public const string NameOfHasMessage = "Message";
+        public const string NameOfHasInnerException = "InnerException";
+        public const string NameOfHasNo = "No";
+
         public const string NameOfAssert = "Assert";
         public const string NameOfAssertIsTrue = "IsTrue";
         public const string NameOfAssertTrue = "True";

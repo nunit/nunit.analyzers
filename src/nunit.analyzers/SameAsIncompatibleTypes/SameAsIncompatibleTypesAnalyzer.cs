@@ -29,7 +29,7 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
             var cancellationToken = context.CancellationToken;
             var semanticModel = context.SemanticModel;
 
-            if (!AssertExpressionHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
+            if (!AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
                 out var actualExpression, out var constraintExpression))
             {
                 return;
