@@ -78,7 +78,7 @@ namespace NUnit.Analyzers.MissingProperty
                     context.ReportDiagnostic(Diagnostic.Create(
                         descriptor,
                         prefix.GetLocation(),
-                        actualSymbol.Name, propertyName));
+                        actualSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat), propertyName));
                 }
             }
         }
