@@ -661,5 +661,15 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
 
             AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
         }
+
+        [Test]
+        public void NoDiagnosticWhenObjectComparedToInt()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                object actual = 3;
+                Assert.That(actual, Is.EqualTo(3));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
     }
 }
