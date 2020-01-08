@@ -98,7 +98,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
             var conversion = semanticModel.Compilation.ClassifyConversion(actualType, expectedType);
 
             // Same Type possible
-            if (conversion.IsIdentity || conversion.IsReference || conversion.IsNullable)
+            if (conversion.IsIdentity || conversion.IsReference || conversion.IsNullable || conversion.IsBoxing || conversion.IsUnboxing)
                 return true;
 
             // Numeric conversion
