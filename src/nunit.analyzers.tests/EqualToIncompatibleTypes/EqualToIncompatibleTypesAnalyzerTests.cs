@@ -85,6 +85,48 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
+        public void AnalyzeWhenDifferentEnumsProvided()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+                enum EnumOne { A, B, C }
+                enum EnumTwo { A, B, C }
+
+                class TestClass
+                {
+                    [Test]
+                    public void EnumTest()
+                    {
+                        var actual = EnumOne.B;
+                        var expected = EnumTwo.B;
+                        Assert.That(actual, Is.EqualTo(↓expected));
+                    }
+                }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenDifferentNullableEnumsProvided()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+                enum EnumOne { A, B, C }
+                enum EnumTwo { A, B, C }
+
+                class TestClass
+                {
+                    [Test]
+                    public void EnumTest()
+                    {
+                        EnumOne? actual = EnumOne.B;
+                        EnumTwo expected = EnumTwo.B;
+                        Assert.That(actual, Is.EqualTo(↓expected));
+                    }
+                }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenIncompatibleTypesWithCyclicTypesProvided()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
@@ -403,6 +445,47 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
 
             AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
         }
+
+        [Test]
+        public void NoDiagnosticWhenSameEnumsProvided()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+                enum EnumOne { A, B, C }
+
+                class TestClass
+                {
+                    [Test]
+                    public void EnumTest()
+                    {
+                        var actual = EnumOne.B;
+                        var expected = EnumOne.B;
+                        Assert.That(actual, Is.EqualTo(expected));
+                    }
+                }");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticWhenSameNullableEnumsProvided()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+                enum EnumOne { A, B, C }
+
+                class TestClass
+                {
+                    [Test]
+                    public void EnumTest()
+                    {
+                        EnumOne? actual = EnumOne.B;
+                        EnumOne expected = EnumOne.B;
+                        Assert.That(actual, Is.EqualTo(expected));
+                    }
+                }");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
 
         [Test]
         public void NoDiagnosticForStreams()

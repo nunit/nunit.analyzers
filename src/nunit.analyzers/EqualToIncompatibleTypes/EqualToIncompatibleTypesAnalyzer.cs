@@ -95,11 +95,19 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
             SemanticModel semanticModel,
             ImmutableHashSet<(ITypeSymbol, ITypeSymbol)> checkedTypes = default(ImmutableHashSet<(ITypeSymbol, ITypeSymbol)>))
         {
+            if (actualType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+                actualType = ((INamedTypeSymbol)actualType).TypeArguments[0];
+
+            if (expectedType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+                expectedType = ((INamedTypeSymbol)expectedType).TypeArguments[0];
+
             var conversion = semanticModel.Compilation.ClassifyConversion(actualType, expectedType);
 
             // Same Type possible
-            if (conversion.IsIdentity || conversion.IsReference || conversion.IsNullable || conversion.IsBoxing || conversion.IsUnboxing)
+            if (conversion.IsIdentity || conversion.IsReference || conversion.IsBoxing || conversion.IsUnboxing)
+            {
                 return true;
+            }
 
             // Numeric conversion
             if (conversion.IsNumeric)
