@@ -36,7 +36,7 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
         protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
             InvocationExpressionSyntax invocationSyntax, IMethodSymbol methodSymbol)
         {
-            if (!AssertExpressionHelper.TryGetActualAndConstraintExpressions(invocationSyntax, context.SemanticModel,
+            if (!AssertHelper.TryGetActualAndConstraintExpressions(invocationSyntax, context.SemanticModel,
                 out _, out var constraintExpression))
             {
                 return;

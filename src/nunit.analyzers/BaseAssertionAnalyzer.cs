@@ -19,7 +19,7 @@ namespace NUnit.Analyzers
             if (!(context.Node is InvocationExpressionSyntax invocationSyntax))
                 return;
 
-            var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationSyntax).Symbol as IMethodSymbol;
+            var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationSyntax, context.CancellationToken).Symbol as IMethodSymbol;
 
             if (methodSymbol == null || !methodSymbol.ContainingType.IsAssert())
                 return;

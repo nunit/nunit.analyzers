@@ -17,6 +17,7 @@ namespace NUnit.Analyzers.Syntax
         private readonly SemanticModel semanticModel;
         private readonly IReadOnlyList<ExpressionSyntax> expressions;
 
+        private IdentifierNameSyntax helperClassIdentifier;
         private IReadOnlyCollection<ExpressionSyntax> prefixes;
         private ExpressionSyntax root;
         private IReadOnlyCollection<ExpressionSyntax> suffixes;
@@ -25,6 +26,22 @@ namespace NUnit.Analyzers.Syntax
         {
             this.expressions = expressions;
             this.semanticModel = semanticModel;
+        }
+
+        /// <summary>
+        /// Helper class used to access constraints,
+        /// e.g. 'Has', 'Is', 'Throws', 'Does', etc.
+        /// </summary>
+        public IdentifierNameSyntax HelperClassIdentifier
+        {
+            get
+            {
+                if (this.helperClassIdentifier == null)
+                {
+                    (this.helperClassIdentifier, this.prefixes, this.root, this.suffixes) = SplitExpressions(this.expressions, this.semanticModel);
+                }
+                return this.helperClassIdentifier;
+            }
         }
 
         /// <summary>
@@ -37,7 +54,7 @@ namespace NUnit.Analyzers.Syntax
             {
                 if (this.prefixes == null)
                 {
-                    (this.prefixes, this.root, this.suffixes) = SplitExpressions(this.expressions, this.semanticModel);
+                    (this.helperClassIdentifier, this.prefixes, this.root, this.suffixes) = SplitExpressions(this.expressions, this.semanticModel);
                 }
                 return this.prefixes;
             }
@@ -52,7 +69,7 @@ namespace NUnit.Analyzers.Syntax
             {
                 if (this.root == null)
                 {
-                    (this.prefixes, this.root, this.suffixes) = SplitExpressions(this.expressions, this.semanticModel);
+                    (this.helperClassIdentifier, this.prefixes, this.root, this.suffixes) = SplitExpressions(this.expressions, this.semanticModel);
                 }
                 return this.root;
             }
@@ -68,10 +85,15 @@ namespace NUnit.Analyzers.Syntax
             {
                 if (this.suffixes == null)
                 {
-                    (this.prefixes, this.root, this.suffixes) = SplitExpressions(this.expressions, this.semanticModel);
+                    (this.helperClassIdentifier, this.prefixes, this.root, this.suffixes) = SplitExpressions(this.expressions, this.semanticModel);
                 }
                 return this.suffixes;
             }
+        }
+
+        public string GetHelperClassName()
+        {
+            return this.HelperClassIdentifier?.GetName();
         }
 
         /// <summary>
@@ -80,7 +102,7 @@ namespace NUnit.Analyzers.Syntax
         public string[] GetPrefixesNames()
         {
             return this.PrefixExpressions
-                .Select(e => GetName(e))
+                .Select(e => e.GetName())
                 .Where(e => e != null)
                 .ToArray();
         }
@@ -91,7 +113,7 @@ namespace NUnit.Analyzers.Syntax
         public string[] GetSuffixesNames()
         {
             return this.SuffixExpressions
-                .Select(e => GetName(e))
+                .Select(e => e.GetName())
                 .Where(e => e != null)
                 .ToArray();
         }
@@ -101,7 +123,7 @@ namespace NUnit.Analyzers.Syntax
         /// </summary>
         public ExpressionSyntax GetPrefixExpression(string name)
         {
-            return this.PrefixExpressions.FirstOrDefault(p => GetName(p) == name);
+            return this.PrefixExpressions.FirstOrDefault(p => p.GetName() == name);
         }
 
         /// <summary>
@@ -109,7 +131,7 @@ namespace NUnit.Analyzers.Syntax
         /// </summary>
         public ExpressionSyntax GetSuffixExpression(string name)
         {
-            return this.SuffixExpressions.FirstOrDefault(s => GetName(s) == name);
+            return this.SuffixExpressions.FirstOrDefault(s => s.GetName() == name);
         }
 
         /// <summary>
@@ -117,7 +139,7 @@ namespace NUnit.Analyzers.Syntax
         /// </summary>
         public string GetConstraintName()
         {
-            return GetName(this.RootExpression);
+            return this.RootExpression.GetName();
         }
 
         /// <summary>
@@ -212,35 +234,26 @@ namespace NUnit.Analyzers.Syntax
             return lastExpression.ToString().Substring(startDelta);
         }
 
-        private static string GetName(ExpressionSyntax expression)
-        {
-            switch (expression)
-            {
-                case MemberAccessExpressionSyntax memberAccess:
-                    return memberAccess.Name.Identifier.Text;
-                case InvocationExpressionSyntax invocation:
-                    return GetName(invocation.Expression);
-                default:
-                    return null;
-            }
-        }
-
-        private static (IReadOnlyCollection<ExpressionSyntax> prefixes, ExpressionSyntax root, IReadOnlyCollection<ExpressionSyntax> suffixes)
+        private static (IdentifierNameSyntax identifier, IReadOnlyCollection<ExpressionSyntax> prefixes, ExpressionSyntax root, IReadOnlyCollection<ExpressionSyntax> suffixes)
             SplitExpressions(IReadOnlyList<ExpressionSyntax> expressions, SemanticModel semanticModel)
         {
+            IdentifierNameSyntax helperIdentifierName = null;
             var prefixes = new List<ExpressionSyntax>();
             ExpressionSyntax root = null;
             var suffixes = new List<ExpressionSyntax>();
 
             var rootFound = false;
 
-            foreach (var expression in expressions)
+            for (var i = 0; i < expressions.Count; i++)
             {
-                // Skip identifier (e.g. 'Is', 'Has', 'Does')
-                if (expression is IdentifierNameSyntax)
-                    continue;
+                var expression = expressions[i];
 
-                if (!rootFound)
+                if (i == 0 && expressions.Count > 1 && expression is IdentifierNameSyntax identifierSyntax)
+                {
+                    // HelperIdentifier - first identifier expression (e.g. Has, Is, etc)
+                    helperIdentifierName = identifierSyntax;
+                }
+                else if (!rootFound)
                 {
                     if (!ReturnsConstraint(expression, semanticModel))
                     {
@@ -261,7 +274,7 @@ namespace NUnit.Analyzers.Syntax
                 }
             }
 
-            return (prefixes, root, suffixes);
+            return (helperIdentifierName, prefixes, root, suffixes);
         }
 
         private static bool ReturnsConstraint(ExpressionSyntax expressionSyntax, SemanticModel semanticModel)

@@ -24,7 +24,7 @@ namespace NUnit.Analyzers.SameActualExpectedValue
         protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
             InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
         {
-            if (!AssertExpressionHelper.TryGetActualAndConstraintExpressions(assertExpression, context.SemanticModel,
+            if (!AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, context.SemanticModel,
                 out var actualExpression, out var constraintExpression))
             {
                 return;

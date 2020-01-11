@@ -66,5 +66,20 @@ namespace NUnit.Analyzers.Extensions
 
             return argument?.Expression;
         }
+
+        public static string GetName(this ExpressionSyntax expression)
+        {
+            switch (expression)
+            {
+                case MemberAccessExpressionSyntax memberAccess:
+                    return memberAccess.Name.Identifier.Text;
+                case InvocationExpressionSyntax invocation:
+                    return GetName(invocation.Expression);
+                case IdentifierNameSyntax identifierName:
+                    return identifierName.Identifier.Text;
+                default:
+                    return null;
+            }
+        }
     }
 }

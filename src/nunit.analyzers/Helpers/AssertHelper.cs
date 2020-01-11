@@ -1,11 +1,12 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Syntax;
 
 namespace NUnit.Analyzers.Helpers
 {
-    internal static class AssertExpressionHelper
+    internal static class AssertHelper
     {
         /// <summary>
         /// Get provided 'actual' and 'expression' arguments to Assert.That method
@@ -35,6 +36,18 @@ namespace NUnit.Analyzers.Helpers
 
                 return false;
             }
+        }
+
+        // Unwrap underlying type from delegate or awaitable.
+        public static ITypeSymbol UnwrapActualType(ITypeSymbol actualType)
+        {
+            if (actualType is INamedTypeSymbol namedType && namedType.DelegateInvokeMethod != null)
+                actualType = namedType.DelegateInvokeMethod.ReturnType;
+
+            if (actualType.IsAwaitable(out var awaitReturnType))
+                actualType = awaitReturnType;
+
+            return actualType;
         }
     }
 }
