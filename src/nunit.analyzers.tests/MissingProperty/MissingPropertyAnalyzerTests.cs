@@ -59,7 +59,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = 12345;
-                Assert.That(actual, Has.Property(""Whatever"").EqualTo(1));");
+                Assert.That(actual, ↓Has.Property(""Whatever"").EqualTo(1));");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -69,7 +69,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 int getActual() => 12345;
-                Assert.That(getActual, Has.Property(""Whatever"").EqualTo(1));");
+                Assert.That(getActual, ↓Has.Property(""Whatever"").EqualTo(1));");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -137,7 +137,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
         }
 
         [Test]
-        public void ValidWhenPropertyConstraintIsUsedWhenNoSuchInDelegateActual()
+        public void ValidWhenPropertyConstraintIsUsedForDelegateAndPropertyIsPresentInReturnType()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 string getActual() => ""12345"";
@@ -147,7 +147,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
         }
 
         [Test]
-        public void ValidWhenPropertyIsUsedForAbsenseVerification()
+        public void ValidWhenPropertyIsUsedForVerificationOfMissingProperty()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 string actual = ""321"";
@@ -157,7 +157,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
         }
 
         [Test]
-        public void ValidWhenCountIsUsedForAbsenseVerification()
+        public void ValidWhenCountIsUsedForAbsenceVerification()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 int actual = 321;
