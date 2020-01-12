@@ -61,7 +61,7 @@ Setup(context =>
             var branch = AppVeyor.Environment.Repository.Branch;
             var isPullRequest = AppVeyor.Environment.PullRequest.IsPullRequest;
 
-            packageVersion = version + "." + buildNumber;
+            packageVersion = version + "." + AppVeyor.Environment.Build.Number;
 
             if (branch == "master" && !isPullRequest)
             {
