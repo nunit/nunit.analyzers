@@ -10,11 +10,11 @@ var configuration = Argument("configuration", "Debug");
 //////////////////////////////////////////////////////////////////////
 
 var version = "0.1.0";
-var modifier = "";
 
 var isAppveyor = BuildSystem.IsRunningOnAppVeyor;
 var dbgSuffix = configuration == "Debug" ? "-dbg" : "";
-var packageVersion = version + modifier + dbgSuffix;
+var packageVersion = version;
+var packageVersionString = version + dbgSuffix;
 
 //////////////////////////////////////////////////////////////////////
 // DEFINE RUN CONSTANTS
@@ -48,37 +48,60 @@ Setup(context =>
 {
     if (BuildSystem.IsRunningOnAppVeyor)
     {
-        var buildNumber = AppVeyor.Environment.Build.Number.ToString("00000");
-        var branch = AppVeyor.Environment.Repository.Branch;
-        var isPullRequest = AppVeyor.Environment.PullRequest.IsPullRequest;
+        var tag = AppVeyor.Environment.Repository.Tag;
 
-        if (branch == "master" && !isPullRequest)
+        if (tag.IsTag)
         {
-            packageVersion = version + "-dev-" + buildNumber + dbgSuffix;
+            packageVersion = tag.Name;
+            packageVersionString = tag.Name;
         }
         else
         {
-            var suffix = "-ci-" + buildNumber + dbgSuffix;
+            var buildNumber = AppVeyor.Environment.Build.Number.ToString("00000");
+            var branch = AppVeyor.Environment.Repository.Branch;
+            var isPullRequest = AppVeyor.Environment.PullRequest.IsPullRequest;
 
-            if (isPullRequest)
-                suffix += "-pr-" + AppVeyor.Environment.PullRequest.Number;
-            else if (AppVeyor.Environment.Repository.Branch.StartsWith("release", StringComparison.OrdinalIgnoreCase))
-                suffix += "-pre-" + buildNumber;
+            packageVersion = version + "." + buildNumber;
+
+            if (branch == "master" && !isPullRequest)
+            {
+                packageVersionString = version + "-dev-" + buildNumber + dbgSuffix;
+            }
             else
-                suffix += "-" + branch;
+            {
+                var suffix = "-ci-" + buildNumber + dbgSuffix;
 
-            // Nuget limits "special version part" to 20 chars. Add one for the hyphen.
-            if (suffix.Length > 21)
-                suffix = suffix.Substring(0, 21);
+                if (isPullRequest)
+                    suffix += "-pr-" + AppVeyor.Environment.PullRequest.Number;
+                else if (AppVeyor.Environment.Repository.Branch.StartsWith("release", StringComparison.OrdinalIgnoreCase))
+                    suffix += "-pre-" + buildNumber;
+                else
+                    suffix += "-" + branch;
 
-            packageVersion = version + suffix;
+                // Nuget limits "special version part" to 20 chars. Add one for the hyphen.
+                if (suffix.Length > 21)
+                    suffix = suffix.Substring(0, 21);
+
+                packageVersionString = version + suffix;
+            }
         }
 
-        AppVeyor.UpdateBuildVersion(packageVersion);
+        AppVeyor.UpdateBuildVersion(packageVersionString);
     }
 
     // Executed BEFORE the first task.
-    Information("Building {0} version {1} of NUnit.Analyzers", configuration, packageVersion);
+    Information("Building {0} version \"{1}\" / {2} of NUnit.Analyzers", configuration, packageVersion, packageVersionString);
+
+    foreach(var assemblyInfo in GetFiles("./src/**/AssemblyInfo.cs"))
+    {
+        CreateAssemblyInfo(
+            assemblyInfo.ChangeExtension(".Generated.cs"),
+            new AssemblyInfoSettings
+            {
+                Version = packageVersion,
+                FileVersion = packageVersion
+            });
+    }
 });
 
 //////////////////////////////////////////////////////////////////////
@@ -156,7 +179,7 @@ Task("Pack")
     {
         NuGetPack("./src/nunit.analyzers/nunit.analyzers.nuspec", new NuGetPackSettings()
         {
-            Version = packageVersion,
+            Version = packageVersionString,
             OutputDirectory = PACKAGE_DIR,
             Properties = new Dictionary<string, string>()
             {

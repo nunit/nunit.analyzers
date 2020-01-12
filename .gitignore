@@ -284,3 +284,6 @@ $RECYCLE.BIN/
 # Build content directories
 CommentRemover.ConsoleApplication Output/
 CommentRemover.Task Output/
+
+# Generated Assembly info
+AssemblyInfo.Generated.cs
