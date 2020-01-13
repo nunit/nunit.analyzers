@@ -65,7 +65,11 @@ namespace NUnit.Analyzers.Extensions
 
         internal static IEnumerable<ISymbol> GetAllMembers(this ITypeSymbol @this)
         {
-            return @this.GetMembers().Concat(@this.GetAllBaseTypes().SelectMany(t => t.GetMembers()));
+            var inheritedMembers = @this.TypeKind == TypeKind.Interface
+                ? @this.AllInterfaces.SelectMany(i => i.GetMembers())
+                : @this.GetAllBaseTypes().SelectMany(t => t.GetMembers());
+
+            return @this.GetMembers().Concat(inheritedMembers);
         }
 
         internal static bool IsTypeParameterAndDeclaredOnMethod(this ITypeSymbol typeSymbol)
