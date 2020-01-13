@@ -86,6 +86,17 @@ namespace NUnit.Analyzers.Tests.MissingProperty
         }
 
         [Test]
+        public void ValidWhenHasCountIsUsedForIList()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                IList<int> actual = new [] {1, 2, 3}.Where(i => i > 1).ToList();
+                Assert.That(actual, Has.Count.EqualTo(2));",
+                additionalUsings: "using System.Linq; using System.Collections.Generic;");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void ValidWhenHasLengthIsUsedForArray()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
