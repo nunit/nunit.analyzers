@@ -60,14 +60,9 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                 var actualType = actualTypeInfo.Type ?? actualTypeInfo.ConvertedType;
                 actualType = AssertHelper.UnwrapActualType(actualType);
 
-                if (actualType == null || actualType.TypeKind == TypeKind.Error)
-                    continue;
-
                 var expectedType = semanticModel.GetTypeInfo(expectedArgumentExpression, cancellationToken).Type;
 
-                if (expectedType != null
-                    && expectedType.TypeKind != TypeKind.Error
-                    && !CanBeAssertedForEquality(actualType, expectedType, semanticModel))
+                if (!CanBeAssertedForEquality(actualType, expectedType, semanticModel))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         descriptor,
@@ -93,8 +88,17 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
             ITypeSymbol actualType,
             ITypeSymbol expectedType,
             SemanticModel semanticModel,
-            ImmutableHashSet<(ITypeSymbol, ITypeSymbol)> checkedTypes = default(ImmutableHashSet<(ITypeSymbol, ITypeSymbol)>))
+            ImmutableHashSet<(ITypeSymbol, ITypeSymbol)> checkedTypes = default)
         {
+            if (actualType == null
+                || actualType.TypeKind == TypeKind.Error
+                || expectedType == null
+                || expectedType.TypeKind == TypeKind.Error)
+            {
+                // Can't tell anything specific if type is wrong.
+                return true;
+            }
+
             if (actualType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
                 actualType = ((INamedTypeSymbol)actualType).TypeArguments[0];
 

@@ -754,5 +754,49 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
 
             AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
         }
+
+        [Test]
+        public void NoDiagnosticWhenExpectedIsErrorType()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = 3;
+                var expected = HaveNoIdea();
+                Assert.That(actual, Is.EqualTo(expected));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticWhenActualIsErrorType()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = HaveNoIdea();
+                var expected = 3;
+                Assert.That(actual, Is.EqualTo(expected));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticWhenActualIsErrorTypeArray()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = new[] { HaveNoIdea() };
+                var expected = new[] { 3 };
+                Assert.That(actual, Is.EqualTo(expected));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticWhenExpectedIsErrorTypeArray()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = new[] { 3 };
+                var expected = HaveNoIdea();
+                Assert.That(actual, Is.EqualTo(new[] { expected }));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
     }
 }
