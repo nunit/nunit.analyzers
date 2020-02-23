@@ -770,8 +770,19 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         public void NoDiagnosticWhenActualIsErrorType()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = 3;
-                var expected = HaveNoIdea();
+                var actual = HaveNoIdea();
+                var expected = 3;
+                Assert.That(actual, Is.EqualTo(expected));");
+
+            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticWhenActualIsErrorTypeArray()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = new[] { HaveNoIdea() };
+                var expected = new[] { 3 };
                 Assert.That(actual, Is.EqualTo(expected));");
 
             AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
