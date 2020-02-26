@@ -38,3 +38,4 @@
 | [NUnit2020](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2020.md)| Incompatible types for SameAs constraint.
 | [NUnit2021](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2021.md)| Incompatible types for EqualTo constraint.
 | [NUnit2022](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2022.md)| Missing property required for constraint.
+| [NUnit2023](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2023.md)| Invalid NullConstraint usage.
