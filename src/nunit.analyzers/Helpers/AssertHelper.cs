@@ -1,3 +1,4 @@
+using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
@@ -48,6 +49,20 @@ namespace NUnit.Analyzers.Helpers
                 actualType = awaitReturnType;
 
             return actualType;
+        }
+
+        /// <summary>
+        /// Get TypeSymbol from <paramref name="expressionSyntax"/>, and unwrap from delegate or awaitable.
+        /// </summary>
+        public static ITypeSymbol GetUnwrappedActualType(ExpressionSyntax actualExpression, SemanticModel semanticModel, CancellationToken cancellationToken)
+        {
+            var actualTypeInfo = semanticModel.GetTypeInfo(actualExpression, cancellationToken);
+            var actualType = actualTypeInfo.Type ?? actualTypeInfo.ConvertedType;
+
+            if (actualType == null || actualType.Kind == SymbolKind.ErrorType)
+                return null;
+
+            return UnwrapActualType(actualType);
         }
     }
 }

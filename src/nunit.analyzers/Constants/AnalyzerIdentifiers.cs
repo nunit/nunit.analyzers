@@ -45,6 +45,7 @@ namespace NUnit.Analyzers.Constants
         internal const string SameAsIncompatibleTypes = "NUnit2020";
         internal const string EqualToIncompatibleTypes = "NUnit2021";
         internal const string MissingProperty = "NUnit2022";
+        internal const string NullConstraintUsage = "NUnit2023";
 
         #endregion Assertion
     }
