@@ -5,13 +5,13 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Helpers;
 
-namespace NUnit.Analyzers.SameActualExpectedValue
+namespace NUnit.Analyzers.NullConstraintUsage
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class NullConstraintUsageAnalyzers : BaseAssertionAnalyzer
+    public class NullConstraintUsageAnalyzer : BaseAssertionAnalyzer
     {
         private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
-            id: AnalyzerIdentifiers.NullConstraintUsageAnalyzers,
+            id: AnalyzerIdentifiers.NullConstraintUsage,
             title: NullConstraintUsageAnalyzerConstants.Title,
             messageFormat: NullConstraintUsageAnalyzerConstants.Message,
             category: Categories.Assertion,

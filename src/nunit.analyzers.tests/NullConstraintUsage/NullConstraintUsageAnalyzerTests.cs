@@ -1,16 +1,16 @@
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.SameActualExpectedValue;
+using NUnit.Analyzers.NullConstraintUsage;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.NullConstraintUsage
 {
     public class NullConstraintUsageAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new NullConstraintUsageAnalyzers();
+        private static readonly DiagnosticAnalyzer analyzer = new NullConstraintUsageAnalyzer();
         private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.NullConstraintUsageAnalyzers);
+            ExpectedDiagnostic.Create(AnalyzerIdentifiers.NullConstraintUsage);
 
         [TestCase("Is.Null")]
         [TestCase("Is.Not.Null")]
@@ -18,8 +18,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         {
             var testCode = TestUtility.WrapInTestMethod($@"
                 var actual = default(int);
-                Assert.That(actual, {constraint});");
-
+                Assert.That(actual, ↓{constraint});");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
@@ -29,7 +28,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         {
             var testCode = TestUtility.WrapInTestMethod($@"
                 var actual = default(int);
-                Assert.That(() => actual, {constraint});");
+                Assert.That(() => actual, ↓{constraint});");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }

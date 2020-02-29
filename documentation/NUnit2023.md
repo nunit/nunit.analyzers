@@ -7,7 +7,7 @@
 | Severity | Warning
 | Enabled  | True
 | Category | Assertion
-| Code     | [NullConstraintUsageAnalyzers](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/NullConstraintUsage/NullConstraintUsageAnalyzers.cs)
+| Code     | [NullConstraintUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/NullConstraintUsage/NullConstraintUsageAnalyzer.cs)
 
 
 ## Description
