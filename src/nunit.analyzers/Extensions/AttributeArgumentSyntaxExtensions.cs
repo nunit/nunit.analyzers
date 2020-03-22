@@ -78,20 +78,23 @@ namespace NUnit.Analyzers.Extensions
                     var reflectionTargetType = GetTargetReflectionType(targetType);
                     var reflectionArgumentType = GetTargetReflectionType(argumentType);
 
-                    if (reflectionTargetType != null && reflectionArgumentType != null)
+                    if (reflectionTargetType == null || reflectionArgumentType == null)
                     {
-                        TypeConverter converter = TypeDescriptor.GetConverter(reflectionTargetType);
-                        if (converter.CanConvertFrom(reflectionArgumentType))
+                        // Shouldn't report diagnostic if type is unknown for analyzer.
+                        return true;
+                    }
+
+                    TypeConverter converter = TypeDescriptor.GetConverter(reflectionTargetType);
+                    if (converter.CanConvertFrom(reflectionArgumentType))
+                    {
+                        try
                         {
-                            try
-                            {
-                                converter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
-                                return true;
-                            }
-                            catch
-                            {
-                                return false;
-                            }
+                            converter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
+                            return true;
+                        }
+                        catch
+                        {
+                            return false;
                         }
                     }
 
