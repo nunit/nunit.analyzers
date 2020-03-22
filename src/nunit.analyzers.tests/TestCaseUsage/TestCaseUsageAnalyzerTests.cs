@@ -156,7 +156,6 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     {
         public enum TestEnum { A,B,C }
 
-
         [TestCase(TestEnum.A)]
         [TestCase(TestEnum.B)]
         public void Test(TestEnum e) { }
@@ -171,7 +170,6 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     class AnalyzeArgumentIsIntConvertedToEnum
     {
         public enum TestEnum { A,B,C }
-
 
         [TestCase(0)]
         [TestCase(1)]
@@ -202,7 +200,6 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     class AnalyzeArgumentIsStringConvertedToEnum
     {
         public enum TestEnum { A,B,C }
-
 
         [TestCase(↓""A"")]
         [TestCase(↓""B"")]
