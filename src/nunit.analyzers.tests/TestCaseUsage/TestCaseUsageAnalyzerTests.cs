@@ -199,13 +199,13 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void AnalyzeArgumentIsStringConvertedToEnum()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class AnalyzeArgumentIsIntConvertedToEnum
+    class AnalyzeArgumentIsStringConvertedToEnum
     {
         public enum TestEnum { A,B,C }
 
 
-        [TestCase(""A"")]
-        [TestCase(""B"")]
+        [TestCase(↓""A"")]
+        [TestCase(↓""B"")]
         public void Test(TestEnum e) { }
     }");
             AnalyzerAssert.Diagnostics<TestCaseUsageAnalyzer>(
@@ -217,12 +217,12 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void AnalyzeArgumentIsEnumConvertedToString()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class AnalyzeArgumentIsEnumConvertedToInt
+    class AnalyzeArgumentIsEnumConvertedToString
     {
         public enum TestEnum { A,B,C }
 
-        [TestCase(TestEnum.A)]
-        [TestCase(TestEnum.B)]
+        [TestCase(↓TestEnum.A)]
+        [TestCase(↓TestEnum.B)]
         public void Test(string e) { }
     }");
             AnalyzerAssert.Diagnostics<TestCaseUsageAnalyzer>(
