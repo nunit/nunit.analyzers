@@ -24,6 +24,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 yield return new TestCaseData("23:59:59", typeof(TimeSpan));
                 yield return new TestCaseData("2019-10-10", typeof(DateTimeOffset));
                 yield return new TestCaseData("2019-10-14T19:15:25+00:00", typeof(DateTimeOffset));
+                yield return new TestCaseData("https://github.com/nunit/", typeof(Uri));
             }
         }
 
@@ -155,7 +156,6 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     {
         public enum TestEnum { A,B,C }
 
-
         [TestCase(TestEnum.A)]
         [TestCase(TestEnum.B)]
         public void Test(TestEnum e) { }
@@ -170,7 +170,6 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     class AnalyzeArgumentIsIntConvertedToEnum
     {
         public enum TestEnum { A,B,C }
-
 
         [TestCase(0)]
         [TestCase(1)]
@@ -192,6 +191,40 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void Test(int e) { }
     }");
             AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeArgumentIsStringConvertedToEnum()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeArgumentIsStringConvertedToEnum
+    {
+        public enum TestEnum { A,B,C }
+
+        [TestCase(↓""A"")]
+        [TestCase(↓""B"")]
+        public void Test(TestEnum e) { }
+    }");
+            AnalyzerAssert.Diagnostics<TestCaseUsageAnalyzer>(
+                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
+                testCode);
+        }
+
+        [Test]
+        public void AnalyzeArgumentIsEnumConvertedToString()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeArgumentIsEnumConvertedToString
+    {
+        public enum TestEnum { A,B,C }
+
+        [TestCase(↓TestEnum.A)]
+        [TestCase(↓TestEnum.B)]
+        public void Test(string e) { }
+    }");
+            AnalyzerAssert.Diagnostics<TestCaseUsageAnalyzer>(
+                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
+                testCode);
         }
 
         [Test]
