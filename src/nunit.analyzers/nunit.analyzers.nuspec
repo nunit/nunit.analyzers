@@ -11,7 +11,11 @@
     <projectUrl>https://github.com/nunit/nunit.analyzers</projectUrl>
     <repository type="git" url="https://github.com/nunit/nunit.analyzers"/>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>NUnit Framework analyzers</description>
+    <summary>Code analyzers and fixes for NUnit 3</summary>
+    <description>
+      This package includes analyzers and code fixes for test projects using NUnit 3. The analyzers will mark wrong usages
+      when writing tests, and the code fixes can be used to used to correct these usages.
+    </description>
     <releaseNotes></releaseNotes>
     <copyright>Copyright (c) 2018-2020 NUnit project</copyright>
     <tags>nunit, analyzers, roslyn-analyzers</tags>
