@@ -7,6 +7,7 @@
     <authors>NUnit</authors>
     <license type="file">license.txt</license>
     <iconUrl>https://raw.githubusercontent.com/nunit/resources/master/images/icon/nunit_256.png</iconUrl>
+    <icon>images\nunit_256.png</icon>
     <projectUrl>https://github.com/nunit/nunit.analyzers</projectUrl>
     <repository type="git" url="https://github.com/nunit/nunit.analyzers"/>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -20,5 +21,6 @@
     <file src="bin\$Configuration$\netstandard1.6\nunit.analyzers.dll" target="analyzers\dotnet\cs\" />
     <file src="tools\*.ps1" target="tools\" />
     <file src="..\..\license.txt" target="" />
+    <file src="..\..\nunit_256.png" target="images" />
   </files>
 </package>
