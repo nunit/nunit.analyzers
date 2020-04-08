@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
@@ -14,11 +15,7 @@ namespace NUnit.Analyzers.Tests
 
             var compilation = CSharpCompilation.Create(Guid.NewGuid().ToString("N"),
                 syntaxTrees: new[] { tree },
-                references: new[]
-                {
-                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                    MetadataReference.CreateFromFile(typeof(Assert).Assembly.Location)
-                });
+                references: MetadataReferences.Transitive(typeof(Assert)));
 
             var model = compilation.GetSemanticModel(tree);
             var root = await tree.GetRootAsync().ConfigureAwait(false);

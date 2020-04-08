@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -17,12 +13,6 @@ namespace NUnit.Analyzers.Extensions
         {
             //See https://github.com/nunit/nunit/blob/f16d12d6fa9e5c879601ad57b4b24ec805c66054/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L396
             //for the reasoning behind this implementation.
-            Optional<object> possibleConstantValue = model.GetConstantValue(@this.Expression);
-            object argumentValue = null;
-            if (possibleConstantValue.HasValue)
-            {
-                argumentValue = possibleConstantValue.Value;
-            }
             TypeInfo sourceTypeInfo = model.GetTypeInfo(@this.Expression);
             ITypeSymbol argumentType = sourceTypeInfo.Type;
 
@@ -69,33 +59,21 @@ namespace NUnit.Analyzers.Extensions
                     {
                         canConvert = argumentType.SpecialType == SpecialType.System_String;
                     }
+                    // Intrinsic type converters
+                    // https://github.com/dotnet/runtime/blob/master/src/libraries/System.ComponentModel.TypeConverter/src/System/ComponentModel/ReflectTypeDescriptionProvider.cs
+                    else if (targetType.ContainingNamespace?.Name == "System" && (
+                        targetType.Name == "CultureInfo" ||
+                        targetType.Name == "DateTimeOffset" ||
+                        targetType.Name == "TimeSpan" ||
+                        targetType.Name == "Guid" ||
+                        targetType.Name == "Uri"))
+                    {
+                        canConvert = argumentType.SpecialType == SpecialType.System_String;
+                    }
 
                     if (canConvert)
                     {
-                        return AttributeArgumentSyntaxExtensions.TryChangeType(targetType, argumentValue);
-                    }
-
-                    var reflectionTargetType = GetTargetReflectionType(targetType);
-                    var reflectionArgumentType = GetTargetReflectionType(argumentType);
-
-                    if (reflectionTargetType == null || reflectionArgumentType == null)
-                    {
-                        // Shouldn't report diagnostic if type is unknown for analyzer.
                         return true;
-                    }
-
-                    TypeConverter converter = TypeDescriptor.GetConverter(reflectionTargetType);
-                    if (converter.CanConvertFrom(reflectionArgumentType))
-                    {
-                        try
-                        {
-                            converter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
-                            return true;
-                        }
-                        catch
-                        {
-                            return false;
-                        }
                     }
 
                     return false;
@@ -109,68 +87,6 @@ namespace NUnit.Analyzers.Extensions
                 return (target as INamedTypeSymbol).TypeArguments.ToArray()[0];
 
             return target;
-        }
-
-        private static bool TryChangeType(ITypeSymbol targetType, object argumentValue)
-        {
-            Type targetReflectionType = GetTargetReflectionType(targetType);
-            if (targetReflectionType == null)
-            {
-                return false;
-            }
-
-            try
-            {
-                Convert.ChangeType(argumentValue, targetReflectionType, CultureInfo.InvariantCulture);
-                return true;
-            }
-            catch (InvalidCastException)
-            {
-                return false;
-            }
-            catch (FormatException)
-            {
-                return false;
-            }
-            catch (OverflowException)
-            {
-                return false;
-            }
-        }
-
-        private static Type GetTargetReflectionType(ITypeSymbol targetType)
-        {
-            var containingAssembly = targetType.ContainingAssembly ?? targetType.BaseType.ContainingAssembly;
-            string assembly = ", " + containingAssembly.Identity.ToString();
-            string typeName = AttributeArgumentSyntaxExtensions.GetQualifiedTypeName(targetType);
-
-            // First try to get type using assembly-qualified name, and if that fails try to get type
-            // using only the type name qualified by its namespace.
-            // This is a hacky attempt to make it work for types that are forwarded in .NET Core, e.g.
-            // Double which exists in the System.Runtime assembly at design time and in
-            // System.Private.CorLib at runtime, so targetType.ContainingAssembly will denote the wrong
-            // assembly, System.Runtime. See e.g. the following comment
-            // https://github.com/dotnet/roslyn/issues/16211#issuecomment-373084209
-            var targetReflectionType = Type.GetType(typeName + assembly, false) ?? Type.GetType(typeName, false);
-            return targetReflectionType;
-        }
-
-        private static string GetQualifiedTypeName(ITypeSymbol targetType)
-        {
-            // Note that this does not take into account generics,
-            // so if that's ever added to attributes this will have to change.
-            var namespaces = new Stack<string>();
-
-            var @namespace = targetType.ContainingNamespace ?? targetType.BaseType.ContainingNamespace;
-            var typeName = !string.IsNullOrEmpty(targetType.Name) ? targetType.Name : targetType.BaseType.Name;
-
-            while (!@namespace.IsGlobalNamespace)
-            {
-                namespaces.Push(@namespace.Name);
-                @namespace = @namespace.ContainingNamespace;
-            }
-
-            return $"{string.Join(".", namespaces)}.{typeName}";
         }
 
         private static bool HasBuiltInImplicitConversion(ITypeSymbol argumentType, ITypeSymbol targetType, SemanticModel model)

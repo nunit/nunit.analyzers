@@ -25,8 +25,8 @@ namespace NUnit.Analyzers.Tests.Extensions
                 SetName("CanAssignToWhenArgumentIsNotNullableAndAssignable");
             yield return new TestCaseData("3", "int", "int?", Is.True).
                 SetName("CanAssignToWhenArgumentIsNullableAndAssignable");
-            yield return new TestCaseData("\"x\"", "Guid", "string", Is.False).
-                SetName("CanAssignToWhenArgumentIsNotAssignable");
+            yield return new TestCaseData("\"a084f0aa-6fe6-4211-9def-3d294dbdaf01\"", "Guid", "string", Is.True).
+                SetName("CanAssignToWhenArgumentIsConvertibleFromString");
             yield return new TestCaseData("3", "short", "int", Is.True).
                 SetName("CanAssignToWhenParameterIsInt16AndArgumentIsInt32");
             yield return new TestCaseData("3", "byte", "int", Is.True).
@@ -38,25 +38,17 @@ namespace NUnit.Analyzers.Tests.Extensions
             yield return new TestCaseData("3d", "decimal", "double", Is.True).
                 SetName("CanAssignToWhenParameterIsDecimalAndArgumentIsDouble");
             yield return new TestCaseData("\"3\"", "decimal", "string", Is.True).
-                SetName("CanAssignToWhenParameterIsDecimalAndArgumentIsValidString");
-            yield return new TestCaseData("\"x\"", "decimal", "string", Is.False).
-                SetName("CanAssignToWhenParameterIsDecimalAndArgumentIsInvalidString");
+                SetName("CanAssignToWhenParameterIsDecimal");
             yield return new TestCaseData("3", "decimal", "int", Is.True).
                 SetName("CanAssignToWhenParameterIsDecimalAndArgumentIsInt32");
             yield return new TestCaseData("3", "long?", "int", Is.True).
                 SetName("CanAssignToWhenParameterIsNullableInt64AndArgumentIsInt32");
             yield return new TestCaseData("\"1/1/2000\"", "DateTime", "string", Is.True).
-                SetName("CanAssignToWhenParameterIsDateTimeAndArgumentIsValidString");
-            yield return new TestCaseData("\"x\"", "DateTime", "string", Is.False).
-                SetName("CanAssignToWhenParameterIsDateTimeAndArgumentIsInvalidString");
+                SetName("CanAssignToWhenParameterIsDateTime");
             yield return new TestCaseData("\"00:03:00\"", "TimeSpan", "string", Is.True).
-                SetName("CanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString");
-            yield return new TestCaseData("\"x\"", "TimeSpan", "string", Is.False).
-                SetName("CanAssignToWhenParameterIsTimeSpanAndArgumentIsInvalidString");
+                SetName("CanAssignToWhenParameterIsTimeSpan");
             yield return new TestCaseData("\"2019-10-14T21:11:10+00:00\"", "DateTimeOffset", "string", Is.True).
-                SetName("CanAssignToWhenParameterIsDateTimeOffsetAndArgumentIsValidString");
-            yield return new TestCaseData("\"x\"", "DateTimeOffset", "string", Is.False).
-                SetName("CanAssignToWhenParameterIsDateTimeOffsetAndArgumentIsInvalidString");
+                SetName("CanAssignToWhenParameterIsDateTimeOffset");
             yield return new TestCaseData("new[] { \"a\", \"b\", \"c\" }", "string[]", "string[]", Is.True).
                 SetName("CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable");
             yield return new TestCaseData("new[] { \"a\", \"b\", \"c\" }", "int[]", "string[]", Is.False).
