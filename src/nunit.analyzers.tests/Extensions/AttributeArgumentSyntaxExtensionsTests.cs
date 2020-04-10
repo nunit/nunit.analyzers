@@ -25,8 +25,10 @@ namespace NUnit.Analyzers.Tests.Extensions
                 SetName("CanAssignToWhenArgumentIsNotNullableAndAssignable");
             yield return new TestCaseData("3", "int", "int?", Is.True).
                 SetName("CanAssignToWhenArgumentIsNullableAndAssignable");
+            yield return new TestCaseData("\"c14564a0-c59e-475d-9ee9-6303f9687c03\"", "Guid", "string", Is.True).
+                SetName("CanAssignToWhenParameterIsGuidAndArgumentIsValidString");
             yield return new TestCaseData("\"x\"", "Guid", "string", Is.False).
-                SetName("CanAssignToWhenArgumentIsNotAssignable");
+                SetName("CanAssignToWhenParameterIsGuidAndArgumentIsInvalidString");
             yield return new TestCaseData("3", "short", "int", Is.True).
                 SetName("CanAssignToWhenParameterIsInt16AndArgumentIsInt32");
             yield return new TestCaseData("3", "byte", "int", Is.True).
