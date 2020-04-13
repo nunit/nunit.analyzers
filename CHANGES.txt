@@ -6,7 +6,7 @@ and code fixes for:
 * proper usage of ParallelScopeAttribute,
 * translation of assertions written in the classic model into the constraint model,
 * proper usage of some of the most used assertions (Is.EqualTo, Is.SameAs, Has.Count,
-  Has.Property(...), Is.Null.
+  Has.Property(...), Is.Null).
 
 The full list of analyzers can be found at https://github.com/nunit/nunit.analyzers/blob/master/documentation/index.md.
 
