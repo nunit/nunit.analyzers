@@ -11,6 +11,28 @@ namespace NUnit.Analyzers.Extensions
 {
     internal static class AttributeArgumentSyntaxExtensions
     {
+        private static readonly IReadOnlyList<Type> ConvertibleTypes = new List<Type>
+        {
+            typeof(short),
+            typeof(byte),
+            typeof(long),
+            typeof(sbyte),
+            typeof(double),
+            typeof(decimal),
+            typeof(DateTime),
+        };
+
+        // Intrinsic type converters for types that are not SpecialTypes (and supported in netstandard1.6)
+        // https://github.com/dotnet/runtime/blob/master/src/libraries/System.ComponentModel.TypeConverter/src/System/ComponentModel/ReflectTypeDescriptionProvider.cs
+        private static readonly List<(Type type, Lazy<TypeConverter> typeConverter)> IntrinsicTypeConverters =
+            new List<(Type type, Lazy<TypeConverter> typeConverter)>
+            {
+                (typeof(DateTimeOffset), new Lazy<TypeConverter>(() => new DateTimeOffsetConverter())),
+                (typeof(TimeSpan), new Lazy<TypeConverter>(() => new TimeSpanConverter())),
+                (typeof(Guid), new Lazy<TypeConverter>(() => new GuidConverter())),
+                (typeof(Uri), new Lazy<TypeConverter>(() => new UriTypeConverter())),
+            };
+
         internal static bool CanAssignTo(this AttributeArgumentSyntax @this, ITypeSymbol target, SemanticModel model,
             bool allowImplicitConversion = false,
             bool allowEnumToUnderlyingTypeConversion = false)
@@ -75,28 +97,11 @@ namespace NUnit.Analyzers.Extensions
                         return AttributeArgumentSyntaxExtensions.TryChangeType(targetType, argumentValue);
                     }
 
-                    var reflectionTargetType = GetTargetReflectionType(targetType);
-                    var reflectionArgumentType = GetTargetReflectionType(argumentType);
-
-                    if (reflectionTargetType == null || reflectionArgumentType == null)
+                    if (CanBeTranslatedByTypeConverter(targetType, argumentValue))
                     {
-                        // Shouldn't report diagnostic if type is unknown for analyzer.
                         return true;
                     }
 
-                    TypeConverter converter = TypeDescriptor.GetConverter(reflectionTargetType);
-                    if (converter.CanConvertFrom(reflectionArgumentType))
-                    {
-                        try
-                        {
-                            converter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
-                            return true;
-                        }
-                        catch
-                        {
-                            return false;
-                        }
-                    }
 
                     return false;
                 }
@@ -111,17 +116,19 @@ namespace NUnit.Analyzers.Extensions
             return target;
         }
 
-        private static bool TryChangeType(ITypeSymbol targetType, object argumentValue)
+        private static bool TryChangeType(ITypeSymbol targetTypeSymbol, object argumentValue)
         {
-            Type targetReflectionType = GetTargetReflectionType(targetType);
-            if (targetReflectionType == null)
+            var typeName = targetTypeSymbol.GetFullMetadataName();
+            var targetType = ConvertibleTypes.FirstOrDefault(t => t.FullName == typeName);
+
+            if (targetType == null)
             {
                 return false;
             }
 
             try
             {
-                Convert.ChangeType(argumentValue, targetReflectionType, CultureInfo.InvariantCulture);
+                Convert.ChangeType(argumentValue, targetType, CultureInfo.InvariantCulture);
                 return true;
             }
             catch (InvalidCastException)
@@ -138,45 +145,39 @@ namespace NUnit.Analyzers.Extensions
             }
         }
 
-        private static Type GetTargetReflectionType(ITypeSymbol targetType)
-        {
-            var containingAssembly = targetType.ContainingAssembly ?? targetType.BaseType.ContainingAssembly;
-            string assembly = ", " + containingAssembly.Identity.ToString();
-            string typeName = AttributeArgumentSyntaxExtensions.GetQualifiedTypeName(targetType);
-
-            // First try to get type using assembly-qualified name, and if that fails try to get type
-            // using only the type name qualified by its namespace.
-            // This is a hacky attempt to make it work for types that are forwarded in .NET Core, e.g.
-            // Double which exists in the System.Runtime assembly at design time and in
-            // System.Private.CorLib at runtime, so targetType.ContainingAssembly will denote the wrong
-            // assembly, System.Runtime. See e.g. the following comment
-            // https://github.com/dotnet/roslyn/issues/16211#issuecomment-373084209
-            var targetReflectionType = Type.GetType(typeName + assembly, false) ?? Type.GetType(typeName, false);
-            return targetReflectionType;
-        }
-
-        private static string GetQualifiedTypeName(ITypeSymbol targetType)
-        {
-            // Note that this does not take into account generics,
-            // so if that's ever added to attributes this will have to change.
-            var namespaces = new Stack<string>();
-
-            var @namespace = targetType.ContainingNamespace ?? targetType.BaseType.ContainingNamespace;
-            var typeName = !string.IsNullOrEmpty(targetType.Name) ? targetType.Name : targetType.BaseType.Name;
-
-            while (!@namespace.IsGlobalNamespace)
-            {
-                namespaces.Push(@namespace.Name);
-                @namespace = @namespace.ContainingNamespace;
-            }
-
-            return $"{string.Join(".", namespaces)}.{typeName}";
-        }
-
         private static bool HasBuiltInImplicitConversion(ITypeSymbol argumentType, ITypeSymbol targetType, SemanticModel model)
         {
             var conversion = model.Compilation.ClassifyConversion(argumentType, targetType);
             return conversion.IsImplicit && !conversion.IsUserDefined;
+        }
+
+        private static bool CanBeTranslatedByTypeConverter(
+            ITypeSymbol targetTypeSymbol,
+            object argumentValue)
+        {
+            var typeName = targetTypeSymbol.GetFullMetadataName();
+            var targetType = IntrinsicTypeConverters.FirstOrDefault(t => t.type.FullName == typeName);
+
+            if (targetType.typeConverter == null)
+            {
+                return false;
+            }
+
+            var typeConverter = targetType.typeConverter.Value;
+            if (typeConverter.CanConvertFrom(argumentValue.GetType()))
+            {
+                try
+                {
+                    typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            return false;
         }
     }
 }
