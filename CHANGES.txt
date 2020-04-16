@@ -1,0 +1,140 @@
+﻿NUnit Analyzers 0.2 - April 13, 2020
+
+This is the initial release of the NUnit Analyzers. The release consists of analyzers
+and code fixes for:
+* proper usage of the TestCaseAttribute,
+* proper usage of ParallelScopeAttribute,
+* translation of assertions written in the classic model into the constraint model,
+* proper usage of some of the most used assertions (Is.EqualTo, Is.SameAs, Has.Count,
+  Has.Property(...), Is.Null).
+
+The full list of analyzers can be found at https://github.com/nunit/nunit.analyzers/blob/master/documentation/index.md.
+
+The release contains contributions from the following users (in alphabetical order):
+
+ * 304NotModified
+ * aolszowka
+ * Dreamescaper
+ * JasonBock
+ * jcurl
+ * JohanLarsson
+ * MaximRouiller
+ * mgyongyosi
+ * mikkelbu
+ * stevenaw
+
+Issues Resolved
+
+Structure and TestCase
+ * #1 TestCase analyser doesn't handle nullables
+ * #7 Feature request: Look for async void tests
+ * #8 TestCaseUsageAnalyzer throws NullReferenceException for non-existent attribute
+ * #11 NRE in AnalyzePositionalArgumentsAndParameters
+ * #14 NRE in AttributeArgumentSyntaxExtensions.CanAssignTo
+ * #28 NRE when writing an attribute before adding a reference to NUnit
+ * #41 Only examine TestCaseAttribute if reference to NUnit exists
+ * #42 Reorder statements for performance reasons
+ * #48 Async test method must have non-generic Task return type when no result is expected
+ * #49 Message: Async test method must have Task<T> return type when a result is expected
+ * #50 Remove false positive from ExpectedResult when used in connection with async tests
+ * #54 Analyzer for TestCaseAttribute should also work for generic TestCases
+ * #55 Analyzer for TestCaseAttribute should also work for nullable types
+ * #56 Analyzer for TestCaseAttribute should work when passed 1 to 3 arguments
+ * #57 Make conversions work in netcoreapp2.0
+ * #64 Add an Analyzer to Verify ParallelScope Usage
+ * #75 Add error if tests/testcases have a return value, but no ExpectedResult
+ * #76 Add initial class for test method analyzer
+ * #79 NUNIT_7 does not cater for Task and ValueTask
+ * #80 Suggestion: Analyzer Should Fix TestCaseSource(string) usage to use nameof()
+ * #86 Simplify TestCaseUsage
+ * #92 Analyzer to ensure that the "target" of TestCaseSourceAttribute exists and is static
+ * #106 Add fixer for the TestCaseSource(StringConstant) analyzer
+ * #118 Async Tests display warning about missing Expected
+ * #123 Generalise TestMethodUsageAnalyzer to support custom awaitables
+ * #148 Analyzer update needed for string->datetime offset conversion in testcaseattribute
+ * #150 Analyzers and refactorings to use string constraints instead of methods
+ * #162 NUnit1001: False positive
+ * #165 AD0001 Crash: TestCase contains int instead of enum
+ * #169 NUnit1001 False Positive with params in the list
+ * #186 False error when Uri is parameter and string is argument
+ * #196 Avoid loading new assemblies into the VS process
+
+Assertions
+ * #12 NRE in ClassicModelAssertUsageAnalyzer.AnalyzeInvocation
+ * #13 "Sequence contains no elements" in ClassicModelAssertUsageAnalyzer.AnalyzeInvocation
+ * #39 Warning if actual type does not match expected type
+ * #40 Warning if literal or const value is provided as actual value
+ * #83 NUNIT_7 Throws Unexpectedly On Integer to Decimal Conversions
+ * #90 Check that checks against null is done on reference types
+ * #117 Code fix for ConstActualValueUsageAnalyzer
+ * #124 Warning if IgnoreCase is used for non-string constraint argument
+ * #128 Add analyzer to capture missing properties
+ * #129 Warning if actual value is same as expected
+ * #145 Make analyzers suggesting refactoring to the constraint model default disabled?
+ * #146 Add analyzer and code fix for Is.EqualTo usage
+ * #152 Fix CodeFix for logical not expression
+ * #153 Constraint model suggestion for Assert.AreSame
+ * #154 Warning when SameAs compares expressions of incompatible types
+ * #158 Add collection contains analyzer and codefix
+ * #160 Do not replace line breaks in code fixes
+ * #163 Feature: Assert.IsNull / Assert.IsNotNull Classic to Fluent
+ * #168 Add Analyzers for Assert.[Is][Not]Null(expr)
+ * #174 Introduce ConstraintExpression
+ * #175 EqualToIncompatibleTypesAnalyzer should not warn if constraint expression has conditional parts
+ * #178 Fix EqualToIncompatibleTypesAnalyzer boxing false positive
+ * #179 EqualToIncompatibleTypes should warn if two different enums compared
+ * #184 Fix Property analyzer for inherited interface
+ * #187 Fix EqualTo diagnostic when errors present
+
+Process and tooling
+ * #16 Make the extension work with VS 2017
+ * #17 Add CI support for master and PRs
+ * #19 New project format and netstandard for analyzer project
+ * #21 Remove dependency on NUnit for analyzer project
+ * #22 Add editorconfig
+ * #23 Use get-only properties for FixableDiagnosticIds
+ * #25 Add initial cake script
+ * #27 Update README.md
+ * #30 Refine cake configuration
+ * #32 Update readme
+ * #33 Add information to CONTRIBUTING.md
+ * #36 Make Pack work
+ * #37 Add myget feed to tooling
+ * #38 Make all cs files conform to editorconfig
+ * #43 Create nuget package on AppVeyor
+ * #44 Set package version
+ * #46 Add badge to MyGet Feed
+ * #47 Examine concurrent execution af analyzers
+ * #61 Update Download section
+ * #63 Make Appveyor run tests before creating nuget package
+ * #68 Add images to README.md
+ * #70 Simplify test in this project
+ * #71 Small cleanup
+ * #72 Fixing repository url metadata
+ * #74 Add Installation element
+ * #84 Partition the analyzers into categories and create identifier ranges for each category
+ * #85 Give all analyzers unique identifiers
+ * #87 Simplify TestMethodUsageAnalyzerTests and TestCaseSourceUsesStringAnalyzerTests
+ * #88 Upload test results to AppVeyor
+ * #96 Document implemented analyzers and fixers
+ * #98 Replace tuples with named tuples
+ * #101 Rewrite tests of CodeFixes with Gu.Roslyn.Asserts
+ * #102 Remove nunit.analyzers.integrationtests and nunit.analyzers.playground projects
+ * #103 Transfer ClassicModelAssertUsage tests to Gu.Roslyn.Asserts
+ * #104 Remove unused methods
+ * #105 Move test data into code
+ * #116 Fix licenseUrl element in nuspec, will be deprecated
+ * #126 Update README and move content to CONTRIBUTING
+ * #131 Bump versions of nunit, nunit-console, and NUnit3TestAdapter
+ * #132 Update nunit.analyzers.csproj
+ * #134 Constraint analyzers have a lot of repeating code
+ * #135 Pre-release nuget packages should be created with unique assembly versions
+ * #139 Tests checking documentation
+ * #140 Add helplinks pointing to analyzer docs
+ * #141 Improve documentation of analyzers and fixers
+ * #144 feat: Add motivation and examples for classical assertions
+ * #182 Remove warning from "Pack"
+ * #183 fix: Make version numbers consistent
+ * #185 chore: Bump version
+ * #192 Add missing information to nuget package
+ * #194 fix: Replace invalid tokens in suffix
