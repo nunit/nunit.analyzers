@@ -1,12 +1,14 @@
 # NUnit Analyzers #
 
 [![Build status](https://ci.appveyor.com/api/projects/status/rlx18p32vkh80p2f/branch/master?svg=true)](https://ci.appveyor.com/project/mikkelbu/nunit-analyzers/branch/master)
+[![NuGet Version and Downloads count](https://buildstats.info/nuget/NUnit.Analyzers)](https://www.nuget.org/packages/NUnit.Analyzers)
 [![MyGet Feed](https://img.shields.io/myget/nunit-analyzers/v/NUnit.Analyzers.svg)](https://www.myget.org/feed/nunit-analyzers/package/nuget/NUnit.Analyzers)
 
 This is a suite of analyzers that target the NUnit testing framework. Right now, the code is separate from the NUnit framework, so if you want to try out the analyzers you'll need to download the analyzers separately as a nuget package. In the future the analyzers may be added as part of the NUnit framework package but that hasn't been done yet.
 
 ## Download ##
 
+The latest stable release of the NUnit Analyzers is [available on NuGet](https://www.nuget.org/packages/NUnit.Analyzers/) or can be [downloaded from GitHub](https://github.com/nunit/nunit.analyzers/releases).
 Prerelease nuget packages can be found on [MyGet](https://www.myget.org/feed/nunit-analyzers/package/nuget/NUnit.Analyzers). Please try out the package and report bugs and feature requests.
 
 ## Analyzers ##
