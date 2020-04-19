@@ -53,7 +53,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         public void NoWarningWhenStringLiteralMissingMember()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenTypeOf
+    public class NoWarningWhenStringLiteralMissingMember
     {
         [TestCaseSource(""Missing"")]
         public void Test()
