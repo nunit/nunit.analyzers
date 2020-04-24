@@ -39,7 +39,7 @@ No `ExpectedResult` was defined, but the return type of the method in our sample
 Either modify the `TestCase` to add an `ExpectedResult`:
 
 ```csharp
-[TestCase(1, ExpectedResult ="")]
+[TestCase(1, ExpectedResult = "")]
 public string NUnit1007SampleTest(int inputValue)
 {
     return "";
