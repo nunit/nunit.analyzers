@@ -20,7 +20,41 @@ ADD MOTIVATION HERE
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[TestCase(1)]
+public string NUnit1007SampleTest(int inputValue)
+{
+    return "";
+}
+```
+
+### Explanation
+
+No `ExpectedResult` was defined, but the method in our sample is of type `string`, meaning it does indeed return a result and we should use the `ExpectedResult` syntax in order to capture it.
+
+### Fix
+
+Either modify the `TestCase` to add an `ExpectedResult`:
+
+```csharp
+[TestCase(1, ExpectedResult ="")]
+public string NUnit1007SampleTest(int inputValue)
+{
+    return "";
+}
+```
+
+Or modify the return type of the test method to be `void`:
+
+```csharp
+[TestCase(1)]
+public void NUnit1007SampleTest(int inputValue)
+{
+    return Assert.That(inputValue, Is.EqualTo(1));
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
