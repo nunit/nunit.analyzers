@@ -1,7 +1,7 @@
 # Analyzers #
 
-| Id       | Title       | Enabled by Default
-| :--      | :--         | :--: | 
+| Id       | Title       | Enabled by Default |
+| :--      | :--         | :--:               | 
 | [NUnit1001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1001.md)| The individual arguments provided by a TestCaseAttribute must match the type of the matching parameter of the method. | :white_check_mark: |
 | [NUnit1002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1002.md)| TestCaseSource should use nameof operator to specify target. | :white_check_mark: |
 | [NUnit1003](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1003.md)| Too few arguments provided by TestCaseAttribute. | :white_check_mark: |
