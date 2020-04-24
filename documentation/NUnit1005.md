@@ -56,8 +56,6 @@ public string NUnit1005SampleTest(int inputValue)
 }
 ```
 
-ADD HOW TO FIX VIOLATIONS HERE
-
 <!-- start generated config severity -->
 ## Configure severity
 
