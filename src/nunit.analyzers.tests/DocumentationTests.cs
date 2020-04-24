@@ -142,17 +142,19 @@ namespace NUnit.Analyzers.Tests
         public void EnsureThatIndexIsAsExpected()
         {
             var builder = new StringBuilder();
-            const string HeaderRow = "| Id       | Title";
+            const string HeaderRow = "| Id       | Title       | Enabled by Default |";
             builder.AppendLine(HeaderRow)
-                   .AppendLine("| :--      | :--");
+                   .AppendLine("| :--      | :--         | :--:               |");
 
             var descriptors = DescriptorsWithDocs.Select(x => x.Descriptor)
                                                  .Distinct()
                                                  .OrderBy(x => x.Id);
             foreach (var descriptor in descriptors)
             {
+                var enabledEmoji  = descriptor.IsEnabledByDefault ? ":white_check_mark:" : ":x:";
                 builder.Append($"| [{descriptor.Id}]({descriptor.HelpLinkUri})")
-                       .AppendLine($"| {descriptor.Title}");
+                       .AppendLine($"| {descriptor.Title} | {enabledEmoji} |");
+
             }
 
             var expected = builder.ToString();
