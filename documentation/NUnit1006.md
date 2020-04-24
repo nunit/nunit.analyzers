@@ -20,7 +20,41 @@ ADD MOTIVATION HERE
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[TestCase(1, ExpectedResult = "1")]
+public void NUnit1006SampleTest(int inputValue)
+{
+    return;
+}
+```
+
+### Explanation
+
+An `ExpectedResult` was defined, but the method in our sample is of type `void`, meaning it does not return a result.
+
+### Fix
+
+Either modify the `TestCase` to remove the `ExpectedResult`:
+
+```csharp
+[TestCase(1)]
+public void NUnit1006SampleTest(int inputValue)
+{
+    Assert.That(inputValue, Is.EqualTo(1));
+}
+```
+
+Or modify the return type of the test method:
+
+```csharp
+[TestCase(1, ExpectedResult = "1")]
+public string NUnit1006SampleTest(int inputValue)
+{
+    return inputValue.ToString();
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
