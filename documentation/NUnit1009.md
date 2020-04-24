@@ -20,7 +20,46 @@ ADD MOTIVATION HERE
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[Parallelizable(ParallelScope.Children)]
+[Test]
+public void NUnit1009SampleTest()
+{
+    Assert.Pass();
+}
+```
+
+### Explanation
+
+In the sample above, the `Parallelizable` attribute is used with `ParallelScope.Children`.
+
+However, in a non-parameterized test, such as a `[Test]` and not a `[TestCase]`, there will be no children generated, and thus this type of parallelization does not make sense.
+
+### Fix
+
+Remove the attribute:
+
+```csharp
+[Test]
+public void NUnit1009SampleTest()
+{
+    Assert.Pass();
+}
+```
+
+Or, turn the test into one that will have children generated, such as a `TestCase`:
+
+```csharp
+[Parallelizable(ParallelScope.Children)] // These will now run in parallel
+[TestCase(1)]
+[TestCase(2)]
+public void NUnit1009SampleTest(int numberValue)
+{
+    Assert.That(numberValue, Is.GreaterThan(0));
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
