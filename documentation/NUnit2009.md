@@ -20,7 +20,33 @@ ADD MOTIVATION HERE
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Sample Violation
+
+```csharp
+[Test]
+public void Nunit2009SampleTest()
+{
+    var x = 1;
+    Assert.That(x, Is.EqualTo(x));
+}
+```
+
+### Explanation
+
+In the above example, the test will always be correct, because we're comparing the same value. That is to say, we're not actually testing anything.
+
+### Fix
+
+Ensure the `expected` and `actual` values come from different places.
+
+```csharp
+[Test]
+public void Nunit2009SampleTest()
+{
+    var x = 1;
+    Assert.That(x, Is.EqualTo(1));
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
