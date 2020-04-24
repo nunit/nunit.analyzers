@@ -20,7 +20,56 @@ ADD MOTIVATION HERE
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[TestCaseSource("MyIncorrectTestSource")]
+public void NUnit1011SampleTest(string stringValue)
+{
+    Assert.That(stringValue.Length, Is.EqualTo(3));
+}
+
+public static object[] MyTestSource()
+{
+    return new object[] {"One", "Two"};
+}
+```
+
+### Explanation
+
+In the example above, the test case source is named `MyIncorrectTestCaseSource`, but the test case source is actually named `MyTestSource`. Because the names don't match, this will be an issue.
+
+### Fix
+
+Rename the `TestCaseSource` to match:
+
+```csharp
+[TestCaseSource("MyTestSource")]
+public void NUnit1011SampleTest(string stringValue)
+{
+    Assert.That(stringValue.Length, Is.EqualTo(3));
+}
+
+public static object[] MyTestSource()
+{
+    return new object[] {"One", "Two"};
+}
+```
+
+Or even better, use `nameof` so that the compiler may assist with mis-matched names in the future:
+
+```csharp
+[TestCaseSource(nameof(MyTestSource))]
+public void NUnit1011SampleTest(string stringValue)
+{
+    Assert.That(stringValue.Length, Is.EqualTo(3));
+}
+
+public static object[] MyTestSource()
+{
+    return new object[] {"One", "Two"};
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
