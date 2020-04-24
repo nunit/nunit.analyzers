@@ -20,7 +20,42 @@ ADD MOTIVATION HERE
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[TestCase("1", "2")]
+public void NUnit1003SampleTest(string parameter1)
+{
+    Assert.That(parameter1, Is.EqualTo("1"));
+}
+```
+
+### Explanation
+
+In the sample above, there are two parameters in the test case (`TestCase("1", "2")`) but only one parameter being supplied to the test itself (`(string parameter1`).
+
+### Fix
+
+Either make use of the additional parameter:
+
+```csharp
+[TestCase("1", "2")]
+public void NUnit1003SampleTest(string parameter1, string parameter2)
+{
+    Assert.That(parameter1, Is.EqualTo("1"));
+    Assert.That(parameter2, Is.EqualTo("2"));
+}
+```
+
+Or remove it:
+
+```csharp
+[TestCase("1")]
+public void NUnit1003SampleTest(string parameter1)
+{
+    Assert.That(parameter1, Is.EqualTo("1"));
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
