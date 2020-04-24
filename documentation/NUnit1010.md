@@ -20,7 +20,59 @@ ADD MOTIVATION HERE
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[Parallelizable(ParallelScope.Fixtures)]
+[Test]
+public void NUnit1010SampleTest()
+{
+    Assert.Pass();
+}
+```
+
+### Explanation
+
+In the sample above, `ParallelScope.Fixtures` is specified.
+
+However, in the context of a test method, a scope of `Fixtures` does not make sense. This scope [only applies at the assembly or class level](https://github.com/nunit/docs/wiki/Parallelizable-Attribute).
+
+### Fix
+
+Remove the attribute:
+
+```csharp
+[Test]
+public void NUnit1010SampleTest()
+{
+    Assert.Pass();
+}
+```
+
+Or apply this attribute at the class level:
+
+```csharp
+[Parallelizable(ParallelScope.Fixtures)]
+public class MyTests
+{
+    [Test]
+    public void NUnit1010SampleTest()
+    {
+        Assert.Pass();
+    }
+}
+```
+
+Or use a different attribute that applies at the test level:
+
+```csharp
+[Parallelizable(ParallelScope.Self)]
+[Test]
+public void NUnit1010SampleTest()
+{
+    Assert.Pass();
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
