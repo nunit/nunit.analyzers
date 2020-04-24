@@ -20,7 +20,45 @@ ADD MOTIVATION HERE
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[TestCase("1")]
+public void SampleTest(int numberValue)
+{
+    Assert.That(numberValue, Is.EqualTo(1));
+}
+```
+
+### Problem
+
+In the test case above, `"1"` in the test case indicates that `numberValue` should be a string. However, it's set as an `int`.
+
+### Fix
+
+Ensure that the type of the test case and the input matters.
+
+So, this fix would be acceptable:
+
+```csharp
+// TestCase input and parameter are both of type string
+[TestCase("1")]
+public void SampleTest(string numberValue)
+{
+    Assert.That(numberValue, Is.EqualTo("1"));
+}
+```
+
+And this would also work:
+
+```csharp
+// TestCase input and parameter are both of type int
+[TestCase(1)]
+public void SampleTest(string numberValue)
+{
+    Assert.That(numberValue, Is.EqualTo(1));
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
