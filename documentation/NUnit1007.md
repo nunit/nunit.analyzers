@@ -16,7 +16,7 @@ Method has non-void return type, but no result is expected in ExpectedResult.
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 

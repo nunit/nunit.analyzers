@@ -16,7 +16,7 @@ The type of ExpectedResult must match the return type. This will lead to an erro
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 

@@ -16,7 +16,7 @@ ExpectedResult must not be specified when the method returns void. This will lea
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 

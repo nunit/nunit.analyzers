@@ -16,7 +16,7 @@ The individual arguments provided by a TestCaseAttribute must match the type of 
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
