@@ -23,7 +23,7 @@ ADD MOTIVATION HERE
 ### Example Violation
 
 ```csharp
-[TestCase(1, ExpectedResult = "1")]
+[TestCase(1, ExpectedResult = true)]
 public int NUnit1005SampleTest(int inputValue)
 {
     return inputValue;
@@ -32,7 +32,7 @@ public int NUnit1005SampleTest(int inputValue)
 
 ### Explanation
 
-The sample above uses NUnit's `ExpectedResult` syntax. It defines a result of `"1"` (a string) but the return type of the method is `int`.
+The sample above uses NUnit's `ExpectedResult` syntax. It defines a result of `true` (a `bool`) but the return type of the method is `int`.
 
 ### Fix
 
@@ -46,13 +46,13 @@ public int NUnit1005SampleTest(int inputValue)
 }
 ```
 
-Or modify the return type of the method:
+Or modify the return type and logic of the method:
 
 ```csharp
-[TestCase(1, ExpectedResult = "1")]
-public string NUnit1005SampleTest(int inputValue)
+[TestCase(1, ExpectedResult = true)]
+public bool NUnit1005SampleTest(int inputValue)
 {
-    return inputValue.ToString();
+    return inputValue > 0;
 }
 ```
 
