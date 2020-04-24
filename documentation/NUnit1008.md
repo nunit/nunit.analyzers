@@ -20,7 +20,31 @@ ADD MOTIVATION HERE
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+In `AssemblyInfo.cs`:
+
+```csharp
+[assembly: Parallelizable(ParallelScope.Self)]
+```
+
+### Explanation
+
+`ParallelScope.Self` [only applies to classes and methods](https://github.com/nunit/docs/wiki/Parallelizable-Attribute), not to assemblies.
+
+### Fix
+
+Either remove it or change to a valid option, such as:
+
+```csharp
+[assembly: Parallelizable(ParallelScope.Children)]
+```
+
+Or:
+
+```csharp
+[assembly: Parallelizable(ParallelScope.Fixtures)]
+```
 
 <!-- start generated config severity -->
 ## Configure severity
