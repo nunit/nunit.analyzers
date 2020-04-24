@@ -23,20 +23,21 @@ ADD MOTIVATION HERE
 ### Example Violation
 
 ```csharp
-[TestCase("1", "2")]
-public void NUnit1003SampleTest(string parameter1)
+[TestCase("1")]
+public void NUnit1003SampleTest(string parameter1, string parameter2)
 {
     Assert.That(parameter1, Is.EqualTo("1"));
+    Assert.That(parameter2, Is.EqualTo("2"));
 }
 ```
 
 ### Explanation
 
-In the sample above, there are two parameters in the test case (`TestCase("1", "2")`) but only one parameter being supplied to the test itself (`(string parameter1`).
+In the sample above, there are two parameters being supplied to the test itself (`(string parameter1, string parameter2)`), but only parameter in the test case (`TestCase("1")`).
 
 ### Fix
 
-Either make use of the additional parameter:
+Either make add the additional parameter:
 
 ```csharp
 [TestCase("1", "2")]
@@ -47,7 +48,7 @@ public void NUnit1003SampleTest(string parameter1, string parameter2)
 }
 ```
 
-Or remove it:
+Or remove the use of that parameter:
 
 ```csharp
 [TestCase("1")]
