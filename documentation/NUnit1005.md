@@ -20,6 +20,42 @@ ADD MOTIVATION HERE
 
 ## How to fix violations
 
+### Example Violation
+
+```csharp
+[TestCase(1, ExpectedResult = "1")]
+public int NUnit1005SampleTest(int inputValue)
+{
+    return inputValue;
+}
+```
+
+### Explanation
+
+The sample above uses NUnit's `ExpectedResult` syntax. It defines a result of `"1"` (a string) but the return type of the method is `int`.
+
+### Fix
+
+Either modify the TestCase parameter:
+
+```csharp
+[TestCase(1, ExpectedResult = 1)]
+public int NUnit1005SampleTest(int inputValue)
+{
+    return inputValue;
+}
+```
+
+Or modify the return type of the method:
+
+```csharp
+[TestCase(1, ExpectedResult = "1")]
+public string NUnit1005SampleTest(int inputValue)
+{
+    return inputValue.ToString();
+}
+```
+
 ADD HOW TO FIX VIOLATIONS HERE
 
 <!-- start generated config severity -->
