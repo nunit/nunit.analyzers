@@ -37,7 +37,7 @@ public static object[] MyTestSource()
 
 ### Explanation
 
-In the example above, the test case source is named `MyIncorrectTestCaseSource`, but the test case source is actually named `MyTestSource`. Because the names don't match, this will be an issue.
+In the example above, the test case source is named `MyIncorrectTestCaseSource`, but the test case source is actually named `MyTestSource`. Because the names don't match, this will be an error.
 
 ### Fix
 
