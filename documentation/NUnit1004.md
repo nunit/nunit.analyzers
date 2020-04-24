@@ -24,7 +24,7 @@ ADD MOTIVATION HERE
 
 ```csharp
 [TestCase("1", "2")]
-public void NUnit1003SampleTest(string parameter1)
+public void NUnit1004SampleTest(string parameter1)
 {
     Assert.That(parameter1, Is.EqualTo("1"));
 }
@@ -32,7 +32,7 @@ public void NUnit1003SampleTest(string parameter1)
 
 ### Explanation
 
-In the sample above, there are two parameters in the test case (`TestCase("1", "2")`) but only one parameter being supplied to the test itself (`(string parameter1`).
+In the sample above, there are two parameters in the test case (`TestCase("1", "2")`) but only one parameter being supplied to the test itself (`(string parameter1)`).
 
 ### Fix
 
