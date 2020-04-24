@@ -23,7 +23,7 @@ ADD MOTIVATION HERE
 ### Example Violation
 
 ```csharp
-[TestCase("1")]
+[TestCase(true)]
 public void SampleTest(int numberValue)
 {
     Assert.That(numberValue, Is.EqualTo(1));
@@ -32,7 +32,7 @@ public void SampleTest(int numberValue)
 
 ### Problem
 
-In the test case above, `"1"` in the test case indicates that `numberValue` should be a string. However, it's set as an `int`.
+In the test case above, `1` in the test case indicates that `numberValue` should be an int. However, it's sent in as an `bool`.
 
 ### Fix
 
@@ -41,11 +41,11 @@ Ensure that the type of the test case and the input matches.
 So, this fix would be acceptable:
 
 ```csharp
-// TestCase input and parameter are both of type string
-[TestCase("1")]
-public void SampleTest(string numberValue)
+// TestCase input and parameter are both of type bool
+[TestCase(true)]
+public void SampleTest(bool numberValue)
 {
-    Assert.That(numberValue, Is.EqualTo("1"));
+    Assert.That(numberValue, Is.True);
 }
 ```
 
@@ -54,7 +54,7 @@ And this would also work:
 ```csharp
 // TestCase input and parameter are both of type int
 [TestCase(1)]
-public void SampleTest(string numberValue)
+public void SampleTest(int numberValue)
 {
     Assert.That(numberValue, Is.EqualTo(1));
 }
