@@ -32,7 +32,7 @@ public void NUnit1006SampleTest(int inputValue)
 
 ### Explanation
 
-An `ExpectedResult` was defined, but the method in our sample is of type `void`, meaning it does not return a result.
+An `ExpectedResult` was defined, but the return type of the method in our sample is of type `void`, meaning it does not return a result.
 
 ### Fix
 
