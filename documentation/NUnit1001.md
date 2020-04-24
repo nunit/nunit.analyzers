@@ -36,7 +36,7 @@ In the test case above, `"1"` in the test case indicates that `numberValue` shou
 
 ### Fix
 
-Ensure that the type of the test case and the input matters.
+Ensure that the type of the test case and the input matches.
 
 So, this fix would be acceptable:
 
