@@ -43,7 +43,7 @@ In this case, we're referring to `"MyTestSource"` as a string directly. This is 
 
 The fix is to use the C# `nameof` operator, which produces a string but references the field name. This way, when refactoring and changing the name of your test source, it would also update the name within the `nameof()` convention.
 
-The fix in action
+The fix in action:
 
 ```csharp
 [TestCaseSource(nameof(MyTestSource))] // using nameof
