@@ -32,7 +32,7 @@ public string NUnit1007SampleTest(int inputValue)
 
 ### Explanation
 
-No `ExpectedResult` was defined, but the method in our sample is of type `string`, meaning it does indeed return a result and we should use the `ExpectedResult` syntax in order to capture it.
+No `ExpectedResult` was defined, but the return type of the method in our sample is of type `string`, meaning it does indeed return a result and we should use the `ExpectedResult` syntax in order to capture it.
 
 ### Fix
 
