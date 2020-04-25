@@ -48,7 +48,6 @@ Utilize the `ExpectedResult` syntax:
 [TestCase(1, ExpectedResult = "1")]
 public async Task<string> Nunit1013SampleTest(int numberValue)
 {
-
     return await ConvertNumber(numberValue);
 }
 
@@ -64,7 +63,6 @@ Or, use an assertion and a generic `Task` rather than `Task<string>`:
 [TestCase(1)]
 public async Task Nunit1013SampleTest(int numberValue)
 {
-
     var result = await ConvertNumber(numberValue);
     Assert.That(result, Is.EqualTo("1"));
 }
@@ -74,7 +72,6 @@ public Task<string> ConvertNumber(int numberValue)
     return Task.FromResult(numberValue.ToString());
 }
 ```
-
 
 <!-- start generated config severity -->
 ## Configure severity
