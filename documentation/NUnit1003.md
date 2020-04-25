@@ -37,7 +37,7 @@ In the sample above, the test expects two parameters (`(string parameter1, strin
 
 ### Fix
 
-Either make add the additional parameter:
+Either add the additional argument:
 
 ```csharp
 [TestCase("1", "2")]
