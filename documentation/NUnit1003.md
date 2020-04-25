@@ -33,11 +33,11 @@ public void NUnit1003SampleTest(string parameter1, string parameter2)
 
 ### Explanation
 
-In the sample above, there are two parameters being supplied to the test itself (`(string parameter1, string parameter2)`), but only parameter in the test case (`TestCase("1")`).
+In the sample above, the test expects two parameters (`(string parameter1, string parameter2)`), but only one argument is supplied by the test case (`TestCase("1")`).
 
 ### Fix
 
-Either make add the additional parameter:
+Either add the additional argument:
 
 ```csharp
 [TestCase("1", "2")]
