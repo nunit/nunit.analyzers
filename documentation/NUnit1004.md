@@ -32,7 +32,7 @@ public void NUnit1004SampleTest(string parameter1)
 
 ### Explanation
 
-In the sample above, there are two parameters in the test case (`TestCase("1", "2")`) but only one parameter being supplied to the test itself (`(string parameter1)`).
+In the sample above, there are two arguments provided by test case (`TestCase("1", "2")`), but only one parameter is being expected by the test itself (`(string parameter1)`).
 
 ### Fix
 
