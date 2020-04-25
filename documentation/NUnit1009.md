@@ -16,7 +16,7 @@ One may not specify ParallelScope.Children on a non-parameterized test method.
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
