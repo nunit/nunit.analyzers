@@ -16,11 +16,45 @@ Async test method must have Task<T> return type when a result is expected
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[TestCase(1, ExpectedResult = true)]
+public async Task Nunit1014SampleTest(int numberValue)
+{
+    return;
+}
+```
+
+### Explanation
+
+The NUnit `ExpectedResult` syntax is used, so this method needs to return a type that matches the type of expected result you're looking for.
+
+### Fix
+
+Remove the `ExpectedResult` syntax:
+
+```csharp
+[TestCase(1)]
+public async Task Nunit1014SampleTest(int numberValue)
+{
+    Assert.Pass();
+}
+```
+
+Or, update the return task type to be what you're looking for, e.g. `Task<bool>` below:
+
+```csharp
+[TestCase(1, ExpectedResult = true)]
+public async Task<bool> Nunit1014SampleTest(int numberValue)
+{
+    return Task.FromResult(true);
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity

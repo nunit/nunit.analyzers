@@ -16,11 +16,35 @@ Specifying ParallelScope.Self on assembly level has no effect.
 
 ## Motivation
 
-ADD MOTIVATION HERE
+Bring developers' attention to a scenario in which they may believe they are parallelizing something when in fact they are not and their efforts will have no effect.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+In `AssemblyInfo.cs`:
+
+```csharp
+[assembly: Parallelizable(ParallelScope.Self)]
+```
+
+### Explanation
+
+`ParallelScope.Self` [only applies to classes and methods](https://github.com/nunit/docs/wiki/Parallelizable-Attribute), not to assemblies.
+
+### Fix
+
+Either remove it or change to a valid option, such as:
+
+```csharp
+[assembly: Parallelizable(ParallelScope.Children)]
+```
+
+Or:
+
+```csharp
+[assembly: Parallelizable(ParallelScope.Fixtures)]
+```
 
 <!-- start generated config severity -->
 ## Configure severity

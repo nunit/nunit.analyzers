@@ -16,11 +16,62 @@ Async test method must have non-generic Task return type when no result is expec
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[TestCase(1)]
+public async Task<string> Nunit1013SampleTest(int numberValue)
+{
+
+    return await ConvertNumber(numberValue);
+}
+
+public Task<string> ConvertNumber(int numberValue)
+{
+    return Task.FromResult(numberValue.ToString());
+}
+```
+
+### Explanation
+
+The NUnit `ExpectedResult` syntax is not used, so it's an error for this method to return something that isn't being checked.
+
+### Fix
+
+Utilize the `ExpectedResult` syntax:
+
+```csharp
+[TestCase(1, ExpectedResult = "1")]
+public async Task<string> Nunit1013SampleTest(int numberValue)
+{
+    return await ConvertNumber(numberValue);
+}
+
+public Task<string> ConvertNumber(int numberValue)
+{
+    return Task.FromResult(numberValue.ToString());
+}
+```
+
+Or, use an assertion and a generic `Task` rather than `Task<string>`:
+
+```csharp
+[TestCase(1)]
+public async Task Nunit1013SampleTest(int numberValue)
+{
+    var result = await ConvertNumber(numberValue);
+    Assert.That(result, Is.EqualTo("1"));
+}
+
+public Task<string> ConvertNumber(int numberValue)
+{
+    return Task.FromResult(numberValue.ToString());
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity

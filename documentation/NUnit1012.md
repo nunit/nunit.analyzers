@@ -16,11 +16,48 @@ Async test method must have non-void return type.
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[Test]
+public async void NUnit1012SampleTest()
+{
+    var result = await Task.FromResult(true);
+    Assert.That(result, Is.True);
+}
+```
+
+### Explanation
+
+`async` methods should generally not return `void` in C#. For example if an exception is thrown (as they are in the case of an assertion violation), the exception is actually a part of the task object. If the return type is `void`, no such object exists, to the exception is effectively swallowed.
+
+### Fix
+
+Make the `async` test method return a `Task`:
+
+```csharp
+[Test]
+public async Task NUnit1012SampleTest()
+{
+    var result = await Task.FromResult(true);
+    Assert.That(result, Is.True);
+}
+```
+
+Or modify the test to not use `async` behavior:
+
+```csharp
+[Test]
+public void NUnit1012SampleTest()
+{
+    var result = true;
+    Assert.That(result, Is.True);
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity

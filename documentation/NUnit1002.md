@@ -16,11 +16,47 @@ TestCaseSource should use nameof operator to specify target.
 
 ## Motivation
 
-ADD MOTIVATION HERE
+Prevent test rot by ensuring that future renames don't accidentally break tests in an unexpected way. `nameof` adds some compile-time support in these situations.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[TestCaseSource("MyTestSource")]
+public void SampleTest(string stringValue)
+{
+    Assert.That(stringValue.Length, Is.EqualTo(3));
+}
+
+public static object[] MyTestSource()
+{
+    return new object[] {"One", "Two"};
+}
+```
+
+### Problem
+
+In this case, we're referring to `"MyTestSource"` as a string directly. This is brittle; should the name of the property change, the test case source would become invalid, and we would not know this until executing tests.
+
+### Fix
+
+The fix is to use the C# `nameof` operator, which produces a string but references the field name. This way, when refactoring and changing the name of your test source, it would also update the name within the `nameof()` operator.
+
+The fix in action:
+
+```csharp
+[TestCaseSource(nameof(MyTestSource))] // using nameof
+public void SampleTest(string stringValue)
+{
+    Assert.That(stringValue.Length, Is.EqualTo(3));
+}
+
+public static object[] MyTestSource()
+{
+    return new object[] {"One", "Two"};
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
