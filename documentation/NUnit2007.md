@@ -16,7 +16,7 @@ Actual value should not be constant. This indicates that the actual and expected
 
 ## Motivation
 
-ADD MOTIVATION HERE
+Bring developers' attention to a scenario in which their test is most likely testing the wrong thing, or to cases where their actual and expected values may be accidentally swapped.
 
 ## How to fix violations
 

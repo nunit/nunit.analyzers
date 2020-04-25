@@ -16,7 +16,7 @@ The same value has been provided as both actual and expected argument. This indi
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To bring developers' attention to a situation in which their code may not be operating as expected and their test may not be testing what they expect.
 
 ## How to fix violations
 

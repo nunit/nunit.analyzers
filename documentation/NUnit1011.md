@@ -16,7 +16,7 @@ TestCaseSource argument does not specify an existing member. This will lead to a
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 

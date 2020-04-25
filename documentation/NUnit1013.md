@@ -16,7 +16,7 @@ Async test method must have non-generic Task return type when no result is expec
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 

@@ -16,7 +16,7 @@ Specifying ParallelScope.Self on assembly level has no effect.
 
 ## Motivation
 
-ADD MOTIVATION HERE
+Bring developers' attention to a scenario in which they may believe they are parallelizing something when in fact they are not and their efforts will have no effect.
 
 ## How to fix violations
 

@@ -16,7 +16,7 @@ IgnoreCase modifier should only be used for string or char arguments. Using it o
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To bring developers' attention to a scenario in which their code is actually having no effect and may reveal that their test is not doing what they expect.
 
 ## How to fix violations
 

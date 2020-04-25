@@ -16,7 +16,7 @@ Async test method must have Task<T> return type when a result is expected
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
