@@ -36,7 +36,7 @@ In the sample above, there are two parameters in the test case (`TestCase("1", "
 
 ### Fix
 
-Either make use of the additional parameter:
+Either make use of the additional argument:
 
 ```csharp
 [TestCase("1", "2")]
