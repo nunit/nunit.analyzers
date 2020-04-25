@@ -32,7 +32,7 @@ public void SampleTest(int numberValue)
 
 ### Problem
 
-In the test case above, `1` in the test case indicates that `numberValue` should be an int. However, it's sent in as an `bool`.
+In the test case above, `true` in the test case indicates that `numberValue` should be a boolean. However, the test declares that `numberValue` is an integer. This will lead to a runtime failure.
 
 ### Fix
 
@@ -43,9 +43,9 @@ So, this fix would be acceptable:
 ```csharp
 // TestCase input and parameter are both of type bool
 [TestCase(true)]
-public void SampleTest(bool numberValue)
+public void SampleTest(bool booleanValue)
 {
-    Assert.That(numberValue, Is.True);
+    Assert.That(booleanValue, Is.True);
 }
 ```
 
