@@ -38,7 +38,7 @@ public Task<string> ConvertNumber(int numberValue)
 
 ### Explanation
 
-The NUnit `ExpectedResult` syntax is not used, so it's a smell for this method to return something that isn't being checked.
+The NUnit `ExpectedResult` syntax is not used, so it's an error for this method to return something that isn't being checked.
 
 ### Fix
 
