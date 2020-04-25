@@ -16,7 +16,7 @@ TestCaseSource should use nameof operator to specify target.
 
 ## Motivation
 
-Prevent test rot by ensuring that future renames don't accidentally break tests in an unexpected way. `nameof` adds some compile-time support in thee situations.
+Prevent test rot by ensuring that future renames don't accidentally break tests in an unexpected way. `nameof` adds some compile-time support in these situations.
 
 ## How to fix violations
 
