@@ -38,7 +38,7 @@ Both asserts above will trigger this warning. That's because the actual value sh
 
 In the case of equality, etc. this might seem like no big deal, but it really comes into play in the exceptions that are raised by error messages. It's important that if your test fails, the message can correctly tell you what the expected and actual values are.
 
-As an aside, this is another reason wby the `Assert.That` syntax is preferred by these analyzers.
+As an aside, this is another reason why the `Assert.That` syntax is often preferred when asserting equality.
 
 ### Fix
 
