@@ -33,7 +33,7 @@ public void Nunit2008SampleTest()
 
 ### Explanation
 
-Using IgnoreCase here doesn't make any sense, because the types were comparing don't have the concept of case. Therefore, it's only suitable to use on textual primitives (e.g. `string` and `char`).
+Using IgnoreCase here doesn't make any sense, because the types we're comparing don't have the concept of case. Therefore, it's only suitable to use on textual primitives (e.g. `string` and `char`).
 
 ### Fix
 
