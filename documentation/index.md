@@ -16,6 +16,8 @@
 | [NUnit1012](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1012.md)| Async test method must have non-void return type.
 | [NUnit1013](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1013.md)| Async test method must have non-generic Task return type when no result is expected.
 | [NUnit1014](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1014.md)| Async test method must have Task<T> return type when a result is expected
+| [NUnit1015](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1015.md)| Source type does not implement IEnumerable.
+| [NUnit1016](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1016.md)| Source type does not have a default constructor.
 | [NUnit2001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2001.md)| Consider using Assert.That(expr, Is.False) instead of Assert.False(expr).
 | [NUnit2002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2002.md)| Consider using Assert.That(expr, Is.False) instead of Assert.IsFalse(expr).
 | [NUnit2003](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2003.md)| Consider using Assert.That(expr, Is.True) instead of Assert.IsTrue(expr).

@@ -29,9 +29,28 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             defaultSeverity: DiagnosticSeverity.Warning,
             description: TestCaseSourceUsageConstants.ConsiderNameOfInsteadOfStringConstantDescription);
 
+        private static readonly DiagnosticDescriptor sourceTypeNotIEnumerableDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseSourceSourceTypeNotIEnumerable,
+            title: TestCaseSourceUsageConstants.SourceTypeNotINumerableTitle,
+            messageFormat: TestCaseSourceUsageConstants.SourceTypeNotINumerableMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseSourceUsageConstants.SourceTypeNotINumerableDescription);
+
+        private static readonly DiagnosticDescriptor sourceTypeNoDefaultConstructorDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseSourceSourceTypeNoDefaultConstructor,
+            title: TestCaseSourceUsageConstants.SourceTypeNoDefaultConstructorTitle,
+            messageFormat: TestCaseSourceUsageConstants.SourceTypeNoDefaultConstructorMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseSourceUsageConstants.SourceTypeNoDefaultConstructorDescription);
+
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             considerNameOfDescriptor,
-            missingSourceDescriptor);
+            missingSourceDescriptor,
+            sourceTypeNotIEnumerableDescriptor,
+            sourceTypeNoDefaultConstructorDescriptor);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -66,7 +85,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 var stringConstant = attributeInfo.SourceName;
                 var syntaxNode = attributeInfo.SyntaxNode;
 
-                if (stringConstant is null)
+                if (stringConstant is null && attributeNode.ArgumentList.Arguments.Count == 1)
                 {
                     // The Type argument in this form represents the class that provides test cases.
                     // It must have a default constructor and implement IEnumerable.
@@ -75,12 +94,19 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                     bool typeHasDefaultConstructor = sourceType.Constructors.Any(c => c.Parameters.IsEmpty);
                     if (!typeImplementsIEnumerable)
                     {
-                        // TODO Report not IEnumerable
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            sourceTypeNotIEnumerableDescriptor,
+                            attributeNode.ArgumentList.Arguments[0].GetLocation(),
+                            sourceType.Name));
                     }
                     else if (!typeHasDefaultConstructor)
                     {
-                        // TODO Report No default constructor
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            sourceTypeNoDefaultConstructorDescriptor,
+                            attributeNode.ArgumentList.Arguments[0].GetLocation(),
+                            sourceType.Name));
                     }
+
                     return;
                 }
 

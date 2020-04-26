@@ -32,24 +32,6 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
-        public void AnalyzeWhenTypeOf()
-        {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenTypeOf
-    {
-        [TestCaseSource(typeof(MyTests))]
-        public void Test()
-        {
-        }
-    }
-
-    class MyTests
-    {
-    }");
-            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
-        }
-
-        [Test]
         public void NoWarningWhenStringLiteralMissingMember()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
