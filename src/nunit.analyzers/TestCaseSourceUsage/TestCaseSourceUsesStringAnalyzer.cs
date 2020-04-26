@@ -45,12 +45,20 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             defaultSeverity: DiagnosticSeverity.Error,
             description: TestCaseSourceUsageConstants.SourceTypeNoDefaultConstructorDescription);
 
+        private static readonly DiagnosticDescriptor sourceNotStaticDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseSourceSourceIsNotStatic,
+            title: TestCaseSourceUsageConstants.SourceIsNotStaticTitle,
+            messageFormat: TestCaseSourceUsageConstants.SourceIsNotStaticMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseSourceUsageConstants.SourceIsNotStaticDescription);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             considerNameOfDescriptor,
             missingSourceDescriptor,
             sourceTypeNotIEnumerableDescriptor,
-            sourceTypeNoDefaultConstructorDescriptor);
+            sourceTypeNoDefaultConstructorDescriptor,
+            sourceNotStaticDescriptor);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -130,7 +138,10 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
                     if (!symbol.IsStatic)
                     {
-                        // TODO Report not static
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            sourceNotStaticDescriptor,
+                            syntaxNode.GetLocation(),
+                            stringConstant));
                     }
 
                     switch (symbol)
@@ -153,10 +164,6 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
                             break;
                     }
-                    // Here we should check
-                    // * It must return an IEnumerable or a type that implements IEnumerable
-                    // * For Field or properties one cannot pass parameters - only methods can
-                    // * For methods the number of parameters should match
                 }
             }
         }

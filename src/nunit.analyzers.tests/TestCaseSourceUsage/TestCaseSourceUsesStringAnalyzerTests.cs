@@ -16,12 +16,12 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         private static readonly CodeFixProvider fix = new UseNameofFix();
 
         [Test]
-        public void AnalyzeWhenNameOf()
+        public void AnalyzeWhenNameOfSameClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenNameOf
+    public class AnalyzeWhenNameOfSameClass
     {
-        string Tests;
+        static string[] Tests = new[] { ""Data"" };
 
         [TestCaseSource(nameof(Tests))]
         public void Test()
@@ -29,6 +29,25 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }");
             AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNameOfSameClassNotStatic()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class AnalyzeWhenNameOfSameClassNotStatic
+    {
+        string[] Tests = new[] { ""Data"" };
+
+        [TestCaseSource(nameof(Tests))]
+        public void Test()
+        {
+        }
+    }");
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceSourceIsNotStatic)
+                .WithMessage("Specified source 'Tests' is not static.");
+            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
         }
 
         [Test]
