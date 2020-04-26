@@ -12,7 +12,7 @@ namespace NUnit.Analyzers.Constants
 
         internal const string SourceTypeNoDefaultConstructorTitle = "Source type does not have a default constructor.";
         internal const string SourceTypeNoDefaultConstructorMessage = "Source type '{0}' does not have a default constructor.";
-        internal const string SourceTypeNoDefaultConstructorDescription = "The source type must have a default implement constructor in order to provide test cases.";
+        internal const string SourceTypeNoDefaultConstructorDescription = "The source type must have a default constructor in order to provide test cases.";
 
         internal const string SourceIsNotStaticTitle = "Specified source is not static.";
         internal const string SourceIsNotStaticMessage = "Specified source '{0}' is not static.";

@@ -16,11 +16,57 @@ The specified source must be static.
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+public class MyTestClass
+{
+    [TestCaseSource(nameof(DivideCases)]
+    public void DivideTest(int n, int d, int q)
+    {
+        Assert.AreEqual(q, n / d);
+    }
+
+    object[] DivideCases =
+    {
+        new object[] { 12, 3, 4 },
+        new object[] { 12, 2, 6 },
+        new object[] { 12, 4, 3 }
+    };
+}
+```
+
+### Explanation
+
+In the sample above, `DivideCases` is not a `static` field.
+
+However, sources specified by `TestCaseSource` [must be `static`](https://github.com/nunit/docs/wiki/TestCaseSource-Attribute).
+
+### Fix
+
+Make the source `static`:
+
+```csharp
+public class MyTestClass
+{
+    [TestCaseSource(nameof(DivideCases)]
+    public void DivideTest(int n, int d, int q)
+    {
+        Assert.AreEqual(q, n / d);
+    }
+
+    static object[] DivideCases =
+    {
+        new object[] { 12, 3, 4 },
+        new object[] { 12, 2, 6 },
+        new object[] { 12, 4, 3 }
+    };
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity

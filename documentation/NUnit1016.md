@@ -12,15 +12,73 @@
 
 ## Description
 
-The source type must have a default implement constructor in order to provide test cases.
+The source type must have a default constructor in order to provide test cases.
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+public class MyTestClass
+{
+    [TestCaseSource(typeof(DivideCases))]
+    public void DivideTest(int n, int d, int q)
+    {
+        Assert.AreEqual(q, n / d);
+    }
+}
+
+class DivideCases : IEnumerable
+{
+    public DivideCases(int i) { }
+
+    public IEnumerator GetEnumerator()
+    {
+        yield return new object[] { 12, 3, 4 };
+        yield return new object[] { 12, 2, 6 };
+        yield return new object[] { 12, 4, 3 };
+    }
+}
+```
+
+### Explanation
+
+In the sample above, the class `DivideCases` does not have a default constructor - i.e. a constructor with no parameters.
+
+However, source types specified by `TestCaseSource` [must have a default constructor](https://github.com/nunit/docs/wiki/TestCaseSource-Attribute).
+
+### Fix
+
+Add a default constructor to the source type (or remove the parameters from an existing constructor):
+
+```csharp
+public class MyTestClass
+{
+    [TestCaseSource(typeof(DivideCases))]
+    public void DivideTest(int n, int d, int q)
+    {
+        Assert.AreEqual(q, n / d);
+    }
+}
+
+class DivideCases : IEnumerable
+{
+    public DivideCases() { }
+
+    public DivideCases(int i) { }
+
+    public IEnumerator GetEnumerator()
+    {
+        yield return new object[] { 12, 3, 4 };
+        yield return new object[] { 12, 2, 6 };
+        yield return new object[] { 12, 4, 3 };
+    }
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
