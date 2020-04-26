@@ -16,11 +16,49 @@ The individual arguments provided by a TestCaseAttribute must match the type of 
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[TestCase(true)]
+public void SampleTest(int numberValue)
+{
+    Assert.That(numberValue, Is.EqualTo(1));
+}
+```
+
+### Problem
+
+In the test case above, `true` in the test case indicates that `numberValue` should be a boolean. However, the test declares that `numberValue` is an integer. This will lead to a runtime failure.
+
+### Fix
+
+Ensure that the type of the test case and the input matches.
+
+So, this fix would be acceptable:
+
+```csharp
+// TestCase input and parameter are both of type bool
+[TestCase(true)]
+public void SampleTest(bool booleanValue)
+{
+    Assert.That(booleanValue, Is.True);
+}
+```
+
+And this would also work:
+
+```csharp
+// TestCase input and parameter are both of type int
+[TestCase(1)]
+public void SampleTest(int numberValue)
+{
+    Assert.That(numberValue, Is.EqualTo(1));
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity

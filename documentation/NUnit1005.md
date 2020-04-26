@@ -16,11 +16,45 @@ The type of ExpectedResult must match the return type. This will lead to an erro
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[TestCase(1, ExpectedResult = true)]
+public int NUnit1005SampleTest(int inputValue)
+{
+    return inputValue;
+}
+```
+
+### Explanation
+
+The sample above uses NUnit's `ExpectedResult` syntax. It defines a result of `true` (a `bool`) but the return type of the method is `int`.
+
+### Fix
+
+Either modify the TestCase parameter:
+
+```csharp
+[TestCase(1, ExpectedResult = 1)]
+public int NUnit1005SampleTest(int inputValue)
+{
+    return inputValue;
+}
+```
+
+Or modify the return type and logic of the method:
+
+```csharp
+[TestCase(1, ExpectedResult = true)]
+public bool NUnit1005SampleTest(int inputValue)
+{
+    return inputValue > 0;
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity

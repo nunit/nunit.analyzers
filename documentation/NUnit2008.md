@@ -16,11 +16,48 @@ IgnoreCase modifier should only be used for string or char arguments. Using it o
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To bring developers' attention to a scenario in which their code is actually having no effect and may reveal that their test is not doing what they expect.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[Test]
+public void Nunit2008SampleTest()
+{
+    var date = DateTime.Now;
+    Assert.That(date, Is.Not.EqualTo(date.AddDays(1)).IgnoreCase);
+}
+```
+
+### Explanation
+
+Using IgnoreCase here doesn't make any sense, because the types we're comparing don't have the concept of case. Therefore, it's only suitable to use on textual primitives (e.g. `string` and `char`).
+
+### Fix
+
+Remove the errant call to `IgnoreCase`:
+
+```csharp
+[Test]
+public void Nunit2008SampleTest()
+{
+    var date = DateTime.Now;
+    Assert.That(date, Is.Not.EqualTo(date.AddDays(1)));
+}
+```
+
+Or update the code to compare based on the primitives that are supported by `IgnoreCase`:
+
+```csharp
+[Test]
+public void Nunit2008SampleTest()
+{
+    var date = DateTime.Now;
+    Assert.That(date.ToString(), Is.Not.EqualTo(date.AddDays(1).ToString()).IgnoreCase);
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity

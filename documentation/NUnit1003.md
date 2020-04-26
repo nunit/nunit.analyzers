@@ -16,11 +16,47 @@ The number of arguments provided by a TestCaseAttribute must match the number of
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+[TestCase("1")]
+public void NUnit1003SampleTest(string parameter1, string parameter2)
+{
+    Assert.That(parameter1, Is.EqualTo("1"));
+    Assert.That(parameter2, Is.EqualTo("2"));
+}
+```
+
+### Explanation
+
+In the sample above, the test expects two parameters (`(string parameter1, string parameter2)`), but only one argument is supplied by the test case (`TestCase("1")`).
+
+### Fix
+
+Either add the additional argument:
+
+```csharp
+[TestCase("1", "2")]
+public void NUnit1003SampleTest(string parameter1, string parameter2)
+{
+    Assert.That(parameter1, Is.EqualTo("1"));
+    Assert.That(parameter2, Is.EqualTo("2"));
+}
+```
+
+Or remove the use of that parameter:
+
+```csharp
+[TestCase("1")]
+public void NUnit1003SampleTest(string parameter1)
+{
+    Assert.That(parameter1, Is.EqualTo("1"));
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
