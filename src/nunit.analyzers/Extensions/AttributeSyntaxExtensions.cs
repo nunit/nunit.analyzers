@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -13,10 +12,10 @@ namespace NUnit.Analyzers.Extensions
         /// </summary>
         /// <param name="this">The <see cref="AttributeSyntax"/> reference to get parameters from.</param>
         /// <returns>
-        /// The first array are the positional arguments, and the second contains the named parameters.
+        /// The first array are the positional arguments, and the second contains the named arguments.
         /// </returns>
-        internal static Tuple<ImmutableArray<AttributeArgumentSyntax>, ImmutableArray<AttributeArgumentSyntax>> GetArguments(
-            this AttributeSyntax @this)
+        internal static (ImmutableArray<AttributeArgumentSyntax> positionalArguments, ImmutableArray<AttributeArgumentSyntax> namedArguments)
+            GetArguments(this AttributeSyntax @this)
         {
             var positionalArguments = new List<AttributeArgumentSyntax>();
             var namedArguments = new List<AttributeArgumentSyntax>();
@@ -38,8 +37,7 @@ namespace NUnit.Analyzers.Extensions
                 }
             }
 
-            return new Tuple<ImmutableArray<AttributeArgumentSyntax>, ImmutableArray<AttributeArgumentSyntax>>(
-                positionalArguments.ToImmutableArray(), namedArguments.ToImmutableArray());
+            return (positionalArguments.ToImmutableArray(), namedArguments.ToImmutableArray());
         }
     }
 }

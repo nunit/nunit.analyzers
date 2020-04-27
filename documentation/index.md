@@ -16,6 +16,9 @@
 | [NUnit1012](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1012.md)| Async test method must have non-void return type. | :white_check_mark: |
 | [NUnit1013](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1013.md)| Async test method must have non-generic Task return type when no result is expected. | :white_check_mark: |
 | [NUnit1014](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1014.md)| Async test method must have Task<T> return type when a result is expected | :white_check_mark: |
+| [NUnit1015](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1015.md)| Source type does not implement IEnumerable. | :white_check_mark: |
+| [NUnit1016](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1016.md)| Source type does not have a default constructor. | :white_check_mark: |
+| [NUnit1017](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1017.md)| Specified source is not static. | :white_check_mark: |
 | [NUnit2001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2001.md)| Consider using Assert.That(expr, Is.False) instead of Assert.False(expr). | :white_check_mark: |
 | [NUnit2002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2002.md)| Consider using Assert.That(expr, Is.False) instead of Assert.IsFalse(expr). | :white_check_mark: |
 | [NUnit2003](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2003.md)| Consider using Assert.That(expr, Is.True) instead of Assert.IsTrue(expr). | :white_check_mark: |

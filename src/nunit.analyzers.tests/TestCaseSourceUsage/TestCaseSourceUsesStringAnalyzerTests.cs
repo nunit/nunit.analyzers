@@ -16,12 +16,12 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         private static readonly CodeFixProvider fix = new UseNameofFix();
 
         [Test]
-        public void AnalyzeWhenNameOf()
+        public void AnalyzeWhenNameOfSameClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenNameOf
+    public class AnalyzeWhenNameOfSameClass
     {
-        string Tests;
+        static string[] Tests = new[] { ""Data"" };
 
         [TestCaseSource(nameof(Tests))]
         public void Test()
@@ -32,28 +32,29 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
-        public void AnalyzeWhenTypeOf()
+        public void AnalyzeWhenNameOfSameClassNotStatic()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenTypeOf
+    public class AnalyzeWhenNameOfSameClassNotStatic
     {
-        [TestCaseSource(typeof(MyTests))]
+        string[] Tests = new[] { ""Data"" };
+
+        [TestCaseSource(nameof(Tests))]
         public void Test()
         {
         }
-    }
-
-    class MyTests
-    {
     }");
-            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceSourceIsNotStatic)
+                .WithMessage("Specified source 'Tests' is not static.");
+            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
         }
 
         [Test]
         public void NoWarningWhenStringLiteralMissingMember()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenTypeOf
+    public class NoWarningWhenStringLiteralMissingMember
     {
         [TestCaseSource(""Missing"")]
         public void Test()
