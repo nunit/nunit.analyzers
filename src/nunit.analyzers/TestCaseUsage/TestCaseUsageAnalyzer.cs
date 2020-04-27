@@ -70,10 +70,8 @@ namespace NUnit.Analyzers.TestCaseUsage
                         context.CancellationToken.ThrowIfCancellationRequested();
 
                         var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodNode);
-                        var methodParameters = methodSymbol.GetParameterCounts();
-                        var methodRequiredParameters = methodParameters.Item1;
-                        var methodOptionalParameters = methodParameters.Item2;
-                        var methodParamsParameters = methodParameters.Item3;
+                        var (methodRequiredParameters, methodOptionalParameters, methodParamsParameters) =
+                            methodSymbol.GetParameterCounts();
 
                         var (attributePositionalArguments, _) = attributeNode.GetArguments();
 
@@ -141,7 +139,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                 ((IArrayTypeSymbol)typeSymbol).ElementType.SpecialType == SpecialType.System_Object;
         }
 
-        private static Tuple<ITypeSymbol, string, ITypeSymbol> GetParameterType(
+        private static (ITypeSymbol type, string name, ITypeSymbol paramsType) GetParameterType(
             ImmutableArray<IParameterSymbol> methodParameter,
             int position)
         {
@@ -156,7 +154,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                 paramsType = ((IArrayTypeSymbol)symbol.Type).ElementType;
             }
 
-            return new Tuple<ITypeSymbol, string, ITypeSymbol>(type, symbol.Name, paramsType);
+            return (type, symbol.Name, paramsType);
         }
 
         private static void AnalyzePositionalArgumentsAndParameters(SyntaxNodeAnalysisContext context,
@@ -168,10 +166,8 @@ namespace NUnit.Analyzers.TestCaseUsage
             for (var i = 0; i < attributePositionalArguments.Length; i++)
             {
                 var attributeArgument = attributePositionalArguments[i];
-                var methodParametersSymbol = TestCaseUsageAnalyzer.GetParameterType(methodParameters, i);
-                var methodParameterType = methodParametersSymbol.Item1;
-                var methodParameterName = methodParametersSymbol.Item2;
-                var methodParameterParamsType = methodParametersSymbol.Item3;
+                var (methodParameterType, methodParameterName, methodParameterParamsType) =
+                    TestCaseUsageAnalyzer.GetParameterType(methodParameters, i);
 
                 if (methodParameterType.IsTypeParameterAndDeclaredOnMethod())
                     continue;
