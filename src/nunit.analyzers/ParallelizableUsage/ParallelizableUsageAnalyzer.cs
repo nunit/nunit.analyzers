@@ -107,8 +107,7 @@ namespace NUnit.Analyzers.ParallelizableUsage
 
         private static int? GetOptionalEnumValue(SyntaxNodeAnalysisContext context, AttributeSyntax attributeNode)
         {
-            var attributePositionalAndNamedArguments = attributeNode.GetArguments();
-            var attributePositionalArguments = attributePositionalAndNamedArguments.Item1;
+            var (attributePositionalArguments, _) = attributeNode.GetArguments();
             var noExplicitEnumArgument = attributePositionalArguments.Length == 0;
             if (noExplicitEnumArgument)
             {

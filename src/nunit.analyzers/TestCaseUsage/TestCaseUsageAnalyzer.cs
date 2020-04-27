@@ -75,8 +75,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                         var methodOptionalParameters = methodParameters.Item2;
                         var methodParamsParameters = methodParameters.Item3;
 
-                        var attributePositionalAndNamedArguments = attributeNode.GetArguments();
-                        var attributePositionalArguments = attributePositionalAndNamedArguments.Item1;
+                        var (attributePositionalArguments, _) = attributeNode.GetArguments();
 
                         // From NUnit.Framework.TestCaseAttribute.GetParametersForTestCase
                         // Special handling when sole method parameter is an object[].

@@ -34,10 +34,10 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
     }
 }";
             var attribute = await AttributeSyntaxExtensionsTests.GetAttributeSyntaxAsync(testCode, "GetArguments");
-            var arguments = attribute.GetArguments();
+            var (positionalArguments, namedArguments) = attribute.GetArguments();
 
-            Assert.That(arguments.Item1.Length, Is.EqualTo(1), nameof(arguments.Item1));
-            Assert.That(arguments.Item2.Length, Is.EqualTo(2), nameof(arguments.Item2));
+            Assert.That(positionalArguments.Length, Is.EqualTo(1), nameof(positionalArguments));
+            Assert.That(namedArguments.Length, Is.EqualTo(2), nameof(namedArguments));
         }
 
         [Test]
@@ -59,10 +59,10 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
     { }
 }";
             var attribute = await AttributeSyntaxExtensionsTests.GetAttributeSyntaxAsync(testCode, "GetArgumentsWhenNoneExist");
-            var arguments = attribute.GetArguments();
+            var (positionalArguments, namedArguments) = attribute.GetArguments();
 
-            Assert.That(arguments.Item1.Length, Is.EqualTo(0), nameof(arguments.Item1));
-            Assert.That(arguments.Item2.Length, Is.EqualTo(0), nameof(arguments.Item2));
+            Assert.That(positionalArguments.Length, Is.EqualTo(0), nameof(positionalArguments));
+            Assert.That(namedArguments.Length, Is.EqualTo(0), nameof(namedArguments));
         }
 
         private async static Task<AttributeSyntax> GetAttributeSyntaxAsync(string code, string typeName)

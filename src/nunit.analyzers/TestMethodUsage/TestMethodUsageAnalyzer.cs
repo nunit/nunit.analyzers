@@ -115,8 +115,7 @@ namespace NUnit.Analyzers.TestCaseUsage
         private static void AnalyzeExpectedResult(SyntaxNodeAnalysisContext context,
             AttributeSyntax attributeNode, IMethodSymbol methodSymbol)
         {
-            var attributePositionalAndNamedArguments = attributeNode.GetArguments();
-            var attributeNamedArguments = attributePositionalAndNamedArguments.Item2;
+            var (_, attributeNamedArguments) = attributeNode.GetArguments();
 
             var expectedResultNamedArgument = attributeNamedArguments.SingleOrDefault(
                 _ => _.DescendantTokens().Any(__ => __.Text == NunitFrameworkConstants.NameOfExpectedResult));

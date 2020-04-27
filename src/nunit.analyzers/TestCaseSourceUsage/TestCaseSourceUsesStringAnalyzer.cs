@@ -31,11 +31,11 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
         private static readonly DiagnosticDescriptor sourceTypeNotIEnumerableDescriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.TestCaseSourceSourceTypeNotIEnumerable,
-            title: TestCaseSourceUsageConstants.SourceTypeNotINumerableTitle,
-            messageFormat: TestCaseSourceUsageConstants.SourceTypeNotINumerableMessage,
+            title: TestCaseSourceUsageConstants.SourceTypeNotIEnumerableTitle,
+            messageFormat: TestCaseSourceUsageConstants.SourceTypeNotIEnumerableMessage,
             category: Categories.Structure,
             defaultSeverity: DiagnosticSeverity.Error,
-            description: TestCaseSourceUsageConstants.SourceTypeNotINumerableDescription);
+            description: TestCaseSourceUsageConstants.SourceTypeNotIEnumerableDescription);
 
         private static readonly DiagnosticDescriptor sourceTypeNoDefaultConstructorDescriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.TestCaseSourceSourceTypeNoDefaultConstructor,
@@ -188,8 +188,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             SyntaxNodeAnalysisContext context,
             AttributeSyntax attributeSyntax)
         {
-            var attributePositionalAndNamedArguments = attributeSyntax.GetArguments();
-            var positionalArguments = attributePositionalAndNamedArguments.Item1;
+            var (positionalArguments, _) = attributeSyntax.GetArguments();
 
             if (positionalArguments.Length < 1)
             {
@@ -243,9 +242,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                     return null;
                 }
 
-                syntaxNode = syntaxNameAndType.Item1;
-                sourceName = syntaxNameAndType.Item2;
-                isStringLiteral = syntaxNameAndType.Item3;
+                (syntaxNode, sourceName, isStringLiteral) = syntaxNameAndType.Value;
             }
 
             int? numMethodParams = null;
@@ -257,7 +254,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             return new SourceAttributeInformation(sourceType, sourceName, syntaxNode, isStringLiteral, numMethodParams);
         }
 
-        private static Tuple<SyntaxNode, string, bool> GetSyntaxStringConstantAndType(
+        private static (SyntaxNode syntaxNode, string sourceName, bool isLiteral)? GetSyntaxStringConstantAndType(
             SyntaxNodeAnalysisContext context,
             ImmutableArray<AttributeArgumentSyntax> arguments,
             int index)
@@ -276,7 +273,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 bool isStringLiteral = syntaxNode is LiteralExpressionSyntax literal &&
                     literal.IsKind(SyntaxKind.StringLiteralExpression);
 
-                return Tuple.Create(syntaxNode, stringConstant, isStringLiteral);
+                return (syntaxNode, stringConstant, isStringLiteral);
             }
 
             return null;
