@@ -21,6 +21,7 @@ namespace NUnit.Analyzers.Constants
         internal const string TestCaseSourceSourceTypeNotIEnumerable = "NUnit1015";
         internal const string TestCaseSourceSourceTypeNoDefaultConstructor = "NUnit1016";
         internal const string TestCaseSourceSourceIsNotStatic = "NUnit1017";
+        internal const string TestCaseSourceMismatchInNumberOfParameters = "NUnit1018";
 
         #endregion Structure
 

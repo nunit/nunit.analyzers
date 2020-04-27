@@ -53,12 +53,21 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             defaultSeverity: DiagnosticSeverity.Error,
             description: TestCaseSourceUsageConstants.SourceIsNotStaticDescription);
 
+        private static readonly DiagnosticDescriptor mismatchInNumberOfParameters = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters,
+            title: TestCaseSourceUsageConstants.MismatchInNumberOfParametersTitle,
+            messageFormat: TestCaseSourceUsageConstants.MismatchInNumberOfParametersMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseSourceUsageConstants.MismatchInNumberOfParametersDescription);
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             considerNameOfDescriptor,
             missingSourceDescriptor,
             sourceTypeNotIEnumerableDescriptor,
             sourceTypeNoDefaultConstructorDescriptor,
-            sourceNotStaticDescriptor);
+            sourceNotStaticDescriptor,
+            mismatchInNumberOfParameters);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -159,7 +168,11 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
                             if (method.Parameters.Length != attributeInfo.NumberOfMethodParameters)
                             {
-                                // TODO Report mismatch of parameters
+                                context.ReportDiagnostic(Diagnostic.Create(
+                                    mismatchInNumberOfParameters,
+                                    syntaxNode.GetLocation(),
+                                    attributeInfo.NumberOfMethodParameters ?? 0,
+                                    method.Parameters.Length));
                             }
 
                             break;

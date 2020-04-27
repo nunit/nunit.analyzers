@@ -39,7 +39,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     {
         string[] Tests = new[] { ""Data"" };
 
-        [TestCaseSource(nameof(Tests))]
+        [TestCaseSource(↓nameof(Tests))]
         public void Test()
         {
         }
@@ -135,6 +135,111 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             var message = "Consider using nameof(TestCases) instead of \"TestCases\".";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNumberOfParametersMatch()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersMatch
+    {
+        [TestCaseSource(nameof(TestData), new object[] { 1, 3, 5 })]
+        public void ShortName(int number)
+        {
+            Assert.That(number, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData(int first, int second, int third)
+        {
+            yield return first;
+            yield return second;
+            yield return third;
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected
+    {
+        [TestCaseSource(↓nameof(TestData), new object[] { 1 })]
+        public void ShortName(int number)
+        {
+            Assert.That(number, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData()
+        {
+            yield return 1;
+            yield return 2;
+            yield return 3;
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
+                .WithMessage("The TestCaseSource provides '1' parameter(s), but the target method expects '0' parameter(s).");
+            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersProvided()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersProvided
+    {
+        [TestCaseSource(↓nameof(TestData))]
+        public void ShortName(int number)
+        {
+            Assert.That(number, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData(string dummy)
+        {
+            yield return 1;
+            yield return 2;
+            yield return 3;
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
+                .WithMessage("The TestCaseSource provides '0' parameter(s), but the target method expects '1' parameter(s).");
+            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNumberOfParametersDoesNotMatch()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersProvided
+    {
+        [TestCaseSource(↓nameof(TestData), new object[] { 1, 2, 3 })]
+        public void ShortName(int number)
+        {
+            Assert.That(number, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData(string dummy, int anotherDummy)
+        {
+            yield return 1;
+            yield return 2;
+            yield return 3;
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
+                .WithMessage("The TestCaseSource provides '3' parameter(s), but the target method expects '2' parameter(s).");
+            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
         }
     }
 }

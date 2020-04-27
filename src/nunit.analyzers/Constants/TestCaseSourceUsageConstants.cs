@@ -17,5 +17,9 @@ namespace NUnit.Analyzers.Constants
         internal const string SourceIsNotStaticTitle = "Specified source is not static.";
         internal const string SourceIsNotStaticMessage = "Specified source '{0}' is not static.";
         internal const string SourceIsNotStaticDescription = "The specified source must be static.";
+
+        internal const string MismatchInNumberOfParametersTitle = "The number of parameters provided by the TestCaseSource does not match the number of parameters in the target method.";
+        internal const string MismatchInNumberOfParametersMessage = "The TestCaseSource provides '{0}' parameter(s), but the target method expects '{1}' parameter(s).";
+        internal const string MismatchInNumberOfParametersDescription = "The number of parameters provided by the TestCaseSource must match the number of parameters in the target method.";
     }
 }
