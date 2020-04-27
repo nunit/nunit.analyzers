@@ -14,7 +14,8 @@ namespace NUnit.Analyzers.Extensions
         /// The first count is the required parameters, the second is the optional count, 
         /// and the last is the <code>params</code> count.
         /// </returns>
-        internal static Tuple<uint, uint, uint> GetParameterCounts(this IMethodSymbol @this)
+        internal static (uint requiredParameters, uint optionalParameters, uint paramsCount) GetParameterCounts(
+            this IMethodSymbol @this)
         {
             var parameters = @this.Parameters;
 
@@ -38,7 +39,7 @@ namespace NUnit.Analyzers.Extensions
                 }
             }
 
-            return new Tuple<uint, uint, uint>(requiredParameters, optionalParameters, paramsParameters);
+            return (requiredParameters, optionalParameters, paramsParameters);
         }
 
         /// <summary>

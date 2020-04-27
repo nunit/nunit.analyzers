@@ -23,11 +23,11 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
     }
 }";
             var method = await this.GetMethodSymbolAsync(testCode);
-            var counts = method.GetParameterCounts();
+            var (requiredParameters, optionalParameters, paramsCount) = method.GetParameterCounts();
 
-            Assert.That(counts.Item1, Is.EqualTo(3), nameof(counts.Item1));
-            Assert.That(counts.Item2, Is.EqualTo(2), nameof(counts.Item2));
-            Assert.That(counts.Item3, Is.EqualTo(1), nameof(counts.Item3));
+            Assert.That(requiredParameters, Is.EqualTo(3), nameof(requiredParameters));
+            Assert.That(optionalParameters, Is.EqualTo(2), nameof(optionalParameters));
+            Assert.That(paramsCount, Is.EqualTo(1), nameof(paramsCount));
         }
 
         private async Task<IMethodSymbol> GetMethodSymbolAsync(string code)
