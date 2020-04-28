@@ -1,3 +1,4 @@
+using System;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -220,7 +221,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     [TestFixture]
-    public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersProvided
+    public class AnalyzeWhenNumberOfParametersDoesNotMatch
     {
         [TestCaseSource(↓nameof(TestData), new object[] { 1, 2, 3 })]
         public void ShortName(int number)
@@ -239,6 +240,53 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
                 .WithMessage("The TestCaseSource provides '3' parameter(s), but the target method expects '2' parameter(s).");
+            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
+        }
+
+        [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]
+        [TestCase("private static TestCaseData[] TestCases => new TestCaseData[0];")]
+        [TestCase("private static TestCaseData[] TestCases() => new TestCaseData[0];")]
+        public void AnalyzeWhenSourceDoesProvideIEnumerable(string testCaseMember)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class AnalyzeWhenSourceDoesProvideIEnumerable
+    {
+        private static readonly TestCaseData[] TestCases = new TestCaseData[0];
+
+        [TestCaseSource(nameof(TestCases))]
+        public void Test()
+        {
+        }
+    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMember);
+
+            AnalyzerAssert.Valid< TestCaseSourceUsesStringAnalyzer>(testCode);
+        }
+
+        [TestCase("private static readonly object TestCases = null;", "object")]
+        [TestCase("private static object TestCases => null;", "object")]
+        [TestCase("private static object TestCases() => null;", "object")]
+        [TestCase("private static readonly int TestCases = 1;", "int")]
+        [TestCase("private static int TestCases => 1;", "int")]
+        [TestCase("private static int TestCases() => 1;", "int")]
+        [TestCase("private static readonly PlatformID TestCases = PlatformID.Unix;", "System.PlatformID")]
+        [TestCase("private static PlatformID TestCases => PlatformID.Unix;", "System.PlatformID")]
+        [TestCase("private static PlatformID TestCases() => PlatformID.Unix;", "System.PlatformID")]
+        public void AnalyzeWhenSourceDoesNotProvideIEnumerable(string testCaseMember, string returnType)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class AnalyzeWhenSourceDoesProvideIEnumerable
+    {
+        private static readonly object TestCases = null;
+
+        [TestCaseSource(nameof(TestCases))]
+        public void Test()
+        {
+        }
+    }").AssertReplace("private static readonly object TestCases = null;", testCaseMember);
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceDoesNotReturnIEnumerable)
+                .WithMessage($"The TestCaseSource does not return an IEnumerable or a type that implements IEnumerable. Instead it returns a '{returnType}'.");
             AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
         }
     }

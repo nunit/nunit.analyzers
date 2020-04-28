@@ -21,5 +21,9 @@ namespace NUnit.Analyzers.Constants
         internal const string MismatchInNumberOfParametersTitle = "The number of parameters provided by the TestCaseSource does not match the number of parameters in the target method.";
         internal const string MismatchInNumberOfParametersMessage = "The TestCaseSource provides '{0}' parameter(s), but the target method expects '{1}' parameter(s).";
         internal const string MismatchInNumberOfParametersDescription = "The number of parameters provided by the TestCaseSource must match the number of parameters in the target method.";
+
+        internal const string SourceDoesNotReturnIEnumerableTitle = "The source specified by the TestCaseSource does not return an IEnumerable or a type that implements IEnumerable.";
+        internal const string SourceDoesNotReturnIEnumerableMessage = "The TestCaseSource does not return an IEnumerable or a type that implements IEnumerable. Instead it returns a '{0}'.";
+        internal const string SourceDoesNotReturnIEnumerableDescription = "The source specified by the TestCaseSource must return an IEnumerable or a type that implements IEnumerable.";
     }
 }

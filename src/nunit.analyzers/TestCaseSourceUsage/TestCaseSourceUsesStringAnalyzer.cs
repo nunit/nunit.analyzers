@@ -61,13 +61,22 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             defaultSeverity: DiagnosticSeverity.Error,
             description: TestCaseSourceUsageConstants.MismatchInNumberOfParametersDescription);
 
+        private static readonly DiagnosticDescriptor sourceDoesNotReturnIEnumerable = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseSourceDoesNotReturnIEnumerable,
+            title: TestCaseSourceUsageConstants.SourceDoesNotReturnIEnumerableTitle,
+            messageFormat: TestCaseSourceUsageConstants.SourceDoesNotReturnIEnumerableMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseSourceUsageConstants.SourceDoesNotReturnIEnumerableDescription);
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             considerNameOfDescriptor,
             missingSourceDescriptor,
             sourceTypeNotIEnumerableDescriptor,
             sourceTypeNoDefaultConstructorDescriptor,
             sourceNotStaticDescriptor,
-            mismatchInNumberOfParameters);
+            mismatchInNumberOfParameters,
+            sourceDoesNotReturnIEnumerable);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -156,36 +165,42 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                     switch (symbol)
                     {
                         case IPropertySymbol property:
-                            ReportIfSymbolNotIEnumerable(property.Type);
+                            ReportIfSymbolNotIEnumerable(context, syntaxNode, property.Type);
                             ReportIfParametersSupplied(attributeInfo.NumberOfMethodParameters);
                             break;
                         case IFieldSymbol field:
-                            ReportIfSymbolNotIEnumerable(field.Type);
+                            ReportIfSymbolNotIEnumerable(context, syntaxNode, field.Type);
                             ReportIfParametersSupplied(attributeInfo.NumberOfMethodParameters);
                             break;
                         case IMethodSymbol method:
-                            ReportIfSymbolNotIEnumerable(method.ReturnType);
+                            ReportIfSymbolNotIEnumerable(context, syntaxNode, method.ReturnType);
 
-                            if (method.Parameters.Length != attributeInfo.NumberOfMethodParameters)
+                            var methodParametersFromAttribute = attributeInfo.NumberOfMethodParameters ?? 0;
+                            if (method.Parameters.Length != methodParametersFromAttribute)
                             {
                                 context.ReportDiagnostic(Diagnostic.Create(
                                     mismatchInNumberOfParameters,
                                     syntaxNode.GetLocation(),
-                                    attributeInfo.NumberOfMethodParameters ?? 0,
+                                    methodParametersFromAttribute,
                                     method.Parameters.Length));
                             }
-
                             break;
                     }
                 }
             }
         }
 
-        private static void ReportIfSymbolNotIEnumerable(ITypeSymbol typeSymbol)
+        private static void ReportIfSymbolNotIEnumerable(
+            SyntaxNodeAnalysisContext context,
+            SyntaxNode syntaxNode,
+            ITypeSymbol typeSymbol)
         {
             if (!typeSymbol.IsIEnumerable(out var _))
             {
-                // TODO Report not IEnumerable
+                context.ReportDiagnostic(Diagnostic.Create(
+                    sourceDoesNotReturnIEnumerable,
+                    syntaxNode.GetLocation(),
+                    typeSymbol));
             }
         }
 
