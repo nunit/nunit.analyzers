@@ -1,4 +1,3 @@
-using System;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -288,6 +287,58 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 .Create(AnalyzerIdentifiers.TestCaseSourceDoesNotReturnIEnumerable)
                 .WithMessage($"The TestCaseSource does not return an IEnumerable or a type that implements IEnumerable. Instead it returns a '{returnType}'.");
             AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
+        }
+
+        [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", "fields")]
+        [TestCase("private static TestCaseData[] TestCases => new TestCaseData[0];", "properties")]
+        public void AnalyzeWhenParametersProvidedToFieldOrProperty(string testCaseMember, string kind)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class AnalyzeWhenParametersProvidedToFieldOrProperty
+    {
+        private static readonly TestCaseData[] TestCases = new TestCaseData[0];
+
+        [TestCaseSource(nameof(TestCases), new object[] { 1, 2, 3})]
+        public void Test()
+        {
+        }
+    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMember);
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceSuppliesParametersToFieldOrProperty)
+                .WithMessage($"The TestCaseSource provides '3' parameter(s), but {kind} cannot take parameters.");
+            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSourceIsInAnotherClass()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class MyTestClass
+    {
+        [TestCaseSource(typeof(AnotherClass), ""DivideCases""))]
+        public void DivideTest(int n, int d, int q)
+        {
+            Assert.AreEqual(q, n / d);
+        }
+    }
+
+    class AnotherClass
+    {
+        static object[] DivideCases =
+        {
+            new object[] { 12, 3, 4 },
+            new object[] { 12, 2, 6 },
+            new object[] { 12, 4, 3 }
+        };
+    }");
+            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenAllInformationIsProvidedFromAttribute()
+        {
+
         }
     }
 }

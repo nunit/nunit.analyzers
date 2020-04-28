@@ -25,5 +25,9 @@ namespace NUnit.Analyzers.Constants
         internal const string SourceDoesNotReturnIEnumerableTitle = "The source specified by the TestCaseSource does not return an IEnumerable or a type that implements IEnumerable.";
         internal const string SourceDoesNotReturnIEnumerableMessage = "The TestCaseSource does not return an IEnumerable or a type that implements IEnumerable. Instead it returns a '{0}'.";
         internal const string SourceDoesNotReturnIEnumerableDescription = "The source specified by the TestCaseSource must return an IEnumerable or a type that implements IEnumerable.";
+
+        internal const string TestCaseSourceSuppliesParametersTitle = "The TestCaseSource provides parameters to source - field or property - that expects no parameters.";
+        internal const string TestCaseSourceSuppliesParametersMessage = "The TestCaseSource provides '{0}' parameter(s), but {1} cannot take parameters.";
+        internal const string TestCaseSourceSuppliesParametersDescription = "The TestCaseSource must not provide any parameters when the source is a field or property.";
     }
 }

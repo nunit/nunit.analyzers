@@ -69,6 +69,14 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             defaultSeverity: DiagnosticSeverity.Error,
             description: TestCaseSourceUsageConstants.SourceDoesNotReturnIEnumerableDescription);
 
+        private static readonly DiagnosticDescriptor parametersSuppliedToFieldOrProperty = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseSourceSuppliesParametersToFieldOrProperty,
+            title: TestCaseSourceUsageConstants.TestCaseSourceSuppliesParametersTitle,
+            messageFormat: TestCaseSourceUsageConstants.TestCaseSourceSuppliesParametersMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseSourceUsageConstants.TestCaseSourceSuppliesParametersDescription);
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             considerNameOfDescriptor,
             missingSourceDescriptor,
@@ -76,7 +84,8 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             sourceTypeNoDefaultConstructorDescriptor,
             sourceNotStaticDescriptor,
             mismatchInNumberOfParameters,
-            sourceDoesNotReturnIEnumerable);
+            sourceDoesNotReturnIEnumerable,
+            parametersSuppliedToFieldOrProperty);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -166,11 +175,11 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                     {
                         case IPropertySymbol property:
                             ReportIfSymbolNotIEnumerable(context, syntaxNode, property.Type);
-                            ReportIfParametersSupplied(attributeInfo.NumberOfMethodParameters);
+                            ReportIfParametersSupplied(context, syntaxNode, attributeInfo.NumberOfMethodParameters, "properties");
                             break;
                         case IFieldSymbol field:
                             ReportIfSymbolNotIEnumerable(context, syntaxNode, field.Type);
-                            ReportIfParametersSupplied(attributeInfo.NumberOfMethodParameters);
+                            ReportIfParametersSupplied(context, syntaxNode, attributeInfo.NumberOfMethodParameters, "fields");
                             break;
                         case IMethodSymbol method:
                             ReportIfSymbolNotIEnumerable(context, syntaxNode, method.ReturnType);
@@ -204,11 +213,19 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             }
         }
 
-        private static void ReportIfParametersSupplied(int? numberOfMethodParameters)
+        private static void ReportIfParametersSupplied(
+            SyntaxNodeAnalysisContext context,
+            SyntaxNode syntaxNode,
+            int? numberOfMethodParameters,
+            string kind)
         {
             if (numberOfMethodParameters > 0)
             {
-                // TODO Report parameters passed to field or property
+                context.ReportDiagnostic(Diagnostic.Create(
+                    parametersSuppliedToFieldOrProperty,
+                    syntaxNode.GetLocation(),
+                    numberOfMethodParameters,
+                    kind));
             }
         }
 
@@ -320,19 +337,23 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 return null;
             }
 
-            var symbols = context.SemanticModel.LookupSymbols(
-                attributeInformation.SyntaxNode.SpanStart,
-                container: attributeInformation.SourceType,
-                name: attributeInformation.SourceName);
-
-            foreach (var symbol in symbols)
+            foreach (var syntaxReference in attributeInformation.SourceType.DeclaringSyntaxReferences)
             {
-                switch (symbol.Kind)
+                // TODO. Only suggest nameof operator if the source can be accessed (or to begin with only in same class)
+                var symbols = context.SemanticModel.LookupSymbols(
+                    syntaxReference.Span.Start + 10,    // TODO Remove hack to place start at the class and not before
+                    container: attributeInformation.SourceType,
+                    name: attributeInformation.SourceName);
+
+                foreach (var symbol in symbols)
                 {
-                    case SymbolKind.Field:
-                    case SymbolKind.Property:
-                    case SymbolKind.Method:
-                        return symbol;
+                    switch (symbol.Kind)
+                    {
+                        case SymbolKind.Field:
+                        case SymbolKind.Property:
+                        case SymbolKind.Method:
+                            return symbol;
+                    }
                 }
             }
 
