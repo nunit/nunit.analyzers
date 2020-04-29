@@ -316,7 +316,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public class MyTestClass
     {
-        [TestCaseSource(typeof(AnotherClass), ""DivideCases""))]
+        [TestCaseSource(typeof(AnotherClass), ""DivideCases"")]
         public void DivideTest(int n, int d, int q)
         {
             Assert.AreEqual(q, n / d);

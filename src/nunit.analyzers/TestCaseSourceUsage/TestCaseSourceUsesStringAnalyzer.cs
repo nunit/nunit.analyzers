@@ -155,7 +155,11 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 }
                 else
                 {
-                    if (attributeInfo.IsStringLiteral)
+                    var sourceIsAccessible = context.SemanticModel.IsAccessible(
+                        syntaxNode.GetLocation().SourceSpan.Start,
+                        symbol);
+
+                    if (attributeInfo.IsStringLiteral && sourceIsAccessible)
                     {
                         context.ReportDiagnostic(Diagnostic.Create(
                             considerNameOfDescriptor,
@@ -339,7 +343,6 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
             foreach (var syntaxReference in attributeInformation.SourceType.DeclaringSyntaxReferences)
             {
-                // TODO. Only suggest nameof operator if the source can be accessed (or to begin with only in same class)
                 var symbols = context.SemanticModel.LookupSymbols(
                     syntaxReference.Span.Start + 10,    // TODO Remove hack to place start at the class and not before
                     container: attributeInformation.SourceType,
