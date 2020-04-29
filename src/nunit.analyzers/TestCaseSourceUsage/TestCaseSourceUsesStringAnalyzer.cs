@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -297,7 +296,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             int? numMethodParams = null;
             if (positionalArguments.Length > sourceNameIndex + 1)
             {
-                numMethodParams = GetNumberOfParametersToMethod(positionalArguments[1]);
+                numMethodParams = GetNumberOfParametersToMethod(positionalArguments[sourceNameIndex + 1]);
             }
 
             return new SourceAttributeInformation(sourceType, sourceName, syntaxNode, isStringLiteral, numMethodParams);
