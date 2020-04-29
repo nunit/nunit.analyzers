@@ -342,8 +342,11 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
             foreach (var syntaxReference in attributeInformation.SourceType.DeclaringSyntaxReferences)
             {
+                var syntax = syntaxReference.GetSyntax() as ClassDeclarationSyntax;
+                var classIdentifier = syntax.Identifier;
+
                 var symbols = context.SemanticModel.LookupSymbols(
-                    syntaxReference.Span.Start + 10,    // TODO Remove hack to place start at the class and not before
+                    classIdentifier.Span.Start,
                     container: attributeInformation.SourceType,
                     name: attributeInformation.SourceName);
 
