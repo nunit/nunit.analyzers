@@ -16,11 +16,58 @@ The TestCaseSource must not provide any parameters when the source is a field or
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+public class MyTestClass
+{
+    [TestCaseSource(nameof(DivideCases), new object[] { "Testing" })]
+    public void DivideTest(int n, int d, int q)
+    {
+        Assert.AreEqual(q, n / d);
+    }
+
+    static object[] DivideCases =
+    {
+        new object[] { 12, 3, 4 },
+        new object[] { 12, 2, 6 },
+        new object[] { 12, 4, 3 }
+    };
+}
+```
+
+### Explanation
+
+In the sample above, `DivideCases` is a field, and as such does not accept any arguments, so the `TestCaseSource` should not supply any parameters.
+
+### Fix
+
+Either remove the parameter from `TestCaseSource` or change the field into a method.:
+
+```csharp
+public class MyTestClass
+{
+    [TestCaseSource(nameof(DivideCases), new object[] { "Testing" })]
+    public void DivideTest(int n, int d, int q)
+    {
+        Assert.AreEqual(q, n / d);
+    }
+
+    static object[] DivideCases(string input)
+    {
+        return new object[]
+        {
+            new object[] { 12, 3, 4 },
+            new object[] { 12, 2, 6 },
+            new object[] { 12, 4, 3 }
+        };
+    }
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity

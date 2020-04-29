@@ -16,11 +16,53 @@ The number of parameters provided by the TestCaseSource must match the number of
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+public class MyTestClass
+{
+    [TestCaseSource(nameof(Strings), new object[] { "Testing" })]
+    public void StringTest(string input)
+    {
+        Assert.That(input, Is.Not.Null);
+    }
+
+    static IEnumerable<string> Strings(string first, string second)
+    {
+        yield return first;
+        yield return second;
+    }
+}
+```
+
+### Explanation
+
+In the sample above, the method `Strings` expects two arguments, but the `TestCaseSource` only supplies one argument.
+
+### Fix
+
+Either change `Strings` to only expect one argument or supply both from the `TestCaseSource`:
+
+```csharp
+public class MyTestClass
+{
+    [TestCaseSource(nameof(Strings), new object[] { "Testing", "TestCaseSource" })]
+    public void StringTest(string input)
+    {
+        Assert.That(input, Is.Not.Null);
+    }
+
+    static IEnumerable<string> Strings(string first, string second)
+    {
+        yield return first;
+        yield return second;
+    }
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity

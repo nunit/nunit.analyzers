@@ -16,11 +16,46 @@ The source specified by the TestCaseSource must return an IEnumerable or a type 
 
 ## Motivation
 
-ADD MOTIVATION HERE
+To prevent tests that will fail at runtime due to improper construction.
 
 ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+### Example Violation
+
+```csharp
+public class AnalyzeWhenSourceDoesProvideIEnumerable
+{
+    private static readonly int testCases = 42;
+
+    [TestCaseSource(nameof(testCases))]
+    public void Test(int input)
+    {
+    }
+}
+```
+
+### Explanation
+
+In the sample above, the source specified by `TestCaseSource` - the field `testCases` - does not return an `IEnumerable` or a type that implements `IEnumerable`,
+instead it returns an `int`.
+
+However, sources specified by `TestCaseSource` [must return an `IEnumerable` or a type that implements `IEnumerable`.](https://github.com/nunit/docs/wiki/TestCaseSource-Attribute).
+
+### Fix
+
+Change `testCases` to return an `IEnumerable` or a type that implements `IEnumerable`:
+
+```csharp
+public class AnalyzeWhenSourceDoesProvideIEnumerable
+{
+    private static readonly int[] testCases = new int[] { 1, 2, 42 };
+
+    [TestCaseSource(nameof(testCases))]
+    public void Test(int input)
+    {
+    }
+}
+```
 
 <!-- start generated config severity -->
 ## Configure severity
