@@ -242,6 +242,36 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
         }
 
+        [Test]
+        public void AnalyzeWhenNumberOfParametersDoesNotMatchInAnotherClass()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersDoesNotMatchInAnotherClass
+    {
+        [TestCaseSource(typeof(AnotherClass), ↓nameof(AnotherClass.TestData), new object[] { 1, 2, 3 })]
+        public void ShortName(int number)
+        {
+            Assert.That(number, Is.GreaterThanOrEqualTo(0));
+        }
+    }
+
+    public class AnotherClass
+    {
+        public static IEnumerable<int> TestData(string dummy, int anotherDummy)
+        {
+            yield return 1;
+            yield return 2;
+            yield return 3;
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
+                .WithMessage("The TestCaseSource provides '3' parameter(s), but the target method expects '2' parameter(s).");
+            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
+        }
+
         [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]
         [TestCase("private static TestCaseData[] TestCases => new TestCaseData[0];")]
         [TestCase("private static TestCaseData[] TestCases() => new TestCaseData[0];")]
@@ -314,7 +344,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         public void AnalyzeWhenSourceIsInAnotherClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class MyTestClass
+    public class AnalyzeWhenSourceIsInAnotherClass
     {
         [TestCaseSource(typeof(AnotherClass), ""DivideCases"")]
         public void DivideTest(int n, int d, int q)
@@ -336,9 +366,54 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
-        public void AnalyzeWhenAllInformationIsProvidedFromAttribute()
+        public void AnalyzeWhenSourceIsInNestedClass()
         {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class AnalyzeWhenSourceIsInNestedClass
+    {
+        [TestCaseSource(typeof(AnotherClass), ""DivideCases"")]
+        public void DivideTest(int n, int d, int q)
+        {
+            Assert.AreEqual(q, n / d);
+        }
 
+        class AnotherClass
+        {
+            static object[] DivideCases =
+            {
+                new object[] { 12, 3, 4 },
+                new object[] { 12, 2, 6 },
+                new object[] { 12, 4, 3 }
+            };
+        }
+    }");
+            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenAllInformationIsProvidedByAttribute()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class AnalyzeWhenAllInformationIsProvidedByAttribute
+    {
+        [TestCaseSource(typeof(AnotherClass), ""TestStrings"", new object[] { false })]
+        public void ShortName(string name)
+        {
+            Assert.That(name.Length, Is.LessThan(15));
+        }
+    }
+
+    class AnotherClass
+    {
+        static IEnumerable<string> TestStrings(bool generateLongTestCase)
+        {
+            if (generateLongTestCase)
+                yield return ""ThisIsAVeryLongNameThisIsAVeryLongName"";
+            yield return ""SomeName"";
+            yield return ""YetAnotherName"";
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
         }
     }
 }
