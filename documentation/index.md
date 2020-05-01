@@ -42,3 +42,4 @@
 | [NUnit2021](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2021.md)| Incompatible types for EqualTo constraint. | :white_check_mark: |
 | [NUnit2022](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2022.md)| Missing property required for constraint. | :white_check_mark: |
 | [NUnit2023](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2023.md)| Invalid NullConstraint usage. | :white_check_mark: |
+| [NUnit2024](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2024.md)| Wrong actual type used with String Constraint. | :white_check_mark: |

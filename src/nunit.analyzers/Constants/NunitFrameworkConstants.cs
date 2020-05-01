@@ -61,6 +61,14 @@ namespace NUnit.Analyzers.Constants
 
         public const string FullNameOfSameAsConstraint = "NUnit.Framework.Constraints.SameAsConstraint";
         public const string FullNameOfEqualToConstraint = "NUnit.Framework.Constraints.EqualConstraint";
+        public const string FullNameOfEndsWithConstraint = "NUnit.Framework.Constraints.EndsWithConstraint";
+        public const string FullNameOfRegexConstraint = "NUnit.Framework.Constraints.RegexConstraint";
+        public const string FullNameOfEmptyStringConstraint = "NUnit.Framework.Constraints.EmptyStringConstraint";
+        public const string FullNameOfSamePathConstraint = "NUnit.Framework.Constraints.SamePathConstraint";
+        public const string FullNameOfSamePathOrUnderConstraint = "NUnit.Framework.Constraints.SamePathOrUnderConstraint";
+        public const string FullNameOfStartsWithConstraint = "NUnit.Framework.Constraints.StartsWithConstraint";
+        public const string FullNameOfSubPathConstraint = "NUnit.Framework.Constraints.SubPathConstraint";
+        public const string FullNameOfSubstringConstraint = "NUnit.Framework.Constraints.SubstringConstraint";
 
         public const string NameOfTestCaseAttribute = "TestCaseAttribute";
         public const string NameOfTestCaseSourceAttribute = "TestCaseSourceAttribute";
