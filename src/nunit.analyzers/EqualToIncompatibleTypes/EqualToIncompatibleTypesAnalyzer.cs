@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -58,6 +59,10 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
 
                 var actualTypeInfo = semanticModel.GetTypeInfo(actualExpression, cancellationToken);
                 var actualType = actualTypeInfo.Type ?? actualTypeInfo.ConvertedType;
+
+                if (actualType == null)
+                    continue;
+
                 actualType = AssertHelper.UnwrapActualType(actualType);
 
                 var expectedType = semanticModel.GetTypeInfo(expectedArgumentExpression, cancellationToken).Type;
@@ -85,10 +90,10 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
         }
 
         private static bool CanBeAssertedForEquality(
-            ITypeSymbol actualType,
-            ITypeSymbol expectedType,
+            ITypeSymbol? actualType,
+            ITypeSymbol? expectedType,
             SemanticModel semanticModel,
-            ImmutableHashSet<(ITypeSymbol, ITypeSymbol)> checkedTypes = default)
+            ImmutableHashSet<(ITypeSymbol, ITypeSymbol)>? checkedTypes = null)
         {
             if (actualType == null
                 || actualType.TypeKind == TypeKind.Error
@@ -208,7 +213,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
         }
 
         private static bool IsKeyValuePair(INamedTypeSymbol typeSymbol, string fullSymbolName,
-            out ITypeSymbol keyType, out ITypeSymbol valueType)
+            [NotNullWhen(true)] out ITypeSymbol? keyType, [NotNullWhen(true)] out ITypeSymbol? valueType)
         {
             const string keyValuePairFullName = "System.Collections.Generic.KeyValuePair`2";
 
@@ -228,7 +233,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
         }
 
         private static bool IsDictionary(INamedTypeSymbol typeSymbol, string fullSymbolName,
-            out ITypeSymbol keyType, out ITypeSymbol valueType)
+            [NotNullWhen(true)] out ITypeSymbol? keyType, [NotNullWhen(true)] out ITypeSymbol? valueType)
         {
             const string dictionaryFullName = "System.Collections.Generic.Dictionary`2";
 

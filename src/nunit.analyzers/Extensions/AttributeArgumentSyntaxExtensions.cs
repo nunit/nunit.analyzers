@@ -40,13 +40,14 @@ namespace NUnit.Analyzers.Extensions
             //See https://github.com/nunit/nunit/blob/f16d12d6fa9e5c879601ad57b4b24ec805c66054/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L396
             //for the reasoning behind this implementation.
             Optional<object> possibleConstantValue = model.GetConstantValue(@this.Expression);
-            object argumentValue = null;
+            object? argumentValue = null;
             if (possibleConstantValue.HasValue)
             {
                 argumentValue = possibleConstantValue.Value;
             }
+
             TypeInfo sourceTypeInfo = model.GetTypeInfo(@this.Expression);
-            ITypeSymbol argumentType = sourceTypeInfo.Type;
+            ITypeSymbol? argumentType = sourceTypeInfo.Type;
 
             if (argumentType == null)
             {
@@ -55,7 +56,7 @@ namespace NUnit.Analyzers.Extensions
             }
             else
             {
-                var targetType = GetTargetType(target);
+                ITypeSymbol? targetType = GetTargetType(target);
 
                 if (allowEnumToUnderlyingTypeConversion && targetType?.TypeKind == TypeKind.Enum)
                     targetType = (targetType as INamedTypeSymbol)?.EnumUnderlyingType;
@@ -73,33 +74,36 @@ namespace NUnit.Analyzers.Extensions
                 }
                 else
                 {
-                    var canConvert = false;
+                    if (argumentValue != null)
+                    {
+                        var canConvert = false;
 
-                    if (targetType.SpecialType == SpecialType.System_Int16 || targetType.SpecialType == SpecialType.System_Byte ||
-                        targetType.SpecialType == SpecialType.System_Int64 ||
-                        targetType.SpecialType == SpecialType.System_SByte || targetType.SpecialType == SpecialType.System_Double)
-                    {
-                        canConvert = argumentType.SpecialType == SpecialType.System_Int32;
-                    }
-                    else if (targetType.SpecialType == SpecialType.System_Decimal)
-                    {
-                        canConvert = argumentType.SpecialType == SpecialType.System_Double ||
-                            argumentType.SpecialType == SpecialType.System_String ||
-                            argumentType.SpecialType == SpecialType.System_Int32;
-                    }
-                    else if (targetType.SpecialType == SpecialType.System_DateTime)
-                    {
-                        canConvert = argumentType.SpecialType == SpecialType.System_String;
-                    }
+                        if (targetType.SpecialType == SpecialType.System_Int16 || targetType.SpecialType == SpecialType.System_Byte ||
+                            targetType.SpecialType == SpecialType.System_Int64 ||
+                            targetType.SpecialType == SpecialType.System_SByte || targetType.SpecialType == SpecialType.System_Double)
+                        {
+                            canConvert = argumentType.SpecialType == SpecialType.System_Int32;
+                        }
+                        else if (targetType.SpecialType == SpecialType.System_Decimal)
+                        {
+                            canConvert = argumentType.SpecialType == SpecialType.System_Double ||
+                                argumentType.SpecialType == SpecialType.System_String ||
+                                argumentType.SpecialType == SpecialType.System_Int32;
+                        }
+                        else if (targetType.SpecialType == SpecialType.System_DateTime)
+                        {
+                            canConvert = argumentType.SpecialType == SpecialType.System_String;
+                        }
 
-                    if (canConvert)
-                    {
-                        return AttributeArgumentSyntaxExtensions.TryChangeType(targetType, argumentValue);
-                    }
+                        if (canConvert)
+                        {
+                            return AttributeArgumentSyntaxExtensions.TryChangeType(targetType, argumentValue);
+                        }
 
-                    if (CanBeTranslatedByTypeConverter(targetType, argumentValue))
-                    {
-                        return true;
+                        if (CanBeTranslatedByTypeConverter(targetType, argumentValue))
+                        {
+                            return true;
+                        }
                     }
 
 
@@ -110,8 +114,11 @@ namespace NUnit.Analyzers.Extensions
 
         private static ITypeSymbol GetTargetType(ITypeSymbol target)
         {
-            if (target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
-                return (target as INamedTypeSymbol).TypeArguments.ToArray()[0];
+            if (target is INamedTypeSymbol namedType &&
+                target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+            {
+                return namedType.TypeArguments[0];
+            }
 
             return target;
         }

@@ -31,11 +31,14 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             var invocationNode = root.FindNode(diagnostic.Location.SourceSpan) as InvocationExpressionSyntax;
             var invocationIdentifier = diagnostic.Properties[AnalyzerPropertyKeys.ModelName];
 
+            if (invocationNode == null)
+                return;
+
             // First, replace the original method invocation name to "That".
             var newInvocationNode = invocationNode.ReplaceNode(
                 invocationNode.DescendantNodes(_ => true).Where(_ =>
                     _.IsKind(SyntaxKind.IdentifierName) &&
-                    (_ as IdentifierNameSyntax).Identifier.Text == invocationIdentifier).Single(),
+                    ((IdentifierNameSyntax)_).Identifier.Text == invocationIdentifier).Single(),
                 SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfAssertThat));
 
             // Now, replace the arguments.

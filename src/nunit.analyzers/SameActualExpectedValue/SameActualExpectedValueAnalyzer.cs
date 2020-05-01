@@ -38,7 +38,7 @@ namespace NUnit.Analyzers.SameActualExpectedValue
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     descriptor,
-                    expected.GetLocation(),
+                    expected!.GetLocation(),
                     expected.ToString()));
             }
         }

@@ -61,10 +61,10 @@ namespace NUnit.Analyzers.ConstraintUsage
             context.RegisterCodeFix(codeAction, context.Diagnostics);
         }
 
-        protected abstract (ExpressionSyntax actual, ExpressionSyntax constraintExpression) GetActualAndConstraintExpression(
+        protected abstract (ExpressionSyntax? actual, ExpressionSyntax? constraintExpression) GetActualAndConstraintExpression(
             ExpressionSyntax conditionNode, string suggestedConstraintString);
 
-        protected static InvocationExpressionSyntax GetConstraintExpression(string constraintString, ExpressionSyntax expected)
+        protected static InvocationExpressionSyntax? GetConstraintExpression(string constraintString, ExpressionSyntax? expected)
         {
             if (expected == null)
                 return null;

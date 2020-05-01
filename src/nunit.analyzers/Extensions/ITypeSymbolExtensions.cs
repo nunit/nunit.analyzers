@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace NUnit.Analyzers.Extensions
 {
     internal static class ITypeSymbolExtensions
     {
-        internal static bool IsAssignableFrom(this ITypeSymbol @this, ITypeSymbol other)
+        internal static bool IsAssignableFrom(this ITypeSymbol @this, ITypeSymbol? other)
         {
             return @this != null &&
                 other != null &&
@@ -76,7 +77,8 @@ namespace NUnit.Analyzers.Extensions
             => typeSymbol.TypeKind == TypeKind.TypeParameter &&
                (typeSymbol as ITypeParameterSymbol)?.DeclaringMethod != null;
 
-        internal static bool IsAwaitable(this ITypeSymbol @this, out ITypeSymbol returnType)
+        internal static bool IsAwaitable(this ITypeSymbol @this,
+            [NotNullWhen(true)] out ITypeSymbol? returnType)
         {
             returnType = null;
 
@@ -130,7 +132,7 @@ namespace NUnit.Analyzers.Extensions
         /// </summary>
         /// <param name="elementType">Contains IEnumerable generic argument, or null, if type implements
         /// only non-generic IEnumerable interface, or no IEnumerable interface at all</param>
-        internal static bool IsIEnumerable(this ITypeSymbol @this, out ITypeSymbol elementType)
+        internal static bool IsIEnumerable(this ITypeSymbol @this, out ITypeSymbol? elementType)
         {
             elementType = null;
 

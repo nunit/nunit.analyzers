@@ -24,7 +24,7 @@ namespace NUnit.Analyzers.ConstraintUsage
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-        protected override (DiagnosticDescriptor descriptor, string suggestedConstraint) GetDiagnosticData(
+        protected override (DiagnosticDescriptor? descriptor, string? suggestedConstraint) GetDiagnosticData(
             SyntaxNodeAnalysisContext context, ExpressionSyntax actual, bool negated)
         {
             var shouldReport = false;

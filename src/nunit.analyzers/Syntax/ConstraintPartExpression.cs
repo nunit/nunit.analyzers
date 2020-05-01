@@ -17,10 +17,10 @@ namespace NUnit.Analyzers.Syntax
         private readonly SemanticModel semanticModel;
         private readonly IReadOnlyList<ExpressionSyntax> expressions;
 
-        private IdentifierNameSyntax helperClassIdentifier;
-        private IReadOnlyCollection<ExpressionSyntax> prefixes;
-        private ExpressionSyntax root;
-        private IReadOnlyCollection<ExpressionSyntax> suffixes;
+        private IdentifierNameSyntax? helperClassIdentifier;
+        private IReadOnlyCollection<ExpressionSyntax>? prefixes;
+        private ExpressionSyntax? root;
+        private IReadOnlyCollection<ExpressionSyntax>? suffixes;
 
         public ConstraintPartExpression(IReadOnlyList<ExpressionSyntax> expressions, SemanticModel semanticModel)
         {
@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Syntax
         /// Helper class used to access constraints,
         /// e.g. 'Has', 'Is', 'Throws', 'Does', etc.
         /// </summary>
-        public IdentifierNameSyntax HelperClassIdentifier
+        public IdentifierNameSyntax? HelperClassIdentifier
         {
             get
             {
@@ -63,7 +63,7 @@ namespace NUnit.Analyzers.Syntax
         /// <summary>
         /// Actual constraint, e.g. 'EqualTo(expected)', 'Null', 'Empty', etc.
         /// </summary>
-        public ExpressionSyntax RootExpression
+        public ExpressionSyntax? RootExpression
         {
             get
             {
@@ -91,7 +91,7 @@ namespace NUnit.Analyzers.Syntax
             }
         }
 
-        public string GetHelperClassName()
+        public string? GetHelperClassName()
         {
             return this.HelperClassIdentifier?.GetName();
         }
@@ -137,16 +137,16 @@ namespace NUnit.Analyzers.Syntax
         /// <summary>
         /// Returns constraint root name (i.e. method or property names).
         /// </summary>
-        public string GetConstraintName()
+        public string? GetConstraintName()
         {
-            return this.RootExpression.GetName();
+            return this.RootExpression?.GetName();
         }
 
         /// <summary>
         /// If constraint root is method, returns expected argument expression.
         /// Otherwise - null.
         /// </summary>
-        public ExpressionSyntax GetExpectedArgumentExpression()
+        public ExpressionSyntax? GetExpectedArgumentExpression()
         {
             if (this.RootExpression is InvocationExpressionSyntax invocationExpression)
             {
@@ -160,7 +160,7 @@ namespace NUnit.Analyzers.Syntax
         /// If constraint root is method, return corresponding <see cref="IMethodSymbol"/>.
         /// Otherwise (e.g. if constraint root is property) - null.
         /// </summary>
-        public IMethodSymbol GetConstraintMethod()
+        public IMethodSymbol? GetConstraintMethod()
         {
             if (this.RootExpression == null)
                 return null;
@@ -234,12 +234,12 @@ namespace NUnit.Analyzers.Syntax
             return lastExpression.ToString().Substring(startDelta);
         }
 
-        private static (IdentifierNameSyntax identifier, IReadOnlyCollection<ExpressionSyntax> prefixes, ExpressionSyntax root, IReadOnlyCollection<ExpressionSyntax> suffixes)
+        private static (IdentifierNameSyntax? identifier, IReadOnlyCollection<ExpressionSyntax> prefixes, ExpressionSyntax? root, IReadOnlyCollection<ExpressionSyntax> suffixes)
             SplitExpressions(IReadOnlyList<ExpressionSyntax> expressions, SemanticModel semanticModel)
         {
-            IdentifierNameSyntax helperIdentifierName = null;
+            IdentifierNameSyntax? helperIdentifierName = null;
             var prefixes = new List<ExpressionSyntax>();
-            ExpressionSyntax root = null;
+            ExpressionSyntax? root = null;
             var suffixes = new List<ExpressionSyntax>();
 
             var rootFound = false;
@@ -281,7 +281,7 @@ namespace NUnit.Analyzers.Syntax
         {
             var symbol = semanticModel.GetSymbolInfo(expressionSyntax).Symbol;
 
-            ITypeSymbol returnType = null;
+            ITypeSymbol? returnType = null;
 
             if (symbol is IMethodSymbol methodSymbol)
             {
