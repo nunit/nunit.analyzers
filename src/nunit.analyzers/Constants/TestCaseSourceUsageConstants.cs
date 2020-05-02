@@ -17,5 +17,17 @@ namespace NUnit.Analyzers.Constants
         internal const string SourceIsNotStaticTitle = "Specified source is not static.";
         internal const string SourceIsNotStaticMessage = "Specified source '{0}' is not static.";
         internal const string SourceIsNotStaticDescription = "The specified source must be static.";
+
+        internal const string MismatchInNumberOfParametersTitle = "The number of parameters provided by the TestCaseSource does not match the number of parameters in the target method.";
+        internal const string MismatchInNumberOfParametersMessage = "The TestCaseSource provides '{0}' parameter(s), but the target method expects '{1}' parameter(s).";
+        internal const string MismatchInNumberOfParametersDescription = "The number of parameters provided by the TestCaseSource must match the number of parameters in the target method.";
+
+        internal const string SourceDoesNotReturnIEnumerableTitle = "The source specified by the TestCaseSource does not return an IEnumerable or a type that implements IEnumerable.";
+        internal const string SourceDoesNotReturnIEnumerableMessage = "The TestCaseSource does not return an IEnumerable or a type that implements IEnumerable. Instead it returns a '{0}'.";
+        internal const string SourceDoesNotReturnIEnumerableDescription = "The source specified by the TestCaseSource must return an IEnumerable or a type that implements IEnumerable.";
+
+        internal const string TestCaseSourceSuppliesParametersTitle = "The TestCaseSource provides parameters to source - field or property - that expects no parameters.";
+        internal const string TestCaseSourceSuppliesParametersMessage = "The TestCaseSource provides '{0}' parameter(s), but {1} cannot take parameters.";
+        internal const string TestCaseSourceSuppliesParametersDescription = "The TestCaseSource must not provide any parameters when the source is a field or property.";
     }
 }

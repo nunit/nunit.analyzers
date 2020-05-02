@@ -19,6 +19,9 @@
 | [NUnit1015](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1015.md)| Source type does not implement IEnumerable. | :white_check_mark: |
 | [NUnit1016](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1016.md)| Source type does not have a default constructor. | :white_check_mark: |
 | [NUnit1017](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1017.md)| Specified source is not static. | :white_check_mark: |
+| [NUnit1018](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1018.md)| The number of parameters provided by the TestCaseSource does not match the number of parameters in the target method. | :white_check_mark: |
+| [NUnit1019](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1019.md)| The source specified by the TestCaseSource does not return an IEnumerable or a type that implements IEnumerable. | :white_check_mark: |
+| [NUnit1020](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1020.md)| The TestCaseSource provides parameters to source - field or property - that expects no parameters. | :white_check_mark: |
 | [NUnit2001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2001.md)| Consider using Assert.That(expr, Is.False) instead of Assert.False(expr). | :white_check_mark: |
 | [NUnit2002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2002.md)| Consider using Assert.That(expr, Is.False) instead of Assert.IsFalse(expr). | :white_check_mark: |
 | [NUnit2003](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2003.md)| Consider using Assert.That(expr, Is.True) instead of Assert.IsTrue(expr). | :white_check_mark: |
