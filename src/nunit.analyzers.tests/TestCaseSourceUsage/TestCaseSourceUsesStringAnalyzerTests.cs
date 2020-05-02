@@ -70,27 +70,27 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCase("private static TestCaseData[] TestCases() => new TestCaseData[0];")]
         public void FixWhenStringLiteral(string testCaseMember)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public class AnalyzeWhenStringConstant
-    {
-        private static readonly TestCaseData[] TestCases = new TestCaseData[0];
+    {{
+        {testCaseMember}
 
         [TestCaseSource(↓""TestCases"")]
         public void Test()
-        {
-        }
-    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMember);
+        {{
+        }}
+    }}");
 
-            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public class AnalyzeWhenStringConstant
-    {
-        private static readonly TestCaseData[] TestCases = new TestCaseData[0];
+    {{
+        {testCaseMember}
 
         [TestCaseSource(nameof(TestCases))]
         public void Test()
-        {
-        }
-    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMember);
+        {{
+        }}
+    }}");
 
             var message = "Consider using nameof(TestCases) instead of \"TestCases\".";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
@@ -277,18 +277,18 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCase("private static TestCaseData[] TestCases() => new TestCaseData[0];")]
         public void AnalyzeWhenSourceDoesProvideIEnumerable(string testCaseMember)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public class AnalyzeWhenSourceDoesProvideIEnumerable
-    {
-        private static readonly TestCaseData[] TestCases = new TestCaseData[0];
+    {{
+        {testCaseMember}
 
         [TestCaseSource(nameof(TestCases))]
         public void Test()
-        {
-        }
-    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMember);
+        {{
+        }}
+    }}");
 
-            AnalyzerAssert.Valid< TestCaseSourceUsesStringAnalyzer>(testCode);
+            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
         }
 
         [TestCase("private static readonly object TestCases = null;", "object")]
@@ -302,16 +302,16 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCase("private static PlatformID TestCases() => PlatformID.Unix;", "System.PlatformID")]
         public void AnalyzeWhenSourceDoesNotProvideIEnumerable(string testCaseMember, string returnType)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public class AnalyzeWhenSourceDoesProvideIEnumerable
-    {
-        private static readonly object TestCases = null;
+    {{
+        {testCaseMember}
 
         [TestCaseSource(nameof(TestCases))]
         public void Test()
-        {
-        }
-    }").AssertReplace("private static readonly object TestCases = null;", testCaseMember);
+        {{
+        }}
+    }}");
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceDoesNotReturnIEnumerable)
@@ -323,16 +323,16 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCase("private static TestCaseData[] TestCases => new TestCaseData[0];", "properties")]
         public void AnalyzeWhenParametersProvidedToFieldOrProperty(string testCaseMember, string kind)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public class AnalyzeWhenParametersProvidedToFieldOrProperty
-    {
-        private static readonly TestCaseData[] TestCases = new TestCaseData[0];
+    {{
+        {testCaseMember}
 
-        [TestCaseSource(nameof(TestCases), new object[] { 1, 2, 3})]
+        [TestCaseSource(nameof(TestCases), new object[] {{ 1, 2, 3 }})]
         public void Test()
-        {
-        }
-    }").AssertReplace("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", testCaseMember);
+        {{
+        }}
+    }}");
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceSuppliesParametersToFieldOrProperty)
