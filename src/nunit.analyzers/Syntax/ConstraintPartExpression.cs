@@ -156,6 +156,15 @@ namespace NUnit.Analyzers.Syntax
             return null;
         }
 
+        public ITypeSymbol? GetConstraintTypeSymbol()
+        {
+            if (this.RootExpression == null)
+                return null;
+
+            var type = this.semanticModel.GetTypeInfo(this.RootExpression).Type;
+            return type;
+        }
+
         /// <summary>
         /// If constraint root is method, return corresponding <see cref="IMethodSymbol"/>.
         /// Otherwise (e.g. if constraint root is property) - null.
@@ -224,6 +233,12 @@ namespace NUnit.Analyzers.Syntax
 
                 return TextSpan.FromBounds(spanStart, spanEnd);
             }
+        }
+
+        public Location GetLocation()
+        {
+            var syntaxTree = this.expressions[0].SyntaxTree;
+            return Location.Create(syntaxTree, this.Span);
         }
 
         public override string ToString()

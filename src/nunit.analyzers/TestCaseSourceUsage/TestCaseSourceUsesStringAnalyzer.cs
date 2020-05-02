@@ -52,12 +52,39 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             defaultSeverity: DiagnosticSeverity.Error,
             description: TestCaseSourceUsageConstants.SourceIsNotStaticDescription);
 
+        private static readonly DiagnosticDescriptor mismatchInNumberOfParameters = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters,
+            title: TestCaseSourceUsageConstants.MismatchInNumberOfParametersTitle,
+            messageFormat: TestCaseSourceUsageConstants.MismatchInNumberOfParametersMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseSourceUsageConstants.MismatchInNumberOfParametersDescription);
+
+        private static readonly DiagnosticDescriptor sourceDoesNotReturnIEnumerable = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseSourceDoesNotReturnIEnumerable,
+            title: TestCaseSourceUsageConstants.SourceDoesNotReturnIEnumerableTitle,
+            messageFormat: TestCaseSourceUsageConstants.SourceDoesNotReturnIEnumerableMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseSourceUsageConstants.SourceDoesNotReturnIEnumerableDescription);
+
+        private static readonly DiagnosticDescriptor parametersSuppliedToFieldOrProperty = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseSourceSuppliesParametersToFieldOrProperty,
+            title: TestCaseSourceUsageConstants.TestCaseSourceSuppliesParametersTitle,
+            messageFormat: TestCaseSourceUsageConstants.TestCaseSourceSuppliesParametersMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseSourceUsageConstants.TestCaseSourceSuppliesParametersDescription);
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             considerNameOfDescriptor,
             missingSourceDescriptor,
             sourceTypeNotIEnumerableDescriptor,
             sourceTypeNoDefaultConstructorDescriptor,
-            sourceNotStaticDescriptor);
+            sourceNotStaticDescriptor,
+            mismatchInNumberOfParameters,
+            sourceDoesNotReturnIEnumerable,
+            parametersSuppliedToFieldOrProperty);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -90,7 +117,6 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 }
 
                 var stringConstant = attributeInfo.SourceName;
-                var syntaxNode = attributeInfo.SyntaxNode;
 
                 if (stringConstant is null && attributeNode.ArgumentList.Arguments.Count == 1)
                 {
@@ -117,72 +143,98 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                     return;
                 }
 
-                if (syntaxNode != null)
+                var syntaxNode = attributeInfo.SyntaxNode;
+
+                if (syntaxNode == null)
                 {
-                    var symbol = GetMember(context, attributeInfo);
-                    if (symbol is null)
+                    return;
+                }
+
+                var symbol = GetMember(context, attributeInfo);
+                if (symbol is null)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                       missingSourceDescriptor,
+                       syntaxNode.GetLocation(),
+                       stringConstant));
+                }
+                else
+                {
+                    var sourceIsAccessible = context.SemanticModel.IsAccessible(
+                        syntaxNode.GetLocation().SourceSpan.Start,
+                        symbol);
+
+                    if (attributeInfo.IsStringLiteral && sourceIsAccessible)
                     {
                         context.ReportDiagnostic(Diagnostic.Create(
-                           missingSourceDescriptor,
-                           syntaxNode.GetLocation(),
-                           stringConstant));
+                            considerNameOfDescriptor,
+                            syntaxNode.GetLocation(),
+                            stringConstant));
                     }
-                    else
+
+                    if (!symbol.IsStatic)
                     {
-                        if (attributeInfo.IsStringLiteral)
-                        {
-                            context.ReportDiagnostic(Diagnostic.Create(
-                                considerNameOfDescriptor,
-                                syntaxNode.GetLocation(),
-                                stringConstant));
-                        }
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            sourceNotStaticDescriptor,
+                            syntaxNode.GetLocation(),
+                            stringConstant));
+                    }
 
-                        if (!symbol.IsStatic)
-                        {
-                            context.ReportDiagnostic(Diagnostic.Create(
-                                sourceNotStaticDescriptor,
-                                syntaxNode.GetLocation(),
-                                stringConstant));
-                        }
+                    switch (symbol)
+                    {
+                        case IPropertySymbol property:
+                            ReportIfSymbolNotIEnumerable(context, syntaxNode, property.Type);
+                            ReportIfParametersSupplied(context, syntaxNode, attributeInfo.NumberOfMethodParameters, "properties");
+                            break;
+                        case IFieldSymbol field:
+                            ReportIfSymbolNotIEnumerable(context, syntaxNode, field.Type);
+                            ReportIfParametersSupplied(context, syntaxNode, attributeInfo.NumberOfMethodParameters, "fields");
+                            break;
+                        case IMethodSymbol method:
+                            ReportIfSymbolNotIEnumerable(context, syntaxNode, method.ReturnType);
 
-                        switch (symbol)
-                        {
-                            case IPropertySymbol property:
-                                ReportIfSymbolNotIEnumerable(property.Type);
-                                ReportIfParametersSupplied(attributeInfo.NumberOfMethodParameters);
-                                break;
-                            case IFieldSymbol field:
-                                ReportIfSymbolNotIEnumerable(field.Type);
-                                ReportIfParametersSupplied(attributeInfo.NumberOfMethodParameters);
-                                break;
-                            case IMethodSymbol method:
-                                ReportIfSymbolNotIEnumerable(method.ReturnType);
-
-                                if (method.Parameters.Length != attributeInfo.NumberOfMethodParameters)
-                                {
-                                    // TODO Report mismatch of parameters
-                                }
-
-                                break;
-                        }
+                            var methodParametersFromAttribute = attributeInfo.NumberOfMethodParameters ?? 0;
+                            if (method.Parameters.Length != methodParametersFromAttribute)
+                            {
+                                context.ReportDiagnostic(Diagnostic.Create(
+                                    mismatchInNumberOfParameters,
+                                    syntaxNode.GetLocation(),
+                                    methodParametersFromAttribute,
+                                    method.Parameters.Length));
+                            }
+                            break;
                     }
                 }
             }
         }
 
-        private static void ReportIfSymbolNotIEnumerable(ITypeSymbol typeSymbol)
+        private static void ReportIfSymbolNotIEnumerable(
+            SyntaxNodeAnalysisContext context,
+            SyntaxNode syntaxNode,
+            ITypeSymbol typeSymbol)
         {
             if (!typeSymbol.IsIEnumerable(out var _))
             {
-                // TODO Report not IEnumerable
+                context.ReportDiagnostic(Diagnostic.Create(
+                    sourceDoesNotReturnIEnumerable,
+                    syntaxNode.GetLocation(),
+                    typeSymbol));
             }
         }
 
-        private static void ReportIfParametersSupplied(int? numberOfMethodParameters)
+        private static void ReportIfParametersSupplied(
+            SyntaxNodeAnalysisContext context,
+            SyntaxNode syntaxNode,
+            int? numberOfMethodParameters,
+            string kind)
         {
             if (numberOfMethodParameters > 0)
             {
-                // TODO Report parameters passed to field or property
+                context.ReportDiagnostic(Diagnostic.Create(
+                    parametersSuppliedToFieldOrProperty,
+                    syntaxNode.GetLocation(),
+                    numberOfMethodParameters,
+                    kind));
             }
         }
 
@@ -250,7 +302,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             int? numMethodParams = null;
             if (positionalArguments.Length > sourceNameIndex + 1)
             {
-                numMethodParams = GetNumberOfParametersToMethod(positionalArguments[1]);
+                numMethodParams = GetNumberOfParametersToMethod(positionalArguments[sourceNameIndex + 1]);
             }
 
             return new SourceAttributeInformation(sourceType, sourceName, syntaxNode, isStringLiteral, numMethodParams);
@@ -300,19 +352,27 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 return null;
             }
 
-            var symbols = context.SemanticModel.LookupSymbols(
-                attributeInformation.SyntaxNode.SpanStart,
-                container: attributeInformation.SourceType,
-                name: attributeInformation.SourceName);
-
-            foreach (var symbol in symbols)
+            foreach (var syntaxReference in attributeInformation.SourceType.DeclaringSyntaxReferences)
             {
-                switch (symbol.Kind)
+                if (syntaxReference.GetSyntax() is ClassDeclarationSyntax syntax)
                 {
-                    case SymbolKind.Field:
-                    case SymbolKind.Property:
-                    case SymbolKind.Method:
-                        return symbol;
+                    var classIdentifier = syntax.Identifier;
+
+                    var symbols = context.SemanticModel.LookupSymbols(
+                        classIdentifier.Span.Start,
+                        container: attributeInformation.SourceType,
+                        name: attributeInformation.SourceName);
+
+                    foreach (var symbol in symbols)
+                    {
+                        switch (symbol.Kind)
+                        {
+                            case SymbolKind.Field:
+                            case SymbolKind.Property:
+                            case SymbolKind.Method:
+                                return symbol;
+                        }
+                    }
                 }
             }
 
