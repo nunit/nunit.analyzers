@@ -56,8 +56,8 @@ namespace NUnit.Analyzers.ConstraintUsage
         {
             return symbol is IMethodSymbol methodSymbol
                 && methodSymbol.Name == "Contains"
-                && (methodSymbol.IsInterfaceImplementation(typeof(ICollection<>)!.FullName!)
-                    || methodSymbol.IsInterfaceImplementation(typeof(ICollection)!.FullName!));
+                && (methodSymbol.IsInterfaceImplementation(typeof(ICollection<>).FullName!)
+                    || methodSymbol.IsInterfaceImplementation(typeof(ICollection).FullName!));
         }
     }
 }
