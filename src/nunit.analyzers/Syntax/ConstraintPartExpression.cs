@@ -104,7 +104,7 @@ namespace NUnit.Analyzers.Syntax
             return this.PrefixExpressions
                 .Select(e => e.GetName())
                 .Where(e => e != null)
-                .ToArray();
+                .ToArray()!;
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace NUnit.Analyzers.Syntax
             return this.SuffixExpressions
                 .Select(e => e.GetName())
                 .Where(e => e != null)
-                .ToArray();
+                .ToArray()!;
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Composition;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -71,7 +72,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
         }
 
         private static bool TryFindArguments(SemanticModel semanticModel, InvocationExpressionSyntax invocationSyntax,
-            out ExpressionSyntax? expectedArgument, out ExpressionSyntax? actualArgument)
+            [NotNullWhen(true)] out ExpressionSyntax? expectedArgument, [NotNullWhen(true)] out ExpressionSyntax? actualArgument)
         {
             expectedArgument = null;
             actualArgument = null;
