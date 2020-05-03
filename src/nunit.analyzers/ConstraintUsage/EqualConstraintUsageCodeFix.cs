@@ -14,14 +14,14 @@ namespace NUnit.Analyzers.ConstraintUsage
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(AnalyzerIdentifiers.EqualConstraintUsage);
 
-        protected override (ExpressionSyntax actual, ExpressionSyntax constraintExpression) GetActualAndConstraintExpression(ExpressionSyntax conditionNode, string suggestedConstraintString)
+        protected override (ExpressionSyntax? actual, ExpressionSyntax? constraintExpression) GetActualAndConstraintExpression(ExpressionSyntax conditionNode, string suggestedConstraintString)
         {
             var (actual, expected) = GetActualExpected(conditionNode);
             var constraintExpression = GetConstraintExpression(suggestedConstraintString, expected);
             return (actual, constraintExpression);
         }
 
-        private static (ExpressionSyntax actual, ExpressionSyntax expected) GetActualExpected(SyntaxNode conditionNode)
+        private static (ExpressionSyntax? actual, ExpressionSyntax? expected) GetActualExpected(SyntaxNode conditionNode)
         {
             if (conditionNode is BinaryExpressionSyntax binaryExpression &&
                 (binaryExpression.IsKind(SyntaxKind.EqualsExpression) || binaryExpression.IsKind(SyntaxKind.NotEqualsExpression)))

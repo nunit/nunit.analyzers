@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -49,7 +50,7 @@ namespace NUnit.Analyzers.ConstraintUsage
                 [nameof(string.EndsWith)] = (NunitFrameworkConstants.NameOfDoesEndWith, endsWithDescriptor)
             };
 
-        protected override (DiagnosticDescriptor descriptor, string suggestedConstraint) GetDiagnosticData(
+        protected override (DiagnosticDescriptor? descriptor, string? suggestedConstraint) GetDiagnosticData(
             SyntaxNodeAnalysisContext context, ExpressionSyntax actual, bool negated)
         {
             if (actual is InvocationExpressionSyntax invocationExpression
@@ -63,7 +64,8 @@ namespace NUnit.Analyzers.ConstraintUsage
             return (null, null);
         }
 
-        private static bool IsMethodSupported(SimpleNameSyntax nameSyntax, SyntaxNodeAnalysisContext context, out string methodName)
+        private static bool IsMethodSupported(SimpleNameSyntax nameSyntax, SyntaxNodeAnalysisContext context,
+            [NotNullWhen(true)] out string? methodName)
         {
             var symbol = context.SemanticModel.GetSymbolInfo(nameSyntax).Symbol;
 

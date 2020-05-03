@@ -38,6 +38,7 @@ namespace NUnit.Analyzers.NullConstraintUsage
                     || (prefixes.Length == 1 && prefixes[0] == NunitFrameworkConstants.NameOfIsNot);
 
                 if (prefixesSupported
+                    && constraintPart.RootExpression != null
                     && constraintPart.GetHelperClassName() == NunitFrameworkConstants.NameOfIs
                     && constraintPart.GetConstraintName() == NunitFrameworkConstants.NameOfNull)
                 {

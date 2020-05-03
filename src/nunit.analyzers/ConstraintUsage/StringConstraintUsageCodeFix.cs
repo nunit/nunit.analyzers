@@ -16,7 +16,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             AnalyzerIdentifiers.StringStartsWithConstraintUsage,
             AnalyzerIdentifiers.StringEndsWithConstraintUsage);
 
-        protected override (ExpressionSyntax actual, ExpressionSyntax constraintExpression) GetActualAndConstraintExpression(ExpressionSyntax conditionNode, string suggestedConstraintString)
+        protected override (ExpressionSyntax? actual, ExpressionSyntax? constraintExpression) GetActualAndConstraintExpression(ExpressionSyntax conditionNode, string suggestedConstraintString)
         {
             // actual.Contains(expected)
             if (conditionNode is InvocationExpressionSyntax invocation

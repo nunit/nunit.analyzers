@@ -117,14 +117,13 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 }
 
                 var stringConstant = attributeInfo.SourceName;
-                var syntaxNode = attributeInfo.SyntaxNode;
 
                 if (stringConstant is null && attributeNode.ArgumentList.Arguments.Count == 1)
                 {
                     // The Type argument in this form represents the class that provides test cases.
                     // It must have a default constructor and implement IEnumerable.
                     var sourceType = attributeInfo.SourceType;
-                    bool typeImplementsIEnumerable = sourceType.IsIEnumerable(out var _);
+                    bool typeImplementsIEnumerable = sourceType.IsIEnumerable(out _);
                     bool typeHasDefaultConstructor = sourceType.Constructors.Any(c => c.Parameters.IsEmpty);
                     if (!typeImplementsIEnumerable)
                     {
@@ -141,6 +140,13 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                             sourceType.Name));
                     }
 
+                    return;
+                }
+
+                var syntaxNode = attributeInfo.SyntaxNode;
+
+                if (syntaxNode == null)
+                {
                     return;
                 }
 
@@ -232,7 +238,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             }
         }
 
-        private static SourceAttributeInformation ExtractInfoFromAttribute(
+        private static SourceAttributeInformation? ExtractInfoFromAttribute(
             SyntaxNodeAnalysisContext context,
             AttributeSyntax attributeSyntax)
         {
@@ -267,9 +273,9 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             }
         }
 
-        private static SourceAttributeInformation ExtractElementsInAttribute(
+        private static SourceAttributeInformation? ExtractElementsInAttribute(
             SyntaxNodeAnalysisContext context,
-            INamedTypeSymbol sourceType,
+            INamedTypeSymbol? sourceType,
             ImmutableArray<AttributeArgumentSyntax> positionalArguments,
             int sourceNameIndex)
         {
@@ -278,8 +284,8 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 return null;
             }
 
-            SyntaxNode syntaxNode = null;
-            string sourceName = null;
+            SyntaxNode? syntaxNode = null;
+            string? sourceName = null;
             bool isStringLiteral = false;
             if (positionalArguments.Length > sourceNameIndex)
             {
@@ -313,11 +319,17 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             }
 
             var argumentSyntax = arguments[index];
-            Optional<object> possibleConstant = context.SemanticModel.GetConstantValue(argumentSyntax?.Expression);
+
+            if (argumentSyntax == null)
+            {
+                return null;
+            }
+
+            Optional<object> possibleConstant = context.SemanticModel.GetConstantValue(argumentSyntax.Expression);
 
             if (possibleConstant.HasValue && possibleConstant.Value is string stringConstant)
             {
-                SyntaxNode syntaxNode = argumentSyntax?.Expression;
+                SyntaxNode syntaxNode = argumentSyntax.Expression;
                 bool isStringLiteral = syntaxNode is LiteralExpressionSyntax literal &&
                     literal.IsKind(SyntaxKind.StringLiteralExpression);
 
@@ -333,31 +345,33 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             return lastExpression?.Initializer.Expressions.Count;
         }
 
-        private static ISymbol GetMember(SyntaxNodeAnalysisContext context, SourceAttributeInformation attributeInformation)
+        private static ISymbol? GetMember(SyntaxNodeAnalysisContext context, SourceAttributeInformation attributeInformation)
         {
-            if (!SyntaxFacts.IsValidIdentifier(attributeInformation.SourceName))
+            if (attributeInformation.SyntaxNode == null || !SyntaxFacts.IsValidIdentifier(attributeInformation.SourceName))
             {
                 return null;
             }
 
             foreach (var syntaxReference in attributeInformation.SourceType.DeclaringSyntaxReferences)
             {
-                var syntax = syntaxReference.GetSyntax() as ClassDeclarationSyntax;
-                var classIdentifier = syntax.Identifier;
-
-                var symbols = context.SemanticModel.LookupSymbols(
-                    classIdentifier.Span.Start,
-                    container: attributeInformation.SourceType,
-                    name: attributeInformation.SourceName);
-
-                foreach (var symbol in symbols)
+                if (syntaxReference.GetSyntax() is ClassDeclarationSyntax syntax)
                 {
-                    switch (symbol.Kind)
+                    var classIdentifier = syntax.Identifier;
+
+                    var symbols = context.SemanticModel.LookupSymbols(
+                        classIdentifier.Span.Start,
+                        container: attributeInformation.SourceType,
+                        name: attributeInformation.SourceName);
+
+                    foreach (var symbol in symbols)
                     {
-                        case SymbolKind.Field:
-                        case SymbolKind.Property:
-                        case SymbolKind.Method:
-                            return symbol;
+                        switch (symbol.Kind)
+                        {
+                            case SymbolKind.Field:
+                            case SymbolKind.Property:
+                            case SymbolKind.Method:
+                                return symbol;
+                        }
                     }
                 }
             }

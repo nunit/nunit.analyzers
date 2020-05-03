@@ -71,7 +71,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
         }
 
         private static bool TryFindArguments(SemanticModel semanticModel, InvocationExpressionSyntax invocationSyntax,
-            out ExpressionSyntax expectedArgument, out ExpressionSyntax actualArgument)
+            out ExpressionSyntax? expectedArgument, out ExpressionSyntax? actualArgument)
         {
             expectedArgument = null;
             actualArgument = null;

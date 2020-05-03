@@ -86,7 +86,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                     var testCaseType = context.SemanticModel.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
                     var testType = context.SemanticModel.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestAttribute);
 
-                    if (testCaseType == null && testType == null)
+                    if (testCaseType == null || testType == null)
                         return;
 
                     var attributeNode = (AttributeSyntax)context.Node;

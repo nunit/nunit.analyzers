@@ -139,7 +139,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                 ((IArrayTypeSymbol)typeSymbol).ElementType.SpecialType == SpecialType.System_Object;
         }
 
-        private static (ITypeSymbol type, string name, ITypeSymbol paramsType) GetParameterType(
+        private static (ITypeSymbol type, string name, ITypeSymbol? paramsType) GetParameterType(
             ImmutableArray<IParameterSymbol> methodParameter,
             int position)
         {
@@ -147,7 +147,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                 methodParameter[methodParameter.Length - 1] : methodParameter[position];
 
             ITypeSymbol type = symbol.Type;
-            ITypeSymbol paramsType = null;
+            ITypeSymbol? paramsType = null;
 
             if (symbol.IsParams)
             {

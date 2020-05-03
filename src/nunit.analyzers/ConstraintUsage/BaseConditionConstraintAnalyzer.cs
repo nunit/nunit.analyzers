@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -24,7 +25,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             NameOfAssertIsFalse
         };
 
-        protected abstract (DiagnosticDescriptor descriptor, string suggestedConstraint) GetDiagnosticData(
+        protected abstract (DiagnosticDescriptor? descriptor, string? suggestedConstraint) GetDiagnosticData(
             SyntaxNodeAnalysisContext context, ExpressionSyntax actual, bool negated);
 
         protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
@@ -63,6 +64,9 @@ namespace NUnit.Analyzers.ConstraintUsage
             var actual = assertExpression.GetArgumentExpression(methodSymbol, NameOfActualParameter)
                 ?? assertExpression.GetArgumentExpression(methodSymbol, NameOfConditionParameter);
 
+            if (actual == null)
+                return;
+
             if (IsPrefixNotExpression(actual, out var unwrappedActual))
             {
                 negated = !negated;
@@ -78,7 +82,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             }
         }
 
-        private static bool IsPrefixNotExpression(ExpressionSyntax expression, out ExpressionSyntax operand)
+        private static bool IsPrefixNotExpression(ExpressionSyntax expression, [NotNullWhen(true)] out ExpressionSyntax? operand)
         {
             if (expression is PrefixUnaryExpressionSyntax unarySyntax
                 && unarySyntax.IsKind(SyntaxKind.LogicalNotExpression))

@@ -60,7 +60,7 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         descriptor,
-                        expectedArgumentExpression.GetLocation()));
+                        expectedArgumentExpression!.GetLocation()));
                 }
             }
         }

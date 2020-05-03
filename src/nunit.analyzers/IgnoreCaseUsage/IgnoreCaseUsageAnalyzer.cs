@@ -69,10 +69,10 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
             }
         }
 
-        private static bool IsTypeSupported(ITypeSymbol type, HashSet<ITypeSymbol> checkedTypes = null)
+        private static bool IsTypeSupported(ITypeSymbol type, HashSet<ITypeSymbol>? checkedTypes = null)
         {
             // Protection against possible infinite recursion
-            checkedTypes = checkedTypes ?? new HashSet<ITypeSymbol>();
+            checkedTypes ??= new HashSet<ITypeSymbol>();
             if (!checkedTypes.Add(type))
                 return false;
 
@@ -125,7 +125,7 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
             return false;
         }
 
-        private static ITypeSymbol GetExpectedTypeSymbol(ConstraintPartExpression constraintPart, SyntaxNodeAnalysisContext context)
+        private static ITypeSymbol? GetExpectedTypeSymbol(ConstraintPartExpression constraintPart, SyntaxNodeAnalysisContext context)
         {
             var expectedArgument = constraintPart.GetExpectedArgumentExpression();
 

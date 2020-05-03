@@ -26,7 +26,7 @@ namespace NUnit.Analyzers.ConstraintUsage
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-        protected override (DiagnosticDescriptor descriptor, string suggestedConstraint) GetDiagnosticData
+        protected override (DiagnosticDescriptor? descriptor, string? suggestedConstraint) GetDiagnosticData
             (SyntaxNodeAnalysisContext context, ExpressionSyntax actual, bool negated)
         {
             if (actual is InvocationExpressionSyntax invocationExpression
@@ -44,7 +44,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             return (null, null);
         }
 
-        private bool IsLinqContains(ISymbol symbol)
+        private bool IsLinqContains(ISymbol? symbol)
         {
             return symbol is IMethodSymbol methodSymbol
                && methodSymbol.IsExtensionMethod
@@ -52,12 +52,12 @@ namespace NUnit.Analyzers.ConstraintUsage
                && methodSymbol.ContainingType.GetFullMetadataName() == typeof(System.Linq.Enumerable).FullName;
         }
 
-        private bool IsCollectionContains(ISymbol symbol)
+        private bool IsCollectionContains(ISymbol? symbol)
         {
             return symbol is IMethodSymbol methodSymbol
                 && methodSymbol.Name == "Contains"
-                && (methodSymbol.IsInterfaceImplementation(typeof(ICollection<>).FullName)
-                    || methodSymbol.IsInterfaceImplementation(typeof(ICollection).FullName));
+                && (methodSymbol.IsInterfaceImplementation(typeof(ICollection<>).FullName!)
+                    || methodSymbol.IsInterfaceImplementation(typeof(ICollection).FullName!));
         }
     }
 }

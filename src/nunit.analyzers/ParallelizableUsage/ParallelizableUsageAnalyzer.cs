@@ -127,7 +127,7 @@ namespace NUnit.Analyzers.ParallelizableUsage
         }
 
         private static bool IsNonParameterizedTestMethod(SyntaxNodeAnalysisContext context,
-            MethodDeclarationSyntax methodDeclarationSyntax)
+            MethodDeclarationSyntax? methodDeclarationSyntax)
         {
             if (methodDeclarationSyntax == null)
                 return false;

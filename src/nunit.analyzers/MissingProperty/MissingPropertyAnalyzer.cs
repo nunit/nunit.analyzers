@@ -83,7 +83,7 @@ namespace NUnit.Analyzers.MissingProperty
             }
         }
 
-        private static string TryGetRequiredPropertyName(ExpressionSyntax prefix, SemanticModel semanticModel)
+        private static string? TryGetRequiredPropertyName(ExpressionSyntax prefix, SemanticModel semanticModel)
         {
             var prefixName = prefix.GetName();
 

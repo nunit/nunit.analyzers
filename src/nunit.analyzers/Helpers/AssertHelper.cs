@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -18,8 +19,8 @@ namespace NUnit.Analyzers.Helpers
         public static bool TryGetActualAndConstraintExpressions(
             InvocationExpressionSyntax assertExpression,
             SemanticModel semanticModel,
-            out ExpressionSyntax actualExpression,
-            out ConstraintExpression constraintExpression)
+            [NotNullWhen(true)] out ExpressionSyntax? actualExpression,
+            [NotNullWhen(true)] out ConstraintExpression? constraintExpression)
         {
             if (assertExpression.Expression is MemberAccessExpressionSyntax memberAccessSyntax
                 && memberAccessSyntax.Name.Identifier.Text == NunitFrameworkConstants.NameOfAssertThat
@@ -54,7 +55,7 @@ namespace NUnit.Analyzers.Helpers
         /// <summary>
         /// Get TypeSymbol from <paramref name="expressionSyntax"/>, and unwrap from delegate or awaitable.
         /// </summary>
-        public static ITypeSymbol GetUnwrappedActualType(ExpressionSyntax actualExpression, SemanticModel semanticModel, CancellationToken cancellationToken)
+        public static ITypeSymbol? GetUnwrappedActualType(ExpressionSyntax actualExpression, SemanticModel semanticModel, CancellationToken cancellationToken)
         {
             var actualTypeInfo = semanticModel.GetTypeInfo(actualExpression, cancellationToken);
             var actualType = actualTypeInfo.Type ?? actualTypeInfo.ConvertedType;

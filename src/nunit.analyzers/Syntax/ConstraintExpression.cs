@@ -14,7 +14,7 @@ namespace NUnit.Analyzers.Syntax
     {
         private readonly ExpressionSyntax expression;
         private readonly SemanticModel semanticModel;
-        private ConstraintPartExpression[] constraintParts;
+        private ConstraintPartExpression[]? constraintParts;
 
         public ConstraintPartExpression[] ConstraintParts
         {

@@ -13,7 +13,7 @@ namespace NUnit.Analyzers.ConstraintUsage
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(AnalyzerIdentifiers.CollectionContainsConstraintUsage);
 
-        protected override (ExpressionSyntax actual, ExpressionSyntax constraintExpression) GetActualAndConstraintExpression(ExpressionSyntax conditionNode, string suggestedConstraintString)
+        protected override (ExpressionSyntax? actual, ExpressionSyntax? constraintExpression) GetActualAndConstraintExpression(ExpressionSyntax conditionNode, string suggestedConstraintString)
         {
             // actual.Contains(expected)
             if (conditionNode is InvocationExpressionSyntax invocation

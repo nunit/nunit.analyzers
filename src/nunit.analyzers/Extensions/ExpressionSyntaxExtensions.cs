@@ -13,7 +13,7 @@ namespace NUnit.Analyzers.Extensions
             // returns 'Is', 'Is.EqualTo(str)', 'Is.EqualTo(str).IgnoreCase'
 
             var parts = new Stack<ExpressionSyntax>();
-            var currentNode = expression;
+            ExpressionSyntax? currentNode = expression;
 
             while (currentNode != null)
             {
@@ -44,7 +44,7 @@ namespace NUnit.Analyzers.Extensions
         /// <summary>
         /// Returns argument expression by parameter name.
         /// </summary>
-        public static ExpressionSyntax GetArgumentExpression(this InvocationExpressionSyntax invocationSyntax,
+        public static ExpressionSyntax? GetArgumentExpression(this InvocationExpressionSyntax invocationSyntax,
             IMethodSymbol methodSymbol, string parameterName)
         {
             var arguments = invocationSyntax.ArgumentList.Arguments;
@@ -78,7 +78,7 @@ namespace NUnit.Analyzers.Extensions
                 case IdentifierNameSyntax identifierName:
                     return identifierName.Identifier.Text;
                 default:
-                    return null;
+                    return "";
             }
         }
     }
