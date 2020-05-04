@@ -11,7 +11,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
         private static readonly DiagnosticAnalyzer analyzer = new SameActualExpectedValueAnalyzer();
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.SameActualExpectedValue);
-        
+
         [TestCase(nameof(Is.EqualTo))]
         [TestCase(nameof(Is.EquivalentTo))]
         public void AnalyzeWhenSameVariableProvided(string constraintMethod)
@@ -93,7 +93,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
                 var str2 = ""test2"";
                 Assert.That(str1, Is.{constraintMethod}(str2));");
 
-            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            AnalyzerAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -101,9 +101,9 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
         {
             var testCode = TestUtility.WrapInTestMethod($@"
                 var str = ""test"";
-                Assert.That(str.Trim(), Is.EqualTo(↓str.TrimEnd()));");
+                Assert.That(str.Trim(), Is.EqualTo(str.TrimEnd()));");
 
-            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            AnalyzerAssert.Valid(analyzer, testCode);
         }
     }
 }
