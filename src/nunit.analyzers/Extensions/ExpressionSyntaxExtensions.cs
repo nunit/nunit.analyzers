@@ -67,7 +67,7 @@ namespace NUnit.Analyzers.Extensions
             return argument?.Expression;
         }
 
-        public static string GetName(this ExpressionSyntax expression)
+        public static string? GetName(this ExpressionSyntax expression)
         {
             switch (expression)
             {
@@ -78,7 +78,7 @@ namespace NUnit.Analyzers.Extensions
                 case IdentifierNameSyntax identifierName:
                     return identifierName.Identifier.Text;
                 default:
-                    return "";
+                    return null;
             }
         }
     }
