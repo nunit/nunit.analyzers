@@ -799,5 +799,15 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
 
             AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
         }
+
+        [Test]
+        public void NoDiagnosticWhenCombinedConstraintAndUseAllOperator()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = new[] { 1,2,2,1 };
+                Assert.That(actual, Has.All.EqualTo(1).Or.EqualTo(2));");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
     }
 }
