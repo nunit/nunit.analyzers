@@ -146,7 +146,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
                 var syntaxNode = attributeInfo.SyntaxNode;
 
-                if (syntaxNode == null)
+                if (syntaxNode == null || stringConstant == null)
                 {
                     return;
                 }
@@ -165,11 +165,12 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                         syntaxNode.GetLocation().SourceSpan.Start,
                         symbol);
 
-                    if (attributeInfo.IsStringLiteral && sourceIsAccessible && stringConstant != null)
+                    if (attributeInfo.IsStringLiteral && sourceIsAccessible)
                     {
                         var nameOfClassTarget = attributeInfo.SourceType.ToMinimalDisplayString(
                             context.SemanticModel,
                             syntaxNode.GetLocation().SourceSpan.Start);
+
 
                         var nameOfTarget = attributeInfo.SourceType == context.ContainingSymbol.ContainingType
                             ? stringConstant
