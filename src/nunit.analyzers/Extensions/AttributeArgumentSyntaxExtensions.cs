@@ -22,15 +22,34 @@ namespace NUnit.Analyzers.Extensions
             typeof(DateTime),
         };
 
-        // Intrinsic type converters for types that are not SpecialTypes (and supported in netstandard1.6)
+        // Intrinsic type converters for types
         // https://github.com/dotnet/runtime/blob/master/src/libraries/System.ComponentModel.TypeConverter/src/System/ComponentModel/ReflectTypeDescriptionProvider.cs
-        private static readonly List<(Type type, Lazy<TypeConverter> typeConverter)> IntrinsicTypeConverters =
-            new List<(Type type, Lazy<TypeConverter> typeConverter)>
+        // For converters that exists in .NET Standard 1.6 we use the converter.
+        // Otherwise, we assume that that the converter exists and it can convert the value.
+        private static readonly List<(Type type, Lazy<TypeConverter>? typeConverter)> IntrinsicTypeConverters =
+            new List<(Type type, Lazy<TypeConverter>? typeConverter)>
             {
+                (typeof(bool), new Lazy<TypeConverter>(() => new BooleanConverter())),
+                (typeof(byte), new Lazy<TypeConverter>(() => new ByteConverter())),
+                (typeof(sbyte), new Lazy<TypeConverter>(() => new SByteConverter())),
+                (typeof(char), new Lazy<TypeConverter>(() => new CharConverter())),
+                (typeof(double), new Lazy<TypeConverter>(() => new DoubleConverter())),
+                (typeof(string), new Lazy<TypeConverter>(() => new StringConverter())),
+                (typeof(int), new Lazy<TypeConverter>(() => new Int32Converter())),
+                (typeof(short), new Lazy<TypeConverter>(() => new Int16Converter())),
+                (typeof(long), new Lazy<TypeConverter>(() => new Int64Converter())),
+                (typeof(float), new Lazy<TypeConverter>(() => new SingleConverter())),
+                (typeof(ushort), new Lazy<TypeConverter>(() => new UInt16Converter())),
+                (typeof(uint), new Lazy<TypeConverter>(() => new UInt32Converter())),
+                (typeof(ulong), new Lazy<TypeConverter>(() => new UInt64Converter())),
+                (typeof(CultureInfo), null),
+                (typeof(DateTime), new Lazy<TypeConverter>(() => new DateTimeConverter())),
                 (typeof(DateTimeOffset), new Lazy<TypeConverter>(() => new DateTimeOffsetConverter())),
+                (typeof(decimal), new Lazy<TypeConverter>(() => new DecimalConverter())),
                 (typeof(TimeSpan), new Lazy<TypeConverter>(() => new TimeSpanConverter())),
                 (typeof(Guid), new Lazy<TypeConverter>(() => new GuidConverter())),
                 (typeof(Uri), new Lazy<TypeConverter>(() => new UriTypeConverter())),
+                (typeof(Version), null),
             };
 
         internal static bool CanAssignTo(this AttributeArgumentSyntax @this, ITypeSymbol target, SemanticModel model,
@@ -165,9 +184,14 @@ namespace NUnit.Analyzers.Extensions
             var typeName = targetTypeSymbol.GetFullMetadataName();
             var targetType = IntrinsicTypeConverters.FirstOrDefault(t => t.type.FullName == typeName);
 
-            if (targetType.typeConverter == null)
+            if (targetType == default((Type type, Lazy<TypeConverter> typeConverter)))
             {
                 return false;
+            }
+
+            if (targetType.typeConverter == null)
+            {
+                return argumentValue.GetType() == typeof(string);
             }
 
             var typeConverter = targetType.typeConverter.Value;
