@@ -69,6 +69,7 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfStartsWithConstraint = "NUnit.Framework.Constraints.StartsWithConstraint";
         public const string FullNameOfSubPathConstraint = "NUnit.Framework.Constraints.SubPathConstraint";
         public const string FullNameOfSubstringConstraint = "NUnit.Framework.Constraints.SubstringConstraint";
+        public const string FullNameOfContainsConstraint = "NUnit.Framework.Constraints.ContainsConstraint";
 
         public const string NameOfTestCaseAttribute = "TestCaseAttribute";
         public const string NameOfTestCaseSourceAttribute = "TestCaseSourceAttribute";
