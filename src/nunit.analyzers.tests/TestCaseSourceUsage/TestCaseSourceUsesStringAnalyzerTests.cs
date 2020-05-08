@@ -415,5 +415,104 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     }", additionalUsings: "using System.Collections.Generic;");
             AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
         }
+
+        [Test]
+        public void FixWhenStringLiteralTargetsSourceInAnInnerClass()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    public class FixWhenStringLiteralTargetsSourceInAnInnerClass
+    {{
+        [TestCaseSource(typeof(InnerClass), ""TestCases"")]
+        public void TestData(string input) {{ }}
+
+        public class InnerClass
+        {{
+            public static string[] TestCases = new[] {{ ""Data"" }};
+        }}
+    }}");
+
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    public class FixWhenStringLiteralTargetsSourceInAnInnerClass
+    {{
+        [TestCaseSource(typeof(InnerClass), nameof(InnerClass.TestCases))]
+        public void TestData(string input) {{ }}
+
+        public class InnerClass
+        {{
+            public static string[] TestCases = new[] {{ ""Data"" }};
+        }}
+    }}");
+
+            var message = "Consider using nameof(InnerClass.TestCases) instead of \"TestCases\".";
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+        }
+
+        [Test]
+        public void FixWhenStringLiteralTargetsSourceInAnotherClass()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    public class FixWhenStringLiteralTargetsSourceInAnotherClass
+    {{
+        [TestCaseSource(typeof(AnotherClass), ""TestCases"")]
+        public void TestData(string input) {{ }}
+    }}
+
+    public class AnotherClass
+    {{
+        public static string[] TestCases = new[] {{ ""Data"" }};
+    }}");
+
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    public class FixWhenStringLiteralTargetsSourceInAnotherClass
+    {{
+        [TestCaseSource(typeof(AnotherClass), nameof(AnotherClass.TestCases))]
+        public void TestData(string input) {{ }}
+    }}
+
+    public class AnotherClass
+    {{
+        public static string[] TestCases = new[] {{ ""Data"" }};
+    }}");
+
+            var message = "Consider using nameof(AnotherClass.TestCases) instead of \"TestCases\".";
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+        }
+
+        [Test]
+        public void FixWhenStringLiteralTargetsSourceInAnInnerClassInAnotherClass()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    public class FixWhenStringLiteralTargetsSourceInAnInnerClassInAnotherClass
+    {{
+        [TestCaseSource(typeof(AnotherClass.InnerClass), ""TestCases"")]
+        public void TestData(string input) {{ }}
+    }}
+
+    public class AnotherClass
+    {{
+        public class InnerClass
+        {{
+            public static string[] TestCases = new[] {{ ""Data"" }};
+        }}
+    }}");
+
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    public class FixWhenStringLiteralTargetsSourceInAnInnerClassInAnotherClass
+    {{
+        [TestCaseSource(typeof(AnotherClass.InnerClass), nameof(AnotherClass.InnerClass.TestCases))]
+        public void TestData(string input) {{ }}
+    }}
+
+    public class AnotherClass
+    {{
+        public class InnerClass
+        {{
+            public static string[] TestCases = new[] {{ ""Data"" }};
+        }}
+    }}");
+
+            var message = "Consider using nameof(AnotherClass.InnerClass.TestCases) instead of \"TestCases\".";
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+        }
     }
 }
