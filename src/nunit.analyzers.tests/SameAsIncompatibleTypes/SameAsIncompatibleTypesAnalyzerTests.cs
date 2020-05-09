@@ -284,6 +284,15 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
+        public void NoDiagnosticWhenUsedWithNoneOperator()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                "Assert.That(new string[0], Has.None.SameAs(string.Empty));");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void NoDiagnosticWhenActualIsDynamic()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
