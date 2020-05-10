@@ -12,11 +12,11 @@
 
 ## Description
 
-The ContainsConstraint constraint requires actual argument to be either string, or collection of strings.
+The ContainsConstraint requires actual value to be either a string or a collection of strings.
 
 ## Motivation
 
-Using ContainsConstraint with actual argument, which is not a string and not a collection of strings, leads to assertion error.
+Using a ContainsConstraint with an actual argument, which is neither a string nor a collection of strings, leads to an assertion error.
 
 ## How to fix violations
 

@@ -19,7 +19,7 @@ namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
                 "Assert.That(123, ↓Does.Contain(\"1\"));");
 
             AnalyzerAssert.Diagnostics(analyzer,
-                expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with 'int' actual argument."),
+                expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with an actual value of type 'int'."),
                 testCode);
         }
 
@@ -31,7 +31,7 @@ namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
                 Assert.That(actual, ↓Does.Contain(""1""));");
 
             AnalyzerAssert.Diagnostics(analyzer,
-                expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with 'int[]' actual argument."),
+                expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with an actual value of type 'int[]'."),
                 testCode);
         }
 
