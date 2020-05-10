@@ -184,7 +184,7 @@ namespace NUnit.Analyzers.Extensions
             var typeName = targetTypeSymbol.GetFullMetadataName();
             var targetType = IntrinsicTypeConverters.FirstOrDefault(t => t.type.FullName == typeName);
 
-            if (targetType == default((Type type, Lazy<TypeConverter> typeConverter)))
+            if (targetType == default)
             {
                 return false;
             }
