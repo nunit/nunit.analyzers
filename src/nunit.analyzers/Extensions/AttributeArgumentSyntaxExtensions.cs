@@ -24,8 +24,8 @@ namespace NUnit.Analyzers.Extensions
 
         // Intrinsic type converters for types
         // https://github.com/dotnet/runtime/blob/master/src/libraries/System.ComponentModel.TypeConverter/src/System/ComponentModel/ReflectTypeDescriptionProvider.cs
-        // For converters that exists in .NET Standard 1.6 we use the converter.
-        // Otherwise, we assume that that the converter exists and it can convert the value.
+        // For converters that exist in .NET Standard 1.6 we use the converter.
+        // Otherwise, we assume that the converter exists and it can convert the value.
         private static readonly List<(Type type, Lazy<TypeConverter>? typeConverter)> IntrinsicTypeConverters =
             new List<(Type type, Lazy<TypeConverter>? typeConverter)>
             {
