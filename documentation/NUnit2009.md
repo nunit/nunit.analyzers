@@ -6,7 +6,7 @@
 | Id       | NUnit2009
 | Severity | Warning
 | Enabled  | True
-| Category | Structure
+| Category | Assertion
 | Code     | [SameActualExpectedValueAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/SameActualExpectedValue/SameActualExpectedValueAnalyzer.cs)
 
 
@@ -70,7 +70,7 @@ Or put this at the top of the file to disable all instances.
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
     "NUnit2009:Same value provided as actual and expected argument.",
     Justification = "Reason...")]
 ```
