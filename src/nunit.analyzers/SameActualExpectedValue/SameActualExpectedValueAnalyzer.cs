@@ -15,7 +15,7 @@ namespace NUnit.Analyzers.SameActualExpectedValue
             id: AnalyzerIdentifiers.SameActualExpectedValue,
             title: SameActualExpectedValueAnalyzerConstants.Title,
             messageFormat: SameActualExpectedValueAnalyzerConstants.Message,
-            category: Categories.Structure,
+            category: Categories.Assertion,
             defaultSeverity: DiagnosticSeverity.Warning,
             description: SameActualExpectedValueAnalyzerConstants.Description);
 
