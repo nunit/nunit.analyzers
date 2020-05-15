@@ -48,6 +48,26 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
         }
 
         [Test]
+        public void ValidWhenStringTaskValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                var actual = Task.FromResult(""1234"");
+                Assert.That(actual, {stringConstraint});");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenStringDelegateProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                var actual = ""1234"";
+                Assert.That(() => actual, {stringConstraint});");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void ValidWhenValueConvertedToStringProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
             var testCode = TestUtility.WrapInTestMethod($@"

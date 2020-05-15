@@ -46,7 +46,7 @@ namespace NUnit.Analyzers.StringConstraintWrongActualType
                 return;
             }
 
-            var actualType = semanticModel.GetTypeInfo(actualExpression, cancellationToken).Type;
+            var actualType = AssertHelper.GetUnwrappedActualType(actualExpression, semanticModel, cancellationToken);
 
             // Allow 'object' and 'dynamic' to avoid lots of false positives
             if (actualType == null
@@ -68,11 +68,13 @@ namespace NUnit.Analyzers.StringConstraintWrongActualType
 
                 if (constraintType != null && SupportedConstraints.Contains(constraintType.GetFullMetadataName()))
                 {
+                    var actualTypeDisplay = actualType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+
                     context.ReportDiagnostic(Diagnostic.Create(
                         descriptor,
                         constraintPart.GetLocation(),
                         constraintType.Name,
-                        actualType.Name));
+                        actualTypeDisplay));
                 }
             }
         }

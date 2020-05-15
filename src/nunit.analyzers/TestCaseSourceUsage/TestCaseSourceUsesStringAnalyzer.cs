@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -145,7 +146,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
                 var syntaxNode = attributeInfo.SyntaxNode;
 
-                if (syntaxNode == null)
+                if (syntaxNode == null || stringConstant == null)
                 {
                     return;
                 }
@@ -166,9 +167,25 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
                     if (attributeInfo.IsStringLiteral && sourceIsAccessible)
                     {
+                        var nameOfClassTarget = attributeInfo.SourceType.ToMinimalDisplayString(
+                            context.SemanticModel,
+                            syntaxNode.GetLocation().SourceSpan.Start);
+
+
+                        var nameOfTarget = attributeInfo.SourceType == context.ContainingSymbol.ContainingType
+                            ? stringConstant
+                            : $"{nameOfClassTarget}.{stringConstant}";
+
+                        var properties = new Dictionary<string, string>
+                        {
+                            { TestCaseSourceUsageConstants.PropertyKeyNameOfTarget, nameOfTarget }
+                        };
+
                         context.ReportDiagnostic(Diagnostic.Create(
                             considerNameOfDescriptor,
                             syntaxNode.GetLocation(),
+                            properties.ToImmutableDictionary(),
+                            nameOfTarget,
                             stringConstant));
                     }
 

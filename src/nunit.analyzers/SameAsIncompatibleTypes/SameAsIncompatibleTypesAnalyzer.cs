@@ -35,45 +35,36 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
                 return;
             }
 
-            var sameAsExpectedExpressions = constraintExpression.ConstraintParts
-                .Where(part => part.GetConstraintName() == NunitFrameworkConstants.NameOfIsSameAs
-                    && part.GetConstraintTypeSymbol()?.GetFullMetadataName() == NunitFrameworkConstants.FullNameOfSameAsConstraint)
-                .Select(part => part.GetExpectedArgumentExpression())
-                .Where(ex => ex != null)
-                .ToArray();
-
-            if (sameAsExpectedExpressions.Length == 0)
-                return;
-
-            var actualTypeInfo = semanticModel.GetTypeInfo(actualExpression, cancellationToken);
-            var actualType = actualTypeInfo.Type ?? actualTypeInfo.ConvertedType;
-            actualType = UnwrapActualType(actualType);
-
-            if (actualType == null)
-                return;
-
-            foreach (var expectedArgumentExpression in sameAsExpectedExpressions)
+            foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
+                if (constraintPart.GetConstraintName() != NunitFrameworkConstants.NameOfIsSameAs
+                    || constraintPart.GetConstraintTypeSymbol()?.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfSameAsConstraint)
+                {
+                    continue;
+                }
+
+                if (constraintPart.GetPrefixesNames().Any(p => p != NunitFrameworkConstants.NameOfIsNot))
+                    return;
+
+                var actualType = AssertHelper.GetUnwrappedActualType(actualExpression, semanticModel, cancellationToken);
+
+                if (actualType == null)
+                    continue;
+
+                var expectedArgumentExpression = constraintPart.GetExpectedArgumentExpression();
+
+                if (expectedArgumentExpression == null)
+                    continue;
+
                 var expectedType = semanticModel.GetTypeInfo(expectedArgumentExpression, cancellationToken).Type;
 
                 if (expectedType != null && !CanBeSameType(actualType, expectedType, semanticModel))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         descriptor,
-                        expectedArgumentExpression!.GetLocation()));
+                        expectedArgumentExpression.GetLocation()));
                 }
             }
-        }
-
-        private static ITypeSymbol UnwrapActualType(ITypeSymbol actualType)
-        {
-            if (actualType is INamedTypeSymbol namedType && namedType.DelegateInvokeMethod != null)
-                actualType = namedType.DelegateInvokeMethod.ReturnType;
-
-            if (actualType.IsAwaitable(out var awaitReturnType))
-                actualType = awaitReturnType;
-
-            return actualType;
         }
 
         private static bool CanBeSameType(ITypeSymbol actualType, ITypeSymbol expectedType, SemanticModel semanticModel)

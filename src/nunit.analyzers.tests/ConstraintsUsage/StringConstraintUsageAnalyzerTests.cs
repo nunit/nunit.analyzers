@@ -95,18 +95,18 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void ValidForUnsupportedStringMethods()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"Assert.That(↓""abc"".IsNormalized());");
+            var testCode = TestUtility.WrapInTestMethod(@"Assert.That(""abc"".IsNormalized());");
 
-            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            AnalyzerAssert.Valid(analyzer, testCode);
         }
 
         [Test]
         public void ValidForNonStringMethods()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"Assert.That(new List<string> { ""a"",""ab""}.Contains(""ab""));");
+                @"Assert.That(new System.Collections.Generic.List<string> { ""a"",""ab""}.Contains(""ab""));");
 
-            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            AnalyzerAssert.Valid(analyzer, testCode);
         }
     }
 }

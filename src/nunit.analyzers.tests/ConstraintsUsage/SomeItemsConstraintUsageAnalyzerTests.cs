@@ -80,7 +80,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(new List<int> { 1, 2, 3 }.Remove(1));",
                 additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            AnalyzerAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             var testCode = TestUtility.WrapInTestMethod(@"
                 Assert.That(""1, 2, 3"".Contains(""1""));");
 
-            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            AnalyzerAssert.Valid(analyzer, testCode);
         }
     }
 }

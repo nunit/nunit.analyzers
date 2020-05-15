@@ -41,7 +41,9 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                 if (HasIncompatiblePrefixes(constraintPartExpression)
                     || HasCustomEqualityComparer(constraintPartExpression)
                     || constraintPartExpression.HasUnknownExpressions())
-                    continue;
+                {
+                    return;
+                }
 
                 var constraintMethod = constraintPartExpression.GetConstraintMethod();
 

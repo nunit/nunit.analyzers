@@ -28,6 +28,8 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             {
                 if (syntaxRoot.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is LiteralExpressionSyntax literal)
                 {
+                    var nameOfTarget = diagnostic.Properties[TestCaseSourceUsageConstants.PropertyKeyNameOfTarget];
+
                     context.RegisterCodeFix(
                         CodeAction.Create(
                             "Use nameof()",
@@ -35,7 +37,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                                 context.Document.WithSyntaxRoot(
                                     syntaxRoot.ReplaceNode(
                                         literal,
-                                        SyntaxFactory.ParseExpression($"nameof({literal.Token.ValueText})")))),
+                                        SyntaxFactory.ParseExpression($"nameof({nameOfTarget})")))),
                             nameof(UseNameofFix)),
                         diagnostic);
                 }

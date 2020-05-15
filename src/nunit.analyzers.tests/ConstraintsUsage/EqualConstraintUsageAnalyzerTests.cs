@@ -191,7 +191,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.EqualTo(""bcd""));");
 
-            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            AnalyzerAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -201,7 +201,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.Not.EqualTo(""bcd""));");
 
-            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            AnalyzerAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -211,7 +211,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual.Contains(""bc""));");
 
-            AnalyzerAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            AnalyzerAssert.Valid(analyzer, testCode);
         }
     }
 }

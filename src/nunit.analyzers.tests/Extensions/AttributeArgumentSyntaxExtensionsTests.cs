@@ -63,6 +63,18 @@ namespace NUnit.Analyzers.Tests.Extensions
                 SetName("CanAssignToWhenArgumentIsImplicitlyTypedArrayAndAssignable");
             yield return new TestCaseData("new[] { \"a\", \"b\", \"c\" }", "int[]", "string[]", Is.False).
                 SetName("CanAssignToWhenArgumentIsImplicitlyTypedArrayAndNotAssignable");
+            yield return new TestCaseData("\"Russian\"", "System.Globalization.CultureInfo", "object", Is.True).
+                SetName("CanAssignToWhenParameterIsCultureInfoAndArgumentIsString");
+            yield return new TestCaseData("\"NotACulture\"", "System.Globalization.CultureInfo", "object", Is.True).
+                SetName("CanAssignToWhenParameterIsCultureInfoAndArgumentIsInvalidString");
+            yield return new TestCaseData("\"1\"", "int", "object", Is.True).
+                SetName("CanAssignToWhenParameterIsIntegerAndArgumentIsValidIntegerAsString");
+            yield return new TestCaseData("\"1a\"", "int", "object", Is.False).
+                SetName("CanAssignToWhenParameterIsIntegerAndArgumentIsInValidIntegerAsString");
+            yield return new TestCaseData("\"1.2.3.4\"", "Version", "object", Is.True).
+                SetName("CanAssignToWhenParameterIsVersionAndArgumentIsValidString");
+            yield return new TestCaseData("\"a.b.c.d\"", "Version", "object", Is.True).
+                SetName("CanAssignToWhenParameterIsVersionAndArgumentIsInValidString");
         }
 
         [TestCaseSource(nameof(GetTestData))]
