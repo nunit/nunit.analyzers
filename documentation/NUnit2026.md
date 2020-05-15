@@ -1,5 +1,5 @@
 # NUnit2026
-## Wrong actual type used with SomeItemsConstraint.
+## Wrong actual type used with the SomeItemsConstraint with EqualConstraint.
 
 | Topic    | Value
 | :--      | :--
@@ -12,11 +12,11 @@
 
 ## Description
 
-The SomeItemsConstraint requires actual argument to be a collection with matching element type to the expected argument.
+The SomeItemsConstraint with EqualConstraint requires the actual argument to be a collection where the element type can match the type of the expected argument.
 
 ## Motivation
 
-Using SomeItemsConstraint with actual argument, which is either not a collection, or has wrong element type, leads to assertion error.
+Using Does.Contain or Contains.Item constraints with actual argument, which is either not a collection, or has wrong element type, leads to assertion error.
 
 ## How to fix violations
 
@@ -31,21 +31,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit2026 // Wrong actual type used with SomeItemsConstraint.
+#pragma warning disable NUnit2026 // Wrong actual type used with the SomeItemsConstraint with EqualConstraint.
 Code violating the rule here
-#pragma warning restore NUnit2026 // Wrong actual type used with SomeItemsConstraint.
+#pragma warning restore NUnit2026 // Wrong actual type used with the SomeItemsConstraint with EqualConstraint.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit2026 // Wrong actual type used with SomeItemsConstraint.
+#pragma warning disable NUnit2026 // Wrong actual type used with the SomeItemsConstraint with EqualConstraint.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
-    "NUnit2026:Wrong actual type used with SomeItemsConstraint.",
+    "NUnit2026:Wrong actual type used with the SomeItemsConstraint with EqualConstraint.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

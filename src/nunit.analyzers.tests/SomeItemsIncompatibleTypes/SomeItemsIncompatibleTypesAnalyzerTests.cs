@@ -29,7 +29,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
                 $"Assert.That(123, ↓{this.constraint}(1));");
 
             AnalyzerAssert.Diagnostics(analyzer,
-                expectedDiagnostic.WithMessage("The SomeItemsConstraint cannot be used with 'int' actual and 'int' expected arguments."),
+                expectedDiagnostic.WithMessage($"'{this.constraint}' constraint cannot be used with actual argument of type 'int' and  expected argument of type 'int'."),
                 testCode);
         }
 
@@ -40,7 +40,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
                 $"Assert.That(new[] {{\"1\", \"2\"}}, ↓{this.constraint}(1));");
 
             AnalyzerAssert.Diagnostics(analyzer,
-                expectedDiagnostic.WithMessage("The SomeItemsConstraint cannot be used with 'string[]' actual and 'int' expected arguments."),
+                expectedDiagnostic.WithMessage($"'{this.constraint}' constraint cannot be used with actual argument of type 'string[]' and  expected argument of type 'int'."),
                 testCode);
         }
 

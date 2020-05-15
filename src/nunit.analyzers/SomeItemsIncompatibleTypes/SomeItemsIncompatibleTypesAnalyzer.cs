@@ -37,7 +37,7 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
 
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
-                if ((!IsDoesContain(constraintPart) && !IsContaintsItem(constraintPart))
+                if ((!IsDoesContain(constraintPart) && !IsContainsItem(constraintPart))
                     || constraintPart.GetConstraintTypeSymbol()?.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfSomeItemsConstraint)
                 {
                     continue;
@@ -74,6 +74,7 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
                 context.ReportDiagnostic(Diagnostic.Create(
                     descriptor,
                     constraintPart.GetLocation(),
+                    ConstraintDiagnosticDescription(constraintPart),
                     actualTypeDisplay,
                     expectedTypeDisplay));
             }
@@ -84,7 +85,7 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
             return constraintPart.GetConstraintName() == NunitFrameworkConstants.NameOfDoesContain;
         }
 
-        private static bool IsContaintsItem(ConstraintPartExpression constraintPart)
+        private static bool IsContainsItem(ConstraintPartExpression constraintPart)
         {
             return constraintPart.GetHelperClassName() == NunitFrameworkConstants.NameOfContains
                 && constraintPart.GetConstraintName() == NunitFrameworkConstants.NameOfContainsItem;
@@ -93,6 +94,13 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
         private static bool HasIncompatibleOperators(ConstraintPartExpression constraintPart)
         {
             return constraintPart.GetPrefixesNames().Any(p => p != NunitFrameworkConstants.NameOfDoesNot);
+        }
+
+        private static string ConstraintDiagnosticDescription(ConstraintPartExpression constraintPart)
+        {
+            return constraintPart.GetHelperClassName() != null
+                ? $"{constraintPart.GetHelperClassName()}.{constraintPart.GetConstraintName()}"
+                : (constraintPart.GetConstraintName() ?? "");
         }
     }
 }

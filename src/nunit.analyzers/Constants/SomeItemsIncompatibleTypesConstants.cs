@@ -2,8 +2,8 @@ namespace NUnit.Analyzers.Constants
 {
     internal static class SomeItemsIncompatibleTypesConstants
     {
-        public const string Title = "Wrong actual type used with SomeItemsConstraint.";
-        public const string Message = "The SomeItemsConstraint cannot be used with '{0}' actual and '{1}' expected arguments.";
-        public const string Description = "The SomeItemsConstraint requires actual argument to be a collection with matching element type to the expected argument.";
+        public const string Title = "Wrong actual type used with the SomeItemsConstraint with EqualConstraint.";
+        public const string Message = "'{0}' constraint cannot be used with actual argument of type '{1}' and  expected argument of type '{2}'.";
+        public const string Description = "The SomeItemsConstraint with EqualConstraint requires the actual argument to be a collection where the element type can match the type of the expected argument.";
     }
 }
