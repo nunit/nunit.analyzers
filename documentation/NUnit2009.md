@@ -70,7 +70,7 @@ Or put this at the top of the file to disable all instances.
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
     "NUnit2009:Same value provided as actual and expected argument.",
     Justification = "Reason...")]
 ```
