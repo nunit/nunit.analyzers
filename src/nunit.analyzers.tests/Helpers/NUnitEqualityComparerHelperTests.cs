@@ -167,7 +167,7 @@ namespace NUnit.Analyzers.Tests.Helpers
         }
 
         [Test]
-        public void TrueWhenValueTuplesWithIncompatibleElementTypesProvided()
+        public void TrueWhenValueTuplesWithCompatibleElementTypesProvided()
         {
             var compilation = TestHelpers.CreateCompilation();
 
