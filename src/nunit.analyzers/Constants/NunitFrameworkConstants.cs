@@ -21,6 +21,9 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfIsSamePath = "SamePath";
         public const string NameOfNull = "Null";
 
+        public const string NameOfContains = "Contains";
+        public const string NameOfContainsItem = "Item";
+
         public const string NameOfDoes = "Does";
         public const string NameOfDoesNot = "Not";
         public const string NameOfDoesContain = "Contain";
@@ -60,6 +63,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfConstraint = "Constraint";
 
         public const string FullNameOfSameAsConstraint = "NUnit.Framework.Constraints.SameAsConstraint";
+        public const string FullNameOfSomeItemsConstraint = "NUnit.Framework.Constraints.SomeItemsConstraint";
         public const string FullNameOfEqualToConstraint = "NUnit.Framework.Constraints.EqualConstraint";
         public const string FullNameOfEndsWithConstraint = "NUnit.Framework.Constraints.EndsWithConstraint";
         public const string FullNameOfRegexConstraint = "NUnit.Framework.Constraints.RegexConstraint";

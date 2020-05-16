@@ -47,3 +47,4 @@
 | [NUnit2023](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2023.md)| Invalid NullConstraint usage. | :white_check_mark: |
 | [NUnit2024](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2024.md)| Wrong actual type used with String Constraint. | :white_check_mark: |
 | [NUnit2025](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2025.md)| Wrong actual type used with ContainsConstraint. | :white_check_mark: |
+| [NUnit2026](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2026.md)| Wrong actual type used with the SomeItemsConstraint with EqualConstraint. | :white_check_mark: |
