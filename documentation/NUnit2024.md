@@ -12,7 +12,7 @@
 
 ## Description
 
-Provided actual argument value is not string type and cannot be used with String Constraint.
+The type of the actual argument is not a string and hence cannot be used with a String Constraint.
 
 ## Motivation
 

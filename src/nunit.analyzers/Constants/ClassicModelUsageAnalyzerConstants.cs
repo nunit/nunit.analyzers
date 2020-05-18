@@ -18,17 +18,17 @@ namespace NUnit.Analyzers.Constants
         internal const string FalseMessage = "Consider using the constraint model, Assert.That(expr, Is.False), instead of the classic model, Assert.False(expr).";
         internal const string FalseDescription = "Consider using the constraint model, Assert.That(expr, Is.False), instead of the classic model, Assert.False(expr).";
 
-        internal const string AreEqualTitle = "Consider using Assert.That(expr2, Is.EqualTo(expr1)) instead of Assert.AreEqual(expr1, expr2).";
-        internal const string AreEqualMessage = "Consider using the constraint model, Assert.That(expr2, Is.EqualTo(expr1)), instead of the classic model, Assert.AreEqual(expr1, expr2).";
-        internal const string AreEqualDescription = "Consider using the constraint model, Assert.That(expr2, Is.EqualTo(expr1)), instead of the classic model, Assert.AreEqual(expr1, expr2).";
+        internal const string AreEqualTitle = "Consider using Assert.That(actual, Is.EqualTo(expected)) instead of Assert.AreEqual(expected, actual).";
+        internal const string AreEqualMessage = "Consider using the constraint model, Assert.That(actual, Is.EqualTo(expected)), instead of the classic model, Assert.AreEqual(expected, actual).";
+        internal const string AreEqualDescription = "Consider using the constraint model, Assert.That(actual, Is.EqualTo(expected)), instead of the classic model, Assert.AreEqual(expected, actual).";
 
-        internal const string AreNotEqualTitle = "Consider using Assert.That(expr2, Is.Not.EqualTo(expr1)) instead of Assert.AreNotEqual(expr1, expr2).";
-        internal const string AreNotEqualMessage = "Consider using the constraint model, Assert.That(expr2, Is.Not.EqualTo(expr1)), instead of the classic model, Assert.AreNotEqual(expr1, expr2).";
-        internal const string AreNotEqualDescription = "Consider using the constraint model, Assert.That(expr2, Is.Not.EqualTo(expr1)), instead of the classic model, Assert.AreNotEqual(expr1, expr2).";
+        internal const string AreNotEqualTitle = "Consider using Assert.That(actual, Is.Not.EqualTo(expected)) instead of Assert.AreNotEqual(expected, actual).";
+        internal const string AreNotEqualMessage = "Consider using the constraint model, Assert.That(actual, Is.Not.EqualTo(expected)), instead of the classic model, Assert.AreNotEqual(expected, actual).";
+        internal const string AreNotEqualDescription = "Consider using the constraint model, Assert.That(actual, Is.Not.EqualTo(expected)), instead of the classic model, Assert.AreNotEqual(expected, actual).";
 
-        internal const string AreSameTitle = "Consider using Assert.That(expr2, Is.SameAs(expr1)) instead of Assert.AreSame(expr1, expr2).";
-        internal const string AreSameMessage = "Consider using the constraint model, Assert.That(expr2, Is.SameAs(expr1)), instead of the classic model, Assert.AreSame(expr1, expr2).";
-        internal const string AreSameDescription = "Consider using the constraint model, Assert.That(expr2, Is.SameAs(expr1)), instead of the classic model, Assert.AreSame(expr1, expr2).";
+        internal const string AreSameTitle = "Consider using Assert.That(actual, Is.SameAs(expected)) instead of Assert.AreSame(expected, actual).";
+        internal const string AreSameMessage = "Consider using the constraint model, Assert.That(actual, Is.SameAs(expected)), instead of the classic model, Assert.AreSame(expected, actual).";
+        internal const string AreSameDescription = "Consider using the constraint model, Assert.That(actual, Is.SameAs(expected)), instead of the classic model, Assert.AreSame(expected, actual).";
 
         internal const string IsNullTitle = "Consider using Assert.That(expr, Is.Null) instead of Assert.IsNull(expr).";
         internal const string IsNullMessage = "Consider using the constraint model, Assert.That(expr, Is.Null), instead of the classic model, Assert.IsNull(expr).";

@@ -12,7 +12,7 @@
 
 ## Description
 
-IgnoreCase modifier should only be used for string or char arguments. Using it on another type will not have any effect.
+The IgnoreCase modifier should only be used for string or char arguments. Using it on another type will not have any effect.
 
 ## Motivation
 

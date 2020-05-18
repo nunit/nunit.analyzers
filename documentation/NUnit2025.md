@@ -12,7 +12,7 @@
 
 ## Description
 
-The ContainsConstraint requires actual value to be either a string or a collection of strings.
+The ContainsConstraint requires the type of the actual value to be either a string or a collection of strings.
 
 ## Motivation
 

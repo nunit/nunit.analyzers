@@ -1,5 +1,5 @@
 # NUnit1005
-## The type of ExpectedResult must match the return type.
+## The type of the value specified via ExpectedResult must match the return type of the method.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-The type of ExpectedResult must match the return type. This will lead to an error at run-time.
+The type of the value specified via ExpectedResult must match the return type of the method. Otherwise, this will lead to an error at run-time.
 
 ## Motivation
 
@@ -65,21 +65,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1005 // The type of ExpectedResult must match the return type.
+#pragma warning disable NUnit1005 // The type of the value specified via ExpectedResult must match the return type of the method.
 Code violating the rule here
-#pragma warning restore NUnit1005 // The type of ExpectedResult must match the return type.
+#pragma warning restore NUnit1005 // The type of the value specified via ExpectedResult must match the return type of the method.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1005 // The type of ExpectedResult must match the return type.
+#pragma warning disable NUnit1005 // The type of the value specified via ExpectedResult must match the return type of the method.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1005:The type of ExpectedResult must match the return type.",
+    "NUnit1005:The type of the value specified via ExpectedResult must match the return type of the method.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

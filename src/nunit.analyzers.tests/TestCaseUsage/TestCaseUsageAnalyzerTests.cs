@@ -308,7 +308,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [↓TestCase(2)]
         public void Test(int a, char b) { }
     }");
-            var message = "There are not enough arguments provided by the TestCaseAttribute. Expected '2', but got '1'.";
+            var message = "The TestCaseAttribute provided too few arguments. Expected '2', but got '1'.";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
@@ -325,7 +325,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [↓TestCase(2, 'b')]
         public void Test(int a) { }
     }");
-            var message = "There are too many arguments provided by the TestCaseAttribute. Expected '1', but got '2'.";
+            var message = "The TestCaseAttribute provided too many arguments. Expected '1', but got '2'.";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
@@ -342,7 +342,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [↓TestCase(2, 'b', 2d)]
         public void Test(int a, char b = 'c') { }
     }");
-            var message = "There are too many arguments provided by the TestCaseAttribute. Expected '2', but got '3'.";
+            var message = "The TestCaseAttribute provided too many arguments. Expected '2', but got '3'.";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 

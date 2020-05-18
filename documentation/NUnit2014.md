@@ -1,5 +1,5 @@
 # NUnit2014
-## Use SomeItemsConstraint.
+## Use SomeItemsConstraint for better assertion messages in case of failure.
 
 | Topic    | Value
 | :--      | :--
@@ -54,21 +54,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit2014 // Use SomeItemsConstraint.
+#pragma warning disable NUnit2014 // Use SomeItemsConstraint for better assertion messages in case of failure.
 Code violating the rule here
-#pragma warning restore NUnit2014 // Use SomeItemsConstraint.
+#pragma warning restore NUnit2014 // Use SomeItemsConstraint for better assertion messages in case of failure.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit2014 // Use SomeItemsConstraint.
+#pragma warning disable NUnit2014 // Use SomeItemsConstraint for better assertion messages in case of failure.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
-    "NUnit2014:Use SomeItemsConstraint.",
+    "NUnit2014:Use SomeItemsConstraint for better assertion messages in case of failure.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

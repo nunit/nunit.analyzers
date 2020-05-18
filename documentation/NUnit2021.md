@@ -12,7 +12,7 @@
 
 ## Description
 
-Provided actual and expected arguments cannot be equal, therefore assertion is invalid.
+The EqualTo constraint always fails as the actual and the expected value cannot be equal.
 
 ## Motivation
 

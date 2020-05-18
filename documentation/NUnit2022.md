@@ -12,7 +12,7 @@
 
 ## Description
 
-Provided 'actual' argument should have required property for constraint.
+The actual argument should have the required property for the constraint.
 
 ## Motivation
 

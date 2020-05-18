@@ -1,5 +1,5 @@
 # NUnit1016
-## Source type does not have a default constructor.
+## The source type does not have a default constructor.
 
 | Topic    | Value
 | :--      | :--
@@ -89,21 +89,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1016 // Source type does not have a default constructor.
+#pragma warning disable NUnit1016 // The source type does not have a default constructor.
 Code violating the rule here
-#pragma warning restore NUnit1016 // Source type does not have a default constructor.
+#pragma warning restore NUnit1016 // The source type does not have a default constructor.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1016 // Source type does not have a default constructor.
+#pragma warning disable NUnit1016 // The source type does not have a default constructor.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1016:Source type does not have a default constructor.",
+    "NUnit1016:The source type does not have a default constructor.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

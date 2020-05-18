@@ -1,5 +1,5 @@
 # NUnit1003
-## Too few arguments provided by TestCaseAttribute.
+## The TestCaseAttribute provided too few arguments.
 
 | Topic    | Value
 | :--      | :--
@@ -67,21 +67,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1003 // Too few arguments provided by TestCaseAttribute.
+#pragma warning disable NUnit1003 // The TestCaseAttribute provided too few arguments.
 Code violating the rule here
-#pragma warning restore NUnit1003 // Too few arguments provided by TestCaseAttribute.
+#pragma warning restore NUnit1003 // The TestCaseAttribute provided too few arguments.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1003 // Too few arguments provided by TestCaseAttribute.
+#pragma warning disable NUnit1003 // The TestCaseAttribute provided too few arguments.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1003:Too few arguments provided by TestCaseAttribute.",
+    "NUnit1003:The TestCaseAttribute provided too few arguments.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

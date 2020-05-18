@@ -51,7 +51,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceSourceTypeNotIEnumerable)
-                .WithMessage("Source type 'MyTests' does not implement IEnumerable.");
+                .WithMessage("The source type 'MyTests' does not implement IEnumerable.");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
@@ -80,7 +80,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceSourceTypeNoDefaultConstructor)
-                .WithMessage("Source type 'MyTests' does not have a default constructor.");
+                .WithMessage("The source type 'MyTests' does not have a default constructor.");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
     }
