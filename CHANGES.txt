@@ -1,4 +1,47 @@
-﻿NUnit Analyzers 0.2 - April 13, 2020
+﻿NUnit Analyzers 0.3 - May 20, 2020
+
+This release of the NUnit Analyzers improves the documentation of all the diagnostics.
+Furthermore, we have added the following analyzers and diagnostics:
+* an analyzer for proper usage of string constraints,
+* an analyzer for proper usage of ContainsConstraint,
+* an analyzer for proper usage of Does.Contain and Contains.Item,
+* six new diagnostics to handle the full scope of the TestCaseSource attribute.
+
+The release contains contributions from the following users (in alphabetical order):
+ * Dreamescaper
+ * mikkelbu
+ * SeanKilleen
+
+Issues Resolved
+
+Structure, TestCase, and TestCaseSource
+* #204 Extend TestCaseSourceUsesStringAnalyzer to handle all constructors of TestCaseSourceAttribute
+* #209 NUnit1001 and NUnit1005 complains about string to integer conversion
+* #214 Add diagnostics and tests for all cases of TestCaseSourceUsesStringAnalyzer
+* #227 TestCaseSource: Fix codefix for nameof so that it also works when the source is in another class
+
+Assertions
+* #219 Add warning when string analyzers are used against non-string actual argument
+* #221 Add warning when ContainsConstraint is used against incompatible argument type
+* #229 Fix EqualToIncompatibleTypesAnalyzer false positive
+* #230 False positive NUnit2020 for Has.None.SameAs
+* #235 Fix StringConstraintAnalyzer false positive for delegate/task
+* #240 Add SomeItemsIncompatibleTypesAnalyzer
+
+Process, documentation, and tooling
+* #201 chore: Bump version to 0.3
+* #202 chore: Add nuget badge and update download section
+* #205 Document all the analyzers
+* #208 Analyzers List: Add icon for "enabled by default"
+* #216 refac: Replace Tuples with ValueTuples
+* #222 Use nullable reference types
+* #225 chore: Add missing documentation files to solution
+* #226 Nullable fixes
+* #228 Tests fixes
+* #234 Improve every text: titles, messages, and descriptions of the analyzers and code-fixes
+
+
+NUnit Analyzers 0.2 - April 13, 2020
 
 This is the initial release of the NUnit Analyzers. The release consists of analyzers
 and code fixes for:
