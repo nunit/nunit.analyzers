@@ -1,5 +1,5 @@
 # NUnit1011
-## TestCaseSource argument does not specify an existing member.
+## The TestCaseSource argument does not specify an existing member.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-TestCaseSource argument does not specify an existing member. This will lead to an error at run-time.
+The TestCaseSource argument does not specify an existing member. This will lead to an error at run-time.
 
 ## Motivation
 
@@ -80,21 +80,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1011 // TestCaseSource argument does not specify an existing member.
+#pragma warning disable NUnit1011 // The TestCaseSource argument does not specify an existing member.
 Code violating the rule here
-#pragma warning restore NUnit1011 // TestCaseSource argument does not specify an existing member.
+#pragma warning restore NUnit1011 // The TestCaseSource argument does not specify an existing member.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1011 // TestCaseSource argument does not specify an existing member.
+#pragma warning disable NUnit1011 // The TestCaseSource argument does not specify an existing member.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1011:TestCaseSource argument does not specify an existing member.",
+    "NUnit1011:The TestCaseSource argument does not specify an existing member.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

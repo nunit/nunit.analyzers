@@ -12,7 +12,7 @@
 
 ## Description
 
-Provided actual and expected arguments cannot have same type, therefore SameAs assertion will always fail.
+The SameAs constraint always fails because the actual and expected values have mutually exclusive types.
 
 ## Motivation
 

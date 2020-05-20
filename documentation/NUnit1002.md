@@ -1,5 +1,5 @@
 # NUnit1002
-## TestCaseSource should use nameof operator to specify target.
+## The TestCaseSource should use nameof operator to specify target.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-TestCaseSource should use nameof operator to specify target.
+The TestCaseSource should use nameof operator to specify target.
 
 ## Motivation
 
@@ -67,21 +67,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit1002 // TestCaseSource should use nameof operator to specify target.
+#pragma warning disable NUnit1002 // The TestCaseSource should use nameof operator to specify target.
 Code violating the rule here
-#pragma warning restore NUnit1002 // TestCaseSource should use nameof operator to specify target.
+#pragma warning restore NUnit1002 // The TestCaseSource should use nameof operator to specify target.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit1002 // TestCaseSource should use nameof operator to specify target.
+#pragma warning disable NUnit1002 // The TestCaseSource should use nameof operator to specify target.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
-    "NUnit1002:TestCaseSource should use nameof operator to specify target.",
+    "NUnit1002:The TestCaseSource should use nameof operator to specify target.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

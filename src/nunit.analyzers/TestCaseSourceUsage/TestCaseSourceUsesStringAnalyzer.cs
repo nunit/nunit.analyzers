@@ -15,11 +15,11 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
     {
         private static readonly DiagnosticDescriptor missingSourceDescriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.TestCaseSourceIsMissing,
-            title: "TestCaseSource argument does not specify an existing member.",
-            messageFormat: "TestCaseSource argument '{0}' does not specify an existing member.",
+            title: "The TestCaseSource argument does not specify an existing member.",
+            messageFormat: "The TestCaseSource argument '{0}' does not specify an existing member.",
             category: Categories.Structure,
             defaultSeverity: DiagnosticSeverity.Error,
-            description: "TestCaseSource argument does not specify an existing member. This will lead to an error at run-time.");
+            description: "The TestCaseSource argument does not specify an existing member. This will lead to an error at run-time.");
 
         private static readonly DiagnosticDescriptor considerNameOfDescriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.TestCaseSourceStringUsage,

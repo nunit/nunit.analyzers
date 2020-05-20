@@ -1,5 +1,5 @@
 # NUnit2010
-## Use EqualConstraint.
+## Use EqualConstraint for better assertion messages in case of failure.
 
 | Topic    | Value
 | :--      | :--
@@ -49,21 +49,21 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 
 ### Via #pragma directive.
 ```C#
-#pragma warning disable NUnit2010 // Use EqualConstraint.
+#pragma warning disable NUnit2010 // Use EqualConstraint for better assertion messages in case of failure.
 Code violating the rule here
-#pragma warning restore NUnit2010 // Use EqualConstraint.
+#pragma warning restore NUnit2010 // Use EqualConstraint for better assertion messages in case of failure.
 ```
 
 Or put this at the top of the file to disable all instances.
 ```C#
-#pragma warning disable NUnit2010 // Use EqualConstraint.
+#pragma warning disable NUnit2010 // Use EqualConstraint for better assertion messages in case of failure.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```C#
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
-    "NUnit2010:Use EqualConstraint.",
+    "NUnit2010:Use EqualConstraint for better assertion messages in case of failure.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

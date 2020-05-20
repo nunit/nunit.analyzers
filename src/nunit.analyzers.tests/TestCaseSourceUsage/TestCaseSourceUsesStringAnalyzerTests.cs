@@ -46,7 +46,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     }");
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceSourceIsNotStatic)
-                .WithMessage("Specified source 'Tests' is not static.");
+                .WithMessage("The specified source 'Tests' is not static.");
             AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
         }
 
