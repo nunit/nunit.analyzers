@@ -73,12 +73,17 @@ namespace NUnit.Analyzers.MissingProperty
                     continue;
                 }
 
-                if (!actualSymbol.GetAllMembers().Any(m => m.Kind == SymbolKind.Property && m.Name == propertyName))
+                var propertyMembers = actualSymbol.GetAllMembers().Where(m => m.Kind == SymbolKind.Property);
+                if (!propertyMembers.Any(m => m.Name == propertyName))
                 {
+                    var properties = propertyMembers.Select(p => p.Name).Distinct().ToImmutableDictionary(p => p, null);
+
                     context.ReportDiagnostic(Diagnostic.Create(
                         descriptor,
                         prefix.GetLocation(),
-                        actualSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat), propertyName));
+                        properties,
+                        actualSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
+                        propertyName));
                 }
             }
         }
