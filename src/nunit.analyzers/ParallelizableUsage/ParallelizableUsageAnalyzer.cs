@@ -139,23 +139,8 @@ namespace NUnit.Analyzers.ParallelizableUsage
             bool noParameters = methodDeclarationSyntax.ParameterList.Parameters.Count == 0;
 
             var allAttributes = methodDeclarationSyntax.AttributeLists.SelectMany(al => al.Attributes);
-            bool noITestBuilders = !allAttributes.Where(a => DerivesFromITestBuilder(context, a)).Any();
+            bool noITestBuilders = !allAttributes.Where(a => a.DerivesFromITestBuilder(context.SemanticModel)).Any();
             return noParameters && noITestBuilders;
-        }
-
-        private static bool DerivesFromITestBuilder(SyntaxNodeAnalysisContext context, AttributeSyntax attribute)
-        {
-            var parallelizableAttributeType = context.SemanticModel.Compilation.GetTypeByMetadataName(
-                NunitFrameworkConstants.FullNameOfTypeITestBuilder);
-            if (parallelizableAttributeType == null)
-                return false;
-
-            var attributeType = context.SemanticModel.GetTypeInfo(attribute).Type;
-
-            if (attributeType == null)
-                return false;
-
-            return attributeType.AllInterfaces.Any(i => i.Equals(parallelizableAttributeType));
         }
 
         private static bool HasFlag(int enumValue, int flag)

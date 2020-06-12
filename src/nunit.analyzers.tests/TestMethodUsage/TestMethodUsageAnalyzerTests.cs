@@ -432,5 +432,73 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     }");
             AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenTestMethodAlsoHasTestCaseSourceAttribute()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTestMethodAlsoHasTestCaseSourceAttribute
+    {
+        public static IEnumerable MyTestSource
+        {
+            get
+            {
+                yield return new TestCaseData(1).Returns(true);
+                yield return new TestCaseData(0).Returns(false);
+            }
+        }
+
+        [Test]
+        [TestCaseSource(typeof(AnalyzeWhenTestMethodAlsoHasTestCaseSourceAttribute), nameof(MyTestSource))]
+        public bool Value_ShouldEqual_One(int value)
+        {
+            return value == 1;
+        }
+    }",
+    additionalUsings: "using System.Collections;");
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTestMethodAlsoHasTestCaseAttribute()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTestMethodAlsoHasTestCaseAttribute
+    {
+        [Test]
+        [TestCase(1, ExpectedResult = true)]
+        public bool Value_ShouldEqual_One(int value)
+        {
+            return value == 1;
+        }
+    }");
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTestMethodAlsoHasCustomAttributeDerivingFromITestBuilder()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenTestMethodAlsoHasCustomAttributeDerivingFromITestBuilder
+    {
+        [Test]
+        [SomeTestBuilderAttribute]
+        public bool Value_ShouldEqual_One(int value)
+        {
+            return value == 1;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    public class SomeTestBuilderAttribute : NUnitAttribute, ITestBuilder
+    {
+        public IEnumerable<TestMethod> BuildFrom(IMethodInfo method, Test suite)
+        {
+            return Array.Empty<TestMethod>();
+        }
+    }",
+    additionalUsings: "using NUnit.Framework.Interfaces; using NUnit.Framework.Internal; using System.Collections.Generic;");
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
     }
 }

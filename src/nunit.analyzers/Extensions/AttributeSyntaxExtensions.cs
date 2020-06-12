@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NUnit.Analyzers.Constants;
 
 namespace NUnit.Analyzers.Extensions
 {
@@ -38,6 +40,23 @@ namespace NUnit.Analyzers.Extensions
             }
 
             return (positionalArguments.ToImmutableArray(), namedArguments.ToImmutableArray());
+        }
+
+        internal static bool DerivesFromITestBuilder(this AttributeSyntax @this, SemanticModel semanticModel)
+        {
+            var ITestBuilderType = semanticModel.Compilation.GetTypeByMetadataName(
+                NunitFrameworkConstants.FullNameOfTypeITestBuilder);
+
+            if (ITestBuilderType == null)
+                return false;
+
+            var attributeType = semanticModel.GetTypeInfo(@this).Type;
+
+            if (attributeType == null)
+                return false;
+
+            return attributeType.AllInterfaces.Any(i => i.Equals(ITestBuilderType));
+
         }
     }
 }

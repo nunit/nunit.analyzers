@@ -95,7 +95,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                     var isTestCaseAttribute = IsAttribute(testCaseType, NunitFrameworkConstants.NameOfTestCaseAttribute, attributeSymbol);
                     var isTestAttribute = IsAttribute(testType, NunitFrameworkConstants.NameOfTestAttribute, attributeSymbol);
 
-                    if (isTestCaseAttribute || isTestAttribute)
+                    if (isTestCaseAttribute || (isTestAttribute && !HasITestBuilderAttribute(context.SemanticModel, methodNode.AttributeLists)))
                     {
                         context.CancellationToken.ThrowIfCancellationRequested();
 
@@ -111,6 +111,12 @@ namespace NUnit.Analyzers.TestCaseUsage
         private static bool IsAttribute(INamedTypeSymbol nunitType, string nunitTypeName, ISymbol attributeSymbol) =>
             nunitType.ContainingAssembly.Identity == attributeSymbol?.ContainingAssembly.Identity &&
             nunitTypeName == attributeSymbol?.ContainingType.Name;
+
+        private static bool HasITestBuilderAttribute(SemanticModel semanticModel, SyntaxList<AttributeListSyntax> attributeLists)
+        {
+            var allAttributes = attributeLists.SelectMany(al => al.Attributes);
+            return allAttributes.Where(a => a.DerivesFromITestBuilder(semanticModel)).Any();
+        }
 
         private static void AnalyzeExpectedResult(SyntaxNodeAnalysisContext context,
             AttributeSyntax attributeNode, IMethodSymbol methodSymbol)
