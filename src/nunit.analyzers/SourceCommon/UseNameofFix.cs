@@ -8,14 +8,15 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
 
-namespace NUnit.Analyzers.TestCaseSourceUsage
+namespace NUnit.Analyzers.SourceCommon
 {
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(UseNameofFix))]
     [Shared]
     public class UseNameofFix : CodeFixProvider
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
-            AnalyzerIdentifiers.TestCaseSourceStringUsage);
+            AnalyzerIdentifiers.TestCaseSourceStringUsage,
+            AnalyzerIdentifiers.ValueSourceStringUsage);
 
         public override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
@@ -28,7 +29,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             {
                 if (syntaxRoot.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is LiteralExpressionSyntax literal)
                 {
-                    var nameOfTarget = diagnostic.Properties[TestCaseSourceUsageConstants.PropertyKeyNameOfTarget];
+                    var nameOfTarget = diagnostic.Properties[SourceCommonConstants.PropertyKeyNameOfTarget];
 
                     context.RegisterCodeFix(
                         CodeAction.Create(

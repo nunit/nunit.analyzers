@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.SourceCommon;
 using NUnit.Analyzers.TestCaseSourceUsage;
 using NUnit.Framework;
 

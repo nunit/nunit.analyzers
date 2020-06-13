@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
+using NUnit.Analyzers.SourceCommon;
 
 namespace NUnit.Analyzers.TestCaseSourceUsage
 {
@@ -96,131 +97,119 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
         private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context)
         {
-            var testCaseSourceType = context.SemanticModel.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute);
-            if (testCaseSourceType == null)
+            var attributeInfo = SourceHelpers.GetSourceAttributeInformation(
+                context,
+                NunitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute,
+                NunitFrameworkConstants.NameOfTestCaseSourceAttribute);
+
+            if (attributeInfo == null)
             {
                 return;
             }
 
             var attributeNode = (AttributeSyntax)context.Node;
-            var attributeSymbol = context.SemanticModel.GetSymbolInfo(attributeNode).Symbol;
+            var stringConstant = attributeInfo.SourceName;
 
-            if (testCaseSourceType.ContainingAssembly.Identity == attributeSymbol?.ContainingAssembly.Identity &&
-                NunitFrameworkConstants.NameOfTestCaseSourceAttribute == attributeSymbol?.ContainingType.Name)
+            if (stringConstant is null && attributeNode.ArgumentList.Arguments.Count == 1)
             {
-                context.CancellationToken.ThrowIfCancellationRequested();
-
-                var attributeInfo = ExtractInfoFromAttribute(context, attributeNode);
-
-                if (attributeInfo == null)
-                {
-                    return;
-                }
-
-                var stringConstant = attributeInfo.SourceName;
-
-                if (stringConstant is null && attributeNode.ArgumentList.Arguments.Count == 1)
-                {
-                    // The Type argument in this form represents the class that provides test cases.
-                    // It must have a default constructor and implement IEnumerable.
-                    var sourceType = attributeInfo.SourceType;
-                    bool typeImplementsIEnumerable = sourceType.IsIEnumerable(out _);
-                    bool typeHasDefaultConstructor = sourceType.Constructors.Any(c => c.Parameters.IsEmpty);
-                    if (!typeImplementsIEnumerable)
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            sourceTypeNotIEnumerableDescriptor,
-                            attributeNode.ArgumentList.Arguments[0].GetLocation(),
-                            sourceType.Name));
-                    }
-                    else if (!typeHasDefaultConstructor)
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            sourceTypeNoDefaultConstructorDescriptor,
-                            attributeNode.ArgumentList.Arguments[0].GetLocation(),
-                            sourceType.Name));
-                    }
-
-                    return;
-                }
-
-                var syntaxNode = attributeInfo.SyntaxNode;
-
-                if (syntaxNode == null || stringConstant == null)
-                {
-                    return;
-                }
-
-                var symbol = GetMember(context, attributeInfo);
-                if (symbol is null)
+                // The Type argument in this form represents the class that provides test cases.
+                // It must have a default constructor and implement IEnumerable.
+                var sourceType = attributeInfo.SourceType;
+                bool typeImplementsIEnumerable = sourceType.IsIEnumerable(out _);
+                bool typeHasDefaultConstructor = sourceType.Constructors.Any(c => c.Parameters.IsEmpty);
+                if (!typeImplementsIEnumerable)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
-                       missingSourceDescriptor,
-                       syntaxNode.GetLocation(),
-                       stringConstant));
+                        sourceTypeNotIEnumerableDescriptor,
+                        attributeNode.ArgumentList.Arguments[0].GetLocation(),
+                        sourceType.Name));
                 }
-                else
+                else if (!typeHasDefaultConstructor)
                 {
-                    var sourceIsAccessible = context.SemanticModel.IsAccessible(
-                        syntaxNode.GetLocation().SourceSpan.Start,
-                        symbol);
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        sourceTypeNoDefaultConstructorDescriptor,
+                        attributeNode.ArgumentList.Arguments[0].GetLocation(),
+                        sourceType.Name));
+                }
 
-                    if (attributeInfo.IsStringLiteral && sourceIsAccessible)
+                return;
+            }
+
+            var syntaxNode = attributeInfo.SyntaxNode;
+
+            if (syntaxNode == null || stringConstant == null)
+            {
+                return;
+            }
+
+            var symbol = SourceHelpers.GetMember(context, attributeInfo);
+            if (symbol is null)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    missingSourceDescriptor,
+                    syntaxNode.GetLocation(),
+                    stringConstant));
+            }
+            else
+            {
+                var sourceIsAccessible = context.SemanticModel.IsAccessible(
+                    syntaxNode.GetLocation().SourceSpan.Start,
+                    symbol);
+
+                if (attributeInfo.IsStringLiteral && sourceIsAccessible)
+                {
+                    var nameOfClassTarget = attributeInfo.SourceType.ToMinimalDisplayString(
+                        context.SemanticModel,
+                        syntaxNode.GetLocation().SourceSpan.Start);
+
+                    var nameOfTarget = attributeInfo.SourceType == context.ContainingSymbol.ContainingType
+                        ? stringConstant
+                        : $"{nameOfClassTarget}.{stringConstant}";
+
+                    var properties = new Dictionary<string, string>
                     {
-                        var nameOfClassTarget = attributeInfo.SourceType.ToMinimalDisplayString(
-                            context.SemanticModel,
-                            syntaxNode.GetLocation().SourceSpan.Start);
+                        { SourceCommonConstants.PropertyKeyNameOfTarget, nameOfTarget }
+                    };
 
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        considerNameOfDescriptor,
+                        syntaxNode.GetLocation(),
+                        properties.ToImmutableDictionary(),
+                        nameOfTarget,
+                        stringConstant));
+                }
 
-                        var nameOfTarget = attributeInfo.SourceType == context.ContainingSymbol.ContainingType
-                            ? stringConstant
-                            : $"{nameOfClassTarget}.{stringConstant}";
+                if (!symbol.IsStatic)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        sourceNotStaticDescriptor,
+                        syntaxNode.GetLocation(),
+                        stringConstant));
+                }
 
-                        var properties = new Dictionary<string, string>
+                switch (symbol)
+                {
+                    case IPropertySymbol property:
+                        ReportIfSymbolNotIEnumerable(context, syntaxNode, property.Type);
+                        ReportIfParametersSupplied(context, syntaxNode, attributeInfo.NumberOfMethodParameters, "properties");
+                        break;
+                    case IFieldSymbol field:
+                        ReportIfSymbolNotIEnumerable(context, syntaxNode, field.Type);
+                        ReportIfParametersSupplied(context, syntaxNode, attributeInfo.NumberOfMethodParameters, "fields");
+                        break;
+                    case IMethodSymbol method:
+                        ReportIfSymbolNotIEnumerable(context, syntaxNode, method.ReturnType);
+
+                        var methodParametersFromAttribute = attributeInfo.NumberOfMethodParameters ?? 0;
+                        if (method.Parameters.Length != methodParametersFromAttribute)
                         {
-                            { TestCaseSourceUsageConstants.PropertyKeyNameOfTarget, nameOfTarget }
-                        };
-
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            considerNameOfDescriptor,
-                            syntaxNode.GetLocation(),
-                            properties.ToImmutableDictionary(),
-                            nameOfTarget,
-                            stringConstant));
-                    }
-
-                    if (!symbol.IsStatic)
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            sourceNotStaticDescriptor,
-                            syntaxNode.GetLocation(),
-                            stringConstant));
-                    }
-
-                    switch (symbol)
-                    {
-                        case IPropertySymbol property:
-                            ReportIfSymbolNotIEnumerable(context, syntaxNode, property.Type);
-                            ReportIfParametersSupplied(context, syntaxNode, attributeInfo.NumberOfMethodParameters, "properties");
-                            break;
-                        case IFieldSymbol field:
-                            ReportIfSymbolNotIEnumerable(context, syntaxNode, field.Type);
-                            ReportIfParametersSupplied(context, syntaxNode, attributeInfo.NumberOfMethodParameters, "fields");
-                            break;
-                        case IMethodSymbol method:
-                            ReportIfSymbolNotIEnumerable(context, syntaxNode, method.ReturnType);
-
-                            var methodParametersFromAttribute = attributeInfo.NumberOfMethodParameters ?? 0;
-                            if (method.Parameters.Length != methodParametersFromAttribute)
-                            {
-                                context.ReportDiagnostic(Diagnostic.Create(
-                                    mismatchInNumberOfParameters,
-                                    syntaxNode.GetLocation(),
-                                    methodParametersFromAttribute,
-                                    method.Parameters.Length));
-                            }
-                            break;
-                    }
+                            context.ReportDiagnostic(Diagnostic.Create(
+                                mismatchInNumberOfParameters,
+                                syntaxNode.GetLocation(),
+                                methodParametersFromAttribute,
+                                method.Parameters.Length));
+                        }
+                        break;
                 }
             }
         }
@@ -253,147 +242,6 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                     numberOfMethodParameters,
                     kind));
             }
-        }
-
-        private static SourceAttributeInformation? ExtractInfoFromAttribute(
-            SyntaxNodeAnalysisContext context,
-            AttributeSyntax attributeSyntax)
-        {
-            var (positionalArguments, _) = attributeSyntax.GetArguments();
-
-            if (positionalArguments.Length < 1)
-            {
-                return null;
-            }
-
-            var firstArgumentExpression = positionalArguments[0]?.Expression;
-            if (firstArgumentExpression == null)
-            {
-                return null;
-            }
-
-            // TestCaseSourceAttribute has the following constructors:
-            // * TestCaseSourceAttribute(Type sourceType)
-            // * TestCaseSourceAttribute(Type sourceType, string sourceName)
-            // * TestCaseSourceAttribute(Type sourceType, string sourceName, object?[]? methodParams)
-            // * TestCaseSourceAttribute(string sourceName)
-            // * TestCaseSourceAttribute(string sourceName, object?[]? methodParams)
-            if (firstArgumentExpression is TypeOfExpressionSyntax typeofSyntax)
-            {
-                var sourceType = context.SemanticModel.GetSymbolInfo(typeofSyntax.Type).Symbol as INamedTypeSymbol;
-                return ExtractElementsInAttribute(context, sourceType, positionalArguments, 1);
-            }
-            else
-            {
-                var sourceType = context.ContainingSymbol.ContainingType;
-                return ExtractElementsInAttribute(context, sourceType, positionalArguments, 0);
-            }
-        }
-
-        private static SourceAttributeInformation? ExtractElementsInAttribute(
-            SyntaxNodeAnalysisContext context,
-            INamedTypeSymbol? sourceType,
-            ImmutableArray<AttributeArgumentSyntax> positionalArguments,
-            int sourceNameIndex)
-        {
-            if (sourceType == null)
-            {
-                return null;
-            }
-
-            SyntaxNode? syntaxNode = null;
-            string? sourceName = null;
-            bool isStringLiteral = false;
-            if (positionalArguments.Length > sourceNameIndex)
-            {
-                var syntaxNameAndType = GetSyntaxStringConstantAndType(context, positionalArguments, sourceNameIndex);
-
-                if (syntaxNameAndType == null)
-                {
-                    return null;
-                }
-
-                (syntaxNode, sourceName, isStringLiteral) = syntaxNameAndType.Value;
-            }
-
-            int? numMethodParams = null;
-            if (positionalArguments.Length > sourceNameIndex + 1)
-            {
-                numMethodParams = GetNumberOfParametersToMethod(positionalArguments[sourceNameIndex + 1]);
-            }
-
-            return new SourceAttributeInformation(sourceType, sourceName, syntaxNode, isStringLiteral, numMethodParams);
-        }
-
-        private static (SyntaxNode syntaxNode, string sourceName, bool isLiteral)? GetSyntaxStringConstantAndType(
-            SyntaxNodeAnalysisContext context,
-            ImmutableArray<AttributeArgumentSyntax> arguments,
-            int index)
-        {
-            if (index >= arguments.Length)
-            {
-                return null;
-            }
-
-            var argumentSyntax = arguments[index];
-
-            if (argumentSyntax == null)
-            {
-                return null;
-            }
-
-            Optional<object> possibleConstant = context.SemanticModel.GetConstantValue(argumentSyntax.Expression);
-
-            if (possibleConstant.HasValue && possibleConstant.Value is string stringConstant)
-            {
-                SyntaxNode syntaxNode = argumentSyntax.Expression;
-                bool isStringLiteral = syntaxNode is LiteralExpressionSyntax literal &&
-                    literal.IsKind(SyntaxKind.StringLiteralExpression);
-
-                return (syntaxNode, stringConstant, isStringLiteral);
-            }
-
-            return null;
-        }
-
-        private static int? GetNumberOfParametersToMethod(AttributeArgumentSyntax attributeArgumentSyntax)
-        {
-            var lastExpression = attributeArgumentSyntax?.Expression as ArrayCreationExpressionSyntax;
-            return lastExpression?.Initializer.Expressions.Count;
-        }
-
-        private static ISymbol? GetMember(SyntaxNodeAnalysisContext context, SourceAttributeInformation attributeInformation)
-        {
-            if (attributeInformation.SyntaxNode == null || !SyntaxFacts.IsValidIdentifier(attributeInformation.SourceName))
-            {
-                return null;
-            }
-
-            foreach (var syntaxReference in attributeInformation.SourceType.DeclaringSyntaxReferences)
-            {
-                if (syntaxReference.GetSyntax() is ClassDeclarationSyntax syntax)
-                {
-                    var classIdentifier = syntax.Identifier;
-
-                    var symbols = context.SemanticModel.LookupSymbols(
-                        classIdentifier.Span.Start,
-                        container: attributeInformation.SourceType,
-                        name: attributeInformation.SourceName);
-
-                    foreach (var symbol in symbols)
-                    {
-                        switch (symbol.Kind)
-                        {
-                            case SymbolKind.Field:
-                            case SymbolKind.Property:
-                            case SymbolKind.Method:
-                                return symbol;
-                        }
-                    }
-                }
-            }
-
-            return null;
         }
     }
 }

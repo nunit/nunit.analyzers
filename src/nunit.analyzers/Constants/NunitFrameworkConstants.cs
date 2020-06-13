@@ -59,6 +59,7 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfTypeTestAttribute = "NUnit.Framework.TestAttribute";
         public const string FullNameOfTypeParallelizableAttribute = "NUnit.Framework.ParallelizableAttribute";
         public const string FullNameOfTypeITestBuilder = "NUnit.Framework.Interfaces.ITestBuilder";
+        public const string FullNameOfTypeValueSourceAttribute = "NUnit.Framework.ValueSourceAttribute";
 
         public const string NameOfConstraint = "Constraint";
 
@@ -79,6 +80,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfTestCaseSourceAttribute = "TestCaseSourceAttribute";
         public const string NameOfTestAttribute = "TestAttribute";
         public const string NameOfParallelizableAttribute = "ParallelizableAttribute";
+        public const string NameOfValueSourceAttribute = "ValueSourceAttribute";
 
         public const string NameOfExpectedResult = "ExpectedResult";
 
