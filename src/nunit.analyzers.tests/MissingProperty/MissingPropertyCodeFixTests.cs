@@ -29,7 +29,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 additionalUsings: "using System.Collections.Generic;");
 
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: string.Format(CodeFixConstants.MissingPropertyDescriptionFormat, "Count"));
+                fixTitle: string.Format(CodeFixConstants.UsePropertyDescriptionFormat, "Count"));
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 additionalUsings: "using System.Collections.Generic;");
 
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: string.Format(CodeFixConstants.MissingPropertyDescriptionFormat, "Length"));
+                fixTitle: string.Format(CodeFixConstants.UsePropertyDescriptionFormat, "Length"));
         }
 
         [Test]
@@ -85,8 +85,9 @@ namespace NUnit.Analyzers.Tests.MissingProperty
         public void NoCodeFixForRandomMissingProperty()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = 12345;
-                Assert.That(actual, ↓Has.Property(""Whatever"").EqualTo(1));");
+                var actual = new List<int> { 1, 2, 3 };
+                Assert.That(actual, ↓Has.Property(""Whatever"").EqualTo(1));",
+                additionalUsings: "using System.Collections.Generic;");
 
             AnalyzerAssert.NoFix(analyzer, fix, expectedDiagnostic, testCode);
         }

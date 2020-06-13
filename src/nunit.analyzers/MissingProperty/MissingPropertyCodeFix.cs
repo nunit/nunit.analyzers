@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.MissingProperty
 
                 var newRoot = root.ReplaceNode(originalExpression, memberAccess);
 
-                var description = string.Format(CodeFixConstants.MissingPropertyDescriptionFormat, target);
+                var description = string.Format(CodeFixConstants.UsePropertyDescriptionFormat, target);
 
                 var codeAction = CodeAction.Create(
                     description,
