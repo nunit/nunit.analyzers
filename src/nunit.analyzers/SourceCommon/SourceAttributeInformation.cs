@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace NUnit.Analyzers.TestCaseSourceUsage
+namespace NUnit.Analyzers.SourceCommon
 {
     internal sealed class SourceAttributeInformation
     {

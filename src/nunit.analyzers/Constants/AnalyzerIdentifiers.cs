@@ -24,6 +24,11 @@ namespace NUnit.Analyzers.Constants
         internal const string TestCaseSourceMismatchInNumberOfParameters = "NUnit1018";
         internal const string TestCaseSourceDoesNotReturnIEnumerable = "NUnit1019";
         internal const string TestCaseSourceSuppliesParametersToFieldOrProperty = "NUnit1020";
+        internal const string ValueSourceStringUsage = "NUnit1021";
+        internal const string ValueSourceIsNotStatic = "NUnit1022";
+        internal const string ValueSourceMethodExpectParameters = "NUnit1023";
+        internal const string ValueSourceDoesNotReturnIEnumerable = "NUnit1024";
+        internal const string ValueSourceIsMissing = "NUnit1025";
 
         #endregion Structure
 

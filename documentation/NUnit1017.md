@@ -25,7 +25,7 @@ To prevent tests that will fail at runtime due to improper construction.
 ```csharp
 public class MyTestClass
 {
-    [TestCaseSource(nameof(DivideCases)]
+    [TestCaseSource(nameof(DivideCases))]
     public void DivideTest(int n, int d, int q)
     {
         Assert.AreEqual(q, n / d);
@@ -53,7 +53,7 @@ Make the source `static`:
 ```csharp
 public class MyTestClass
 {
-    [TestCaseSource(nameof(DivideCases)]
+    [TestCaseSource(nameof(DivideCases))]
     public void DivideTest(int n, int d, int q)
     {
         Assert.AreEqual(q, n / d);

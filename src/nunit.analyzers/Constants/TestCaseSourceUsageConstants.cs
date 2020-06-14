@@ -6,8 +6,6 @@ namespace NUnit.Analyzers.Constants
         internal const string ConsiderNameOfInsteadOfStringConstantMessage = "Consider using nameof({0}) instead of \"{1}\".";
         internal const string ConsiderNameOfInsteadOfStringConstantDescription = "The TestCaseSource should use nameof operator to specify target.";
 
-        internal const string PropertyKeyNameOfTarget = nameof(PropertyKeyNameOfTarget);
-
         internal const string SourceTypeNotIEnumerableTitle = "The source type does not implement IEnumerable.";
         internal const string SourceTypeNotIEnumerableMessage = "The source type '{0}' does not implement IEnumerable.";
         internal const string SourceTypeNotIEnumerableDescription = "The source type must implement IEnumerable in order to provide test cases.";
