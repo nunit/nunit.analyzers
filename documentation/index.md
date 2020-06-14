@@ -25,6 +25,7 @@
 | [NUnit1023](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1023.md)| The target method expects parameters which cannot be supplied by the ValueSource. | :white_check_mark: |
 | [NUnit1024](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1024.md)| The source specified by the ValueSource does not return an IEnumerable or a type that implements IEnumerable. | :white_check_mark: |
 | [NUnit1025](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1025.md)| The ValueSource argument does not specify an existing member. | :white_check_mark: |
+| [NUnit1026](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1026.md)| The test method is not public. | :white_check_mark: |
 | [NUnit2001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2001.md)| Consider using Assert.That(expr, Is.False) instead of Assert.False(expr). | :white_check_mark: |
 | [NUnit2002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2002.md)| Consider using Assert.That(expr, Is.False) instead of Assert.IsFalse(expr). | :white_check_mark: |
 | [NUnit2003](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2003.md)| Consider using Assert.That(expr, Is.True) instead of Assert.IsTrue(expr). | :white_check_mark: |

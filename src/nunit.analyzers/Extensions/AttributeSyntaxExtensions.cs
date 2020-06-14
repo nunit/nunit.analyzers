@@ -42,15 +42,27 @@ namespace NUnit.Analyzers.Extensions
             return (positionalArguments.ToImmutableArray(), namedArguments.ToImmutableArray());
         }
 
+        internal static bool DerivesFromISimpleTestBuilder(this AttributeSyntax @this, SemanticModel semanticModel)
+        {
+            return DerivesFromInterface(semanticModel, @this, NunitFrameworkConstants.FullNameOfTypeISimpleTestBuilder);
+        }
+
         internal static bool DerivesFromITestBuilder(this AttributeSyntax @this, SemanticModel semanticModel)
         {
-            var ITestBuilderType = semanticModel.Compilation.GetTypeByMetadataName(
-                NunitFrameworkConstants.FullNameOfTypeITestBuilder);
+            return DerivesFromInterface(semanticModel, @this, NunitFrameworkConstants.FullNameOfTypeITestBuilder);
+        }
+
+        private static bool DerivesFromInterface(
+            SemanticModel semanticModel,
+            AttributeSyntax attributeSyntax,
+            string fullyQualifiedMetadataName)
+        {
+            var ITestBuilderType = semanticModel.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName);
 
             if (ITestBuilderType == null)
                 return false;
 
-            var attributeType = semanticModel.GetTypeInfo(@this).Type;
+            var attributeType = semanticModel.GetTypeInfo(attributeSyntax).Type;
 
             if (attributeType == null)
                 return false;

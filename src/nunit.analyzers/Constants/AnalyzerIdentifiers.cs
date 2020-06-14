@@ -29,6 +29,7 @@ namespace NUnit.Analyzers.Constants
         internal const string ValueSourceMethodExpectParameters = "NUnit1023";
         internal const string ValueSourceDoesNotReturnIEnumerable = "NUnit1024";
         internal const string ValueSourceIsMissing = "NUnit1025";
+        internal const string TestMethodIsNotPublic = "NUnit1026";
 
         #endregion Structure
 
