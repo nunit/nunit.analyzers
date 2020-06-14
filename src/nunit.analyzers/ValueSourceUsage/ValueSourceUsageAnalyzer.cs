@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -96,32 +95,13 @@ namespace NUnit.Analyzers.ValueSourceUsage
             }
             else
             {
-                var sourceIsAccessible = context.SemanticModel.IsAccessible(
-                    syntaxNode.GetLocation().SourceSpan.Start,
-                    symbol);
-
-                if (attributeInfo.IsStringLiteral && sourceIsAccessible)
-                {
-                    var nameOfClassTarget = attributeInfo.SourceType.ToMinimalDisplayString(
-                        context.SemanticModel,
-                        syntaxNode.GetLocation().SourceSpan.Start);
-
-                    var nameOfTarget = attributeInfo.SourceType == context.ContainingSymbol.ContainingType
-                        ? stringConstant
-                        : $"{nameOfClassTarget}.{stringConstant}";
-
-                    var properties = new Dictionary<string, string>
-                    {
-                        { SourceCommonConstants.PropertyKeyNameOfTarget, nameOfTarget }
-                    };
-
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        considerNameOfDescriptor,
-                        syntaxNode.GetLocation(),
-                        properties.ToImmutableDictionary(),
-                        nameOfTarget,
-                        stringConstant));
-                }
+                SourceHelpers.ReportToUseNameOfIfApplicable(
+                    context,
+                    syntaxNode,
+                    attributeInfo,
+                    symbol,
+                    stringConstant,
+                    considerNameOfDescriptor);
 
                 if (!symbol.IsStatic)
                 {
@@ -131,20 +111,9 @@ namespace NUnit.Analyzers.ValueSourceUsage
                         stringConstant));
                 }
 
-                var memberType = symbol switch
-                {
-                    IPropertySymbol property => property.Type,
-                    IFieldSymbol field => field.Type,
-                    IMethodSymbol method => method.ReturnType,
-                    _ => null
-                };
+                ReportIfSymbolNotIEnumerable(context, symbol, syntaxNode);
 
-                if (memberType != null)
-                {
-                    ReportIfSymbolNotIEnumerable(context, syntaxNode, memberType);
-                }
-
-                if(symbol is IMethodSymbol methodSymbol && methodSymbol.Parameters.Length != 0)
+                if (symbol is IMethodSymbol methodSymbol && methodSymbol.Parameters.Length != 0)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         methodExpectParameters,
@@ -156,15 +125,23 @@ namespace NUnit.Analyzers.ValueSourceUsage
 
         private static void ReportIfSymbolNotIEnumerable(
             SyntaxNodeAnalysisContext context,
-            SyntaxNode syntaxNode,
-            ITypeSymbol typeSymbol)
+            ISymbol symbol,
+            SyntaxNode syntaxNode)
         {
-            if (!typeSymbol.IsIEnumerable(out var _))
+            var memberType = symbol switch
+            {
+                IPropertySymbol property => property.Type,
+                IFieldSymbol field => field.Type,
+                IMethodSymbol method => method.ReturnType,
+                _ => null
+            };
+
+            if (memberType != null && !memberType.IsIEnumerable(out var _))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     sourceDoesNotReturnIEnumerable,
                     syntaxNode.GetLocation(),
-                    typeSymbol));
+                    memberType));
             }
         }
     }

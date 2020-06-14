@@ -56,7 +56,7 @@ public static object[] MyTestSource()
 }
 ```
 
-Or even better, use `nameof` so that the compiler may assist with mis-matched names in the future:
+Or even better, use `nameof` so that the compiler may assist with mismatched names in the future:
 
 ```csharp
 [TestCaseSource(nameof(MyTestSource))]

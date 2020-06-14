@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -9,6 +10,42 @@ namespace NUnit.Analyzers.SourceCommon
 {
     internal static class SourceHelpers
     {
+        public static void ReportToUseNameOfIfApplicable(
+            SyntaxNodeAnalysisContext context,
+            SyntaxNode syntaxNode,
+            SourceAttributeInformation attributeInfo,
+            ISymbol symbol,
+            string stringConstant,
+            DiagnosticDescriptor considerNameOfDescriptor)
+        {
+            var sourceIsAccessible = context.SemanticModel.IsAccessible(
+                syntaxNode.GetLocation().SourceSpan.Start,
+                symbol);
+
+            if (attributeInfo.IsStringLiteral && sourceIsAccessible)
+            {
+                var nameOfClassTarget = attributeInfo.SourceType.ToMinimalDisplayString(
+                    context.SemanticModel,
+                    syntaxNode.GetLocation().SourceSpan.Start);
+
+                var nameOfTarget = attributeInfo.SourceType == context.ContainingSymbol.ContainingType
+                    ? stringConstant
+                    : $"{nameOfClassTarget}.{stringConstant}";
+
+                var properties = new Dictionary<string, string>
+                    {
+                        { SourceCommonConstants.PropertyKeyNameOfTarget, nameOfTarget }
+                    };
+
+                context.ReportDiagnostic(Diagnostic.Create(
+                    considerNameOfDescriptor,
+                    syntaxNode.GetLocation(),
+                    properties.ToImmutableDictionary(),
+                    nameOfTarget,
+                    stringConstant));
+            }
+        }
+
         public static SourceAttributeInformation? GetSourceAttributeInformation(
             SyntaxNodeAnalysisContext context,
             string fullyQualifiedMetadataName,
