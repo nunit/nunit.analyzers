@@ -131,25 +131,25 @@ namespace NUnit.Analyzers.ValueSourceUsage
                         stringConstant));
                 }
 
-                switch (symbol)
+                var memberType = symbol switch
                 {
-                    case IPropertySymbol property:
-                        ReportIfSymbolNotIEnumerable(context, syntaxNode, property.Type);
-                        break;
-                    case IFieldSymbol field:
-                        ReportIfSymbolNotIEnumerable(context, syntaxNode, field.Type);
-                        break;
-                    case IMethodSymbol method:
-                        ReportIfSymbolNotIEnumerable(context, syntaxNode, method.ReturnType);
+                    IPropertySymbol property => property.Type,
+                    IFieldSymbol field => field.Type,
+                    IMethodSymbol method => method.ReturnType,
+                    _ => null
+                };
 
-                        if (method.Parameters.Length != 0)
-                        {
-                            context.ReportDiagnostic(Diagnostic.Create(
-                                methodExpectParameters,
-                                syntaxNode.GetLocation(),
-                                method.Parameters.Length));
-                        }
-                        break;
+                if (memberType != null)
+                {
+                    ReportIfSymbolNotIEnumerable(context, syntaxNode, memberType);
+                }
+
+                if(symbol is IMethodSymbol methodSymbol && methodSymbol.Parameters.Length != 0)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        methodExpectParameters,
+                        syntaxNode.GetLocation(),
+                        methodSymbol.Parameters.Length));
                 }
             }
         }
