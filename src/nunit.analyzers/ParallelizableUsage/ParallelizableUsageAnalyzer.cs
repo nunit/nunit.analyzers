@@ -139,7 +139,7 @@ namespace NUnit.Analyzers.ParallelizableUsage
             bool noParameters = methodDeclarationSyntax.ParameterList.Parameters.Count == 0;
 
             var allAttributes = methodDeclarationSyntax.AttributeLists.SelectMany(al => al.Attributes);
-            bool noITestBuilders = !allAttributes.Where(a => a.DerivesFromITestBuilder(context.SemanticModel)).Any();
+            bool noITestBuilders = !allAttributes.Any(a => a.DerivesFromITestBuilder(context.SemanticModel));
             return noParameters && noITestBuilders;
         }
 
