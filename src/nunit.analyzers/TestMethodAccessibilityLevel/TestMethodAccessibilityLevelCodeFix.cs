@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -34,11 +35,22 @@ namespace NUnit.Analyzers.TestMethodAccessibilityLevel
             if (!(node is MethodDeclarationSyntax originalExpression))
                 return;
 
-            var newModifiers = ReplaceModifiers(originalExpression);
-            var newExpression = originalExpression.WithModifiers(newModifiers);
-            var newExpression2 = StripLeadingTriviaOnAddedModifier(originalExpression, newExpression);
+            MethodDeclarationSyntax newExpression;
+            if (HasExplicitNonPublicAccessModifier(originalExpression))
+            {
+                var replacedModifiers = ReplaceModifiersWithPublic(originalExpression);
+                newExpression = originalExpression.WithModifiers(replacedModifiers);
+            }
+            else
+            {
+                var addedPublicModifier = AddPublicModifier(originalExpression);
+                var returnTypeWithoutLeadingTrivia = StripLeadingTriviaFromReturnType(originalExpression);
+                newExpression = originalExpression
+                    .WithModifiers(addedPublicModifier)
+                    .WithReturnType(returnTypeWithoutLeadingTrivia);
+            }
 
-            var newRoot = root.ReplaceNode(originalExpression, newExpression2);
+            var newRoot = root.ReplaceNode(originalExpression, newExpression);
 
             var codeAction = CodeAction.Create(
                 CodeFixConstants.MakeTestMethodPublic,
@@ -48,16 +60,14 @@ namespace NUnit.Analyzers.TestMethodAccessibilityLevel
             context.RegisterCodeFix(codeAction, context.Diagnostics);
         }
 
-        static SyntaxTokenList ReplaceModifiers(MethodDeclarationSyntax originalExpression)
+        private static SyntaxTokenList ReplaceModifiersWithPublic(MethodDeclarationSyntax originalExpression)
         {
             var firstAccessModifier = true;
             var newSyntaxTokens = new List<SyntaxToken>();
 
             foreach (var syntaxToken in originalExpression.Modifiers)
             {
-                if (syntaxToken.IsKind(SyntaxKind.PrivateKeyword) ||
-                    syntaxToken.IsKind(SyntaxKind.ProtectedKeyword) ||
-                    syntaxToken.IsKind(SyntaxKind.InternalKeyword))
+                if (IsNonPublicAccessModifier(syntaxToken))
                 {
                     if (firstAccessModifier)
                     {
@@ -75,28 +85,51 @@ namespace NUnit.Analyzers.TestMethodAccessibilityLevel
                 }
             }
 
-            if (firstAccessModifier)
-            {
-                newSyntaxTokens.Insert(0, SyntaxFactory.Token(
-                            originalExpression.GetLeadingTrivia(),
-                            SyntaxKind.PublicKeyword,
-                            SyntaxTriviaList.Create(SyntaxFactory.Whitespace(" "))));
-            }
-
             return new SyntaxTokenList(newSyntaxTokens);
         }
 
-        static MethodDeclarationSyntax StripLeadingTriviaOnAddedModifier(
-            MethodDeclarationSyntax originalExpression,
-            MethodDeclarationSyntax newExpression)
+        public static SyntaxTokenList AddPublicModifier(MethodDeclarationSyntax originalExpression)
         {
-            if (!originalExpression.Modifiers.Any() && newExpression.ReturnType.HasLeadingTrivia)
+            var modifiers = originalExpression.Modifiers;
+            var syntaxTriviaList = modifiers.Any()
+                ? modifiers.First().LeadingTrivia
+                : originalExpression.ReturnType.GetLeadingTrivia();
+
+            var publicSyntax = SyntaxFactory.Token(
+                        syntaxTriviaList,
+                        SyntaxKind.PublicKeyword,
+                        SyntaxTriviaList.Create(SyntaxFactory.Whitespace(" ")));
+
+            var publicModifierInserted = modifiers.Insert(0, publicSyntax);
+
+            if (modifiers.Any())
             {
-                var returnTypeWithNoLeadingTrivia = newExpression.ReturnType.WithLeadingTrivia(SyntaxTriviaList.Empty);
-                newExpression = newExpression.WithReturnType(returnTypeWithNoLeadingTrivia);
+                var nextModifier = publicModifierInserted[1];
+                var nextModifierWithNoLeadingTrivia = nextModifier.WithLeadingTrivia(SyntaxTriviaList.Empty);
+                publicModifierInserted = publicModifierInserted.Replace(nextModifier, nextModifierWithNoLeadingTrivia);
             }
 
-            return newExpression;
+            return publicModifierInserted;
         }
+
+        private static TypeSyntax StripLeadingTriviaFromReturnType(MethodDeclarationSyntax methodDeclarationSyntax)
+        {
+            if (methodDeclarationSyntax.ReturnType.HasLeadingTrivia)
+            {
+                return methodDeclarationSyntax.ReturnType.WithLeadingTrivia(SyntaxTriviaList.Empty);
+            }
+
+            return methodDeclarationSyntax.ReturnType;
+        }
+
+        private static bool HasExplicitNonPublicAccessModifier(MethodDeclarationSyntax methodDeclarationSyntax)
+        {
+            return methodDeclarationSyntax.Modifiers.Any(m => IsNonPublicAccessModifier(m));
+        }
+
+        private static bool IsNonPublicAccessModifier(SyntaxToken syntaxToken) =>
+            syntaxToken.IsKind(SyntaxKind.PrivateKeyword) ||
+            syntaxToken.IsKind(SyntaxKind.ProtectedKeyword) ||
+            syntaxToken.IsKind(SyntaxKind.InternalKeyword);
     }
 }

@@ -43,6 +43,34 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }
 
+        [Test]
+        public void FixesDefaultImplicitAccessModifierWronglyIndented()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+    [TestCase(1)]
+        void ↓TestMethod(int i) {{ }}");
+
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+    [TestCase(1)]
+        public void TestMethod(int i) {{ }}");
+
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
+        }
+
+        [Test]
+        public void FixesDefaultImplicitAccessModifierAsyncVariant()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        [TestCase(1)]
+        async Task ↓TestMethod(int i) {{ }}");
+
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        [TestCase(1)]
+        public async Task TestMethod(int i) {{ }}");
+
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
+        }
+
         static object[] NonPublicModifiers =
         {
             new object [] { "private", "public" },
