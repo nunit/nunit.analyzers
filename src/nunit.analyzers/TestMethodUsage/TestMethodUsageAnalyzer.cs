@@ -115,7 +115,7 @@ namespace NUnit.Analyzers.TestCaseUsage
         private static bool HasITestBuilderAttribute(SemanticModel semanticModel, SyntaxList<AttributeListSyntax> attributeLists)
         {
             var allAttributes = attributeLists.SelectMany(al => al.Attributes);
-            return allAttributes.Where(a => a.DerivesFromITestBuilder(semanticModel)).Any();
+            return allAttributes.Any(a => a.DerivesFromITestBuilder(semanticModel));
         }
 
         private static void AnalyzeExpectedResult(SyntaxNodeAnalysisContext context,
