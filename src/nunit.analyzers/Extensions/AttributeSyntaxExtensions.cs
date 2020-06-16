@@ -55,11 +55,11 @@ namespace NUnit.Analyzers.Extensions
         private static bool DerivesFromInterface(
             SemanticModel semanticModel,
             AttributeSyntax attributeSyntax,
-            string fullyQualifiedMetadataName)
+            string interfaceTypeFullName)
         {
-            var ITestBuilderType = semanticModel.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName);
+            var interfaceType = semanticModel.Compilation.GetTypeByMetadataName(interfaceTypeFullName);
 
-            if (ITestBuilderType == null)
+            if (interfaceType == null)
                 return false;
 
             var attributeType = semanticModel.GetTypeInfo(attributeSyntax).Type;
@@ -67,7 +67,7 @@ namespace NUnit.Analyzers.Extensions
             if (attributeType == null)
                 return false;
 
-            return attributeType.AllInterfaces.Any(i => i.Equals(ITestBuilderType));
+            return attributeType.AllInterfaces.Any(i => i.Equals(interfaceType));
 
         }
     }

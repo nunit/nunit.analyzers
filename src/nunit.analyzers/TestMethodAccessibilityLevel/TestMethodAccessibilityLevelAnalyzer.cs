@@ -36,12 +36,6 @@ namespace NUnit.Analyzers.TestMethodAccessibilityLevel
 
             if (methodNode != null && !methodNode.ContainsDiagnostics)
             {
-                var testCaseType = context.SemanticModel.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
-                var testType = context.SemanticModel.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestAttribute);
-
-                if (testCaseType == null || testType == null)
-                    return;
-
                 if (IsTestMethod(context.SemanticModel, methodNode.AttributeLists) &&
                     !methodNode.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)))
                 {
