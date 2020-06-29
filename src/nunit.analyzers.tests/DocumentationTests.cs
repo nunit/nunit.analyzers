@@ -77,12 +77,13 @@ namespace NUnit.Analyzers.Tests
         [TestCaseSource(nameof(DescriptorsWithDocs))]
         public void EnsureThatTitleIsAsExpected(DescriptorInfo descriptorInfo)
         {
-            var expected = $"## {descriptorInfo.Descriptor.Title}";
+            var expected = new[] { "", $"## {descriptorInfo.Descriptor.Title}" };
             var actual = descriptorInfo
                 .DocumentationFile.AllLines
                 .Skip(1)
-                .First()
-                .Replace("`", string.Empty);
+                .Select(l => l.Replace("`", string.Empty))
+                .Take(2);
+
             Assert.AreEqual(expected, actual);
         }
 
@@ -243,6 +244,7 @@ namespace NUnit.Analyzers.Tests
 
                 var text = builder.ToString();
                 var stub = $@"# {descriptor.Id}
+
 ## {descriptor.Title.ToString(CultureInfo.InvariantCulture)}
 
 | Topic    | Value
@@ -252,7 +254,6 @@ namespace NUnit.Analyzers.Tests
 | Enabled  | {(descriptor.IsEnabledByDefault ? "True" : "False")}
 | Category | {descriptor.Category}
 | Code     | [<TYPENAME>](<URL>)
-
 
 ## Description
 
@@ -274,21 +275,23 @@ ADD HOW TO FIX VIOLATIONS HERE
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
 ### Via #pragma directive.
-```C#
+
+```csharp
 #pragma warning disable {descriptor.Id} // {descriptor.Title.ToString(CultureInfo.InvariantCulture)}
 Code violating the rule here
 #pragma warning restore {descriptor.Id} // {descriptor.Title.ToString(CultureInfo.InvariantCulture)}
 ```
 
 Or put this at the top of the file to disable all instances.
-```C#
+
+```csharp
 #pragma warning disable {descriptor.Id} // {descriptor.Title.ToString(CultureInfo.InvariantCulture)}
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
-```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage(""{descriptor.Category}"", 
+```csharp
+[System.Diagnostics.CodeAnalysis.SuppressMessage(""{descriptor.Category}"",
     ""{descriptor.Id}:{descriptor.Title.ToString(CultureInfo.InvariantCulture)}"",
     Justification = ""Reason..."")]
 ```

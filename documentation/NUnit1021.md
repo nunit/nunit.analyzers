@@ -1,4 +1,5 @@
 # NUnit1021
+
 ## The ValueSource should use nameof operator to specify target.
 
 | Topic    | Value
@@ -8,7 +9,6 @@
 | Enabled  | True
 | Category | Structure
 | Code     | [ValueSourceUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/ValueSourceUsage/ValueSourceUsageAnalyzer.cs)
-
 
 ## Description
 
@@ -66,21 +66,23 @@ public static object[] MyTestSource()
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
 ### Via #pragma directive.
-```C#
+
+```csharp
 #pragma warning disable NUnit1021 // The ValueSource should use nameof operator to specify target.
 Code violating the rule here
 #pragma warning restore NUnit1021 // The ValueSource should use nameof operator to specify target.
 ```
 
 Or put this at the top of the file to disable all instances.
-```C#
+
+```csharp
 #pragma warning disable NUnit1021 // The ValueSource should use nameof operator to specify target.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
-```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
+```csharp
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Structure",
     "NUnit1021:The ValueSource should use nameof operator to specify target.",
     Justification = "Reason...")]
 ```

@@ -1,4 +1,5 @@
 # NUnit2022
+
 ## Missing property required for constraint.
 
 | Topic    | Value
@@ -9,14 +10,13 @@
 | Category | Assertion
 | Code     | [MissingPropertyAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/MissingProperty/MissingPropertyAnalyzer.cs)
 
-
 ## Description
 
 The actual argument should have the required property for the constraint.
 
 ## Motivation
 
-Using property constraints (e.g. `Has.Count.EqualTo(1)`, `Has.Property("Prop").EqualTo(expected)`, etc) 
+Using property constraints (e.g. `Has.Count.EqualTo(1)`, `Has.Property("Prop").EqualTo(expected)`, etc)
 makes sense only when provided actual argument has those properties defined.
 
 ```csharp
@@ -42,21 +42,23 @@ Fix your property name, or use another constraint.
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
 ### Via #pragma directive.
-```C#
+
+```csharp
 #pragma warning disable NUnit2022 // Missing property required for constraint.
 Code violating the rule here
 #pragma warning restore NUnit2022 // Missing property required for constraint.
 ```
 
 Or put this at the top of the file to disable all instances.
-```C#
+
+```csharp
 #pragma warning disable NUnit2022 // Missing property required for constraint.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
-```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
+```csharp
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
     "NUnit2022:Missing property required for constraint.",
     Justification = "Reason...")]
 ```

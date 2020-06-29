@@ -1,4 +1,5 @@
 # NUnit2007
+
 ## The actual value should not be a constant.
 
 | Topic    | Value
@@ -8,7 +9,6 @@
 | Enabled  | True
 | Category | Assertion
 | Code     | [ConstActualValueUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/ConstActualValueUsage/ConstActualValueUsageAnalyzer.cs)
-
 
 ## Description
 
@@ -24,7 +24,7 @@ Bring developers' attention to a scenario in which their test is most likely tes
 
 ```csharp
 [Test]
-public void Nunit2007SampleTest()
+public void NUnit2007SampleTest()
 {
     var x = 5;
     Assert.That(5, Is.EqualTo(x));
@@ -46,7 +46,7 @@ Flip the actual and expected values so that your expected value is the constant 
 
 ```csharp
 [Test]
-public void Nunit2007SampleTest()
+public void NUnit2007SampleTest()
 {
     var x = 5;
     Assert.That(x, Is.EqualTo(5));
@@ -62,21 +62,23 @@ public void Nunit2007SampleTest()
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
 ### Via #pragma directive.
-```C#
+
+```csharp
 #pragma warning disable NUnit2007 // The actual value should not be a constant.
 Code violating the rule here
 #pragma warning restore NUnit2007 // The actual value should not be a constant.
 ```
 
 Or put this at the top of the file to disable all instances.
-```C#
+
+```csharp
 #pragma warning disable NUnit2007 // The actual value should not be a constant.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
-```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
+```csharp
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
     "NUnit2007:The actual value should not be a constant.",
     Justification = "Reason...")]
 ```
