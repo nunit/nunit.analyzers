@@ -44,7 +44,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
                 public void Test()
                 {
-                    Assert.That(↓true, Is.EqualTo(false));
+                    Assert.That(↓true, Is.False);
                 }");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
@@ -147,6 +147,24 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         }
 
         [Test]
+        public void ValidWhenConstValueIsProvidedAsActualAndExpectedArgumentForAreEqual()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixure
+            {
+                private const string expected = ""exp"";
+
+                public void Test()
+                {
+                    const string actual = ""act"";
+                    Assert.AreEqual(expected, actual);
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void ValidWhenNonConstValueIsProvidedAsActualNamedArgumentForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
@@ -157,6 +175,24 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     string actual = ""act"";
+                    Assert.AreEqual(actual: actual, expected: expected);
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenConstValueIsProvidedAsActualAndExpectedNamedArgumentForAreEqual()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixure
+            {
+                private const string expected = ""exp"";
+
+                public void Test()
+                {
+                    const string actual = ""act"";
                     Assert.AreEqual(actual: actual, expected: expected);
                 }
             }");
@@ -176,6 +212,41 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 {
                     string actual = ""act"";
                     Assert.That(actual, Is.EqualTo(expected));
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenConstValueIsProvidedAsActualAndExpectedArgumentForAssertThat()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixure
+            {
+                private const string expected = ""exp"";
+
+                public void Test()
+                {
+                    const string actual = ""act"";
+                    Assert.That(actual, Is.EqualTo(expected));
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenCheckingEnumerationValueForAssertThat()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixure
+            {
+                private enum Answer { No = 0, Yes = 1 };
+
+                public void Test()
+                {
+                    Assert.That(Answer.Yes, Is.EqualTo(1));
                 }
             }");
 
