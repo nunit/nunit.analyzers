@@ -99,6 +99,38 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.NotNullDescription);
 
+        private static readonly DiagnosticDescriptor greaterDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.GreaterUsage,
+            title: ClassicModelUsageAnalyzerConstants.GreaterTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.GreaterMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.GreaterDescription);
+
+        private static readonly DiagnosticDescriptor greaterOrEqualDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.GreaterOrEqualUsage,
+            title: ClassicModelUsageAnalyzerConstants.GreaterOrEqualTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.GreaterOrEqualMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.GreaterOrEqualDescription);
+
+        private static readonly DiagnosticDescriptor lessDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.LessUsage,
+            title: ClassicModelUsageAnalyzerConstants.LessTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.LessMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.LessDescription);
+
+        private static readonly DiagnosticDescriptor lessOrEqualDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.LessOrEqualUsage,
+            title: ClassicModelUsageAnalyzerConstants.LessOrEqualTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.LessOrEqualMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.LessOrEqualDescription);
+
         private static readonly ImmutableDictionary<string, DiagnosticDescriptor> name =
           new Dictionary<string, DiagnosticDescriptor>
           {
@@ -112,7 +144,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
               { NameOfAssertIsNull, isNullDescriptor },
               { NameOfAssertNull, nullDescriptor },
               { NameOfAssertIsNotNull, isNotNullDescriptor },
-              { NameOfAssertNotNull, notNullDescriptor }
+              { NameOfAssertNotNull, notNullDescriptor },
+              { NameOfAssertGreater, greaterDescriptor },
+              { NameOfAssertGreaterOrEqual, greaterOrEqualDescriptor },
+              { NameOfAssertLess, lessDescriptor },
+              { NameOfAssertLessOrEqual, lessOrEqualDescriptor },
           }.ToImmutableDictionary();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.name.Values.ToImmutableArray();

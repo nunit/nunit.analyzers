@@ -20,6 +20,10 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfIsSameAs = "SameAs";
         public const string NameOfIsSamePath = "SamePath";
         public const string NameOfNull = "Null";
+        public const string NameOfIsGreaterThan = "GreaterThan";
+        public const string NameOfIsGreaterThanOrEqualTo = "GreaterThanOrEqualTo";
+        public const string NameOfIsLessThan = "LessThan";
+        public const string NameOfIsLessThanOrEqualTo = "LessThanOrEqualTo";
 
         public const string NameOfContains = "Contains";
         public const string NameOfContainsItem = "Item";
@@ -52,6 +56,10 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfAssertNotNull = "NotNull";
         public const string NameOfAssertIsNotNull = "IsNotNull";
         public const string NameOfAssertThat = "That";
+        public const string NameOfAssertGreater = "Greater";
+        public const string NameOfAssertGreaterOrEqual = "GreaterOrEqual";
+        public const string NameOfAssertLess = "Less";
+        public const string NameOfAssertLessOrEqual = "LessOrEqual";
 
         public const string FullNameOfTypeIs = "NUnit.Framework.Is";
         public const string FullNameOfTypeTestCaseAttribute = "NUnit.Framework.TestCaseAttribute";

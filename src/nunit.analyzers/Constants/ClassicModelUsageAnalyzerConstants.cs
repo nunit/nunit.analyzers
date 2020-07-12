@@ -45,5 +45,21 @@ namespace NUnit.Analyzers.Constants
         internal const string NotNullTitle = "Consider using Assert.That(expr, Is.Not.Null) instead of Assert.NotNull(expr).";
         internal const string NotNullMessage = "Consider using the constraint model, Assert.That(expr, Is.Not.Null), instead of the classic model, Assert.NotNull(expr).";
         internal const string NotNullDescription = "Consider using the constraint model, Assert.That(expr, Is.Not.Null), instead of the classic model, Assert.NotNull(expr).";
+
+        internal const string GreaterTitle = "Consider using Assert.That(actual, Is.GreaterThan(expected)) instead of Assert.Greater(actual, expected).";
+        internal const string GreaterMessage = "Consider using the constraint model, Assert.That(actual, Is.GreaterThan(expected)), instead of the classic model, Assert.Greater(actual, expected).";
+        internal const string GreaterDescription = "Consider using the constraint model, Assert.That(actual, Is.GreaterThan(expected)), instead of the classic model, Assert.Greater(actual, expected).";
+
+        internal const string GreaterOrEqualTitle = "Consider using Assert.That(actual, Is.GreaterThanOrEqualTo(expected)) instead of Assert.GreaterOrEqual(actual, expected).";
+        internal const string GreaterOrEqualMessage = "Consider using the constraint model, Assert.That(actual, Is.GreaterThanOrEqualTo(expected)), instead of the classic model, Assert.GreaterOrEqual(actual, expected).";
+        internal const string GreaterOrEqualDescription = "Consider using the constraint model, Assert.That(actual, Is.GreaterThanOrEqualTo(expected)), instead of the classic model, Assert.GreaterOrEqual(actual, expected).";
+
+        internal const string LessTitle = "Consider using Assert.That(actual, Is.LessThan(expected)) instead of Assert.Less(actual, expected).";
+        internal const string LessMessage = "Consider using the constraint model, Assert.That(actual, Is.LessThan(expected)), instead of the classic model, Assert.Less(actual, expected).";
+        internal const string LessDescription = "Consider using the constraint model, Assert.That(actual, Is.LessThan(expected)), instead of the classic model, Assert.Less(actual, expected).";
+
+        internal const string LessOrEqualTitle = "Consider using Assert.That(actual, Is.LessThanOrEqualTo(expected)) instead of Assert.LessOrEqual(actual, expected).";
+        internal const string LessOrEqualMessage = "Consider using the constraint model, Assert.That(actual, Is.LessThanOrEqualTo(expected)), instead of the classic model, Assert.LessOrEqual(actual, expected).";
+        internal const string LessOrEqualDescription = "Consider using the constraint model, Assert.That(actual, Is.LessThanOrEqualTo(expected)), instead of the classic model, Assert.LessOrEqual(actual, expected).";
     }
 }

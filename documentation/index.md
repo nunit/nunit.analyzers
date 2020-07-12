@@ -52,3 +52,7 @@
 | [NUnit2024](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2024.md)| Wrong actual type used with String Constraint. | :white_check_mark: |
 | [NUnit2025](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2025.md)| Wrong actual type used with ContainsConstraint. | :white_check_mark: |
 | [NUnit2026](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2026.md)| Wrong actual type used with the SomeItemsConstraint with EqualConstraint. | :white_check_mark: |
+| [NUnit2027](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2027.md)| Consider using Assert.That(actual, Is.GreaterThan(expected)) instead of Assert.Greater(actual, expected). | :white_check_mark: |
+| [NUnit2028](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2028.md)| Consider using Assert.That(actual, Is.GreaterThanOrEqualTo(expected)) instead of Assert.GreaterOrEqual(actual, expected). | :white_check_mark: |
+| [NUnit2029](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2029.md)| Consider using Assert.That(actual, Is.LessThan(expected)) instead of Assert.Less(actual, expected). | :white_check_mark: |
+| [NUnit2030](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2030.md)| Consider using Assert.That(actual, Is.LessThanOrEqualTo(expected)) instead of Assert.LessOrEqual(actual, expected). | :white_check_mark: |
