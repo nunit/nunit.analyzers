@@ -97,7 +97,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         public void AnalyzeWhenConstFieldArgumentIsProvidedForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string actual = ""act"";
 
@@ -115,7 +115,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         public void AnalyzeWhenConstFieldArgumentIsProvidedForAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string actual = ""act"";
 
@@ -159,7 +159,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         public void ValidWhenNonConstValueIsProvidedAsActualArgumentForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string expected = ""exp"";
 
@@ -177,7 +177,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         public void ValidWhenConstValueIsProvidedAsActualAndExpectedArgumentForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string expected = ""exp"";
 
@@ -195,7 +195,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         public void ValidWhenNonConstValueIsProvidedAsActualNamedArgumentForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string expected = ""exp"";
 
@@ -213,7 +213,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         public void ValidWhenConstValueIsProvidedAsActualAndExpectedNamedArgumentForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string expected = ""exp"";
 
@@ -231,7 +231,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         public void ValidWhenNonConstValueIsProvidedAsActualArgumentForAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string expected = ""exp"";
 
@@ -249,7 +249,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         public void ValidWhenConstValueIsProvidedAsActualAndExpectedArgumentForAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string expected = ""exp"";
 
@@ -267,7 +267,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         public void ValidWhenCheckingEnumerationValueForAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private enum Answer { No = 0, Yes = 1 };
 
@@ -284,7 +284,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         public void ValidWhenCheckingAgainstStringEmptyAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string actual = ""act"";
 
