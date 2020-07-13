@@ -64,15 +64,8 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
             if (expectedExpression == null)
             {
-                // Check for Assert.That
-                if (AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, context.SemanticModel,
-                    out _, out var constraintExpression))
-                {
-                    expectedExpression = constraintExpression.ConstraintParts
-                        .Select(part => part.GetExpectedArgumentExpression())
-                        .Where(e => e != null)
-                        .FirstOrDefault();
-                }
+                // Check for Assert.That IsEqualTo constraint
+                expectedExpression = this.GetExpectedExpression(assertExpression, context.SemanticModel);
             }
 
             if (expectedExpression == null || !IsConstant(expectedExpression))
@@ -81,6 +74,20 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                     descriptor,
                     actualExpression.GetLocation()));
             }
+        }
+
+        private ExpressionSyntax? GetExpectedExpression(InvocationExpressionSyntax assertExpression, SemanticModel semanticModel)
+        {
+            if (AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
+                out _, out var constraintExpression))
+            {
+                return constraintExpression.ConstraintParts
+                        .Select(part => part.GetExpectedArgumentExpression())
+                        .Where(e => e != null)
+                        .FirstOrDefault();
+            }
+
+            return null;
         }
     }
 }
