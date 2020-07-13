@@ -46,7 +46,7 @@ namespace NUnit.Analyzers.Helpers
             if (actualType is INamedTypeSymbol namedType && namedType.DelegateInvokeMethod != null)
                 actualType = namedType.DelegateInvokeMethod.ReturnType;
 
-            if (actualType.IsAwaitable(out var awaitReturnType))
+            if (actualType.IsAwaitable(out var awaitReturnType) && awaitReturnType.SpecialType != SpecialType.System_Void)
                 actualType = awaitReturnType;
 
             return actualType;

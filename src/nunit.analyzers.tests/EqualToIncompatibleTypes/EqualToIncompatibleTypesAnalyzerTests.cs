@@ -809,5 +809,26 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
 
             AnalyzerAssert.Valid(analyzer, testCode);
         }
+
+        [Test]
+        public void NoDiagnosticWhenComparingTask()
+        {
+            var testCode = TestUtility.WrapInAsyncTestMethod(@"
+                Task wait = Task.CompletedTask;
+                Assert.That(await Task.WhenAny(wait).ConfigureAwait(false), Is.EqualTo(wait));");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticWhenComparingTask2()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                Task task1 = Task.CompletedTask;
+                Task task2 = Task.CompletedTask;
+                Assert.That(task1, Is.SameAs(task2));");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
     }
 }

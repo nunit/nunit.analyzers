@@ -39,5 +39,14 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
         {{{code}
         }}", additionalUsings);
         }
+
+        internal static string WrapInAsyncTestMethod(string code, string additionalUsings = null)
+        {
+            return WrapMethodInClassNamespaceAndAddUsings($@"
+        [Test]
+        public async Task TestMethod()
+        {{{code}
+        }}", additionalUsings);
+        }
     }
 }

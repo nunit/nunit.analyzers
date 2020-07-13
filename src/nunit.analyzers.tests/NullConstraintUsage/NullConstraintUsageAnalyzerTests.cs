@@ -84,5 +84,16 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
 
             AnalyzerAssert.Valid(analyzer, testCode);
         }
+
+        [TestCase("Is.Null")]
+        [TestCase("Is.Not.Null")]
+        public void ValidWhenActualIsTask(string constraint)
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                var task = Task.CompletedTask;
+                Assert.That(task, {constraint});");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
     }
 }
