@@ -130,6 +130,32 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         }
 
         [Test]
+        public void AnalyzeWhenStringEmptyArgumentIsProvidedForAreEqual()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public void Test()
+                {
+                    string actual = ""act"";
+                    Assert.AreEqual(actual, string.Empty);
+                }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenStringEmptyArgumentIsProvidedForAssertThat()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public void Test()
+                {
+                    string actual = ""act"";
+                    Assert.That(string.Empty, Is.EqualTo(actual));
+                }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void ValidWhenNonConstValueIsProvidedAsActualArgumentForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
@@ -248,6 +274,23 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     Assert.That(Answer.Yes, Is.EqualTo(1));
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenCheckingAgainstStringEmptyAssertThat()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixure
+            {
+                private const string actual = ""act"";
+
+                public void Test()
+                {
+                    Assert.That(actual, Is.Not.EqualTo(string.Empty));
                 }
             }");
 

@@ -54,6 +54,12 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                        (argumentSymbol is IFieldSymbol fieldSymbol && fieldSymbol.IsConst);
             }
 
+            bool IsEmpty(ExpressionSyntax expression)
+            {
+                return expression is MemberAccessExpressionSyntax memberAccessExpression &&
+                    memberAccessExpression.Name.Identifier.Text == "Empty";
+            }
+
             void Report(ExpressionSyntax expression)
             {
                 context.ReportDiagnostic(Diagnostic.Create(
@@ -66,15 +72,15 @@ namespace NUnit.Analyzers.ConstActualValueUsage
             if (actualExpression == null)
                 return;
 
-            if (!IsConstant(actualExpression))
-                return; // Standard use case
-
-            if (IsLiteralExpression(actualExpression))
+            if (IsLiteralExpression(actualExpression) || IsEmpty(actualExpression))
             {
                 // Classic error case
                 Report(actualExpression);
                 return;
             }
+
+            if (!IsConstant(actualExpression))
+                return; // Standard use case
 
             // The actual expression is a constant field, check if expected is also constant
             var expectedExpression = assertExpression.GetArgumentExpression(methodSymbol, NunitFrameworkConstants.NameOfExpectedParameter);
@@ -85,7 +91,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                 expectedExpression = this.GetExpectedExpression(assertExpression, context.SemanticModel);
             }
 
-            if (expectedExpression == null || !IsConstant(expectedExpression))
+            if (expectedExpression == null || (!IsConstant(expectedExpression) && !IsEmpty(expectedExpression)))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     descriptor,
