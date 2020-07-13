@@ -44,7 +44,8 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
                 public void Test()
                 {
-                    Assert.That(↓true, Is.False);
+                    Assert.That(↓-1, Is.Positive);
+                    Assert.That(↓(2 + 3) * 1024, Is.Positive);
                 }");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);

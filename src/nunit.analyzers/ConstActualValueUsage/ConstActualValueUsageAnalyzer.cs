@@ -26,9 +26,26 @@ namespace NUnit.Analyzers.ConstActualValueUsage
         protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
             InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
         {
-            bool IsConstant(ExpressionSyntax expression)
+            bool IsLiteralExpression(ExpressionSyntax expression)
             {
                 if (expression is LiteralExpressionSyntax)
+                    return true;
+
+                if (expression is PrefixUnaryExpressionSyntax prefixUnaryExpression)
+                    return IsLiteralExpression(prefixUnaryExpression.Operand);
+
+                if (expression is BinaryExpressionSyntax binaryExpression)
+                    return IsLiteralExpression(binaryExpression.Left) && IsLiteralExpression(binaryExpression.Right);
+
+                if (expression is ParenthesizedExpressionSyntax parenthesizedExpression)
+                    return IsLiteralExpression(parenthesizedExpression.Expression);
+
+                return false;
+            }
+
+            bool IsConstant(ExpressionSyntax expression)
+            {
+                if (IsLiteralExpression(expression))
                     return true;
 
                 var argumentSymbol = context.SemanticModel.GetSymbolInfo(expression).Symbol;
@@ -52,7 +69,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
             if (!IsConstant(actualExpression))
                 return; // Standard use case
 
-            if (actualExpression is LiteralExpressionSyntax)
+            if (IsLiteralExpression(actualExpression))
             {
                 // Classic error case
                 Report(actualExpression);
