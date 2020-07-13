@@ -296,5 +296,20 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
 
             AnalyzerAssert.Valid(analyzer, testCode);
         }
+
+        [Test]
+        public void ValidWhenCheckingEmptyAgainstNullAssertThat()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixture
+            {
+                public void Test()
+                {
+                    Assert.That(string.Empty, Is.Not.Null);
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
     }
 }

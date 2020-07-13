@@ -72,14 +72,14 @@ namespace NUnit.Analyzers.ConstActualValueUsage
             if (actualExpression == null)
                 return;
 
-            if (IsLiteralExpression(actualExpression) || IsEmpty(actualExpression))
+            if (IsLiteralExpression(actualExpression))
             {
                 // Classic error case
                 Report(actualExpression);
                 return;
             }
 
-            if (!IsConstant(actualExpression))
+            if (!IsConstant(actualExpression) && !IsEmpty(actualExpression))
                 return; // Standard use case
 
             // The actual expression is a constant field, check if expected is also constant
@@ -91,7 +91,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                 expectedExpression = this.GetExpectedExpression(assertExpression, context.SemanticModel);
             }
 
-            if (expectedExpression == null || (!IsConstant(expectedExpression) && !IsEmpty(expectedExpression)))
+            if (expectedExpression != null && !IsConstant(expectedExpression) && !IsEmpty(expectedExpression))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     descriptor,
