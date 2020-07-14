@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -54,10 +55,11 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                        (argumentSymbol is IFieldSymbol fieldSymbol && fieldSymbol.IsConst);
             }
 
-            bool IsEmpty(ExpressionSyntax expression)
+            bool IsStringEmpty(ExpressionSyntax expression)
             {
                 return expression is MemberAccessExpressionSyntax memberAccessExpression &&
-                    memberAccessExpression.Name.Identifier.Text == "Empty";
+                    string.Equals(memberAccessExpression.Expression.ToString(), "string", StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(memberAccessExpression.Name.Identifier.Text, "Empty", StringComparison.Ordinal);
             }
 
             void Report(ExpressionSyntax expression)
@@ -79,19 +81,13 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                 return;
             }
 
-            if (!IsConstant(actualExpression) && !IsEmpty(actualExpression))
+            if (!IsConstant(actualExpression) && !IsStringEmpty(actualExpression))
                 return; // Standard use case
 
             // The actual expression is a constant field, check if expected is also constant
-            var expectedExpression = assertExpression.GetArgumentExpression(methodSymbol, NunitFrameworkConstants.NameOfExpectedParameter);
+            var expectedExpression = this.GetExpectedExpression(assertExpression, methodSymbol, context.SemanticModel);
 
-            if (expectedExpression == null)
-            {
-                // Check for Assert.That IsEqualTo constraint
-                expectedExpression = this.GetExpectedExpression(assertExpression, context.SemanticModel);
-            }
-
-            if (expectedExpression != null && !IsConstant(expectedExpression) && !IsEmpty(expectedExpression))
+            if (expectedExpression != null && !IsConstant(expectedExpression) && !IsStringEmpty(expectedExpression))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     descriptor,
@@ -99,18 +95,22 @@ namespace NUnit.Analyzers.ConstActualValueUsage
             }
         }
 
-        private ExpressionSyntax? GetExpectedExpression(InvocationExpressionSyntax assertExpression, SemanticModel semanticModel)
+        private ExpressionSyntax? GetExpectedExpression(InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol, SemanticModel semanticModel)
         {
-            if (AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
-                out _, out var constraintExpression))
+            var expectedExpression = assertExpression.GetArgumentExpression(methodSymbol, NunitFrameworkConstants.NameOfExpectedParameter);
+
+            // Check for Assert.That IsEqualTo constraint
+            if (expectedExpression == null &&
+               AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
+                                                                 out _, out var constraintExpression))
             {
-                return constraintExpression.ConstraintParts
-                        .Select(part => part.GetExpectedArgumentExpression())
-                        .Where(e => e != null)
-                        .FirstOrDefault();
+                expectedExpression = constraintExpression.ConstraintParts
+                                                         .Select(part => part.GetExpectedArgumentExpression())
+                                                         .Where(e => e != null)
+                                                         .FirstOrDefault();
             }
 
-            return null;
+            return expectedExpression;
         }
     }
 }
