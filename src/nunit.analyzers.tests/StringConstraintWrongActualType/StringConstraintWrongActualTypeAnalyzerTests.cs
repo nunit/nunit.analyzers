@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -38,6 +39,16 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
         }
 
         [Test]
+        public void AnalyzeWhenStringTaskValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                var actual = Task.FromResult(""1234"");
+                Assert.That(actual, ↓{stringConstraint});");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void ValidWhenStringValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
             var testCode = TestUtility.WrapInTestMethod($@"
@@ -48,20 +59,20 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
         }
 
         [Test]
-        public void ValidWhenStringTaskValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
+        public void ValidWhenStringDelegateProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
             var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = Task.FromResult(""1234"");
-                Assert.That(actual, {stringConstraint});");
+                var actual = ""1234"";
+                Assert.That(() => actual, {stringConstraint});");
 
             AnalyzerAssert.Valid(analyzer, testCode);
         }
 
         [Test]
-        public void ValidWhenStringDelegateProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
+        public void ValidWhenStringTaskDelegateProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
             var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = ""1234"";
+                var actual = Task.FromResult(""1234"");
                 Assert.That(() => actual, {stringConstraint});");
 
             AnalyzerAssert.Valid(analyzer, testCode);

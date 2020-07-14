@@ -305,6 +305,17 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
+        public void AnalyzeWhenActualAndExpectedTypesAreSame_WithTaskActualValue()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = Task.FromResult("""");
+                var expected = """";
+                Assert.That(actual, Is.EqualTo(↓expected));");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenActualIsIncompatibleNullableType()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
@@ -363,17 +374,6 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 string actual() => """";
-                var expected = """";
-                Assert.That(actual, Is.EqualTo(expected));");
-
-            AnalyzerAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSame_WithTaskActualValue()
-        {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = Task.FromResult("""");
                 var expected = """";
                 Assert.That(actual, Is.EqualTo(expected));");
 

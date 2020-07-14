@@ -44,10 +44,12 @@ namespace NUnit.Analyzers.Helpers
         public static ITypeSymbol UnwrapActualType(ITypeSymbol actualType)
         {
             if (actualType is INamedTypeSymbol namedType && namedType.DelegateInvokeMethod != null)
+            {
                 actualType = namedType.DelegateInvokeMethod.ReturnType;
 
-            if (actualType.IsAwaitable(out var awaitReturnType) && awaitReturnType.SpecialType != SpecialType.System_Void)
-                actualType = awaitReturnType;
+                if (actualType.IsAwaitable(out var awaitReturnType) && awaitReturnType.SpecialType != SpecialType.System_Void)
+                    actualType = awaitReturnType;
+            }
 
             return actualType;
         }

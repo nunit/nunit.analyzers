@@ -45,6 +45,17 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
         }
 
         [Test]
+        public void AnalyzeWhenActualIsCollectionTask()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                $"Assert.That(Task.FromResult(new[] {{1,2,3}}), ↓{this.constraint}(1));");
+
+            AnalyzerAssert.Diagnostics(analyzer,
+                expectedDiagnostic.WithMessage($"The '{this.constraint}' constraint cannot be used with actual argument of type 'Task<int[]>' and expected argument of type 'int'."),
+                testCode);
+        }
+
+        [Test]
         public void ValidWhenCollectionIsProvidedAsActualWithMatchingExpectedType()
         {
             var testCode = TestUtility.WrapInTestMethod(
@@ -93,15 +104,6 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
         {
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(new[] { new[] { 1 }, new[] { 1, 2 } }, Has.All.Contain(1));");
-
-            AnalyzerAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void ValidWhenActualIsCollectionTask()
-        {
-            var testCode = TestUtility.WrapInTestMethod(
-                $"Assert.That(Task.FromResult(new[] {{1,2,3}}), {this.constraint}(1));");
 
             AnalyzerAssert.Valid(analyzer, testCode);
         }

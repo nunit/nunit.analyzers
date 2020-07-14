@@ -36,6 +36,17 @@ namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
         }
 
         [Test]
+        public void AnalyzeWhenActualIsStringTask()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                "Assert.That(Task.FromResult(\"1234\"), ↓Does.Contain(\"1\"));");
+
+            AnalyzerAssert.Diagnostics(analyzer,
+                expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with an actual value of type 'Task<string>'."),
+                testCode);
+        }
+
+        [Test]
         public void ValidWhenStringProvidedAsActual()
         {
             var testCode = TestUtility.WrapInTestMethod(
@@ -59,15 +70,6 @@ namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
         {
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(new [] {\"Aa\", \"Ba\", \"Ca\"}, Has.All.Contains(\"a\"));");
-
-            AnalyzerAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void ValidWhenActualIsStringTask()
-        {
-            var testCode = TestUtility.WrapInTestMethod(
-                "Assert.That(Task.FromResult(\"1234\"), Does.Contain(\"1\"));");
 
             AnalyzerAssert.Valid(analyzer, testCode);
         }
