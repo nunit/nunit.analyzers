@@ -81,7 +81,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
             }
 
             if (!IsConstant(actualExpression) && !IsStringEmpty(actualExpression))
-                return; // Standard use case
+                return;
 
             // The actual expression is a constant field, check if expected is also constant
             var expectedExpression = this.GetExpectedExpression(assertExpression, methodSymbol, context.SemanticModel);
