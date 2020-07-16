@@ -52,6 +52,11 @@ namespace NUnit.Analyzers.Extensions
             return DerivesFromInterface(semanticModel, @this, NunitFrameworkConstants.FullNameOfTypeITestBuilder);
         }
 
+        internal static bool DerivesFromIParameterDataSource(this AttributeSyntax @this, SemanticModel semanticModel)
+        {
+            return DerivesFromInterface(semanticModel, @this, NunitFrameworkConstants.FullNameOfTypeIParameterDataSource);
+        }
+
         private static bool DerivesFromInterface(
             SemanticModel semanticModel,
             AttributeSyntax attributeSyntax,

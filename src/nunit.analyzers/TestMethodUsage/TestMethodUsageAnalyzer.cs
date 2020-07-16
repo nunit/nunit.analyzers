@@ -62,10 +62,20 @@ namespace NUnit.Analyzers.TestCaseUsage
                 defaultSeverity: DiagnosticSeverity.Error,
                 description: TestMethodUsageAnalyzerConstants.AsyncExpectedResultAndNonGenericTaskReturnTypeDescription);
 
+        private static readonly DiagnosticDescriptor simpleTestHasParameters =
+            DiagnosticDescriptorCreator.Create(
+                id: AnalyzerIdentifiers.SimpleTestMethodHasParameters,
+                title: TestMethodUsageAnalyzerConstants.SimpleTestMethodHasParametersTitle,
+                messageFormat: TestMethodUsageAnalyzerConstants.SimpleTestMethodHasParametersMessage,
+                category: Categories.Structure,
+                defaultSeverity: DiagnosticSeverity.Error,
+                description: TestMethodUsageAnalyzerConstants.SimpleTestMethodHasParametersDescription);
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(expectedResultTypeMismatch, specifiedExpectedResultForVoid, noExpectedResultButNonVoidReturnType,
                 asyncNoExpectedResultAndVoidReturnType, asyncNoExpectedResultAndNonTaskReturnType,
-                asyncExpectedResultButReturnTypeNotGenericTask);
+                asyncExpectedResultButReturnTypeNotGenericTask,
+                simpleTestHasParameters);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -77,9 +87,8 @@ namespace NUnit.Analyzers.TestCaseUsage
 
         private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context)
         {
-            var methodNode = context.Node.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault();
-
-            if (methodNode != null)
+            var declarationNode = context.Node.Parent?.Parent;
+            if (declarationNode is MethodDeclarationSyntax methodNode)
             {
                 if (!methodNode.ContainsDiagnostics)
                 {
@@ -104,6 +113,26 @@ namespace NUnit.Analyzers.TestCaseUsage
                         context.CancellationToken.ThrowIfCancellationRequested();
                         TestMethodUsageAnalyzer.AnalyzeExpectedResult(context, attributeNode, methodSymbol);
                     }
+
+                    var parameters = methodNode.ParameterList.Parameters;
+                    var testMethodParameters = parameters.Count;
+                    var hasISimpleTestBuilderAttribute = HasISimpleTestBuilderAttribute(context.SemanticModel, methodNode.AttributeLists);
+                    var hasITestBuilderAttribute = HasITestBuilderAttribute(context.SemanticModel, methodNode.AttributeLists);
+                    var parametersMarkedWithIParameterDataSourceAttribute =
+                        parameters.Count(p => HasIParameterDataSourceAttribute(context.SemanticModel, p.AttributeLists));
+
+                    if (testMethodParameters > 0 &&
+                        hasISimpleTestBuilderAttribute &&
+                        !hasITestBuilderAttribute &&
+                        parametersMarkedWithIParameterDataSourceAttribute < testMethodParameters)
+                    {
+                        context.ReportDiagnostic(
+                            Diagnostic.Create(
+                                simpleTestHasParameters,
+                                attributeNode.GetLocation(),
+                                testMethodParameters,
+                                parametersMarkedWithIParameterDataSourceAttribute));
+                    }
                 }
             }
         }
@@ -116,6 +145,18 @@ namespace NUnit.Analyzers.TestCaseUsage
         {
             var allAttributes = attributeLists.SelectMany(al => al.Attributes);
             return allAttributes.Any(a => a.DerivesFromITestBuilder(semanticModel));
+        }
+
+        private static bool HasISimpleTestBuilderAttribute(SemanticModel semanticModel, SyntaxList<AttributeListSyntax> attributeLists)
+        {
+            var allAttributes = attributeLists.SelectMany(al => al.Attributes);
+            return allAttributes.Any(a => a.DerivesFromISimpleTestBuilder(semanticModel));
+        }
+
+        private static bool HasIParameterDataSourceAttribute(SemanticModel semanticModel, SyntaxList<AttributeListSyntax> attributeLists)
+        {
+            var allAttributes = attributeLists.SelectMany(al => al.Attributes);
+            return allAttributes.Any(a => a.DerivesFromIParameterDataSource(semanticModel));
         }
 
         private static void AnalyzeExpectedResult(SyntaxNodeAnalysisContext context,

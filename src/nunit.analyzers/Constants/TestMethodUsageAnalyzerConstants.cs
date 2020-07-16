@@ -26,5 +26,9 @@ namespace NUnit.Analyzers.Constants
         internal const string AsyncExpectedResultAndNonGenericTaskReturnTypeTitle = "The async test method must have a Task<T> return type when a result is expected.";
         internal const string AsyncExpectedResultAndNonGenericTaskReturnTypeMessage = "The async test method must have a Task<T> return type when a result is expected, but the return type was '{0}'.";
         internal const string AsyncExpectedResultAndNonGenericTaskReturnTypeDescription = "The async test method must have a Task<T> return type when a result is expected.";
+
+        internal const string SimpleTestMethodHasParametersTitle = "The test method has parameters, but no arguments are supplied by attributes.";
+        internal const string SimpleTestMethodHasParametersMessage = "The test method has '{0}' parameter(s), but only '{1}' argument(s) are supplied by attributes.";
+        internal const string SimpleTestMethodHasParametersDescription = "The test method has parameters, but no arguments are supplied by attributes.";
     }
 }

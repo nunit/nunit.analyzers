@@ -44,7 +44,8 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
                 public void Test()
                 {
-                    Assert.That(↓true, Is.EqualTo(false));
+                    Assert.That(↓-1, Is.Positive);
+                    Assert.That(↓(2 + 3) * 1024, Is.Positive);
                 }");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
@@ -96,7 +97,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         public void AnalyzeWhenConstFieldArgumentIsProvidedForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string actual = ""act"";
 
@@ -114,7 +115,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         public void AnalyzeWhenConstFieldArgumentIsProvidedForAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string actual = ""act"";
 
@@ -129,10 +130,36 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         }
 
         [Test]
+        public void AnalyzeWhenStringEmptyArgumentIsProvidedForAreEqual()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public void Test()
+                {
+                    string actual = ""act"";
+                    Assert.AreEqual(actual, string.Empty);
+                }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenStringEmptyArgumentIsProvidedForAssertThat()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public void Test()
+                {
+                    string actual = ""act"";
+                    Assert.That(string.Empty, Is.EqualTo(actual));
+                }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void ValidWhenNonConstValueIsProvidedAsActualArgumentForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string expected = ""exp"";
 
@@ -147,10 +174,28 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         }
 
         [Test]
+        public void ValidWhenConstValueIsProvidedAsActualAndExpectedArgumentForAreEqual()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixture
+            {
+                private const string expected = ""exp"";
+
+                public void Test()
+                {
+                    const string actual = ""act"";
+                    Assert.AreEqual(expected, actual);
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void ValidWhenNonConstValueIsProvidedAsActualNamedArgumentForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string expected = ""exp"";
 
@@ -165,10 +210,28 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         }
 
         [Test]
+        public void ValidWhenConstValueIsProvidedAsActualAndExpectedNamedArgumentForAreEqual()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixture
+            {
+                private const string expected = ""exp"";
+
+                public void Test()
+                {
+                    const string actual = ""act"";
+                    Assert.AreEqual(actual: actual, expected: expected);
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void ValidWhenNonConstValueIsProvidedAsActualArgumentForAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public class TestFixure
+            public class TestFixture
             {
                 private const string expected = ""exp"";
 
@@ -176,6 +239,73 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 {
                     string actual = ""act"";
                     Assert.That(actual, Is.EqualTo(expected));
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenConstValueIsProvidedAsActualAndExpectedArgumentForAssertThat()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixture
+            {
+                private const string expected = ""exp"";
+
+                public void Test()
+                {
+                    const string actual = ""act"";
+                    Assert.That(actual, Is.EqualTo(expected));
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenCheckingEnumerationValueForAssertThat()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixture
+            {
+                private enum Answer { No = 0, Yes = 1 };
+
+                public void Test()
+                {
+                    Assert.That(Answer.Yes, Is.EqualTo(1));
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenCheckingAgainstStringEmptyAssertThat()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixture
+            {
+                private const string actual = ""act"";
+
+                public void Test()
+                {
+                    Assert.That(actual, Is.Not.EqualTo(string.Empty));
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenCheckingEmptyAgainstNullAssertThat()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixture
+            {
+                public void Test()
+                {
+                    Assert.That(string.Empty, Is.Not.Null);
                 }
             }");
 
