@@ -1,6 +1,6 @@
 # NUnit1014
 
-## The async test method must have a Task<T> return type when a result is expected.
+## The async test method must have a Task\<T> return type when a result is expected.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-The async test method must have a Task<T> return type when a result is expected.
+The async test method must have a `Task<T>` return type when a result is expected.
 
 ## Motivation
 

@@ -13,7 +13,7 @@
 | [NUnit1011](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1011.md)| The TestCaseSource argument does not specify an existing member. | :white_check_mark: |
 | [NUnit1012](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1012.md)| The async test method must have a non-void return type. | :white_check_mark: |
 | [NUnit1013](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1013.md)| The async test method must have a non-generic Task return type when no result is expected. | :white_check_mark: |
-| [NUnit1014](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1014.md)| The async test method must have a Task<T> return type when a result is expected. | :white_check_mark: |
+| [NUnit1014](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1014.md)| The async test method must have a Task\<T> return type when a result is expected. | :white_check_mark: |
 | [NUnit1015](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1015.md)| The source type does not implement IEnumerable. | :white_check_mark: |
 | [NUnit1016](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1016.md)| The source type does not have a default constructor. | :white_check_mark: |
 | [NUnit1017](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1017.md)| The specified source is not static. | :white_check_mark: |
