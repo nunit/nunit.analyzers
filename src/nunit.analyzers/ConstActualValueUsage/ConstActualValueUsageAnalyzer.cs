@@ -89,9 +89,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
             if (expectedExpression != null && !IsConstant(expectedExpression) && !IsStringEmpty(expectedExpression))
             {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    descriptor,
-                    actualExpression.GetLocation()));
+                Report(actualExpression);
             }
         }
 
