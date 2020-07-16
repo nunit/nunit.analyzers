@@ -29,7 +29,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType,
                 AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndVoidReturnTypeUsage,
                 AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage,
-                AnalyzerIdentifiers.TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage
+                AnalyzerIdentifiers.TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage,
+                AnalyzerIdentifiers.SimpleTestMethodHasParameters
             };
             CollectionAssert.AreEquivalent(expectedIdentifiers, diagnostics.Select(d => d.Id));
 
@@ -498,6 +499,100 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
     }",
     additionalUsings: "using NUnit.Framework.Interfaces; using NUnit.Framework.Internal; using System.Collections.Generic;");
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSimpleTestMethodHasParameters()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+               AnalyzerIdentifiers.SimpleTestMethodHasParameters);
+
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+    [↓Test]
+    public void M(int p)
+    {
+        Assert.That(p, Is.EqualTo(42));
+    }");
+
+            var message = "The test method has '1' parameter(s), but only '0' argument(s) are supplied by attributes.";
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSimpleTestMethodHasParameterWithOutSuppliedValues()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+               AnalyzerIdentifiers.SimpleTestMethodHasParameters);
+
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+    [↓Test]
+    public void M(int p, [Values(1, 2, 3)] int q, int r)
+    {
+        Assert.That(p, Is.EqualTo(q + r));
+    }");
+
+            var message = "The test method has '3' parameter(s), but only '1' argument(s) are supplied by attributes.";
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSimpleTestMethodHasParameterSuppliedByValuesAttribute()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+    [Test]
+    public void M([Values(1, 2, 3)] int p)
+    {
+        Assert.That(p, Is.EqualTo(42));
+    }");
+
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSimpleTestMethodHasParameterSuppliedByRangeAttribute()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+    [Test]
+    public void M([Range(1, 10)] int p)
+    {
+        Assert.That(p, Is.EqualTo(42));
+    }");
+
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSimpleTestMethodHasParameterSuppliedByTestCase()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+    [Test]
+    [TestCase(1)]
+    [TestCase(2)]
+    public void M(int p)
+    {
+        Assert.That(p, Is.EqualTo(42));
+    }");
+
+            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSimpleTestMethodHasParameterSuppliedByTestCaseSource()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenSimpleTestMethodHasParameterSuppliedByTestCaseSource
+    {
+        [Test]
+        [TestCaseSource(nameof(Source))]
+        public void M(int p)
+        {
+            Assert.That(p, Is.EqualTo(42));
+        }
+
+        private static int[] Source => new[] { 1, 2, 3 };
+    }");
+
             AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
         }
     }
