@@ -76,7 +76,6 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
             if (IsLiteralExpression(actualExpression))
             {
-                // Classic error case
                 Report(actualExpression);
                 return;
             }
