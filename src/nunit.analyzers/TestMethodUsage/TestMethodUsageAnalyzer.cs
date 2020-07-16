@@ -87,7 +87,7 @@ namespace NUnit.Analyzers.TestCaseUsage
 
         private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context)
         {
-            var declarationNode = GetMethod(context.Node);
+            var declarationNode = context.Node.Parent?.Parent;
             if (declarationNode is MethodDeclarationSyntax methodNode)
             {
                 if (!methodNode.ContainsDiagnostics)
@@ -114,11 +114,12 @@ namespace NUnit.Analyzers.TestCaseUsage
                         TestMethodUsageAnalyzer.AnalyzeExpectedResult(context, attributeNode, methodSymbol);
                     }
 
-                    var testMethodParameters = methodNode.ParameterList.Parameters.Count;
+                    var parameters = methodNode.ParameterList.Parameters;
+                    var testMethodParameters = parameters.Count;
                     var hasISimpleTestBuilderAttribute = HasISimpleTestBuilderAttribute(context.SemanticModel, methodNode.AttributeLists);
                     var hasITestBuilderAttribute = HasITestBuilderAttribute(context.SemanticModel, methodNode.AttributeLists);
-                    var parametersMarkedWithIParameterDataSourceAttribute = ParametersMarkedWithIParameterDataSourceAttribute(
-                        context.SemanticModel, methodNode);
+                    var parametersMarkedWithIParameterDataSourceAttribute =
+                        parameters.Count(p => HasIParameterDataSourceAttribute(context.SemanticModel, p.AttributeLists));
 
                     if (testMethodParameters > 0 &&
                         hasISimpleTestBuilderAttribute &&
@@ -136,18 +137,6 @@ namespace NUnit.Analyzers.TestCaseUsage
             }
         }
 
-        private static SyntaxNode? GetMethod(SyntaxNode node)
-        {
-            foreach (var ancestor in node.Ancestors())
-            {
-                if (ancestor.IsKind(SyntaxKind.ParameterList))
-                    return null;
-                if (ancestor.IsKind(SyntaxKind.MethodDeclaration))
-                    return ancestor;
-            }
-            return null;
-        }
-
         private static bool IsAttribute(INamedTypeSymbol nunitType, string nunitTypeName, ISymbol attributeSymbol) =>
             nunitType.ContainingAssembly.Identity == attributeSymbol?.ContainingAssembly.Identity &&
             nunitTypeName == attributeSymbol?.ContainingType.Name;
@@ -162,12 +151,6 @@ namespace NUnit.Analyzers.TestCaseUsage
         {
             var allAttributes = attributeLists.SelectMany(al => al.Attributes);
             return allAttributes.Any(a => a.DerivesFromISimpleTestBuilder(semanticModel));
-        }
-
-        private static int ParametersMarkedWithIParameterDataSourceAttribute(SemanticModel semanticModel, MethodDeclarationSyntax methodDeclarationSyntax)
-        {
-            var parameters = methodDeclarationSyntax.ParameterList.Parameters;
-            return parameters.Count(p => HasIParameterDataSourceAttribute(semanticModel, p.AttributeLists));
         }
 
         private static bool HasIParameterDataSourceAttribute(SemanticModel semanticModel, SyntaxList<AttributeListSyntax> attributeLists)
