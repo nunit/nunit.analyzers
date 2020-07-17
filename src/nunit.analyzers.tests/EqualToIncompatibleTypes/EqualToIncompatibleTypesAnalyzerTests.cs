@@ -305,6 +305,17 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
+        public void AnalyzeWhenActualAndExpectedTypesAreSame_WithTaskActualValue()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = Task.FromResult("""");
+                var expected = """";
+                Assert.That(actual, Is.EqualTo(↓expected));");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenActualIsIncompatibleNullableType()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
@@ -363,17 +374,6 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 string actual() => """";
-                var expected = """";
-                Assert.That(actual, Is.EqualTo(expected));");
-
-            AnalyzerAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSame_WithTaskActualValue()
-        {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = Task.FromResult("""");
                 var expected = """";
                 Assert.That(actual, Is.EqualTo(expected));");
 
@@ -806,6 +806,27 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = new[] { 1,2,2,1 };
                 Assert.That(actual, Has.All.EqualTo(1).Or.EqualTo(2));");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticWhenComparingTask()
+        {
+            var testCode = TestUtility.WrapInAsyncTestMethod(@"
+                Task wait = Task.CompletedTask;
+                Assert.That(await Task.WhenAny(wait).ConfigureAwait(false), Is.EqualTo(wait));");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticWhenComparingTask2()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                Task task1 = Task.CompletedTask;
+                Task task2 = Task.CompletedTask;
+                Assert.That(task1, Is.SameAs(task2));");
 
             AnalyzerAssert.Valid(analyzer, testCode);
         }

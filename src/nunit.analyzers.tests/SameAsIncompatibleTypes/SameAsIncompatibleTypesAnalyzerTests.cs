@@ -177,6 +177,17 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
+        public void AnalyzeWhenActualAndExpectedTypesAreSame_WithTaskActualValue()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = Task.FromResult("""");
+                var expected = """";
+                Assert.That(actual, Is.SameAs(↓expected));");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void NoDiagnosticWhenActualAndExpectedTypesAreSame()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
@@ -224,17 +235,6 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 string actual() => """";
-                var expected = """";
-                Assert.That(actual, Is.SameAs(expected));");
-
-            AnalyzerAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSame_WithTaskActualValue()
-        {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = Task.FromResult("""");
                 var expected = """";
                 Assert.That(actual, Is.SameAs(expected));");
 
