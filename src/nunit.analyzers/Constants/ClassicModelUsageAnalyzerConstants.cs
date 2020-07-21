@@ -61,5 +61,9 @@ namespace NUnit.Analyzers.Constants
         internal const string LessOrEqualTitle = "Consider using Assert.That(actual, Is.LessThanOrEqualTo(expected)) instead of Assert.LessOrEqual(actual, expected).";
         internal const string LessOrEqualMessage = "Consider using the constraint model, Assert.That(actual, Is.LessThanOrEqualTo(expected)), instead of the classic model, Assert.LessOrEqual(actual, expected).";
         internal const string LessOrEqualDescription = "Consider using the constraint model, Assert.That(actual, Is.LessThanOrEqualTo(expected)), instead of the classic model, Assert.LessOrEqual(actual, expected).";
+
+        internal const string AreNotSameTitle = "Consider using Assert.That(actual, Is.Not.SameAs(expected)) instead of Assert.AreNotSame(expected, actual).";
+        internal const string AreNotSameMessage = "Consider using the constraint model, Assert.That(actual, Is.Not.SameAs(expected)), instead of the classic model, Assert.AreNotSame(expected, actual).";
+        internal const string AreNotSameDescription = "Consider using the constraint model, Assert.That(actual, Is.Not.SameAs(expected)), instead of the classic model, Assert.AreNotSame(expected, actual).";
     }
 }

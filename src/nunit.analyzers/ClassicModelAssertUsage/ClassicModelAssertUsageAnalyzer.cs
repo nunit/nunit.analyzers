@@ -131,6 +131,14 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             defaultSeverity: DiagnosticSeverity.Warning,
             description: ClassicModelUsageAnalyzerConstants.LessOrEqualDescription);
 
+        private static readonly DiagnosticDescriptor areNotSameDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.AreNotSameUsage,
+            title: ClassicModelUsageAnalyzerConstants.AreNotSameTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.AreNotSameMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.AreNotSameDescription);
+
         private static readonly ImmutableDictionary<string, DiagnosticDescriptor> name =
           new Dictionary<string, DiagnosticDescriptor>
           {
@@ -149,6 +157,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
               { NameOfAssertGreaterOrEqual, greaterOrEqualDescriptor },
               { NameOfAssertLess, lessDescriptor },
               { NameOfAssertLessOrEqual, lessOrEqualDescriptor },
+              { NameOfAssertAreNotSame, areNotSameDescriptor },
           }.ToImmutableDictionary();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.name.Values.ToImmutableArray();
