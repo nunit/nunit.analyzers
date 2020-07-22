@@ -89,5 +89,13 @@ namespace NUnit.Analyzers.Constants
         internal const string ContainsTitle = "Consider using Assert.That(collection, Does.Contain(instance)) instead of Assert.Contains(instance, collection).";
         internal const string ContainsMessage = "Consider using the constraint model, Assert.That(collection, Does.Contain(instance)), instead of the classic model, Assert.Contains(instance, collection).";
         internal const string ContainsDescription = "Consider using the constraint model, Assert.That(collection, Does.Contain(instance)), instead of the classic model, Assert.Contains(instance, collection).";
+
+        internal const string IsInstanceOfTitle = "Consider using Assert.That(actual, Is.InstanceOf(expected)) instead of Assert.IsInstanceOf(expected, actual).";
+        internal const string IsInstanceOfMessage = "Consider using the constraint model, Assert.That(actual, Is.InstanceOf(expected)), instead of the classic model, Assert.IsInstanceOf(expected, actual).";
+        internal const string IsInstanceOfDescription = "Consider using the constraint model, Assert.That(actual, Is.InstanceOf(expected)), instead of the classic model, Assert.IsInstanceOf(expected, actual).";
+
+        internal const string IsNotInstanceOfTitle = "Consider using Assert.That(actual, Is.Not.InstanceOf(expected)) instead of Assert.IsNotInstanceOf(expected, actual).";
+        internal const string IsNotInstanceOfMessage = "Consider using the constraint model, Assert.That(actual, Is.Not.InstanceOf(expected)), instead of the classic model, Assert.IsNotInstanceOf(expected, actual).";
+        internal const string IsNotInstanceOfDescription = "Consider using the constraint model, Assert.That(actual, Is.Not.InstanceOf(expected)), instead of the classic model, Assert.IsNotInstanceOf(expected, actual).";
     }
 }

@@ -63,3 +63,5 @@
 | [NUnit2035](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2035.md)| Consider using Assert.That(collection, Is.Empty) instead of Assert.IsEmpty(collection). | :white_check_mark: |
 | [NUnit2036](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2036.md)| Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection). | :white_check_mark: |
 | [NUnit2037](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2037.md)| Consider using Assert.That(collection, Does.Contain(instance)) instead of Assert.Contains(instance, collection). | :white_check_mark: |
+| [NUnit2038](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2038.md)| Consider using Assert.That(actual, Is.InstanceOf(expected)) instead of Assert.IsInstanceOf(expected, actual). | :white_check_mark: |
+| [NUnit2039](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2039.md)| Consider using Assert.That(actual, Is.Not.InstanceOf(expected)) instead of Assert.IsNotInstanceOf(expected, actual). | :white_check_mark: |

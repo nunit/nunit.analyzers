@@ -187,6 +187,22 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.ContainsDescription);
 
+        private static readonly DiagnosticDescriptor isInstanceOfDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.IsInstanceOfUsage,
+            title: ClassicModelUsageAnalyzerConstants.IsInstanceOfTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.IsInstanceOfMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.IsInstanceOfDescription);
+
+        private static readonly DiagnosticDescriptor isNotInstanceOfDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.IsNotInstanceOfUsage,
+            title: ClassicModelUsageAnalyzerConstants.IsNotInstanceOfTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.IsNotInstanceOfMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.IsNotInstanceOfDescription);
+
         private static readonly ImmutableDictionary<string, DiagnosticDescriptor> name =
           new Dictionary<string, DiagnosticDescriptor>
           {
@@ -212,6 +228,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
               { NameOfAssertIsEmpty, isEmptyDescriptor },
               { NameOfAssertIsNotEmpty, isNotEmptyDescriptor },
               { NameOfAssertContains, containsDescriptor },
+              { NameOfAssertIsInstanceOf, isInstanceOfDescriptor },
+              { NameOfAssertIsNotInstanceOf, isNotInstanceOfDescriptor },
           }.ToImmutableDictionary();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.name.Values.ToImmutableArray();

@@ -20,7 +20,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var analyzer = new ClassicModelAssertUsageAnalyzer();
             var diagnostics = analyzer.SupportedDiagnostics;
 
-            Assert.That(diagnostics.Length, Is.EqualTo(15), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
+            Assert.That(diagnostics.Length, Is.EqualTo(24), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
 
             foreach (var diagnostic in diagnostics)
             {
@@ -80,6 +80,10 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 $"{AnalyzerIdentifiers.IsNotEmptyUsage} is missing.");
             Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.ContainsUsage),
                 $"{AnalyzerIdentifiers.ContainsUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsInstanceOfUsage),
+                $"{AnalyzerIdentifiers.IsInstanceOfUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotInstanceOfUsage),
+                $"{AnalyzerIdentifiers.IsNotInstanceOfUsage} is missing.");
         }
 
         [Test]
@@ -493,6 +497,70 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void Test()
         {
             ↓Assert.Contains(this, Array.Empty<object>()));
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsInstanceOfIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsInstanceOfUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsInstanceOfIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsInstanceOf(typeof(int), 2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenGenericIsInstanceOfIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsInstanceOfUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenGenericIsInstanceOfIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsInstanceOf<int>(2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsNotInstanceOfIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotInstanceOfUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsNotInstanceOfIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsNotInstanceOf(typeof(int), 2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenGenericIsNotInstanceOfIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotInstanceOfUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenGenericIsNotInstanceOfIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsNotInstanceOf<int>(2);
         }
     }");
             AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
