@@ -65,5 +65,13 @@ namespace NUnit.Analyzers.Constants
         internal const string AreNotSameTitle = "Consider using Assert.That(actual, Is.Not.SameAs(expected)) instead of Assert.AreNotSame(expected, actual).";
         internal const string AreNotSameMessage = "Consider using the constraint model, Assert.That(actual, Is.Not.SameAs(expected)), instead of the classic model, Assert.AreNotSame(expected, actual).";
         internal const string AreNotSameDescription = "Consider using the constraint model, Assert.That(actual, Is.Not.SameAs(expected)), instead of the classic model, Assert.AreNotSame(expected, actual).";
+
+        internal const string ZeroTitle = "Consider using Assert.That(expr, Is.Zero) instead of Assert.Zero(expr).";
+        internal const string ZeroMessage = "Consider using the constraint model, Assert.That(expr, Is.Zero), instead of the classic model, Assert.Zero(expr).";
+        internal const string ZeroDescription = "Consider using the constraint model, Assert.That(expr, Is.Zero), instead of the classic model, Assert.Zero(expr).";
+
+        internal const string NotZeroTitle = "Consider using Assert.That(expr, Is.Not.Zero) instead of Assert.NotZero(expr).";
+        internal const string NotZeroMessage = "Consider using the constraint model, Assert.That(expr, Is.Not.Zero), instead of the classic model, Assert.NotZero(expr).";
+        internal const string NotZeroDescription = "Consider using the constraint model, Assert.That(expr, Is.Not.Zero), instead of the classic model, Assert.NotZero(expr).";
     }
 }

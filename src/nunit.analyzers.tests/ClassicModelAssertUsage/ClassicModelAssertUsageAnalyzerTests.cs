@@ -68,6 +68,10 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 $"{AnalyzerIdentifiers.LessOrEqualUsage} is missing.");
             Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreNotSameUsage),
                 $"{AnalyzerIdentifiers.AreNotSameUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.ZeroUsage),
+                $"{AnalyzerIdentifiers.ZeroUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.NotZeroUsage),
+                $"{AnalyzerIdentifiers.NotZeroUsage} is missing.");
         }
 
         [Test]
@@ -385,6 +389,38 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void Test()
         {
             ↓Assert.AreNotSame(2, 3);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenZeroIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ZeroUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenZeroIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.Zero(2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNotZeroIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.NotZeroUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenNotZeroIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.NotZero(2);
         }
     }");
             AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);

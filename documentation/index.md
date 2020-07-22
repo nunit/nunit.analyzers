@@ -57,3 +57,5 @@
 | [NUnit2029](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2029.md)| Consider using Assert.That(actual, Is.LessThan(expected)) instead of Assert.Less(actual, expected). | :white_check_mark: |
 | [NUnit2030](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2030.md)| Consider using Assert.That(actual, Is.LessThanOrEqualTo(expected)) instead of Assert.LessOrEqual(actual, expected). | :white_check_mark: |
 | [NUnit2031](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2031.md)| Consider using Assert.That(actual, Is.Not.SameAs(expected)) instead of Assert.AreNotSame(expected, actual). | :white_check_mark: |
+| [NUnit2032](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2032.md)| Consider using Assert.That(expr, Is.Zero) instead of Assert.Zero(expr). | :white_check_mark: |
+| [NUnit2033](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2033.md)| Consider using Assert.That(expr, Is.Not.Zero) instead of Assert.NotZero(expr). | :white_check_mark: |

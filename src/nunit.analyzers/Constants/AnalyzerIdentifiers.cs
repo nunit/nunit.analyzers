@@ -66,6 +66,8 @@ namespace NUnit.Analyzers.Constants
         internal const string LessUsage = "NUnit2029";
         internal const string LessOrEqualUsage = "NUnit2030";
         internal const string AreNotSameUsage = "NUnit2031";
+        internal const string ZeroUsage = "NUnit2032";
+        internal const string NotZeroUsage = "NUnit2033";
 
         #endregion Assertion
     }
