@@ -194,7 +194,9 @@ namespace NUnit.Analyzers.TestCaseUsage
 
                     if (argumentTypeMatchesElementType ||
                         (argumentTypeMatchesParameterType && (argumentType != null || !methodParameterParamsType.IsValueType)))
-                    continue;
+                    {
+                        continue;
+                    }
                 }
                 
                 context.ReportDiagnostic(Diagnostic.Create(parameterTypeMismatch,

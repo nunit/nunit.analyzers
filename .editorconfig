@@ -17,7 +17,7 @@ charset = utf-8
 indent_size = 2
 
 [*]
-# https://github.com/nunit/docs/wiki/Coding-Standards#namespace-class-structure-interface-enumeration-and-method-definitions
+# https://docs.nunit.org/articles/developer-info/Coding-Standards.html#namespace-class-structure-interface-enumeration-and-method-definitions
 csharp_new_line_before_open_brace = all
 csharp_new_line_before_else = true
 csharp_new_line_before_catch = true
@@ -26,7 +26,7 @@ csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_members_in_anonymous_types = true
 csharp_new_line_between_query_expression_clauses = true
 
-# https://github.com/nunit/docs/wiki/Coding-Standards#spaces
+# https://docs.nunit.org/articles/developer-info/Coding-Standards.html#spaces
 csharp_space_after_cast = false
 csharp_space_after_colon_in_inheritance_clause = true
 csharp_space_after_comma = true
@@ -50,27 +50,44 @@ csharp_space_between_method_declaration_parameter_list_parentheses = false
 csharp_space_between_parentheses = false
 csharp_space_between_square_brackets = false
 
-# https://github.com/nunit/docs/wiki/Coding-Standards#indentation
+# https://docs.nunit.org/articles/developer-info/Coding-Standards.html#indentation
 csharp_indent_block_contents = true
 csharp_indent_braces = false
 csharp_indent_case_contents = true
 csharp_indent_switch_labels = true
 csharp_indent_labels = flush_left
 
+# https://docs.nunit.org/articles/developer-info/Coding-Standards.html#naming
 # Always use "this." and "Me." when applicable; let StyleCop Analyzers provide the warning and fix
-dotnet_style_qualification_for_field = true:suggestion
-dotnet_style_qualification_for_property = true:suggestion
-dotnet_style_qualification_for_method = true:suggestion
-dotnet_style_qualification_for_event = true:suggestion
+dotnet_style_qualification_for_field = true:warning
+dotnet_style_qualification_for_property = true:warning
+dotnet_style_qualification_for_method = true:warning
+dotnet_style_qualification_for_event = true:warning
 
-# https://github.com/nunit/docs/wiki/Coding-Standards#naming
 dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
 dotnet_style_predefined_type_for_member_access = true:suggestion
+dotnet_style_readonly_field = true:warning
 
-# Prefer "var" only where type is obvious; disable diagnostics since no firm policy is in place yet
-csharp_style_var_for_built_in_types = true:suggestion
-csharp_style_var_when_type_is_apparent = true:suggestion
-csharp_style_var_elsewhere = true:suggestion
+# https://docs.nunit.org/articles/developer-info/Coding-Standards.html#use-of-the-var-keyword
+# Unfortunately var_for_built_in_types conflicts with var_when_type_is_apparent. https://github.com/dotnet/roslyn/issues/23714
+# Also 'apparent' does not mean the same for everyone.
+# Disable diagnostics since no firm policy is in place yet and the messages hide other violations.
+csharp_style_var_for_built_in_types = true:none
+csharp_style_var_when_type_is_apparent = true:none
+csharp_style_var_elsewhere = false:none
+
+# Disabled rule as convention is not mentioned in https://docs.nunit.org/articles/developer-info/Coding-Standards.html
+# Mentioned is 'if braces are not used on a control float statements with a single line, a blank line should follow'
+# This is not something we can configure.
+# The document doesn't say that it should have braces for multi-line statements, but maybe that is implied.
+csharp_prefer_braces = when_multiline:warning
+
+# Rules to match the actual code style used
+csharp_prefer_simple_default_expression = false:suggestion
+csharp_style_deconstructed_variable_declaration = false:suggestion
+csharp_style_prefer_switch_expression = false:suggestion
+csharp_style_expression_bodied_local_functions = false:suggestion
+csharp_style_pattern_matching_over_as_with_null_check = false:suggestion
 
 # Suggest more modern language features when available
 dotnet_style_object_initializer = true:none
@@ -79,7 +96,7 @@ dotnet_style_coalesce_expression = true:suggestion
 dotnet_style_null_propagation = true:suggestion
 dotnet_style_explicit_tuple_names = true:suggestion
 
-# https://github.com/nunit/docs/wiki/Coding-Standards#file-organization
+# https://docs.nunit.org/articles/developer-info/Coding-Standards.html#file-organization
 dotnet_sort_system_directives_first = true
 
 # The first matching rule wins, more specific rules at the top

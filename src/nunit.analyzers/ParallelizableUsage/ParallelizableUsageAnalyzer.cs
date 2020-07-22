@@ -62,7 +62,9 @@ namespace NUnit.Analyzers.ParallelizableUsage
 
             if (parallelizableAttributeType.ContainingAssembly.Identity != attributeSymbol?.ContainingAssembly.Identity ||
                 NunitFrameworkConstants.NameOfParallelizableAttribute != attributeSymbol?.ContainingType.Name)
+            {
                 return;
+            }
 
             context.CancellationToken.ThrowIfCancellationRequested();
 
