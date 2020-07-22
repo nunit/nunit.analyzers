@@ -7,5 +7,6 @@ namespace NUnit.Analyzers.Constants
         internal const string UseConstraintDescriptionFormat = "Use {0} constraint";
         internal const string UsePropertyDescriptionFormat = "Use '{0}' property";
         internal const string MakeTestMethodPublic = "Make test method public";
+        internal const string MakeNonTestMethodPrivate = "Make non-test method private";
     }
 }
