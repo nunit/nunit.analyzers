@@ -77,5 +77,13 @@ namespace NUnit.Analyzers.Constants
         internal const string IsNaNTitle = "Consider using Assert.That(expr, Is.NaN) instead of Assert.IsNaN(expr).";
         internal const string IsNaNMessage = "Consider using the constraint model, Assert.That(expr, Is.NaN), instead of the classic model, Assert.IsNaN(expr).";
         internal const string IsNaNDescription = "Consider using the constraint model, Assert.That(expr, Is.NaN), instead of the classic model, Assert.IsNaN(expr).";
+
+        internal const string IsEmptyTitle = "Consider using Assert.That(collection, Is.Empty) instead of Assert.IsEmpty(collection).";
+        internal const string IsEmptyMessage = "Consider using the constraint model, Assert.That(collection, Is.Empty), instead of the classic model, Assert.IsEmpty(collection).";
+        internal const string IsEmptyDescription = "Consider using the constraint model, Assert.That(collection, Is.Empty), instead of the classic model, Assert.IsEmpty(collection).";
+
+        internal const string IsNotEmptyTitle = "Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection).";
+        internal const string IsNotEmptyMessage = "Consider using the constraint model, Assert.That(collection, Is.Not.Empty), instead of the classic model, Assert.IsNotEmpty(collection).";
+        internal const string IsNotEmptyDescription = "Consider using the constraint model, Assert.That(collection, Is.Not.Empty), instead of the classic model, Assert.IsNotEmpty(collection).";
     }
 }

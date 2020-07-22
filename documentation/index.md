@@ -60,3 +60,5 @@
 | [NUnit2032](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2032.md)| Consider using Assert.That(expr, Is.Zero) instead of Assert.Zero(expr). | :white_check_mark: |
 | [NUnit2033](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2033.md)| Consider using Assert.That(expr, Is.Not.Zero) instead of Assert.NotZero(expr). | :white_check_mark: |
 | [NUnit2034](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2034.md)| Consider using Assert.That(expr, Is.NaN) instead of Assert.IsNaN(expr). | :white_check_mark: |
+| [NUnit2035](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2035.md)| Consider using Assert.That(collection, Is.Empty) instead of Assert.IsEmpty(collection). | :white_check_mark: |
+| [NUnit2036](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2036.md)| Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection). | :white_check_mark: |

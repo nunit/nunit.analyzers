@@ -74,6 +74,10 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 $"{AnalyzerIdentifiers.NotZeroUsage} is missing.");
             Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNaNUsage),
                 $"{AnalyzerIdentifiers.IsNaNUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsEmptyUsage),
+                $"{AnalyzerIdentifiers.IsEmptyUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotEmptyUsage),
+                $"{AnalyzerIdentifiers.IsNotEmptyUsage} is missing.");
         }
 
         [Test]
@@ -439,6 +443,38 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void Test()
         {
             ↓Assert.IsNaN(2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsEmptyIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsEmptyUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsEmptyIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsEmpty(Array.Empty<object>());
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsNotEmptyIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotEmptyUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsNotEmptyIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsNotEmpty(Array.Empty<object>());
         }
     }");
             AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
