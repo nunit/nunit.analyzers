@@ -59,3 +59,4 @@
 | [NUnit2031](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2031.md)| Consider using Assert.That(actual, Is.Not.SameAs(expected)) instead of Assert.AreNotSame(expected, actual). | :white_check_mark: |
 | [NUnit2032](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2032.md)| Consider using Assert.That(expr, Is.Zero) instead of Assert.Zero(expr). | :white_check_mark: |
 | [NUnit2033](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2033.md)| Consider using Assert.That(expr, Is.Not.Zero) instead of Assert.NotZero(expr). | :white_check_mark: |
+| [NUnit2034](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2034.md)| Consider using Assert.That(expr, Is.NaN) instead of Assert.IsNaN(expr). | :white_check_mark: |

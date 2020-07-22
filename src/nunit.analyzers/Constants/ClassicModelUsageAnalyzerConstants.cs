@@ -73,5 +73,9 @@ namespace NUnit.Analyzers.Constants
         internal const string NotZeroTitle = "Consider using Assert.That(expr, Is.Not.Zero) instead of Assert.NotZero(expr).";
         internal const string NotZeroMessage = "Consider using the constraint model, Assert.That(expr, Is.Not.Zero), instead of the classic model, Assert.NotZero(expr).";
         internal const string NotZeroDescription = "Consider using the constraint model, Assert.That(expr, Is.Not.Zero), instead of the classic model, Assert.NotZero(expr).";
+
+        internal const string IsNaNTitle = "Consider using Assert.That(expr, Is.NaN) instead of Assert.IsNaN(expr).";
+        internal const string IsNaNMessage = "Consider using the constraint model, Assert.That(expr, Is.NaN), instead of the classic model, Assert.IsNaN(expr).";
+        internal const string IsNaNDescription = "Consider using the constraint model, Assert.That(expr, Is.NaN), instead of the classic model, Assert.IsNaN(expr).";
     }
 }

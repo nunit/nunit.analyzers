@@ -68,6 +68,7 @@ namespace NUnit.Analyzers.Constants
         internal const string AreNotSameUsage = "NUnit2031";
         internal const string ZeroUsage = "NUnit2032";
         internal const string NotZeroUsage = "NUnit2033";
+        internal const string IsNaNUsage = "NUnit2034";
 
         #endregion Assertion
     }

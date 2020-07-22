@@ -25,6 +25,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfIsLessThan = "LessThan";
         public const string NameOfIsLessThanOrEqualTo = "LessThanOrEqualTo";
         public const string NameOfIsZero = "Zero";
+        public const string NameOfIsNaN = "NaN";
 
         public const string NameOfContains = "Contains";
         public const string NameOfContainsItem = "Item";
@@ -63,6 +64,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfAssertLessOrEqual = "LessOrEqual";
         public const string NameOfAssertZero = "Zero";
         public const string NameOfAssertNotZero = "NotZero";
+        public const string NameOfAssertIsNaN = "IsNaN";
 
         public const string FullNameOfTypeIs = "NUnit.Framework.Is";
         public const string FullNameOfTypeTestCaseAttribute = "NUnit.Framework.TestCaseAttribute";

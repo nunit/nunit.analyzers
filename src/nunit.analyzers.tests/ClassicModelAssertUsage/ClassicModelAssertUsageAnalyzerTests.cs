@@ -72,6 +72,8 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 $"{AnalyzerIdentifiers.ZeroUsage} is missing.");
             Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.NotZeroUsage),
                 $"{AnalyzerIdentifiers.NotZeroUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNaNUsage),
+                $"{AnalyzerIdentifiers.IsNaNUsage} is missing.");
         }
 
         [Test]
@@ -421,6 +423,22 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void Test()
         {
             ↓Assert.NotZero(2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsNaNIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNaNUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsNaNIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsNaN(2);
         }
     }");
             AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
