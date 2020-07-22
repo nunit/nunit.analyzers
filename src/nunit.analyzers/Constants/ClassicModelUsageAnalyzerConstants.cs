@@ -85,5 +85,9 @@ namespace NUnit.Analyzers.Constants
         internal const string IsNotEmptyTitle = "Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection).";
         internal const string IsNotEmptyMessage = "Consider using the constraint model, Assert.That(collection, Is.Not.Empty), instead of the classic model, Assert.IsNotEmpty(collection).";
         internal const string IsNotEmptyDescription = "Consider using the constraint model, Assert.That(collection, Is.Not.Empty), instead of the classic model, Assert.IsNotEmpty(collection).";
+
+        internal const string ContainsTitle = "Consider using Assert.That(collection, Does.Contain(instance)) instead of Assert.Contains(instance, collection).";
+        internal const string ContainsMessage = "Consider using the constraint model, Assert.That(collection, Does.Contain(instance)), instead of the classic model, Assert.Contains(instance, collection).";
+        internal const string ContainsDescription = "Consider using the constraint model, Assert.That(collection, Does.Contain(instance)), instead of the classic model, Assert.Contains(instance, collection).";
     }
 }

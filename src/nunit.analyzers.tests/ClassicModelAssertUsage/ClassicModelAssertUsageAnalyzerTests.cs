@@ -78,6 +78,8 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 $"{AnalyzerIdentifiers.IsEmptyUsage} is missing.");
             Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotEmptyUsage),
                 $"{AnalyzerIdentifiers.IsNotEmptyUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.ContainsUsage),
+                $"{AnalyzerIdentifiers.ContainsUsage} is missing.");
         }
 
         [Test]
@@ -475,6 +477,22 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void Test()
         {
             ↓Assert.IsNotEmpty(Array.Empty<object>());
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenContainsIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ContainsUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenContainsIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.Contains(this, Array.Empty<object>()));
         }
     }");
             AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);

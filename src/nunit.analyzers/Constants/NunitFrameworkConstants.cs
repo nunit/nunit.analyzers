@@ -69,6 +69,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfAssertIsNaN = "IsNaN";
         public const string NameOfAssertIsEmpty = "IsEmpty";
         public const string NameOfAssertIsNotEmpty = "IsNotEmpty";
+        public const string NameOfAssertContains = "Contains";
 
         public const string FullNameOfTypeIs = "NUnit.Framework.Is";
         public const string FullNameOfTypeTestCaseAttribute = "NUnit.Framework.TestCaseAttribute";

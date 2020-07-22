@@ -179,6 +179,14 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.IsNotEmptyDescription);
 
+        private static readonly DiagnosticDescriptor containsDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.ContainsUsage,
+            title: ClassicModelUsageAnalyzerConstants.ContainsTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.ContainsMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.ContainsDescription);
+
         private static readonly ImmutableDictionary<string, DiagnosticDescriptor> name =
           new Dictionary<string, DiagnosticDescriptor>
           {
@@ -203,6 +211,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
               { NameOfAssertIsNaN, isNaNDescriptor },
               { NameOfAssertIsEmpty, isEmptyDescriptor },
               { NameOfAssertIsNotEmpty, isNotEmptyDescriptor },
+              { NameOfAssertContains, containsDescriptor },
           }.ToImmutableDictionary();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.name.Values.ToImmutableArray();

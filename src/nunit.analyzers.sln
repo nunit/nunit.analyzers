@@ -74,6 +74,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{2F501E14-3
 		..\documentation\NUnit2034.md = ..\documentation\NUnit2034.md
 		..\documentation\NUnit2035.md = ..\documentation\NUnit2035.md
 		..\documentation\NUnit2036.md = ..\documentation\NUnit2036.md
+		..\documentation\NUnit2037.md = ..\documentation\NUnit2037.md
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject

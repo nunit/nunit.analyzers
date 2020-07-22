@@ -71,6 +71,7 @@ namespace NUnit.Analyzers.Constants
         internal const string IsNaNUsage = "NUnit2034";
         internal const string IsEmptyUsage = "NUnit2035";
         internal const string IsNotEmptyUsage = "NUnit2036";
+        internal const string ContainsUsage = "NUnit2037";
 
         #endregion Assertion
     }
