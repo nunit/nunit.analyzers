@@ -351,6 +351,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
+#if !NET461
         [Test]
         public void AnalyzeWhenTestMethodHasValueTaskReturnTypeAndExpectedResult()
         {
@@ -380,6 +381,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
+#endif
 
         [Test]
         public void AnalyzeWhenAsyncTestMethodHasTaskReturnTypeAndExpectedResult()
