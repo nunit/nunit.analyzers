@@ -45,5 +45,57 @@ namespace NUnit.Analyzers.Constants
         internal const string NotNullTitle = "Consider using Assert.That(expr, Is.Not.Null) instead of Assert.NotNull(expr).";
         internal const string NotNullMessage = "Consider using the constraint model, Assert.That(expr, Is.Not.Null), instead of the classic model, Assert.NotNull(expr).";
         internal const string NotNullDescription = "Consider using the constraint model, Assert.That(expr, Is.Not.Null), instead of the classic model, Assert.NotNull(expr).";
+
+        internal const string GreaterTitle = "Consider using Assert.That(actual, Is.GreaterThan(expected)) instead of Assert.Greater(actual, expected).";
+        internal const string GreaterMessage = "Consider using the constraint model, Assert.That(actual, Is.GreaterThan(expected)), instead of the classic model, Assert.Greater(actual, expected).";
+        internal const string GreaterDescription = "Consider using the constraint model, Assert.That(actual, Is.GreaterThan(expected)), instead of the classic model, Assert.Greater(actual, expected).";
+
+        internal const string GreaterOrEqualTitle = "Consider using Assert.That(actual, Is.GreaterThanOrEqualTo(expected)) instead of Assert.GreaterOrEqual(actual, expected).";
+        internal const string GreaterOrEqualMessage = "Consider using the constraint model, Assert.That(actual, Is.GreaterThanOrEqualTo(expected)), instead of the classic model, Assert.GreaterOrEqual(actual, expected).";
+        internal const string GreaterOrEqualDescription = "Consider using the constraint model, Assert.That(actual, Is.GreaterThanOrEqualTo(expected)), instead of the classic model, Assert.GreaterOrEqual(actual, expected).";
+
+        internal const string LessTitle = "Consider using Assert.That(actual, Is.LessThan(expected)) instead of Assert.Less(actual, expected).";
+        internal const string LessMessage = "Consider using the constraint model, Assert.That(actual, Is.LessThan(expected)), instead of the classic model, Assert.Less(actual, expected).";
+        internal const string LessDescription = "Consider using the constraint model, Assert.That(actual, Is.LessThan(expected)), instead of the classic model, Assert.Less(actual, expected).";
+
+        internal const string LessOrEqualTitle = "Consider using Assert.That(actual, Is.LessThanOrEqualTo(expected)) instead of Assert.LessOrEqual(actual, expected).";
+        internal const string LessOrEqualMessage = "Consider using the constraint model, Assert.That(actual, Is.LessThanOrEqualTo(expected)), instead of the classic model, Assert.LessOrEqual(actual, expected).";
+        internal const string LessOrEqualDescription = "Consider using the constraint model, Assert.That(actual, Is.LessThanOrEqualTo(expected)), instead of the classic model, Assert.LessOrEqual(actual, expected).";
+
+        internal const string AreNotSameTitle = "Consider using Assert.That(actual, Is.Not.SameAs(expected)) instead of Assert.AreNotSame(expected, actual).";
+        internal const string AreNotSameMessage = "Consider using the constraint model, Assert.That(actual, Is.Not.SameAs(expected)), instead of the classic model, Assert.AreNotSame(expected, actual).";
+        internal const string AreNotSameDescription = "Consider using the constraint model, Assert.That(actual, Is.Not.SameAs(expected)), instead of the classic model, Assert.AreNotSame(expected, actual).";
+
+        internal const string ZeroTitle = "Consider using Assert.That(expr, Is.Zero) instead of Assert.Zero(expr).";
+        internal const string ZeroMessage = "Consider using the constraint model, Assert.That(expr, Is.Zero), instead of the classic model, Assert.Zero(expr).";
+        internal const string ZeroDescription = "Consider using the constraint model, Assert.That(expr, Is.Zero), instead of the classic model, Assert.Zero(expr).";
+
+        internal const string NotZeroTitle = "Consider using Assert.That(expr, Is.Not.Zero) instead of Assert.NotZero(expr).";
+        internal const string NotZeroMessage = "Consider using the constraint model, Assert.That(expr, Is.Not.Zero), instead of the classic model, Assert.NotZero(expr).";
+        internal const string NotZeroDescription = "Consider using the constraint model, Assert.That(expr, Is.Not.Zero), instead of the classic model, Assert.NotZero(expr).";
+
+        internal const string IsNaNTitle = "Consider using Assert.That(expr, Is.NaN) instead of Assert.IsNaN(expr).";
+        internal const string IsNaNMessage = "Consider using the constraint model, Assert.That(expr, Is.NaN), instead of the classic model, Assert.IsNaN(expr).";
+        internal const string IsNaNDescription = "Consider using the constraint model, Assert.That(expr, Is.NaN), instead of the classic model, Assert.IsNaN(expr).";
+
+        internal const string IsEmptyTitle = "Consider using Assert.That(collection, Is.Empty) instead of Assert.IsEmpty(collection).";
+        internal const string IsEmptyMessage = "Consider using the constraint model, Assert.That(collection, Is.Empty), instead of the classic model, Assert.IsEmpty(collection).";
+        internal const string IsEmptyDescription = "Consider using the constraint model, Assert.That(collection, Is.Empty), instead of the classic model, Assert.IsEmpty(collection).";
+
+        internal const string IsNotEmptyTitle = "Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection).";
+        internal const string IsNotEmptyMessage = "Consider using the constraint model, Assert.That(collection, Is.Not.Empty), instead of the classic model, Assert.IsNotEmpty(collection).";
+        internal const string IsNotEmptyDescription = "Consider using the constraint model, Assert.That(collection, Is.Not.Empty), instead of the classic model, Assert.IsNotEmpty(collection).";
+
+        internal const string ContainsTitle = "Consider using Assert.That(collection, Does.Contain(instance)) instead of Assert.Contains(instance, collection).";
+        internal const string ContainsMessage = "Consider using the constraint model, Assert.That(collection, Does.Contain(instance)), instead of the classic model, Assert.Contains(instance, collection).";
+        internal const string ContainsDescription = "Consider using the constraint model, Assert.That(collection, Does.Contain(instance)), instead of the classic model, Assert.Contains(instance, collection).";
+
+        internal const string IsInstanceOfTitle = "Consider using Assert.That(actual, Is.InstanceOf(expected)) instead of Assert.IsInstanceOf(expected, actual).";
+        internal const string IsInstanceOfMessage = "Consider using the constraint model, Assert.That(actual, Is.InstanceOf(expected)), instead of the classic model, Assert.IsInstanceOf(expected, actual).";
+        internal const string IsInstanceOfDescription = "Consider using the constraint model, Assert.That(actual, Is.InstanceOf(expected)), instead of the classic model, Assert.IsInstanceOf(expected, actual).";
+
+        internal const string IsNotInstanceOfTitle = "Consider using Assert.That(actual, Is.Not.InstanceOf(expected)) instead of Assert.IsNotInstanceOf(expected, actual).";
+        internal const string IsNotInstanceOfMessage = "Consider using the constraint model, Assert.That(actual, Is.Not.InstanceOf(expected)), instead of the classic model, Assert.IsNotInstanceOf(expected, actual).";
+        internal const string IsNotInstanceOfDescription = "Consider using the constraint model, Assert.That(actual, Is.Not.InstanceOf(expected)), instead of the classic model, Assert.IsNotInstanceOf(expected, actual).";
     }
 }

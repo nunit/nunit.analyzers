@@ -62,6 +62,19 @@ namespace NUnit.Analyzers.Constants
         internal const string StringConstraintWrongActualType = "NUnit2024";
         internal const string ContainsConstraintWrongActualType = "NUnit2025";
         internal const string SomeItemsIncompatibleTypes = "NUnit2026";
+        internal const string GreaterUsage = "NUnit2027";
+        internal const string GreaterOrEqualUsage = "NUnit2028";
+        internal const string LessUsage = "NUnit2029";
+        internal const string LessOrEqualUsage = "NUnit2030";
+        internal const string AreNotSameUsage = "NUnit2031";
+        internal const string ZeroUsage = "NUnit2032";
+        internal const string NotZeroUsage = "NUnit2033";
+        internal const string IsNaNUsage = "NUnit2034";
+        internal const string IsEmptyUsage = "NUnit2035";
+        internal const string IsNotEmptyUsage = "NUnit2036";
+        internal const string ContainsUsage = "NUnit2037";
+        internal const string IsInstanceOfUsage = "NUnit2038";
+        internal const string IsNotInstanceOfUsage = "NUnit2039";
 
         #endregion Assertion
     }
