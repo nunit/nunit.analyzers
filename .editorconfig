@@ -76,10 +76,7 @@ csharp_style_var_for_built_in_types = true:none
 csharp_style_var_when_type_is_apparent = true:none
 csharp_style_var_elsewhere = false:none
 
-# Disabled rule as convention is not mentioned in https://docs.nunit.org/articles/developer-info/Coding-Standards.html
-# Mentioned is 'if braces are not used on a control float statements with a single line, a blank line should follow'
-# This is not something we can configure.
-# The document doesn't say that it should have braces for multi-line statements, but maybe that is implied.
+# This convention is not mentioned in https://docs.nunit.org/articles/developer-info/Coding-Standards.html
 csharp_prefer_braces = when_multiline:warning
 
 # Rules to match the actual code style used
@@ -121,4 +118,3 @@ dotnet_naming_rule.public_fields.style = pascal_case
 dotnet_naming_rule.parameters_and_locals.severity = suggestion
 dotnet_naming_rule.parameters_and_locals.symbols = parameters_and_locals
 dotnet_naming_rule.parameters_and_locals.style = camel_case
-
