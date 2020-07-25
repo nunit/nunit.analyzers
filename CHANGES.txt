@@ -1,4 +1,38 @@
-﻿NUnit Analyzers 0.3 - May 20, 2020
+﻿NUnit Analyzers 0.4 - July 25, 2020
+
+This release of the NUnit Analyzers adds 13 new diagnostics and codefixes for asserts in the classical model -
+e.g. Assert.Greater, Assert.IsNotEmpty, Assert.IsNotInstanceOf etc. We have also improved the handling of
+asserts against constants and variables of type Task.
+
+In addition, we now properly handle ValueSourceAttribute and test methods decorated with both a
+TestAttribute and a TestCaseSourceAttribute/TestCaseAttribute. We have also added a diagnostic and codefix
+to ensure that test methods are public.
+
+The release contains contributions from the following users (in alphabetical order):
+* manfred-brands
+* mikkelbu
+
+Issues Resolved
+
+Structure, TestCase, and TestCaseSource
+* #93 Analyzer to ensure that the "target" of ValueSourceAttribute exists and is static
+* #212 Nunit1007 - ignore [Test] attribute when [TestCaseSource] is present
+* #215 Expected a warning when no arguments are specified for a parameterized test method
+* #245 Ensure that Test Methods are Public
+
+Assertions
+* #233 Code fix switching Has.Length to Has.Count for NUnit2022
+* #256 NUnit2007 should not fire if both sides are constant
+* #257 Need more rules for Classic Model with codefix to transform to Constraint model
+* #258 NUnit2023 fires on variables of type Task
+
+Process, documentation, and tooling
+* #244 chore: Bump version to 0.4
+* #253 Correct markdown linting errors in the analyzers documentation
+* #261 Update .editorconfig to match overall code-style used
+
+
+NUnit Analyzers 0.3 - May 20, 2020
 
 This release of the NUnit Analyzers improves the documentation of all the diagnostics.
 Furthermore, we have added the following analyzers and diagnostics:
