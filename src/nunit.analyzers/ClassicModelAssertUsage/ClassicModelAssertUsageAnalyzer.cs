@@ -99,6 +99,110 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.NotNullDescription);
 
+        private static readonly DiagnosticDescriptor greaterDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.GreaterUsage,
+            title: ClassicModelUsageAnalyzerConstants.GreaterTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.GreaterMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.GreaterDescription);
+
+        private static readonly DiagnosticDescriptor greaterOrEqualDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.GreaterOrEqualUsage,
+            title: ClassicModelUsageAnalyzerConstants.GreaterOrEqualTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.GreaterOrEqualMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.GreaterOrEqualDescription);
+
+        private static readonly DiagnosticDescriptor lessDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.LessUsage,
+            title: ClassicModelUsageAnalyzerConstants.LessTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.LessMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.LessDescription);
+
+        private static readonly DiagnosticDescriptor lessOrEqualDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.LessOrEqualUsage,
+            title: ClassicModelUsageAnalyzerConstants.LessOrEqualTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.LessOrEqualMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.LessOrEqualDescription);
+
+        private static readonly DiagnosticDescriptor areNotSameDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.AreNotSameUsage,
+            title: ClassicModelUsageAnalyzerConstants.AreNotSameTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.AreNotSameMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ClassicModelUsageAnalyzerConstants.AreNotSameDescription);
+
+        private static readonly DiagnosticDescriptor zeroDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.ZeroUsage,
+            title: ClassicModelUsageAnalyzerConstants.ZeroTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.ZeroMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.ZeroDescription);
+
+        private static readonly DiagnosticDescriptor notZeroDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.NotZeroUsage,
+            title: ClassicModelUsageAnalyzerConstants.NotZeroTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.NotZeroMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.NotZeroDescription);
+
+        private static readonly DiagnosticDescriptor isNaNDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.IsNaNUsage,
+            title: ClassicModelUsageAnalyzerConstants.IsNaNTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.IsNaNMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.IsNaNDescription);
+
+        private static readonly DiagnosticDescriptor isEmptyDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.IsEmptyUsage,
+            title: ClassicModelUsageAnalyzerConstants.IsEmptyTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.IsEmptyMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.IsEmptyDescription);
+
+        private static readonly DiagnosticDescriptor isNotEmptyDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.IsNotEmptyUsage,
+            title: ClassicModelUsageAnalyzerConstants.IsNotEmptyTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.IsNotEmptyMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.IsNotEmptyDescription);
+
+        private static readonly DiagnosticDescriptor containsDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.ContainsUsage,
+            title: ClassicModelUsageAnalyzerConstants.ContainsTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.ContainsMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.ContainsDescription);
+
+        private static readonly DiagnosticDescriptor isInstanceOfDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.IsInstanceOfUsage,
+            title: ClassicModelUsageAnalyzerConstants.IsInstanceOfTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.IsInstanceOfMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.IsInstanceOfDescription);
+
+        private static readonly DiagnosticDescriptor isNotInstanceOfDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.IsNotInstanceOfUsage,
+            title: ClassicModelUsageAnalyzerConstants.IsNotInstanceOfTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.IsNotInstanceOfMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.IsNotInstanceOfDescription);
+
         private static readonly ImmutableDictionary<string, DiagnosticDescriptor> name =
           new Dictionary<string, DiagnosticDescriptor>
           {
@@ -112,7 +216,20 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
               { NameOfAssertIsNull, isNullDescriptor },
               { NameOfAssertNull, nullDescriptor },
               { NameOfAssertIsNotNull, isNotNullDescriptor },
-              { NameOfAssertNotNull, notNullDescriptor }
+              { NameOfAssertNotNull, notNullDescriptor },
+              { NameOfAssertGreater, greaterDescriptor },
+              { NameOfAssertGreaterOrEqual, greaterOrEqualDescriptor },
+              { NameOfAssertLess, lessDescriptor },
+              { NameOfAssertLessOrEqual, lessOrEqualDescriptor },
+              { NameOfAssertAreNotSame, areNotSameDescriptor },
+              { NameOfAssertZero, zeroDescriptor },
+              { NameOfAssertNotZero, notZeroDescriptor },
+              { NameOfAssertIsNaN, isNaNDescriptor },
+              { NameOfAssertIsEmpty, isEmptyDescriptor },
+              { NameOfAssertIsNotEmpty, isNotEmptyDescriptor },
+              { NameOfAssertContains, containsDescriptor },
+              { NameOfAssertIsInstanceOf, isInstanceOfDescriptor },
+              { NameOfAssertIsNotInstanceOf, isNotInstanceOfDescriptor },
           }.ToImmutableDictionary();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.name.Values.ToImmutableArray();
@@ -137,7 +254,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 { AnalyzerPropertyKeys.HasToleranceValue,
                     (invocationSymbol.Name == NameOfAssertAreEqual &&
                         invocationSymbol.Parameters.Length >= 3 &&
-                        invocationSymbol.Parameters[2].Type.SpecialType == SpecialType.System_Double).ToString() }
+                        invocationSymbol.Parameters[2].Type.SpecialType == SpecialType.System_Double).ToString() },
+                { AnalyzerPropertyKeys.IsGenericMethod, invocationSymbol.IsGenericMethod.ToString() },
             }.ToImmutableDictionary();
         }
     }

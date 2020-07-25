@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,7 +20,15 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             return WellKnownFixAllProviders.BatchFixer;
         }
 
-        protected abstract void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments);
+        protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments, TypeArgumentListSyntax typeArguments)
+        {
+            throw new InvalidOperationException($"Class must override {nameof(UpdateArguments)} accepting {nameof(TypeArgumentListSyntax)}");
+        }
+
+        protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
+        {
+            throw new InvalidOperationException($"Class must override {nameof(UpdateArguments)}");
+        }
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
@@ -29,21 +38,48 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
             var diagnostic = context.Diagnostics.First();
             var invocationNode = root.FindNode(diagnostic.Location.SourceSpan) as InvocationExpressionSyntax;
-            var invocationIdentifier = diagnostic.Properties[AnalyzerPropertyKeys.ModelName];
 
             if (invocationNode == null)
                 return;
 
+            var invocationIdentifier = diagnostic.Properties[AnalyzerPropertyKeys.ModelName];
+            var isGenericMethod = diagnostic.Properties[AnalyzerPropertyKeys.IsGenericMethod] == true.ToString();
+
             // First, replace the original method invocation name to "That".
+            var descendantNodes = invocationNode.DescendantNodes(_ => true).ToArray();
+
+            SyntaxNode methodNode;
+            TypeArgumentListSyntax? typeArguments;
+            if (isGenericMethod)
+            {
+                methodNode = descendantNodes
+                    .Where(_ => _.IsKind(SyntaxKind.GenericName) &&
+                        ((GenericNameSyntax)_).Identifier.Text == invocationIdentifier)
+                    .Single();
+                typeArguments = descendantNodes
+                    .Where(_ => _.IsKind(SyntaxKind.TypeArgumentList))
+                    .Cast<TypeArgumentListSyntax>()
+                    .First();
+            }
+            else
+            {
+                methodNode = descendantNodes
+                    .Where(_ => _.IsKind(SyntaxKind.IdentifierName) &&
+                        ((IdentifierNameSyntax)_).Identifier.Text == invocationIdentifier)
+                    .Single();
+                typeArguments = null;
+            }
+
             var newInvocationNode = invocationNode.ReplaceNode(
-                invocationNode.DescendantNodes(_ => true).Where(_ =>
-                    _.IsKind(SyntaxKind.IdentifierName) &&
-                    ((IdentifierNameSyntax)_).Identifier.Text == invocationIdentifier).Single(),
+                methodNode,
                 SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfAssertThat));
 
             // Now, replace the arguments.
             var arguments = invocationNode.ArgumentList.Arguments.ToList();
-            this.UpdateArguments(diagnostic, arguments);
+            if (typeArguments == null)
+                this.UpdateArguments(diagnostic, arguments);
+            else
+                this.UpdateArguments(diagnostic, arguments, typeArguments);
 
             var newArgumentsList = invocationNode.ArgumentList.WithArguments(arguments);
             newInvocationNode = newInvocationNode.WithArgumentList(newArgumentsList);

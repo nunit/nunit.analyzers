@@ -35,6 +35,16 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
 
         [TestCase("Is.Null")]
         [TestCase("Is.Not.Null")]
+        public void AnalyzeWhenActualIsTaskDelegate(string constraint)
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                Assert.That(() => Task.FromResult(3), ↓{constraint});");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [TestCase("Is.Null")]
+        [TestCase("Is.Not.Null")]
         public void ValidWhenActualIsNullableValueType(string constraint)
         {
             var testCode = TestUtility.WrapInTestMethod($@"
@@ -81,6 +91,17 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                     var actual = new TestStruct();
                     Assert.That(actual, Has.Property(""RefTypeProp"").Null);
                 }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("Is.Null")]
+        [TestCase("Is.Not.Null")]
+        public void ValidWhenActualIsTask(string constraint)
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                var task = Task.CompletedTask;
+                Assert.That(task, {constraint});");
 
             AnalyzerAssert.Valid(analyzer, testCode);
         }

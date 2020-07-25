@@ -20,7 +20,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var analyzer = new ClassicModelAssertUsageAnalyzer();
             var diagnostics = analyzer.SupportedDiagnostics;
 
-            Assert.That(diagnostics.Length, Is.EqualTo(11), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
+            Assert.That(diagnostics.Length, Is.EqualTo(24), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
 
             foreach (var diagnostic in diagnostics)
             {
@@ -58,6 +58,32 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 $"{AnalyzerIdentifiers.NotNullUsage} is missing.");
             Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotNullUsage),
                 $"{AnalyzerIdentifiers.IsNotNullUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.GreaterUsage),
+                $"{AnalyzerIdentifiers.GreaterUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.GreaterOrEqualUsage),
+                $"{AnalyzerIdentifiers.GreaterOrEqualUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.LessUsage),
+                $"{AnalyzerIdentifiers.LessUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.LessOrEqualUsage),
+                $"{AnalyzerIdentifiers.LessOrEqualUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreNotSameUsage),
+                $"{AnalyzerIdentifiers.AreNotSameUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.ZeroUsage),
+                $"{AnalyzerIdentifiers.ZeroUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.NotZeroUsage),
+                $"{AnalyzerIdentifiers.NotZeroUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNaNUsage),
+                $"{AnalyzerIdentifiers.IsNaNUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsEmptyUsage),
+                $"{AnalyzerIdentifiers.IsEmptyUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotEmptyUsage),
+                $"{AnalyzerIdentifiers.IsNotEmptyUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.ContainsUsage),
+                $"{AnalyzerIdentifiers.ContainsUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsInstanceOfUsage),
+                $"{AnalyzerIdentifiers.IsInstanceOfUsage} is missing.");
+            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotInstanceOfUsage),
+                $"{AnalyzerIdentifiers.IsNotInstanceOfUsage} is missing.");
         }
 
         [Test]
@@ -106,7 +132,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             ↓Assert.IsTrue(true);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -122,7 +148,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             ↓Assert.True(true);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -138,7 +164,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             ↓Assert.IsFalse(false);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -154,7 +180,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             ↓Assert.False(false);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -170,7 +196,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             ↓Assert.AreEqual(2, 2);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -186,7 +212,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             ↓Assert.AreEqual(2d, 2d, 0.0000001d);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -202,7 +228,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             ↓Assert.AreNotEqual(2, 3);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -218,7 +244,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             ↓Assert.AreSame(2, 3);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -235,7 +261,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             ↓Assert.IsNull(obj);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -252,7 +278,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             ↓Assert.Null(obj);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -269,7 +295,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             ↓Assert.IsNotNull(obj);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -286,7 +312,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             ↓Assert.NotNull(obj);
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -298,6 +324,246 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         private static readonly string fullTypeName = typeof(string).GetType().FullName;
     }");
             AnalyzerAssert.Valid<ClassicModelAssertUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenGreaterIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.GreaterUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenGreaterIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.Greater(2, 3);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenGreaterOrEqualIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.GreaterOrEqualUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenGreaterOrEqualIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.GreaterOrEqual(2, 3);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenLessIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.LessUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenLessIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.Less(2, 3);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenLessOrEqualIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.LessOrEqualUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenLessOrEqualIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.LessOrEqual(2, 3);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenAreNotSameIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreNotSameUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenAreNotSameIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.AreNotSame(2, 3);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenZeroIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ZeroUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenZeroIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.Zero(2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNotZeroIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.NotZeroUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenNotZeroIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.NotZero(2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsNaNIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNaNUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsNaNIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsNaN(2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsEmptyIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsEmptyUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsEmptyIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsEmpty(Array.Empty<object>());
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsNotEmptyIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotEmptyUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsNotEmptyIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsNotEmpty(Array.Empty<object>());
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenContainsIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ContainsUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenContainsIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.Contains(this, Array.Empty<object>()));
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsInstanceOfIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsInstanceOfUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsInstanceOfIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsInstanceOf(typeof(int), 2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenGenericIsInstanceOfIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsInstanceOfUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenGenericIsInstanceOfIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsInstanceOf<int>(2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsNotInstanceOfIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotInstanceOfUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsNotInstanceOfIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsNotInstanceOf(typeof(int), 2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenGenericIsNotInstanceOfIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotInstanceOfUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenGenericIsNotInstanceOfIsUsed
+    {
+        public void Test()
+        {
+            ↓Assert.IsNotInstanceOf<int>(2);
+        }
+    }");
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
     }
 }
