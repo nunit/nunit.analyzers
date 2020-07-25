@@ -77,12 +77,13 @@ namespace NUnit.Analyzers.Tests
         [TestCaseSource(nameof(DescriptorsWithDocs))]
         public void EnsureThatTitleIsAsExpected(DescriptorInfo descriptorInfo)
         {
-            var expected = $"## {descriptorInfo.Descriptor.Title}";
+            var expected = new[] { "", $"## {descriptorInfo.Descriptor.Title}" };
             var actual = descriptorInfo
                 .DocumentationFile.AllLines
                 .Skip(1)
-                .First()
-                .Replace("`", string.Empty);
+                .Select(l => l.Replace(@"\<", "<"))
+                .Take(2);
+
             Assert.AreEqual(expected, actual);
         }
 
@@ -153,7 +154,7 @@ namespace NUnit.Analyzers.Tests
             {
                 var enabledEmoji  = descriptor.IsEnabledByDefault ? ":white_check_mark:" : ":x:";
                 builder.Append($"| [{descriptor.Id}]({descriptor.HelpLinkUri})")
-                       .AppendLine($"| {descriptor.Title} | {enabledEmoji} |");
+                       .AppendLine($"| {descriptor.Title.EscapeTags()} | {enabledEmoji} |");
 
             }
 
@@ -243,7 +244,8 @@ namespace NUnit.Analyzers.Tests
 
                 var text = builder.ToString();
                 var stub = $@"# {descriptor.Id}
-## {descriptor.Title.ToString(CultureInfo.InvariantCulture)}
+
+## {descriptor.Title.EscapeTags()}
 
 | Topic    | Value
 | :--      | :--
@@ -253,10 +255,9 @@ namespace NUnit.Analyzers.Tests
 | Category | {descriptor.Category}
 | Code     | [<TYPENAME>](<URL>)
 
-
 ## Description
 
-{descriptor.Description.ToString(CultureInfo.InvariantCulture)}
+{descriptor.Description.EscapeTags()}
 
 ## Motivation
 
@@ -274,21 +275,23 @@ ADD HOW TO FIX VIOLATIONS HERE
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
 ### Via #pragma directive.
-```C#
+
+```csharp
 #pragma warning disable {descriptor.Id} // {descriptor.Title.ToString(CultureInfo.InvariantCulture)}
 Code violating the rule here
 #pragma warning restore {descriptor.Id} // {descriptor.Title.ToString(CultureInfo.InvariantCulture)}
 ```
 
 Or put this at the top of the file to disable all instances.
-```C#
+
+```csharp
 #pragma warning disable {descriptor.Id} // {descriptor.Title.ToString(CultureInfo.InvariantCulture)}
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
-```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage(""{descriptor.Category}"", 
+```csharp
+[System.Diagnostics.CodeAnalysis.SuppressMessage(""{descriptor.Category}"",
     ""{descriptor.Id}:{descriptor.Title.ToString(CultureInfo.InvariantCulture)}"",
     Justification = ""Reason..."")]
 ```
@@ -354,5 +357,11 @@ Or put this at the top of the file to disable all instances.
                 return new CodeFile(fileName);
             }
         }
+    }
+
+    public static class LocalizableStringExtensions
+    {
+        public static string EscapeTags(this LocalizableString @this)
+            => @this.ToString(CultureInfo.InvariantCulture).Replace("<", @"\<");
     }
 }

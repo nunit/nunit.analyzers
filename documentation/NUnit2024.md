@@ -1,4 +1,5 @@
 # NUnit2024
+
 ## Wrong actual type used with String Constraint.
 
 | Topic    | Value
@@ -8,7 +9,6 @@
 | Enabled  | True
 | Category | Assertion
 | Code     | [StringConstraintWrongActualTypeAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/StringConstraintWrongActualType/StringConstraintWrongActualTypeAnalyzer.cs)
-
 
 ## Description
 
@@ -30,21 +30,23 @@ Fix actual value or use appropriate constraint.
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
 ### Via #pragma directive.
-```C#
+
+```csharp
 #pragma warning disable NUnit2024 // Wrong actual type used with String Constraint.
 Code violating the rule here
 #pragma warning restore NUnit2024 // Wrong actual type used with String Constraint.
 ```
 
 Or put this at the top of the file to disable all instances.
-```C#
+
+```csharp
 #pragma warning disable NUnit2024 // Wrong actual type used with String Constraint.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
-```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
+```csharp
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
     "NUnit2024:Wrong actual type used with String Constraint.",
     Justification = "Reason...")]
 ```

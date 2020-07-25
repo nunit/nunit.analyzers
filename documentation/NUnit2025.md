@@ -1,4 +1,5 @@
 # NUnit2025
+
 ## Wrong actual type used with ContainsConstraint.
 
 | Topic    | Value
@@ -8,7 +9,6 @@
 | Enabled  | True
 | Category | Assertion
 | Code     | [ContainsConstraintWrongActualTypeAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/ContainsConstraintWrongActualType/ContainsConstraintWrongActualTypeAnalyzer.cs)
-
 
 ## Description
 
@@ -30,21 +30,23 @@ Fix the actual value or use appropriate constraint.
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
 ### Via #pragma directive.
-```C#
+
+```csharp
 #pragma warning disable NUnit2025 // Wrong actual type used with ContainsConstraint.
 Code violating the rule here
 #pragma warning restore NUnit2025 // Wrong actual type used with ContainsConstraint.
 ```
 
 Or put this at the top of the file to disable all instances.
-```C#
+
+```csharp
 #pragma warning disable NUnit2025 // Wrong actual type used with ContainsConstraint.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
-```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
+```csharp
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
     "NUnit2025:Wrong actual type used with ContainsConstraint.",
     Justification = "Reason...")]
 ```

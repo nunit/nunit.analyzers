@@ -1,4 +1,5 @@
 # NUnit1013
+
 ## The async test method must have a non-generic Task return type when no result is expected.
 
 | Topic    | Value
@@ -8,7 +9,6 @@
 | Enabled  | True
 | Category | Structure
 | Code     | [TestMethodUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/TestMethodUsage/TestMethodUsageAnalyzer.cs)
-
 
 ## Description
 
@@ -24,7 +24,7 @@ To prevent tests that will fail at runtime due to improper construction.
 
 ```csharp
 [TestCase(1)]
-public async Task<string> Nunit1013SampleTest(int numberValue)
+public async Task<string> NUnit1013SampleTest(int numberValue)
 {
 
     return await ConvertNumber(numberValue);
@@ -46,7 +46,7 @@ Utilize the `ExpectedResult` syntax:
 
 ```csharp
 [TestCase(1, ExpectedResult = "1")]
-public async Task<string> Nunit1013SampleTest(int numberValue)
+public async Task<string> NUnit1013SampleTest(int numberValue)
 {
     return await ConvertNumber(numberValue);
 }
@@ -61,7 +61,7 @@ Or, use an assertion and a generic `Task` rather than `Task<string>`:
 
 ```csharp
 [TestCase(1)]
-public async Task Nunit1013SampleTest(int numberValue)
+public async Task NUnit1013SampleTest(int numberValue)
 {
     var result = await ConvertNumber(numberValue);
     Assert.That(result, Is.EqualTo("1"));
@@ -81,21 +81,23 @@ public Task<string> ConvertNumber(int numberValue)
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
 ### Via #pragma directive.
-```C#
+
+```csharp
 #pragma warning disable NUnit1013 // The async test method must have a non-generic Task return type when no result is expected.
 Code violating the rule here
 #pragma warning restore NUnit1013 // The async test method must have a non-generic Task return type when no result is expected.
 ```
 
 Or put this at the top of the file to disable all instances.
-```C#
+
+```csharp
 #pragma warning disable NUnit1013 // The async test method must have a non-generic Task return type when no result is expected.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
-```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
+```csharp
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Structure",
     "NUnit1013:The async test method must have a non-generic Task return type when no result is expected.",
     Justification = "Reason...")]
 ```

@@ -1,4 +1,5 @@
 # NUnit1009
+
 ## One may not specify ParallelScope.Children on a non-parameterized test method.
 
 | Topic    | Value
@@ -8,7 +9,6 @@
 | Enabled  | True
 | Category | Structure
 | Code     | [ParallelizableUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/ParallelizableUsage/ParallelizableUsageAnalyzer.cs)
-
 
 ## Description
 
@@ -69,21 +69,23 @@ public void NUnit1009SampleTest(int numberValue)
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
 ### Via #pragma directive.
-```C#
+
+```csharp
 #pragma warning disable NUnit1009 // One may not specify ParallelScope.Children on a non-parameterized test method.
 Code violating the rule here
 #pragma warning restore NUnit1009 // One may not specify ParallelScope.Children on a non-parameterized test method.
 ```
 
 Or put this at the top of the file to disable all instances.
-```C#
+
+```csharp
 #pragma warning disable NUnit1009 // One may not specify ParallelScope.Children on a non-parameterized test method.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
-```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
+```csharp
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Structure",
     "NUnit1009:One may not specify ParallelScope.Children on a non-parameterized test method.",
     Justification = "Reason...")]
 ```

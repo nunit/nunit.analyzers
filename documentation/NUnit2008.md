@@ -1,4 +1,5 @@
 # NUnit2008
+
 ## Incorrect IgnoreCase usage.
 
 | Topic    | Value
@@ -8,7 +9,6 @@
 | Enabled  | True
 | Category | Assertion
 | Code     | [IgnoreCaseUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/IgnoreCaseUsage/IgnoreCaseUsageAnalyzer.cs)
-
 
 ## Description
 
@@ -24,7 +24,7 @@ To bring developers' attention to a scenario in which their code is actually hav
 
 ```csharp
 [Test]
-public void Nunit2008SampleTest()
+public void NUnit2008SampleTest()
 {
     var date = DateTime.Now;
     Assert.That(date, Is.Not.EqualTo(date.AddDays(1)).IgnoreCase);
@@ -41,7 +41,7 @@ Remove the errant call to `IgnoreCase`:
 
 ```csharp
 [Test]
-public void Nunit2008SampleTest()
+public void NUnit2008SampleTest()
 {
     var date = DateTime.Now;
     Assert.That(date, Is.Not.EqualTo(date.AddDays(1)));
@@ -52,7 +52,7 @@ Or update the code to compare based on the primitives that are supported by `Ign
 
 ```csharp
 [Test]
-public void Nunit2008SampleTest()
+public void NUnit2008SampleTest()
 {
     var date = DateTime.Now;
     Assert.That(date.ToString(), Is.Not.EqualTo(date.AddDays(1).ToString()).IgnoreCase);
@@ -67,21 +67,23 @@ public void Nunit2008SampleTest()
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
 ### Via #pragma directive.
-```C#
+
+```csharp
 #pragma warning disable NUnit2008 // Incorrect IgnoreCase usage.
 Code violating the rule here
 #pragma warning restore NUnit2008 // Incorrect IgnoreCase usage.
 ```
 
 Or put this at the top of the file to disable all instances.
-```C#
+
+```csharp
 #pragma warning disable NUnit2008 // Incorrect IgnoreCase usage.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
-```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
+```csharp
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
     "NUnit2008:Incorrect IgnoreCase usage.",
     Justification = "Reason...")]
 ```

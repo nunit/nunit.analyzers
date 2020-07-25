@@ -1,4 +1,5 @@
 # NUnit2009
+
 ## The same value has been provided as both the actual and the expected argument.
 
 | Topic    | Value
@@ -8,7 +9,6 @@
 | Enabled  | True
 | Category | Assertion
 | Code     | [SameActualExpectedValueAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/SameActualExpectedValue/SameActualExpectedValueAnalyzer.cs)
-
 
 ## Description
 
@@ -24,7 +24,7 @@ To bring developers' attention to a situation in which their code may not be ope
 
 ```csharp
 [Test]
-public void Nunit2009SampleTest()
+public void NUnit2009SampleTest()
 {
     var x = 1;
     Assert.That(x, Is.EqualTo(x));
@@ -41,7 +41,7 @@ Ensure the `expected` and `actual` values come from different places.
 
 ```csharp
 [Test]
-public void Nunit2009SampleTest()
+public void NUnit2009SampleTest()
 {
     var x = 1;
     Assert.That(x, Is.EqualTo(1));
@@ -56,21 +56,23 @@ public void Nunit2009SampleTest()
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
 ### Via #pragma directive.
-```C#
+
+```csharp
 #pragma warning disable NUnit2009 // The same value has been provided as both the actual and the expected argument.
 Code violating the rule here
 #pragma warning restore NUnit2009 // The same value has been provided as both the actual and the expected argument.
 ```
 
 Or put this at the top of the file to disable all instances.
-```C#
+
+```csharp
 #pragma warning disable NUnit2009 // The same value has been provided as both the actual and the expected argument.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
-```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", 
+```csharp
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
     "NUnit2009:The same value has been provided as both the actual and the expected argument.",
     Justification = "Reason...")]
 ```

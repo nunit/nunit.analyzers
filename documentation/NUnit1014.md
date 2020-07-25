@@ -1,5 +1,6 @@
 # NUnit1014
-## The async test method must have a Task<T> return type when a result is expected.
+
+## The async test method must have a Task\<T> return type when a result is expected.
 
 | Topic    | Value
 | :--      | :--
@@ -9,10 +10,9 @@
 | Category | Structure
 | Code     | [TestMethodUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/TestMethodUsage/TestMethodUsageAnalyzer.cs)
 
-
 ## Description
 
-The async test method must have a Task<T> return type when a result is expected.
+The async test method must have a `Task<T>` return type when a result is expected.
 
 ## Motivation
 
@@ -24,7 +24,7 @@ To prevent tests that will fail at runtime due to improper construction.
 
 ```csharp
 [TestCase(1, ExpectedResult = true)]
-public async Task Nunit1014SampleTest(int numberValue)
+public async Task NUnit1014SampleTest(int numberValue)
 {
     return;
 }
@@ -40,7 +40,7 @@ Remove the `ExpectedResult` syntax:
 
 ```csharp
 [TestCase(1)]
-public async Task Nunit1014SampleTest(int numberValue)
+public async Task NUnit1014SampleTest(int numberValue)
 {
     Assert.Pass();
 }
@@ -50,7 +50,7 @@ Or, update the return task type to be what you're looking for, e.g. `Task<bool>`
 
 ```csharp
 [TestCase(1, ExpectedResult = true)]
-public async Task<bool> Nunit1014SampleTest(int numberValue)
+public async Task<bool> NUnit1014SampleTest(int numberValue)
 {
     return Task.FromResult(true);
 }
@@ -64,21 +64,23 @@ public async Task<bool> Nunit1014SampleTest(int numberValue)
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
 ### Via #pragma directive.
-```C#
+
+```csharp
 #pragma warning disable NUnit1014 // The async test method must have a Task<T> return type when a result is expected.
 Code violating the rule here
 #pragma warning restore NUnit1014 // The async test method must have a Task<T> return type when a result is expected.
 ```
 
 Or put this at the top of the file to disable all instances.
-```C#
+
+```csharp
 #pragma warning disable NUnit1014 // The async test method must have a Task<T> return type when a result is expected.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
-```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
+```csharp
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Structure",
     "NUnit1014:The async test method must have a Task<T> return type when a result is expected.",
     Justification = "Reason...")]
 ```

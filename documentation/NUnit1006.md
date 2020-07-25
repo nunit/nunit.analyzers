@@ -1,4 +1,5 @@
 # NUnit1006
+
 ## ExpectedResult must not be specified when the method returns void.
 
 | Topic    | Value
@@ -8,7 +9,6 @@
 | Enabled  | True
 | Category | Structure
 | Code     | [TestMethodUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/TestMethodUsage/TestMethodUsageAnalyzer.cs)
-
 
 ## Description
 
@@ -64,21 +64,23 @@ public string NUnit1006SampleTest(int inputValue)
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
 ### Via #pragma directive.
-```C#
+
+```csharp
 #pragma warning disable NUnit1006 // ExpectedResult must not be specified when the method returns void.
 Code violating the rule here
 #pragma warning restore NUnit1006 // ExpectedResult must not be specified when the method returns void.
 ```
 
 Or put this at the top of the file to disable all instances.
-```C#
+
+```csharp
 #pragma warning disable NUnit1006 // ExpectedResult must not be specified when the method returns void.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
-```C#
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Structure", 
+```csharp
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Structure",
     "NUnit1006:ExpectedResult must not be specified when the method returns void.",
     Justification = "Reason...")]
 ```
