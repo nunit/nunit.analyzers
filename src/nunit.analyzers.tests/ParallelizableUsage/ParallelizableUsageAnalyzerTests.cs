@@ -18,7 +18,7 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
         [Test]
         public void VerifySupportedDiagnostics()
         {
-            var diagnostics = analyzer.SupportedDiagnostics;
+            var diagnostics = this.analyzer.SupportedDiagnostics;
 
             var expectedIdentifiers = new List<string>
             {
@@ -76,7 +76,7 @@ using NUnit.Framework;
             var testCode = $@"
 using NUnit.Framework;
 [assembly: ↓Parallelizable(ParallelScope.Self)]";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -89,7 +89,7 @@ using NUnit.Framework;
             var testCode = $@"
 using NUnit.Framework;
 [assembly: ↓Parallelizable()]";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Theory]
@@ -140,7 +140,7 @@ using NUnit.Framework;
         {{
         }}
     }}");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -160,7 +160,7 @@ using NUnit.Framework;
         {
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCaseSource(nameof(ParallelScopesExceptFixtures))]
@@ -197,7 +197,7 @@ using NUnit.Framework;
         {
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCaseSource(nameof(ParallelScopesExceptFixtures))]
@@ -234,7 +234,7 @@ using NUnit.Framework;
         {
         }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         private static IEnumerable<ParallelScope> ParallelScopesExceptFixtures =>

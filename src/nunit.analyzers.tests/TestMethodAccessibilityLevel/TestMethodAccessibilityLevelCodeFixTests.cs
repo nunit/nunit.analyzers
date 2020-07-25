@@ -71,7 +71,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }
 
-        static object[] NonPublicModifiers =
+        static readonly object[] NonPublicModifiers =
         {
             new object [] { "private", "public" },
             new object [] { "protected", "public" },

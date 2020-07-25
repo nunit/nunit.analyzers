@@ -20,13 +20,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
         private sealed class TestableClassicModelAssertUsageCodeFix : ClassicModelAssertUsageCodeFix
         {
-            public override ImmutableArray<string> FixableDiagnosticIds
-            {
-                get
-                {
-                    return new ImmutableArray<string>();
-                }
-            }
+            public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray<string>.Empty;
 
             protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments) { }
         }

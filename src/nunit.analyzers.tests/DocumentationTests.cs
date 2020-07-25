@@ -110,10 +110,10 @@ namespace NUnit.Analyzers.Tests
         [TestCaseSource(nameof(DescriptorsWithDocs))]
         public void EnsureThatTableIsAsExpected(DescriptorInfo descriptorInfo)
         {
-            const string HeaderRow = "| Topic    | Value";
-            var expected = GetTable(descriptorInfo.Stub, HeaderRow);
+            const string headerRow = "| Topic    | Value";
+            var expected = GetTable(descriptorInfo.Stub, headerRow);
             DumpIfDebug(expected);
-            var actual = GetTable(descriptorInfo.DocumentationFile.AllText, HeaderRow);
+            var actual = GetTable(descriptorInfo.DocumentationFile.AllText, headerRow);
             CodeAssert.AreEqual(expected, actual);
         }
 
@@ -142,8 +142,8 @@ namespace NUnit.Analyzers.Tests
         public void EnsureThatIndexIsAsExpected()
         {
             var builder = new StringBuilder();
-            const string HeaderRow = "| Id       | Title       | Enabled by Default |";
-            builder.AppendLine(HeaderRow)
+            const string headerRow = "| Id       | Title       | Enabled by Default |";
+            builder.AppendLine(headerRow)
                    .AppendLine("| :--      | :--         | :--:               |");
 
             var descriptors = DescriptorsWithDocs.Select(x => x.Descriptor)
@@ -159,7 +159,7 @@ namespace NUnit.Analyzers.Tests
 
             var expected = builder.ToString();
             DumpIfDebug(expected);
-            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), HeaderRow);
+            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), headerRow);
             CodeAssert.AreEqual(expected, actual);
         }
 
@@ -248,7 +248,7 @@ namespace NUnit.Analyzers.Tests
 | Topic    | Value
 | :--      | :--
 | Id       | {descriptor.Id}
-| Severity | {descriptor.DefaultSeverity.ToString()}
+| Severity | {descriptor.DefaultSeverity}
 | Enabled  | {(descriptor.IsEnabledByDefault ? "True" : "False")}
 | Category | {descriptor.Category}
 | Code     | [<TYPENAME>](<URL>)

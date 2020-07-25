@@ -165,7 +165,7 @@ namespace NUnit.Analyzers.TestCaseUsage
             var (_, attributeNamedArguments) = attributeNode.GetArguments();
 
             var expectedResultNamedArgument = attributeNamedArguments.SingleOrDefault(
-                _ => _.DescendantTokens().Any(__ => __.Text == NunitFrameworkConstants.NameOfExpectedResult));
+                _ => _.DescendantTokens().Any(_ => _.Text == NunitFrameworkConstants.NameOfExpectedResult));
 
             if (expectedResultNamedArgument != null)
             {

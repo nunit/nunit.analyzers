@@ -14,7 +14,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     [TestFixture]
     public sealed class TestMethodUsageAnalyzerTests
     {
-        private static DiagnosticAnalyzer analyzer = new TestMethodUsageAnalyzer();
+        private static readonly DiagnosticAnalyzer analyzer = new TestMethodUsageAnalyzer();
 
         [Test]
         public void VerifySupportedDiagnostics()
@@ -109,7 +109,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
-                String.Format(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
+                string.Format(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect
@@ -125,7 +125,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
-                String.Format(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
+                string.Format(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType

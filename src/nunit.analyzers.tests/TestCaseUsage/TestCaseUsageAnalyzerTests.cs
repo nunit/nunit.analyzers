@@ -14,7 +14,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     [TestFixture]
     public sealed class TestCaseUsageAnalyzerTests
     {
-        private DiagnosticAnalyzer analyzer = new TestCaseUsageAnalyzer();
+        private readonly DiagnosticAnalyzer analyzer = new TestCaseUsageAnalyzer();
 
         private static IEnumerable<TestCaseData> SpecialConversions
         {
@@ -244,7 +244,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "int", "a", "char"));
+                string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "int", "a", "char"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentTypeIsIncorrect
@@ -252,7 +252,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(↓2)]
         public void Test(char a) { }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -260,7 +260,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "<null>", "a", "char"));
+                string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "<null>", "a", "char"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentPassesNullToValueType
@@ -268,7 +268,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(↓null)]
         public void Test(char a) { }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -309,7 +309,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void Test(int a, char b) { }
     }");
             var message = "The TestCaseAttribute provided too few arguments. Expected '2', but got '1'.";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -326,7 +326,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void Test(int a) { }
     }");
             var message = "The TestCaseAttribute provided too many arguments. Expected '1', but got '2'.";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -343,7 +343,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void Test(int a, char b = 'c') { }
     }");
             var message = "The TestCaseAttribute provided too many arguments. Expected '2', but got '3'.";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -387,7 +387,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "int", "a", "string[]"));
+                string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "int", "a", "string[]"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect
@@ -395,7 +395,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(↓2)]
         public void Test(params string[] a) { }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -403,7 +403,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                String.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "<null>", "a", "int[]"));
+                string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "<null>", "a", "int[]"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType
@@ -411,7 +411,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(↓null)]
         public void Test(params int[] a) { }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
