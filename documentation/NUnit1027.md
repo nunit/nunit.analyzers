@@ -10,7 +10,6 @@
 | Category | Structure
 | Code     | [TestMethodUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/TestMethodUsage/TestMethodUsageAnalyzer.cs)
 
-
 ## Description
 
 The test method has parameters, but no arguments are supplied by attributes.
