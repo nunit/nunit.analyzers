@@ -240,6 +240,65 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeArgumentIsStringConvertedToTypeWithCustomConverter()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    using System.ComponentModel;
+
+    class AnalyzeArgumentIsStringConvertedToEnum
+    {
+        [TestCase(""A"")]
+        public void Test(CustomType p) { }
+    }
+
+    [TypeConverter(typeof(CustomTypeConverter))]
+    struct CustomType { }
+    class CustomTypeConverter : TypeConverter { }");
+
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeArgumentIsNullConvertedToTypeWithCustomConverter()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    using System.ComponentModel;
+
+    class AnalyzeArgumentIsStringConvertedToEnum
+    {
+        [TestCase(null)]
+        public void Test(CustomType p) { }
+    }
+
+    [TypeConverter(typeof(CustomTypeConverter))]
+    struct CustomType { }
+    class CustomTypeConverter : TypeConverter { }");
+
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeArgumentIsIntConvertedToTypeWithCustomConverter()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    using System.ComponentModel;
+
+    class AnalyzeArgumentIsStringConvertedToEnum
+    {
+        [TestCase(↓2)]
+        public void Test(CustomType p) { }
+    }
+
+    [TypeConverter(typeof(CustomTypeConverter))]
+    struct CustomType { }
+    class CustomTypeConverter : TypeConverter { }");
+
+            AnalyzerAssert.Diagnostics<TestCaseUsageAnalyzer>(
+                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
+                testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenArgumentTypeIsIncorrect()
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
