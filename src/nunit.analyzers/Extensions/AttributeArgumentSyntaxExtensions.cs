@@ -184,28 +184,28 @@ namespace NUnit.Analyzers.Extensions
             var typeName = targetTypeSymbol.GetFullMetadataName();
             var targetType = IntrinsicTypeConverters.FirstOrDefault(t => t.type.FullName == typeName);
 
-            if (targetType == default)
+            if (targetType != default)
             {
+                if (targetType.typeConverter == null)
+                {
+                    return argumentValue.GetType() == typeof(string);
+                }
+
+                var typeConverter = targetType.typeConverter.Value;
+                if (typeConverter.CanConvertFrom(argumentValue.GetType()))
+                {
+                    try
+                    {
+                        typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
+                        return true;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
+
                 return false;
-            }
-
-            if (targetType.typeConverter == null)
-            {
-                return argumentValue.GetType() == typeof(string);
-            }
-
-            var typeConverter = targetType.typeConverter.Value;
-            if (typeConverter.CanConvertFrom(argumentValue.GetType()))
-            {
-                try
-                {
-                    typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
             }
 
             return false;
