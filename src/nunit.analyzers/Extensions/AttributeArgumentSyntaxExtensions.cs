@@ -201,11 +201,8 @@ namespace NUnit.Analyzers.Extensions
                     }
                     catch
                     {
-                        return false;
                     }
                 }
-
-                return false;
             }
 
             return false;
