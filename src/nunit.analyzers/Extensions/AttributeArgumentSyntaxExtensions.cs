@@ -204,7 +204,7 @@ namespace NUnit.Analyzers.Extensions
                     }
                 }
             }
-            else if (targetTypeSymbol.GetAttributes().Any(data =>
+            else if (targetTypeSymbol.GetAllAttributes().Any(data =>
                 data.AttributeClass.HasFullName("System", "ComponentModel", "TypeConverterAttribute")))
             {
                 if (argumentValue is string)

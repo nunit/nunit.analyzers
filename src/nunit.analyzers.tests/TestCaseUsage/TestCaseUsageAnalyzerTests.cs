@@ -278,6 +278,26 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeArgumentIsStringConvertedToTypeWithCustomConverterOnBaseType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    using System.ComponentModel;
+
+    class AnalyzeArgumentIsStringConvertedToEnum
+    {
+        [TestCase(""A"")]
+        public void Test(CustomType p) { }
+    }
+
+    class CustomType : BaseType { }
+    [TypeConverter(typeof(BaseTypeConverter))]
+    class BaseType { }
+    class BaseTypeConverter : TypeConverter { }");
+
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
         public void AnalyzeArgumentIsIntConvertedToTypeWithCustomConverter()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
