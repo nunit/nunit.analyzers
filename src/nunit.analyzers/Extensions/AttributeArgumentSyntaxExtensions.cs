@@ -127,7 +127,7 @@ namespace NUnit.Analyzers.Extensions
                 }
             }
 
-            return CanBeTranslatedByTypeConverter(targetType, argumentValue);
+            return CanBeTranslatedByTypeConverter(targetType, argumentValue, model.Compilation);
         }
 
         private static ITypeSymbol GetTargetType(ITypeSymbol target)
@@ -178,7 +178,8 @@ namespace NUnit.Analyzers.Extensions
 
         private static bool CanBeTranslatedByTypeConverter(
             ITypeSymbol targetTypeSymbol,
-            object? argumentValue)
+            object? argumentValue,
+            Compilation compilation)
         {
             var typeName = targetTypeSymbol.GetFullMetadataName();
             var targetType = IntrinsicTypeConverters.FirstOrDefault(t => t.type.FullName == typeName);
@@ -206,10 +207,10 @@ namespace NUnit.Analyzers.Extensions
                     }
                 }
             }
-            else if (targetTypeSymbol.GetAllAttributes().Any(data =>
-                data.AttributeClass.HasFullName("System", "ComponentModel", "TypeConverterAttribute")))
+            else if (argumentValue is null || argumentValue is string)
             {
-                if (argumentValue is null || argumentValue is string)
+                if (compilation.GetTypeByMetadataName(typeof(TypeConverterAttribute).FullName) is { } typeConverterAttribute
+                    && targetTypeSymbol.GetAllAttributes().Any(data => typeConverterAttribute.Equals(data.AttributeClass)))
                 {
                     return true;
                 }
