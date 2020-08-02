@@ -245,7 +245,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     using System.ComponentModel;
 
-    class AnalyzeArgumentIsStringConvertedToEnum
+    class C
     {
         [TestCase(""A"")]
         public void Test(CustomType p) { }
@@ -264,7 +264,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     using System.ComponentModel;
 
-    class AnalyzeArgumentIsStringConvertedToEnum
+    class C
     {
         [TestCase(null)]
         public void Test(CustomType p) { }
@@ -283,7 +283,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     using System.ComponentModel;
 
-    class AnalyzeArgumentIsStringConvertedToEnum
+    class C
     {
         [TestCase(""A"")]
         public void Test(CustomType p) { }
@@ -303,7 +303,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     using System.ComponentModel;
 
-    class AnalyzeArgumentIsStringConvertedToEnum
+    class C
     {
         [TestCase(↓2)]
         public void Test(CustomType p) { }
