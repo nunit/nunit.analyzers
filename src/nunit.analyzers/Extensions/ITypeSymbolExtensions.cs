@@ -73,6 +73,17 @@ namespace NUnit.Analyzers.Extensions
             return @this.GetMembers().Concat(inheritedMembers);
         }
 
+        internal static IEnumerable<AttributeData> GetAllAttributes(this ITypeSymbol? @this)
+        {
+            for (var current = @this; current is object; current = current.BaseType)
+            {
+                foreach (var data in current.GetAttributes())
+                {
+                    yield return data;
+                }
+            }
+        }
+
         internal static bool IsTypeParameterAndDeclaredOnMethod(this ITypeSymbol typeSymbol)
             => typeSymbol.TypeKind == TypeKind.TypeParameter &&
                (typeSymbol as ITypeParameterSymbol)?.DeclaringMethod != null;

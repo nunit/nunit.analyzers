@@ -240,6 +240,85 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeArgumentIsStringConvertedToTypeWithCustomConverter()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    using System.ComponentModel;
+
+    class C
+    {
+        [TestCase(""A"")]
+        public void Test(CustomType p) { }
+    }
+
+    [TypeConverter(typeof(CustomTypeConverter))]
+    struct CustomType { }
+    class CustomTypeConverter : TypeConverter { }");
+
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeArgumentIsNullConvertedToTypeWithCustomConverter()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    using System.ComponentModel;
+
+    class C
+    {
+        [TestCase(null)]
+        public void Test(CustomType p) { }
+    }
+
+    [TypeConverter(typeof(CustomTypeConverter))]
+    struct CustomType { }
+    class CustomTypeConverter : TypeConverter { }");
+
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeArgumentIsStringConvertedToTypeWithCustomConverterOnBaseType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    using System.ComponentModel;
+
+    class C
+    {
+        [TestCase(""A"")]
+        public void Test(CustomType p) { }
+    }
+
+    class CustomType : BaseType { }
+    [TypeConverter(typeof(BaseTypeConverter))]
+    class BaseType { }
+    class BaseTypeConverter : TypeConverter { }");
+
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeArgumentIsIntConvertedToTypeWithCustomConverter()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    using System.ComponentModel;
+
+    class C
+    {
+        [TestCase(↓2)]
+        public void Test(CustomType p) { }
+    }
+
+    [TypeConverter(typeof(CustomTypeConverter))]
+    struct CustomType { }
+    class CustomTypeConverter : TypeConverter { }");
+
+            AnalyzerAssert.Diagnostics<TestCaseUsageAnalyzer>(
+                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
+                testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenArgumentTypeIsIncorrect()
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(

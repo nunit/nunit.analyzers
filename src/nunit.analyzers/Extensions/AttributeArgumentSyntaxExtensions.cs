@@ -67,23 +67,28 @@ namespace NUnit.Analyzers.Extensions
 
             TypeInfo sourceTypeInfo = model.GetTypeInfo(@this.Expression);
             ITypeSymbol? argumentType = sourceTypeInfo.Type;
+            ITypeSymbol? targetType = GetTargetType(target);
+
+            if (allowEnumToUnderlyingTypeConversion && targetType?.TypeKind == TypeKind.Enum)
+                targetType = (targetType as INamedTypeSymbol)?.EnumUnderlyingType;
+
+            if (targetType == null)
+                return false;
 
             if (argumentType == null)
             {
-                return target.IsReferenceType ||
-                    target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T;
+                if (target.IsReferenceType ||
+                    target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+                {
+                    return true;
+                }
             }
             else
             {
-                ITypeSymbol? targetType = GetTargetType(target);
-
-                if (allowEnumToUnderlyingTypeConversion && targetType?.TypeKind == TypeKind.Enum)
-                    targetType = (targetType as INamedTypeSymbol)?.EnumUnderlyingType;
-
                 if (allowEnumToUnderlyingTypeConversion && argumentType?.TypeKind == TypeKind.Enum)
                     argumentType = (argumentType as INamedTypeSymbol)?.EnumUnderlyingType;
 
-                if (targetType == null || argumentType == null)
+                if (argumentType == null)
                     return false;
 
                 if (targetType.IsAssignableFrom(argumentType)
@@ -118,17 +123,11 @@ namespace NUnit.Analyzers.Extensions
                         {
                             return AttributeArgumentSyntaxExtensions.TryChangeType(targetType, argumentValue);
                         }
-
-                        if (CanBeTranslatedByTypeConverter(targetType, argumentValue))
-                        {
-                            return true;
-                        }
                     }
-
-
-                    return false;
                 }
             }
+
+            return CanBeTranslatedByTypeConverter(targetType, argumentValue, model.Compilation);
         }
 
         private static ITypeSymbol GetTargetType(ITypeSymbol target)
@@ -179,32 +178,41 @@ namespace NUnit.Analyzers.Extensions
 
         private static bool CanBeTranslatedByTypeConverter(
             ITypeSymbol targetTypeSymbol,
-            object argumentValue)
+            object? argumentValue,
+            Compilation compilation)
         {
             var typeName = targetTypeSymbol.GetFullMetadataName();
             var targetType = IntrinsicTypeConverters.FirstOrDefault(t => t.type.FullName == typeName);
 
-            if (targetType == default)
+            if (targetType != default)
             {
-                return false;
-            }
-
-            if (targetType.typeConverter == null)
-            {
-                return argumentValue.GetType() == typeof(string);
-            }
-
-            var typeConverter = targetType.typeConverter.Value;
-            if (typeConverter.CanConvertFrom(argumentValue.GetType()))
-            {
-                try
+                if (argumentValue is object)
                 {
-                    typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
-                    return true;
+                    if (targetType.typeConverter == null)
+                    {
+                        return argumentValue.GetType() == typeof(string);
+                    }
+
+                    var typeConverter = targetType.typeConverter.Value;
+                    if (typeConverter.CanConvertFrom(argumentValue.GetType()))
+                    {
+                        try
+                        {
+                            typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, argumentValue);
+                            return true;
+                        }
+                        catch
+                        {
+                        }
+                    }
                 }
-                catch
+            }
+            else if (argumentValue is null || argumentValue is string)
+            {
+                if (compilation.GetTypeByMetadataName(typeof(TypeConverterAttribute).FullName) is { } typeConverterAttribute
+                    && targetTypeSymbol.GetAllAttributes().Any(data => typeConverterAttribute.Equals(data.AttributeClass)))
                 {
-                    return false;
+                    return true;
                 }
             }
 
