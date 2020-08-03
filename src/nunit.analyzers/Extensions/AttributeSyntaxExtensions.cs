@@ -75,5 +75,30 @@ namespace NUnit.Analyzers.Extensions
             return attributeType.AllInterfaces.Any(i => i.Equals(interfaceType));
 
         }
+
+        internal static bool IsSetUpOrTearDownMethodAttribute(this AttributeSyntax attributeSyntax, SemanticModel semanticModel)
+        {
+            var attributeType = semanticModel.GetTypeInfo(attributeSyntax).Type;
+
+            if (attributeType == null)
+                return false;
+
+            switch (attributeType.ToString())
+            {
+                case NunitFrameworkConstants.FullNameOfTypeOneTimeSetUpAttribute:
+                case NunitFrameworkConstants.FullNameOfTypeOneTimeTearDownAttribute:
+                case NunitFrameworkConstants.FullNameOfTypeSetUpAttribute:
+                case NunitFrameworkConstants.FullNameOfTypeTearDownAttribute:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        internal static bool IsTestMethodAttribute(this AttributeSyntax attributeSyntax, SemanticModel semanticModel)
+        {
+            return attributeSyntax.DerivesFromITestBuilder(semanticModel) ||
+                   attributeSyntax.DerivesFromISimpleTestBuilder(semanticModel);
+        }
     }
 }

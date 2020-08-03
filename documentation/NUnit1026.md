@@ -1,6 +1,6 @@
 # NUnit1026
 
-## The test method is not public.
+## The test or setup/teardown method is not public.
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-The test method is not public.
+The test or setup/teardown method is not public.
 
 ## Motivation
 
@@ -23,10 +23,18 @@ To prevent tests that will fail at runtime, as NUnit only runs public test metho
 ### Example Violation
 
 ```csharp
+private int Value;
+
+[SetUp]
+void NUnit1026SetUp()
+{
+    Value = 42;
+}
+
 [Test]
 void NUnit1026SampleTest()
 {
-    Assert.Pass();
+    Assert.That(Value, Is.GreaterThan(0));
 }
 
 [TestCase(1)]
@@ -47,10 +55,18 @@ NUnit only runs `public` methods, so neither test can be run.
 The analyzer comes with a code fix that will change the access modifier to `public`. So the tests above will be changed into.
 
 ```csharp
+private int Value;
+
+[SetUp]
+public void NUnit1026SetUp()
+{
+    Value = 42;
+}
+
 [Test]
 public void NUnit1026SampleTest()
 {
-    Assert.Pass();
+    Assert.That(Value, Is.GreaterThan(0));
 }
 
 [TestCase(1)]
@@ -70,22 +86,22 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 ### Via #pragma directive.
 
 ```csharp
-#pragma warning disable NUnit1026 // The test method is not public.
+#pragma warning disable NUnit1026 // The test or setup/teardown method is not public.
 Code violating the rule here
-#pragma warning restore NUnit1026 // The test method is not public.
+#pragma warning restore NUnit1026 // The test or setup/teardown method is not public.
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit1026 // The test method is not public.
+#pragma warning disable NUnit1026 // The test or setup/teardown method is not public.
 ```
 
 ### Via attribute `[SuppressMessage]`.
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure",
-    "NUnit1026:The test method is not public.",
+    "NUnit1026:The test or setup/teardown method is not public.",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

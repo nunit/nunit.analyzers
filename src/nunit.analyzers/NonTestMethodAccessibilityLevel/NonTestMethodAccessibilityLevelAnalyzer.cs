@@ -48,7 +48,7 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
             var publicNonTestMethods = new List<MethodDeclarationSyntax>();
             foreach (var method in classNode.Members.OfType<MethodDeclarationSyntax>())
             {
-                if (IsTestMethod(context.SemanticModel, method.AttributeLists))
+                if (IsTestRelatedMethod(context.SemanticModel, method.AttributeLists))
                     hasTestMethods = true;
                 else if (IsPublicOrInternalMethod(method))
                     publicNonTestMethods.Add(method);
@@ -65,11 +65,11 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
             }
         }
 
-        private static bool IsTestMethod(SemanticModel semanticModel, SyntaxList<AttributeListSyntax> attributeLists)
+        private static bool IsTestRelatedMethod(SemanticModel semanticModel, SyntaxList<AttributeListSyntax> attributeLists)
         {
             var allAttributes = attributeLists.SelectMany(al => al.Attributes);
-            return allAttributes.Any(a =>
-                a.DerivesFromITestBuilder(semanticModel) || a.DerivesFromISimpleTestBuilder(semanticModel));
+            return allAttributes.Any(a => a.IsSetUpOrTearDownMethodAttribute(semanticModel) ||
+                                          a.IsTestMethodAttribute(semanticModel));
         }
 
         private static bool IsPublicOrInternalMethod(MethodDeclarationSyntax method)

@@ -83,7 +83,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             new object [] { "static protected", "static public" },
             new object [] { "static internal", "static public" },
             new object [] { "static protected internal", "static public" },
-            new object [] { "static private protected","static public" },
+            new object [] { "static private protected", "static public" },
 
             new object [] { "private static", "public static" },
             new object [] { "protected static", "public static" },

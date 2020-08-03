@@ -83,6 +83,11 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfTypeValueSourceAttribute = "NUnit.Framework.ValueSourceAttribute";
         public const string FullNameOfTypeIParameterDataSource = "NUnit.Framework.Interfaces.IParameterDataSource";
 
+        public const string FullNameOfTypeOneTimeSetUpAttribute = "NUnit.Framework.OneTimeSetUpAttribute";
+        public const string FullNameOfTypeOneTimeTearDownAttribute = "NUnit.Framework.OneTimeTearDownAttribute";
+        public const string FullNameOfTypeSetUpAttribute = "NUnit.Framework.SetUpAttribute";
+        public const string FullNameOfTypeTearDownAttribute = "NUnit.Framework.TearDownAttribute";
+
         public const string NameOfConstraint = "Constraint";
 
         public const string FullNameOfSameAsConstraint = "NUnit.Framework.Constraints.SameAsConstraint";

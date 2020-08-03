@@ -41,6 +41,17 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
             AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
         }
 
+        [TestCaseSource(nameof(TestMethodRelatedAttributes))]
+        public void AnalyzeWhenAuxiliaryTestMethodIsPublic(string attribute)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        [Test]
+        public void TestMethod() {{ }}
+        [{attribute}]
+        public void AuxiliaryMethod() {{ }}");
+            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+        }
+
         [TestCaseSource(nameof(NonPrivateModifiers))]
         public void AnalyzeWhenNonTestMethodIsPublicOrInternal(string modifiers)
         {
@@ -50,6 +61,15 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         {modifiers} void ↓AssertMethod() {{ }}");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
+
+        private static IEnumerable<string> TestMethodRelatedAttributes => new string[]
+        {
+            "Test",
+            "OneTimeSetUp",
+            "OneTimeTearDown",
+            "SetUp",
+            "TearDown"
+        };
 
         private static IEnumerable<string> NonPrivateModifiers => new string[]
         {
