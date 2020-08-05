@@ -11,13 +11,30 @@ namespace NUnit.Analyzers
             string category,
             DiagnosticSeverity defaultSeverity,
             string description) =>
-            new DiagnosticDescriptor(
+            Create(
                 id: id,
                 title: title,
                 messageFormat: messageFormat,
                 category: category,
                 defaultSeverity: defaultSeverity,
                 isEnabledByDefault: true,
+                description: description);
+
+        internal static DiagnosticDescriptor Create(
+            string id,
+            string title,
+            string messageFormat,
+            string category,
+            DiagnosticSeverity defaultSeverity,
+            bool isEnabledByDefault,
+            string description) =>
+            new DiagnosticDescriptor(
+                id: id,
+                title: title,
+                messageFormat: messageFormat,
+                category: category,
+                defaultSeverity: defaultSeverity,
+                isEnabledByDefault: isEnabledByDefault,
                 description: description,
                 helpLinkUri: CreateLink(id),
                 customTags: new string[0]);

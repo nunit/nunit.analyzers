@@ -13,7 +13,24 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestMethodIsNotPublic);
 
-        [Test]
+        [TestCaseSource(nameof(SetUpTearDownMethodRelatedAttributes))]
+        public void AnalyzeWhenSetUpTearDownMethodIsPublic(string attribute)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        [{attribute}]
+        public void SetUpTearDownMethod() {{ }}");
+            AnalyzerAssert.Valid<TestMethodAccessibilityLevelAnalyzer>(testCode);
+        }
+
+        [TestCaseSource(nameof(SetUpTearDownMethodRelatedAttributes))]
+        public void AnalyzeWhenSetUpTearDownMethodIsProtected(string attribute)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        [{attribute}]
+        protected void SetUpTearDownMethod() {{ }}");
+            AnalyzerAssert.Valid<TestMethodAccessibilityLevelAnalyzer>(testCode);
+        }
+
         public void AnalyzeWhenSimpleTestMethodIsPublic()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
@@ -29,6 +46,16 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         [TestCase(1)]
         public void TestMethod(int i) {{ }}");
             AnalyzerAssert.Valid<TestMethodAccessibilityLevelAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSetUpTearDownMethodIsNotPublic([ValueSource(nameof(SetUpTearDownMethodRelatedAttributes))] string attribute,
+                                                              [ValueSource(nameof(NonPublicOrFamilyModifiers))] string modifiers)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        [{attribute}]
+        {modifiers} void ↓SetUpTearDownMethod() {{ }}");
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCaseSource(nameof(NonPublicModifiers))]
@@ -67,6 +94,14 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
+        private static IEnumerable<string> SetUpTearDownMethodRelatedAttributes => new string[]
+        {
+            "OneTimeSetUp",
+            "OneTimeTearDown",
+            "SetUp",
+            "TearDown"
+        };
+
         static IEnumerable<string> NonPublicModifiers => new string[]
         {
             "",
@@ -84,6 +119,28 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
 
             "private static",
             "protected static",
+            "internal static",
+            "protected internal static",
+            "private protected static ",
+
+            "protected static internal",
+            "private static protected",
+        };
+
+        static IEnumerable<string> NonPublicOrFamilyModifiers => new string[]
+        {
+            "",
+            "private",
+            "internal",
+            "protected internal",
+            "private protected",
+
+            "static private",
+            "static internal",
+            "static protected internal",
+            "static private protected",
+
+            "private static",
             "internal static",
             "protected internal static",
             "private protected static ",
