@@ -20,6 +20,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             return WellKnownFixAllProviders.BatchFixer;
         }
 
+        protected virtual string Title => CodeFixConstants.TransformToConstraintModelDescription;
+
         protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments, TypeArgumentListSyntax typeArguments)
         {
             throw new InvalidOperationException($"Class must override {nameof(UpdateArguments)} accepting {nameof(TypeArgumentListSyntax)}");
@@ -90,9 +92,9 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
             context.RegisterCodeFix(
                 CodeAction.Create(
-                    CodeFixConstants.TransformToConstraintModelDescription,
+                    this.Title,
                     _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
-                    CodeFixConstants.TransformToConstraintModelDescription), diagnostic);
+                    this.Title), diagnostic);
         }
     }
 }
