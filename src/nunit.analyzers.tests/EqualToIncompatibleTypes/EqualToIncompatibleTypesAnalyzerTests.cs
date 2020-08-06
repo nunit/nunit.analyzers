@@ -811,6 +811,17 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
+        public void NoDiagnosticWhenComparingDelegate()
+        {
+            var testCode = TestUtility.WrapInAsyncTestMethod(@"
+                Action x = () => {};
+                var y = x;
+                Assert.That(y, Is.EqualTo(x));");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void NoDiagnosticWhenComparingTask()
         {
             var testCode = TestUtility.WrapInAsyncTestMethod(@"
