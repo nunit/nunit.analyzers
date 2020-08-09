@@ -74,5 +74,55 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             ");
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
         }
+
+        [Test]
+        public void VerifyAreSameIntoAreEqualFix()
+        {
+            var code = TestUtility.WrapInTestMethod(@"
+                var expected = Guid.Empty;
+                var actual = expected;
+
+                ↓Assert.AreSame(expected, actual);
+            ");
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+                var expected = Guid.Empty;
+                var actual = expected;
+
+                Assert.AreEqual(expected, actual);
+            ");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
+        }
+
+        [Test]
+        public void VerifyAreNotSameIntoAreNotEqualFixWithMessage()
+        {
+            var code = TestUtility.WrapInTestMethod(@"
+                var expected = Guid.Empty;
+
+                ↓Assert.AreNotSame(expected, Guid.NewGuid(), ""message"");
+            ");
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+                var expected = Guid.Empty;
+
+                Assert.AreNotEqual(expected, Guid.NewGuid(), ""message"");
+            ");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
+        }
+
+        [Test]
+        public void VerifyAreSameIntoAreEqualFixWithMessageAndParams()
+        {
+            var code = TestUtility.WrapInTestMethod(@"
+                var expected = Guid.Empty;
+
+                ↓Assert.AreSame(expected, expected, ""message"", Guid.Empty);
+            ");
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+                var expected = Guid.Empty;
+
+                Assert.AreEqual(expected, expected, ""message"", Guid.Empty);
+            ");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
+        }
     }
 }

@@ -36,22 +36,46 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
             if (invocationNode == null)
                 return;
 
-            // Find the 'SameAs' member access expression
-            var constraintArgument = invocationNode.ArgumentList.Arguments[1];
-            var isSameExpression = constraintArgument
-                .DescendantNodesAndSelf()
-                .Where(s => s.IsKind(SyntaxKind.SimpleMemberAccessExpression))
-                .OfType<MemberAccessExpressionSyntax>()
-                .SingleOrDefault(m => m.Name.ToString() == NunitFrameworkConstants.NameOfIsSameAs);
+            var assertExpression = invocationNode.Expression as MemberAccessExpressionSyntax;
 
-            if (isSameExpression == null)
+            if (assertExpression == null)
                 return;
 
-            var isEqualToExpression = isSameExpression.WithName(SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsEqualTo));
+            ExpressionSyntax? original;
+            ExpressionSyntax? replacement;
+
+            switch (assertExpression.Name.ToString())
+            {
+                case NunitFrameworkConstants.NameOfAssertAreSame:
+                    original = assertExpression;
+                    replacement = assertExpression.WithName(SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfAssertAreEqual));
+                    break;
+                case NunitFrameworkConstants.NameOfAssertAreNotSame:
+                    original = assertExpression;
+                    replacement = assertExpression.WithName(SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfAssertAreNotEqual));
+                    break;
+                case NunitFrameworkConstants.NameOfAssertThat:
+                    // Find the 'SameAs' member access expression
+                    var constraintArgument = invocationNode.ArgumentList.Arguments[1];
+                    var isSameExpression = constraintArgument
+                        .DescendantNodesAndSelf()
+                        .Where(s => s.IsKind(SyntaxKind.SimpleMemberAccessExpression))
+                        .OfType<MemberAccessExpressionSyntax>()
+                        .SingleOrDefault(m => m.Name.ToString() == NunitFrameworkConstants.NameOfIsSameAs);
+
+                    if (isSameExpression == null)
+                        return;
+
+                    original = isSameExpression;
+                    replacement = isSameExpression.WithName(SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsEqualTo));
+                    break;
+                default:
+                    return;
+            }
 
             context.CancellationToken.ThrowIfCancellationRequested();
 
-            var newRoot = root.ReplaceNode(isSameExpression, isEqualToExpression);
+            var newRoot = root.ReplaceNode(original, replacement);
 
             context.RegisterCodeFix(
                 CodeAction.Create(

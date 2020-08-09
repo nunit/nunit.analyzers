@@ -93,5 +93,53 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
 
             AnalyzerAssert.Valid(analyzer, testCode);
         }
+
+        [Test]
+        public void AnalyzeClassicWhenLiteralTypesProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                "↓Assert.AreSame(1, 1);");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeClassicWhenStructTypesProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var expected = Guid.Empty;
+                var actual = expected;
+
+                ↓Assert.AreSame(expected, actual);");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeClassicWhenActualIsReferenceTypeAndExpectedIsValueType()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                @"↓Assert.AreNotSame(3, ""3"");");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeClassicWhenActualIsValueTypeAndExpectedIsReferenceType()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                @"↓Assert.AreNotSame(""3"", 3);");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeClassicWhenBothArgumentsAreReferenceType()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                @"Assert.AreSame(""3"", ""3"");");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
     }
 }

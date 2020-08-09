@@ -30,46 +30,59 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
             var cancellationToken = context.CancellationToken;
             var semanticModel = context.SemanticModel;
 
-            if (!AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
-                out var actualExpression, out var constraintExpression))
-            {
-                return;
-            }
+            ExpressionSyntax? actualExpression;
+            ExpressionSyntax? expectedExpression = null;
 
-            foreach (var constraintPartExpression in constraintExpression.ConstraintParts)
+            if (methodSymbol.Name.Equals(NunitFrameworkConstants.NameOfAssertAreSame) ||
+                methodSymbol.Name.Equals(NunitFrameworkConstants.NameOfAssertAreNotSame))
             {
-                if (HasIncompatiblePrefixes(constraintPartExpression)
-                    || constraintPartExpression.HasUnknownExpressions())
+                actualExpression = assertExpression.GetArgumentExpression(methodSymbol, NunitFrameworkConstants.NameOfActualParameter);
+                expectedExpression = assertExpression.GetArgumentExpression(methodSymbol, NunitFrameworkConstants.NameOfExpectedParameter);
+            }
+            else
+            {
+                if (!AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
+                    out actualExpression, out var constraintExpression))
                 {
                     return;
                 }
 
-                var constraintMethod = constraintPartExpression.GetConstraintMethod();
-
-                if (constraintMethod?.Name != NunitFrameworkConstants.NameOfIsSameAs
-                    || constraintMethod.ReturnType?.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfSameAsConstraint)
+                foreach (var constraintPartExpression in constraintExpression.ConstraintParts)
                 {
-                    continue;
+                    if (HasIncompatiblePrefixes(constraintPartExpression)
+                        || constraintPartExpression.HasUnknownExpressions())
+                    {
+                        return;
+                    }
+
+                    var constraintMethod = constraintPartExpression.GetConstraintMethod();
+
+                    if (constraintMethod?.Name != NunitFrameworkConstants.NameOfIsSameAs
+                        || constraintMethod.ReturnType?.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfSameAsConstraint)
+                    {
+                        continue;
+                    }
+
+                    expectedExpression = constraintPartExpression.GetExpectedArgumentExpression();
+                    break;
                 }
+            }
 
-                var expectedArgumentExpression = constraintPartExpression.GetExpectedArgumentExpression();
+            if (actualExpression == null || expectedExpression == null)
+                return;
 
-                if (expectedArgumentExpression == null)
-                    continue;
+            var actualType = AssertHelper.GetUnwrappedActualType(actualExpression, semanticModel, cancellationToken);
 
-                var actualType = AssertHelper.GetUnwrappedActualType(actualExpression, semanticModel, cancellationToken);
+            var expectedType = semanticModel.GetTypeInfo(expectedExpression, cancellationToken).Type;
 
-                if (actualType == null)
-                    continue;
+            if (actualType == null || expectedType == null)
+                return;
 
-                var expectedType = semanticModel.GetTypeInfo(expectedArgumentExpression, cancellationToken).Type;
-
-                if (actualType.IsValueType || expectedType.IsValueType)
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        descriptor,
-                        assertExpression.GetLocation()));
-                }
+            if (actualType.IsValueType || expectedType.IsValueType)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    descriptor,
+                    assertExpression.GetLocation()));
             }
         }
 
