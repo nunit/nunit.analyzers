@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Helpers;
 
@@ -20,11 +20,10 @@ namespace NUnit.Analyzers.NullConstraintUsage
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-        protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
-            InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
+        protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            if (!AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, context.SemanticModel,
-                out var actualExpression, out var constraintExpression))
+            if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
+                out var actualOperation, out var constraintExpression))
             {
                 return;
             }
@@ -38,11 +37,11 @@ namespace NUnit.Analyzers.NullConstraintUsage
                     || (prefixes.Length == 1 && prefixes[0] == NunitFrameworkConstants.NameOfIsNot);
 
                 if (prefixesSupported
-                    && constraintPart.RootExpression != null
-                    && constraintPart.GetHelperClassName() == NunitFrameworkConstants.NameOfIs
+                    && constraintPart.Root != null
+                    && constraintPart.HelperClass?.Name == NunitFrameworkConstants.NameOfIs
                     && constraintPart.GetConstraintName() == NunitFrameworkConstants.NameOfNull)
                 {
-                    var actualType = AssertHelper.GetUnwrappedActualType(actualExpression, context.SemanticModel, context.CancellationToken);
+                    var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
                     if (actualType == null)
                         return;
@@ -53,7 +52,7 @@ namespace NUnit.Analyzers.NullConstraintUsage
 
                         context.ReportDiagnostic(Diagnostic.Create(
                             descriptor,
-                            constraintPart.RootExpression.GetLocation(),
+                            constraintPart.Root.Syntax.GetLocation(),
                             typeDisplay));
                     }
                 }

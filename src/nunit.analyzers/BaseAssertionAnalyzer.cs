@@ -1,7 +1,6 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Extensions;
 
 namespace NUnit.Analyzers
@@ -11,25 +10,24 @@ namespace NUnit.Analyzers
         public override void Initialize(AnalysisContext context)
         {
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(this.AnalyzeInvocation, SyntaxKind.InvocationExpression);
+            context.RegisterOperationAction(this.AnalyzeInvocation, OperationKind.Invocation);
         }
 
-        private void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
+        private void AnalyzeInvocation(OperationAnalysisContext context)
         {
-            if (!(context.Node is InvocationExpressionSyntax invocationSyntax))
+            if (!(context.Operation is IInvocationOperation invocationOperation))
                 return;
 
-            var methodSymbol = context.SemanticModel.GetSymbolInfo(invocationSyntax, context.CancellationToken).Symbol as IMethodSymbol;
+            var methodSymbol = invocationOperation.TargetMethod;
 
             if (methodSymbol == null || !methodSymbol.ContainingType.IsAssert())
                 return;
 
             context.CancellationToken.ThrowIfCancellationRequested();
 
-            this.AnalyzeAssertInvocation(context, invocationSyntax, methodSymbol);
+            this.AnalyzeAssertInvocation(context, invocationOperation);
         }
 
-        protected abstract void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
-            InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol);
+        protected abstract void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation);
     }
 }

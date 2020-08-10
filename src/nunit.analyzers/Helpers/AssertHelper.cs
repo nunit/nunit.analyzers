@@ -1,10 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
-using NUnit.Analyzers.Syntax;
+using NUnit.Analyzers.Operations;
 
 namespace NUnit.Analyzers.Helpers
 {
@@ -16,24 +15,21 @@ namespace NUnit.Analyzers.Helpers
         /// <returns>
         /// True, if arguments found. Otherwise - false.
         /// </returns>
-        public static bool TryGetActualAndConstraintExpressions(
-            InvocationExpressionSyntax assertExpression,
-            SemanticModel semanticModel,
-            [NotNullWhen(true)] out ExpressionSyntax? actualExpression,
+        public static bool TryGetActualAndConstraintOperations(
+            IInvocationOperation assertOperation,
+            [NotNullWhen(true)] out IOperation? actualOperation,
             [NotNullWhen(true)] out ConstraintExpression? constraintExpression)
         {
-            if (assertExpression.Expression is MemberAccessExpressionSyntax memberAccessSyntax
-                && memberAccessSyntax.Name.Identifier.Text == NunitFrameworkConstants.NameOfAssertThat
-                && assertExpression.ArgumentList.Arguments.Count >= 2)
+            if (assertOperation.TargetMethod.Name == NunitFrameworkConstants.NameOfAssertThat
+                && assertOperation.Arguments.Length >= 2)
             {
-                actualExpression = assertExpression.ArgumentList.Arguments[0].Expression;
-                constraintExpression = new ConstraintExpression(assertExpression.ArgumentList.Arguments[1].Expression, semanticModel);
-
+                actualOperation = assertOperation.Arguments[0].Value;
+                constraintExpression = new ConstraintExpression(assertOperation.Arguments[1].Value);
                 return true;
             }
             else
             {
-                actualExpression = null;
+                actualOperation = null;
                 constraintExpression = null;
 
                 return false;
@@ -58,12 +54,11 @@ namespace NUnit.Analyzers.Helpers
         }
 
         /// <summary>
-        /// Get TypeSymbol from <paramref name="expressionSyntax"/>, and unwrap from delegate or awaitable.
+        /// Get TypeSymbol from <paramref name="actualOperation"/>, and unwrap from delegate or awaitable.
         /// </summary>
-        public static ITypeSymbol? GetUnwrappedActualType(ExpressionSyntax actualExpression, SemanticModel semanticModel, CancellationToken cancellationToken)
+        public static ITypeSymbol? GetUnwrappedActualType(IOperation actualOperation)
         {
-            var actualTypeInfo = semanticModel.GetTypeInfo(actualExpression, cancellationToken);
-            var actualType = actualTypeInfo.Type ?? actualTypeInfo.ConvertedType;
+            var actualType = actualOperation.Type;
 
             if (actualType == null || actualType.Kind == SymbolKind.ErrorType)
                 return null;

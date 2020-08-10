@@ -1,12 +1,12 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
-using NUnit.Analyzers.Syntax;
+using NUnit.Analyzers.Operations;
 
 namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
 {
@@ -24,13 +24,10 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
             = ImmutableArray.Create(descriptor);
 
-        protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
+        protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            var cancellationToken = context.CancellationToken;
-            var semanticModel = context.SemanticModel;
-
-            if (!AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
-                out var actualExpression, out var constraintExpression))
+            if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
+                out var actualOperation, out var constraintExpression))
             {
                 return;
             }
@@ -38,7 +35,7 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
                 if ((!IsDoesContain(constraintPart) && !IsContainsItem(constraintPart))
-                    || constraintPart.GetConstraintTypeSymbol()?.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfSomeItemsConstraint)
+                    || constraintPart.Root?.Type.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfSomeItemsConstraint)
                 {
                     continue;
                 }
@@ -46,13 +43,8 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
                 if (HasIncompatibleOperators(constraintPart))
                     return;
 
-                var expectedExpression = constraintPart.GetExpectedArgumentExpression();
-
-                if (expectedExpression == null)
-                    continue;
-
-                var expectedType = semanticModel.GetTypeInfo(expectedExpression, cancellationToken).Type;
-                var actualType = AssertHelper.GetUnwrappedActualType(actualExpression, semanticModel, cancellationToken);
+                var expectedType = constraintPart.GetExpectedArgument()?.Type;
+                var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
                 if (actualType == null || expectedType == null)
                     continue;
@@ -64,7 +56,7 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
                         continue;
 
                     // Valid, if collection element type matches expected type.
-                    if (NUnitEqualityComparerHelper.CanBeEqual(elementType, expectedType, semanticModel.Compilation))
+                    if (NUnitEqualityComparerHelper.CanBeEqual(elementType, expectedType, context.Compilation))
                         continue;
                 }
 
@@ -80,26 +72,26 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
             }
         }
 
-        private static bool IsDoesContain(ConstraintPartExpression constraintPart)
+        private static bool IsDoesContain(ConstraintExpressionPart constraintPart)
         {
             return constraintPart.GetConstraintName() == NunitFrameworkConstants.NameOfDoesContain;
         }
 
-        private static bool IsContainsItem(ConstraintPartExpression constraintPart)
+        private static bool IsContainsItem(ConstraintExpressionPart constraintPart)
         {
-            return constraintPart.GetHelperClassName() == NunitFrameworkConstants.NameOfContains
+            return constraintPart.HelperClass?.Name == NunitFrameworkConstants.NameOfContains
                 && constraintPart.GetConstraintName() == NunitFrameworkConstants.NameOfContainsItem;
         }
 
-        private static bool HasIncompatibleOperators(ConstraintPartExpression constraintPart)
+        private static bool HasIncompatibleOperators(ConstraintExpressionPart constraintPart)
         {
             return constraintPart.GetPrefixesNames().Any(p => p != NunitFrameworkConstants.NameOfDoesNot);
         }
 
-        private static string ConstraintDiagnosticDescription(ConstraintPartExpression constraintPart)
+        private static string ConstraintDiagnosticDescription(ConstraintExpressionPart constraintPart)
         {
-            return constraintPart.GetHelperClassName() != null
-                ? $"{constraintPart.GetHelperClassName()}.{constraintPart.GetConstraintName()}"
+            return constraintPart.HelperClass?.Name != null
+                ? $"{constraintPart.HelperClass?.Name}.{constraintPart.GetConstraintName()}"
                 : (constraintPart.GetConstraintName() ?? "");
         }
     }

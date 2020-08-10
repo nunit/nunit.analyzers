@@ -2,13 +2,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
-using NUnit.Analyzers.Syntax;
 
 namespace NUnit.Analyzers.IgnoreCaseUsage
 {
@@ -33,38 +32,40 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-        protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
-            InvocationExpressionSyntax invocationSyntax, IMethodSymbol methodSymbol)
+        protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            if (!AssertHelper.TryGetActualAndConstraintExpressions(invocationSyntax, context.SemanticModel,
-                out _, out var constraintExpression))
+            if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation, out _, out var constraintExpression))
             {
                 return;
             }
 
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
+                if (!SupportedIsMethods.Contains(constraintPart.GetConstraintName()))
+                    continue;
+
                 // e.g. Is.EqualTo(expected).IgnoreCase
                 // Need to check type of expected 
 
-                var ignoreCaseSuffix = constraintPart.GetSuffixExpression(NunitFrameworkConstants.NameOfIgnoreCase) as MemberAccessExpressionSyntax;
+                var ignoreCaseSuffix = constraintPart.GetSuffix(NunitFrameworkConstants.NameOfIgnoreCase) as IPropertyReferenceOperation;
 
                 if (ignoreCaseSuffix == null)
                     continue;
 
-                if (!SupportedIsMethods.Contains(constraintPart.GetConstraintName()))
-                    continue;
+                var expectedType = constraintPart.GetExpectedArgument()?.Type;
 
-                var expectedType = GetExpectedTypeSymbol(constraintPart, context);
-
-                if (expectedType == null)
+                if (expectedType == null || expectedType.TypeKind == TypeKind.Error)
                     return;
 
                 if (!IsTypeSupported(expectedType))
                 {
+                    var syntax = ignoreCaseSuffix.Syntax is MemberAccessExpressionSyntax memberAccessSyntax
+                        ? memberAccessSyntax.Name
+                        : ignoreCaseSuffix.Syntax;
+
                     context.ReportDiagnostic(Diagnostic.Create(
                         descriptor,
-                        ignoreCaseSuffix.Name.GetLocation()));
+                        syntax.GetLocation()));
                 }
             }
         }
@@ -123,21 +124,6 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
             }
 
             return false;
-        }
-
-        private static ITypeSymbol? GetExpectedTypeSymbol(ConstraintPartExpression constraintPart, SyntaxNodeAnalysisContext context)
-        {
-            var expectedArgument = constraintPart.GetExpectedArgumentExpression();
-
-            if (expectedArgument == null)
-                return null;
-
-            var expectedType = context.SemanticModel.GetTypeInfo(expectedArgument).Type;
-
-            if (expectedType == null || expectedType is IErrorTypeSymbol)
-                return null;
-
-            return expectedType;
         }
     }
 }
