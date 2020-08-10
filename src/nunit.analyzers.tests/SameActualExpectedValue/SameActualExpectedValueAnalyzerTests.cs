@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.SameActualExpectedValue
 {
-    public class SameActualExpectedValueTests
+    public class SameActualExpectedValueAnalyzerTests
     {
         private static readonly DiagnosticAnalyzer analyzer = new SameActualExpectedValueAnalyzer();
         private static readonly ExpectedDiagnostic expectedDiagnostic =

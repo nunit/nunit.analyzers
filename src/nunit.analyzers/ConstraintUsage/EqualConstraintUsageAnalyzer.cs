@@ -1,8 +1,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using static NUnit.Analyzers.Constants.NunitFrameworkConstants;
 
@@ -25,20 +24,20 @@ namespace NUnit.Analyzers.ConstraintUsage
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
         protected override (DiagnosticDescriptor? descriptor, string? suggestedConstraint) GetDiagnosticData(
-            SyntaxNodeAnalysisContext context, ExpressionSyntax actual, bool negated)
+            OperationAnalysisContext context, IOperation actual, bool negated)
         {
             var shouldReport = false;
 
             // 'actual == expected', 'Equals(actual, expected)' or 'actual.Equals(expected)'
-            if (actual.IsKind(SyntaxKind.EqualsExpression)
-                || IsStaticObjectEquals(actual, context)
-                || IsInstanceObjectEquals(actual, context))
+            if (actual is IBinaryOperation { OperatorKind: BinaryOperatorKind.Equals }
+                || IsStaticObjectEquals(actual)
+                || IsInstanceObjectEquals(actual))
             {
                 shouldReport = true;
             }
 
             // 'actual != expected'
-            else if (actual.IsKind(SyntaxKind.NotEqualsExpression))
+            else if (actual is IBinaryOperation { OperatorKind: BinaryOperatorKind.NotEquals })
             {
                 shouldReport = true;
                 negated = !negated;
@@ -53,12 +52,12 @@ namespace NUnit.Analyzers.ConstraintUsage
             return (null, null);
         }
 
-        private static bool IsStaticObjectEquals(ExpressionSyntax expressionSyntax, SyntaxNodeAnalysisContext context)
+        private static bool IsStaticObjectEquals(IOperation operation)
         {
-            if (!(expressionSyntax is InvocationExpressionSyntax invocation))
+            if (!(operation is IInvocationOperation invocation))
                 return false;
 
-            var methodSymbol = context.SemanticModel.GetSymbolInfo(invocation.Expression).Symbol as IMethodSymbol;
+            var methodSymbol = invocation.TargetMethod;
 
             return methodSymbol != null
                 && methodSymbol.IsStatic
@@ -67,12 +66,12 @@ namespace NUnit.Analyzers.ConstraintUsage
                 && methodSymbol.ContainingType.SpecialType == SpecialType.System_Object;
         }
 
-        private static bool IsInstanceObjectEquals(ExpressionSyntax expressionSyntax, SyntaxNodeAnalysisContext context)
+        private static bool IsInstanceObjectEquals(IOperation operation)
         {
-            if (!(expressionSyntax is InvocationExpressionSyntax invocation))
+            if (!(operation is IInvocationOperation invocation))
                 return false;
 
-            var methodSymbol = context.SemanticModel.GetSymbolInfo(invocation.Expression).Symbol as IMethodSymbol;
+            var methodSymbol = invocation.TargetMethod;
 
             return methodSymbol != null
                 && !methodSymbol.IsStatic

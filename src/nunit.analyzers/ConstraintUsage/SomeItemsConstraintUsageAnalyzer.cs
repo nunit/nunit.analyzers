@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using static NUnit.Analyzers.Constants.NunitFrameworkConstants;
@@ -27,20 +27,21 @@ namespace NUnit.Analyzers.ConstraintUsage
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
         protected override (DiagnosticDescriptor? descriptor, string? suggestedConstraint) GetDiagnosticData
-            (SyntaxNodeAnalysisContext context, ExpressionSyntax actual, bool negated)
+            (OperationAnalysisContext context, IOperation actual, bool negated)
         {
-            if (actual is InvocationExpressionSyntax invocationExpression
-                && invocationExpression.ArgumentList.Arguments.Count == 1
-                && invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression)
+            if (actual is IInvocationOperation invocationOperation)
             {
-                var symbol = context.SemanticModel.GetSymbolInfo(memberAccessExpression.Name).Symbol;
+                var symbol = invocationOperation.TargetMethod;
+                var argumentCount = invocationOperation.Arguments.Length;
 
-                if (this.IsCollectionContains(symbol) || this.IsLinqContains(symbol))
+                if ((argumentCount == 1 && this.IsCollectionContains(symbol))
+                    || (argumentCount == 2 && this.IsLinqContains(symbol)))
                 {
                     var suggestedConstraint = negated ? DoesNotContain : DoesContain;
                     return (descriptor, suggestedConstraint);
                 }
             }
+
             return (null, null);
         }
 

@@ -2,8 +2,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
@@ -23,22 +23,19 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-        protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
-            InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
-        {
-            var cancellationToken = context.CancellationToken;
-            var semanticModel = context.SemanticModel;
 
-            if (!AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
-                out var actualExpression, out var constraintExpression))
+        protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
+        {
+            if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
+                out var actualOperation, out var constraintOperation))
             {
                 return;
             }
 
-            foreach (var constraintPart in constraintExpression.ConstraintParts)
+            foreach (var constraintPart in constraintOperation.ConstraintParts)
             {
                 if (constraintPart.GetConstraintName() != NunitFrameworkConstants.NameOfIsSameAs
-                    || constraintPart.GetConstraintTypeSymbol()?.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfSameAsConstraint)
+                    || constraintPart.Root?.Type.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfSameAsConstraint)
                 {
                     continue;
                 }
@@ -46,30 +43,26 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
                 if (constraintPart.GetPrefixesNames().Any(p => p != NunitFrameworkConstants.NameOfIsNot))
                     return;
 
-                var actualType = AssertHelper.GetUnwrappedActualType(actualExpression, semanticModel, cancellationToken);
+                var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
                 if (actualType == null)
                     continue;
 
-                var expectedArgumentExpression = constraintPart.GetExpectedArgumentExpression();
+                var expectedArgumentOperation = constraintPart.GetExpectedArgument();
+                var expectedType = expectedArgumentOperation?.Type;
 
-                if (expectedArgumentExpression == null)
-                    continue;
-
-                var expectedType = semanticModel.GetTypeInfo(expectedArgumentExpression, cancellationToken).Type;
-
-                if (expectedType != null && !CanBeSameType(actualType, expectedType, semanticModel))
+                if (expectedType != null && !CanBeSameType(actualType, expectedType, context.Compilation))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         descriptor,
-                        expectedArgumentExpression.GetLocation()));
+                        expectedArgumentOperation!.Syntax.GetLocation()));
                 }
             }
         }
 
-        private static bool CanBeSameType(ITypeSymbol actualType, ITypeSymbol expectedType, SemanticModel semanticModel)
+        private static bool CanBeSameType(ITypeSymbol actualType, ITypeSymbol expectedType, Compilation compilation)
         {
-            var conversion = semanticModel.Compilation.ClassifyConversion(actualType, expectedType);
+            var conversion = compilation.ClassifyConversion(actualType, expectedType);
             return conversion.IsIdentity || conversion.IsReference;
         }
     }

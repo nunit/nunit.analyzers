@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
@@ -30,12 +30,10 @@ namespace NUnit.Analyzers.MissingProperty
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(descriptor);
 
-        protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
+        protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            var semanticModel = context.SemanticModel;
-
-            if (!AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
-                out var actualExpression, out var constraintExpression))
+            if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
+                out var actualOperation, out var constraintExpression))
             {
                 return;
             }
@@ -43,68 +41,63 @@ namespace NUnit.Analyzers.MissingProperty
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
                 // Only 'Has' allowed (or none) - e.g. 'Throws' leads to verification on exception, which is not supported here. 
-                var helperClassName = constraintPart.GetHelperClassName();
+                var helperClassName = constraintPart.HelperClass?.Name;
                 if (helperClassName != null && helperClassName != NunitFrameworkConstants.NameOfHas)
                 {
                     return;
                 }
 
-                if (constraintPart.PrefixExpressions.Count == 0)
+                if (constraintPart.Prefixes.Count == 0)
                     continue;
 
                 // Only first prefix supported (as preceding prefixes might change validated type)
-                var prefix = constraintPart.PrefixExpressions.First();
-                var propertyName = TryGetRequiredPropertyName(prefix, semanticModel);
+                var prefix = constraintPart.Prefixes.First();
+                var propertyName = TryGetRequiredPropertyName(prefix);
 
                 if (propertyName == null)
                     continue;
 
-                var actualSymbol = semanticModel.GetTypeInfo(actualExpression).ConvertedType;
+                var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
-                if (actualSymbol == null)
-                    continue;
-
-                actualSymbol = AssertHelper.UnwrapActualType(actualSymbol);
-
-                if (actualSymbol.TypeKind == TypeKind.Error
-                    || actualSymbol.TypeKind == TypeKind.Dynamic
-                    || actualSymbol.SpecialType == SpecialType.System_Object)
+                if (actualType == null
+                    || actualType.TypeKind == TypeKind.Error
+                    || actualType.TypeKind == TypeKind.Dynamic
+                    || actualType.SpecialType == SpecialType.System_Object)
                 {
                     continue;
                 }
 
-                var propertyMembers = actualSymbol.GetAllMembers().Where(m => m.Kind == SymbolKind.Property);
+                var propertyMembers = actualType.GetAllMembers().Where(m => m.Kind == SymbolKind.Property);
                 if (!propertyMembers.Any(m => m.Name == propertyName))
                 {
                     var properties = propertyMembers.Select(p => p.Name).Distinct().ToImmutableDictionary(p => p, null);
 
                     context.ReportDiagnostic(Diagnostic.Create(
                         descriptor,
-                        prefix.GetLocation(),
+                        prefix.Syntax.GetLocation(),
                         properties,
-                        actualSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
+                        actualType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
                         propertyName));
                 }
             }
         }
 
-        private static string? TryGetRequiredPropertyName(ExpressionSyntax prefix, SemanticModel semanticModel)
+        private static string? TryGetRequiredPropertyName(IOperation prefix)
         {
             var prefixName = prefix.GetName();
 
-            if (prefix is MemberAccessExpressionSyntax && implicitPropertyConstraints.Contains(prefixName))
+            if (prefix is IPropertyReferenceOperation && implicitPropertyConstraints.Contains(prefixName))
             {
                 return prefixName;
             }
-            else if (prefix is InvocationExpressionSyntax invocationPrefix
+            else if (prefix is IInvocationOperation invocationOperation
                 && prefixName == NunitFrameworkConstants.NameOfHasProperty
-                && invocationPrefix.ArgumentList.Arguments.Count == 1)
+                && invocationOperation.Arguments.Length == 1)
             {
                 // Get constant value from constraint argument (e.g. Has.Property("PropertyName"))
-                var argument = invocationPrefix.ArgumentList.Arguments[0].Expression;
-                var operation = semanticModel.GetOperation(argument);
+                var argument = invocationOperation.Arguments[0].Value;
 
-                return operation.ConstantValue.Value as string;
+                return argument.ConstantValue.Value as string;
             }
 
             return null;
