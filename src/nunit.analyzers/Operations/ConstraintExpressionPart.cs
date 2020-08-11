@@ -68,7 +68,7 @@ namespace NUnit.Analyzers.Operations
         }
 
         /// <summary>
-        /// Returns prefix expression with provided name, or null, if none found.
+        /// Returns prefix operation with provided name, or null, if none found.
         /// </summary>
         public IOperation? GetPrefix(string name)
         {
@@ -76,7 +76,7 @@ namespace NUnit.Analyzers.Operations
         }
 
         /// <summary>
-        /// Returns suffix expression with provided name, or null, if none found.
+        /// Returns suffix operation with provided name, or null, if none found.
         /// </summary>
         public IOperation? GetSuffix(string name)
         {
@@ -92,14 +92,12 @@ namespace NUnit.Analyzers.Operations
         }
 
         /// <summary>
-        /// If constraint root is method, returns expected argument expression.
+        /// If constraint root is method, returns expected argument operation.
         /// Otherwise - null.
         /// </summary>
         public IOperation? GetExpectedArgument()
         {
-            var argument = this.Root is IInvocationOperation invocation
-                ? invocation.Arguments.FirstOrDefault()?.Value
-                : null;
+            var argument = (this.Root as IInvocationOperation)?.Arguments.FirstOrDefault()?.Value;
 
             if (argument is IConversionOperation conversion)
                 argument = conversion.Operand;
@@ -113,9 +111,7 @@ namespace NUnit.Analyzers.Operations
         /// </summary>
         public IMethodSymbol? GetConstraintMethod()
         {
-            return this.Root is IInvocationOperation invocation
-                ? invocation.TargetMethod
-                : null;
+            return (this.Root as IInvocationOperation)?.TargetMethod;
         }
 
         /// <summary>
