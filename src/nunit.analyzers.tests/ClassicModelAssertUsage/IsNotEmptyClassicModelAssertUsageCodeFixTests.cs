@@ -84,5 +84,41 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }");
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
+
+        [Test]
+        public void VerifyIsNotEmptyWithImplicitTypeConversionFix()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        private struct MyString
+        {
+            private readonly string _value;
+
+            public MyString(string value) => _value = value;
+
+            public static implicit operator string(MyString value) => value._value;
+            public static implicit operator MyString(string value) => new MyString(value);
+        }
+        public void TestMethod()
+        {
+            MyString s = ""Hello NUnit"";
+            ↓Assert.IsNotEmpty(s);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        private struct MyString
+        {
+            private readonly string _value;
+
+            public MyString(string value) => _value = value;
+
+            public static implicit operator string(MyString value) => value._value;
+            public static implicit operator MyString(string value) => new MyString(value);
+        }
+        public void TestMethod()
+        {
+            MyString s = ""Hello NUnit"";
+            Assert.That((string)s, Is.Not.Empty);
+        }");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+        }
     }
 }

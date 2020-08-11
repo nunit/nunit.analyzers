@@ -79,5 +79,44 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }");
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
+
+        [TestCase("IsFalse", AnalyzerIdentifiers.IsFalseUsage)]
+        [TestCase("False", AnalyzerIdentifiers.FalseUsage)]
+        public void VerifyIsFalseAndFalseWithImplicitTypeConversionFixes(string assertion, string diagnosticId)
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private struct MyBool
+        {{
+            private readonly bool _value;
+
+            public MyBool(bool value) => _value = value;
+
+            public static implicit operator bool(MyBool value) => value._value;
+            public static implicit operator MyBool(bool value) => new MyBool(value);
+        }}
+        public void TestMethod()
+        {{
+            MyBool x = false;
+            ↓Assert.{assertion}(x);
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        private struct MyBool
+        {
+            private readonly bool _value;
+
+            public MyBool(bool value) => _value = value;
+
+            public static implicit operator bool(MyBool value) => value._value;
+            public static implicit operator MyBool(bool value) => new MyBool(value);
+        }
+        public void TestMethod()
+        {
+            MyBool x = false;
+            Assert.That((bool)x, Is.False);
+        }");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+        }
     }
 }
