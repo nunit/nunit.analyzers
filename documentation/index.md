@@ -68,3 +68,4 @@
 | [NUnit2038](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2038.md)| Consider using Assert.That(actual, Is.InstanceOf(expected)) instead of Assert.IsInstanceOf(expected, actual). | :white_check_mark: |
 | [NUnit2039](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2039.md)| Consider using Assert.That(actual, Is.Not.InstanceOf(expected)) instead of Assert.IsNotInstanceOf(expected, actual). | :white_check_mark: |
 | [NUnit2040](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2040.md)| Non-reference types for SameAs constraint. | :white_check_mark: |
+| [NUnit2041](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2041.md)| Incompatible types for comparison constraint. | :white_check_mark: |
