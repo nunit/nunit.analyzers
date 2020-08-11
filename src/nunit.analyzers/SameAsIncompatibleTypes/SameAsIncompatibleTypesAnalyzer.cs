@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
+using NUnit.Analyzers.Operations;
 
 namespace NUnit.Analyzers.SameAsIncompatibleTypes
 {
@@ -23,40 +24,66 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
-                out var actualOperation, out var constraintExpression))
+            IOperation? actualOperation;
+            IOperation? expectedOperation;
+
+            if (assertOperation.TargetMethod.Name.Equals(NunitFrameworkConstants.NameOfAssertAreSame) ||
+                assertOperation.TargetMethod.Name.Equals(NunitFrameworkConstants.NameOfAssertAreNotSame))
             {
-                return;
+                actualOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfActualParameter);
+                expectedOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfExpectedParameter);
+
+                CheckActualVsExpectedOperation(context, actualOperation, expectedOperation);
             }
-
-            foreach (var constraintPart in constraintExpression.ConstraintParts)
+            else
             {
-                if (constraintPart.GetConstraintName() != NunitFrameworkConstants.NameOfIsSameAs
-                    || constraintPart.Root?.Type.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfSameAsConstraint)
+                if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
+                    out actualOperation, out var constraintExpression))
                 {
-                    continue;
-                }
-
-                if (constraintPart.GetPrefixesNames().Any(p => p != NunitFrameworkConstants.NameOfIsNot))
                     return;
-
-                var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
-
-                if (actualType == null)
-                    continue;
-
-                var expectedArgumentOperation = constraintPart.GetExpectedArgument();
-                var expectedType = expectedArgumentOperation?.Type;
-
-                if (expectedType != null && !CanBeSameType(actualType, expectedType, context.Compilation))
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        descriptor,
-                        expectedArgumentOperation!.Syntax.GetLocation()));
                 }
+
+                foreach (var constraintPartExpression in constraintExpression.ConstraintParts)
+                {
+                    if (HasIncompatiblePrefixes(constraintPartExpression)
+                        || constraintPartExpression.HasUnknownExpressions())
+                    {
+                        return;
+                    }
+
+                    var constraintMethod = constraintPartExpression.GetConstraintMethod();
+
+                    if (constraintMethod?.Name != NunitFrameworkConstants.NameOfIsSameAs
+                        || constraintMethod.ReturnType?.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfSameAsConstraint)
+                    {
+                        continue;
+                    }
+
+                    expectedOperation = constraintPartExpression.GetExpectedArgument();
+
+                    CheckActualVsExpectedOperation(context, actualOperation, expectedOperation);
+                }
+            }
+        }
+
+        private static void CheckActualVsExpectedOperation(OperationAnalysisContext context, IOperation? actualOperation, IOperation? expectedOperation)
+        {
+            if (actualOperation == null || expectedOperation == null)
+                return;
+
+            var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
+            var expectedType = expectedOperation.Type;
+
+            if (actualType == null || expectedType == null)
+                return;
+
+            if (expectedType != null && !CanBeSameType(actualType, expectedType, context.Compilation))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    descriptor,
+                        expectedOperation.Syntax.GetLocation()));
             }
         }
 
@@ -64,6 +91,14 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
         {
             var conversion = compilation.ClassifyConversion(actualType, expectedType);
             return conversion.IsIdentity || conversion.IsReference;
+        }
+
+        private static bool HasIncompatiblePrefixes(ConstraintExpressionPart constraintPartExpression)
+        {
+            // Currently only 'Not' suffix supported, as all other suffixes change actual type for constraint
+            // (e.g. All, Some, Property, Count, etc.)
+
+            return constraintPartExpression.GetPrefixesNames().Any(s => s != NunitFrameworkConstants.NameOfIsNot);
         }
     }
 }
