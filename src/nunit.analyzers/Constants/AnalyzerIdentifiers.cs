@@ -76,6 +76,7 @@ namespace NUnit.Analyzers.Constants
         internal const string ContainsUsage = "NUnit2037";
         internal const string IsInstanceOfUsage = "NUnit2038";
         internal const string IsNotInstanceOfUsage = "NUnit2039";
+        internal const string SameAsOnValueTypes = "NUnit2040";
 
         #endregion Assertion
     }

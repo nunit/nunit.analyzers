@@ -8,5 +8,6 @@ namespace NUnit.Analyzers.Constants
         internal const string UsePropertyDescriptionFormat = "Use '{0}' property";
         internal const string MakeTestMethodPublic = "Make test method public";
         internal const string MakeNonTestMethodPrivate = "Make non-test method private";
+        internal const string UseIsEqualToDescription = "Use IsEqualTo on value types";
     }
 }
