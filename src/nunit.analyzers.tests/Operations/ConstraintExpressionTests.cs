@@ -6,12 +6,12 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Operations
 {
-    public class ConstraintOperationTests
+    public class ConstraintExpressionTests
     {
         [Test]
         public async Task SimpleIsExpression()
         {
-            var constraintExpression = await CreateConstraintOperation("Is.EqualTo(1)");
+            var constraintExpression = await CreateConstraintExpression("Is.EqualTo(1)");
 
             var constraintParts = constraintExpression.ConstraintParts.Select(p => p.ToString());
             Assert.That(constraintParts, Is.EqualTo(new[] { "Is.EqualTo(1)" }));
@@ -20,7 +20,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task ConstraintConstructor()
         {
-            var constraintExpression = await CreateConstraintOperation(
+            var constraintExpression = await CreateConstraintExpression(
                 "new NUnit.Framework.Constraints.EqualConstraint(1)");
 
             var constraintParts = constraintExpression.ConstraintParts.Select(p => p.ToString());
@@ -31,7 +31,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [TestCase("|")]
         public async Task CombinedWithBinaryOperator(string @operator)
         {
-            var constraintExpression = await CreateConstraintOperation(
+            var constraintExpression = await CreateConstraintExpression(
                 $"Has.Count.EqualTo(1) {@operator} Has.Some.EqualTo(2)");
 
             var constraintParts = constraintExpression.ConstraintParts.Select(p => p.ToString());
@@ -43,7 +43,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [TestCase("With")]
         public async Task CombinedWithOperatorMethod(string method)
         {
-            var constraintExpression = await CreateConstraintOperation(
+            var constraintExpression = await CreateConstraintExpression(
                 $"Has.Count.EqualTo(1).{method}.Some.EqualTo(2)");
 
             var constraintParts = constraintExpression.ConstraintParts.Select(p => p.ToString());
@@ -53,7 +53,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task CombinedWithMixedOperators()
         {
-            var constraintExpression = await CreateConstraintOperation(
+            var constraintExpression = await CreateConstraintExpression(
                 "Is.Not.Empty & Is.EqualTo(new [] { \"1\" }).IgnoreCase.Or.EquivalentTo(new[] { \"1\", \"2\" })");
 
             var constraintParts = constraintExpression.ConstraintParts.Select(p => p.ToString());
@@ -64,7 +64,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task WhenWithIsNop()
         {
-            var constraintExpression = await CreateConstraintOperation(
+            var constraintExpression = await CreateConstraintExpression(
                 "Has.Property(\"Foo\").With.Property(\"Bar\").EqualTo(\"Baz\")");
 
             var constraintParts = constraintExpression.ConstraintParts.Select(p => p.ToString());
@@ -72,7 +72,7 @@ namespace NUnit.Analyzers.Tests.Operations
                 "Has.Property(\"Foo\").With.Property(\"Bar\").EqualTo(\"Baz\")" }));
         }
 
-        private static async Task<ConstraintExpression> CreateConstraintOperation(string expressionString)
+        private static async Task<ConstraintExpression> CreateConstraintExpression(string expressionString)
         {
             var testCode = TestUtility.WrapInTestMethod($"Assert.That(1, {expressionString});");
             var (node, model) = await TestHelpers.GetRootAndModel(testCode);

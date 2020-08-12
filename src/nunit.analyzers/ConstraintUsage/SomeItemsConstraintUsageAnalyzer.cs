@@ -45,18 +45,16 @@ namespace NUnit.Analyzers.ConstraintUsage
             return (null, null);
         }
 
-        private bool IsLinqContains(ISymbol? symbol)
+        private bool IsLinqContains(IMethodSymbol methodSymbol)
         {
-            return symbol is IMethodSymbol methodSymbol
-               && methodSymbol.IsExtensionMethod
+            return methodSymbol.IsExtensionMethod
                && methodSymbol.Name == "Contains"
                && methodSymbol.ContainingType.GetFullMetadataName() == typeof(System.Linq.Enumerable).FullName;
         }
 
-        private bool IsCollectionContains(ISymbol? symbol)
+        private bool IsCollectionContains(IMethodSymbol methodSymbol)
         {
-            return symbol is IMethodSymbol methodSymbol
-                && methodSymbol.Name == "Contains"
+            return methodSymbol.Name == "Contains"
                 && (methodSymbol.IsInterfaceImplementation(typeof(ICollection<>).FullName!)
                     || methodSymbol.IsInterfaceImplementation(typeof(ICollection).FullName!));
         }

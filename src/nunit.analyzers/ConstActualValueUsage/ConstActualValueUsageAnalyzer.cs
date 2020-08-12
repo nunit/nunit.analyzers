@@ -45,11 +45,11 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                     && propertyReference.Field.ContainingType.SpecialType == SpecialType.System_String;
             }
 
-            void Report(SyntaxNode expression)
+            void Report(IOperation operation)
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     descriptor,
-                    expression.GetLocation()));
+                    operation.Syntax.GetLocation()));
             }
 
             var actualOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfActualParameter);
@@ -59,7 +59,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
             if (IsLiteralOperation(actualOperation))
             {
-                Report(actualOperation.Syntax);
+                Report(actualOperation);
                 return;
             }
 
@@ -71,7 +71,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
             if (expectedExpression != null && !expectedExpression.ConstantValue.HasValue && !IsStringEmpty(expectedExpression))
             {
-                Report(actualOperation.Syntax);
+                Report(actualOperation);
             }
         }
 

@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Operations
 {
-    public class ConstraintPartOperationTests
+    public class ConstraintExpressionPartTests
     {
         [Test]
         public async Task ConstraintMethodWithNoPrefixesAndSuffixes()
