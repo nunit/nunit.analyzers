@@ -27,12 +27,12 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
             if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
-                out var actualOperation, out var constraintOperation))
+                out var actualOperation, out var constraintExpression))
             {
                 return;
             }
 
-            foreach (var constraintPart in constraintOperation.ConstraintParts)
+            foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
                 if (constraintPart.GetConstraintName() != NunitFrameworkConstants.NameOfIsSameAs
                     || constraintPart.Root?.Type.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfSameAsConstraint)

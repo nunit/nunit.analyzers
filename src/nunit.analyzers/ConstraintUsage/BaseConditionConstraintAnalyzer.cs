@@ -40,12 +40,12 @@ namespace NUnit.Analyzers.ConstraintUsage
                 return;
             }
 
-            var constraintOperation = assertOperation.GetArgumentOperation(NameOfExpressionParameter);
+            var constraintExpression = assertOperation.GetArgumentOperation(NameOfExpressionParameter);
 
             // Constraint should be either absent, or Is.True, or Is.False
-            if (constraintOperation != null)
+            if (constraintExpression != null)
             {
-                if (!(constraintOperation is IPropertyReferenceOperation propertyReference
+                if (!(constraintExpression is IPropertyReferenceOperation propertyReference
                     && propertyReference.Property.ContainingType.Name == NameOfIs
                     && (propertyReference.Property.Name == NameOfIsTrue
                         || propertyReference.Property.Name == NameOfIsFalse)))
