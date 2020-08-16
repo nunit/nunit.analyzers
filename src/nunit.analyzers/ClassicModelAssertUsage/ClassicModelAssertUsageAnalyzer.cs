@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.Extensions;
 using static NUnit.Analyzers.Constants.NunitFrameworkConstants;
 
 namespace NUnit.Analyzers.ClassicModelAssertUsage
@@ -203,7 +204,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.IsNotInstanceOfDescription);
 
-        private static readonly ImmutableDictionary<string, DiagnosticDescriptor> name =
+        private static readonly ImmutableDictionary<string, DiagnosticDescriptor> NameToDescriptor =
           new Dictionary<string, DiagnosticDescriptor>
           {
               { NameOfAssertIsTrue, isTrueDescriptor },
@@ -232,16 +233,16 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
               { NameOfAssertIsNotInstanceOf, isNotInstanceOfDescriptor },
           }.ToImmutableDictionary();
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.name.Values.ToImmutableArray();
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.NameToDescriptor.Values.ToImmutableArray();
 
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
             var methodSymbol = assertOperation.TargetMethod;
 
-            if (ClassicModelAssertUsageAnalyzer.name.ContainsKey(methodSymbol.Name))
+            if (ClassicModelAssertUsageAnalyzer.NameToDescriptor.TryGetValue(methodSymbol.Name, out DiagnosticDescriptor? descriptor))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
-                    ClassicModelAssertUsageAnalyzer.name[methodSymbol.Name],
+                    descriptor,
                     assertOperation.Syntax.GetLocation(),
                     ClassicModelAssertUsageAnalyzer.GetProperties(methodSymbol)));
             }

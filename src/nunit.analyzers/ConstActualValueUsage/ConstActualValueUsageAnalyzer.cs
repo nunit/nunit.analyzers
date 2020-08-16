@@ -67,15 +67,15 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                 return;
 
             // The actual expression is a constant field, check if expected is also constant
-            var expectedExpression = this.GetExpectedExpression(assertOperation);
+            var expectedOperation = this.GetExpectedOperation(assertOperation);
 
-            if (expectedExpression != null && !expectedExpression.ConstantValue.HasValue && !IsStringEmpty(expectedExpression))
+            if (expectedOperation != null && !expectedOperation.ConstantValue.HasValue && !IsStringEmpty(expectedOperation))
             {
                 Report(actualOperation);
             }
         }
 
-        private IOperation? GetExpectedExpression(IInvocationOperation assertOperation)
+        private IOperation? GetExpectedOperation(IInvocationOperation assertOperation)
         {
             var expectedOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfExpectedParameter);
 

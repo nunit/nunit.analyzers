@@ -88,5 +88,81 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
+
+        [Test]
+        public void VerifyLessOrEqualWithActualTypeImplicitConversionFix()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        private struct MyFloat
+        {
+            private readonly float _value;
+
+            public MyFloat(float value) => _value = value;
+
+            public static implicit operator float(MyFloat value) => value._value;
+            public static implicit operator MyFloat(float value) => new MyFloat(value);
+        }
+        public void TestMethod()
+        {
+            MyFloat x = 1;
+            float y = 2;
+            ↓Assert.LessOrEqual(x, y);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        private struct MyFloat
+        {
+            private readonly float _value;
+
+            public MyFloat(float value) => _value = value;
+
+            public static implicit operator float(MyFloat value) => value._value;
+            public static implicit operator MyFloat(float value) => new MyFloat(value);
+        }
+        public void TestMethod()
+        {
+            MyFloat x = 1;
+            float y = 2;
+            Assert.That((float)x, Is.LessThanOrEqualTo(y));
+        }");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyLessOrEqualWithExpectedTypeImplicitConversionFix()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        private struct MyFloat
+        {
+            private readonly float _value;
+
+            public MyFloat(float value) => _value = value;
+
+            public static implicit operator float(MyFloat value) => value._value;
+            public static implicit operator MyFloat(float value) => new MyFloat(value);
+        }
+        public void TestMethod()
+        {
+            float x = 1;
+            MyFloat y = 2;
+            ↓Assert.LessOrEqual(x, y);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        private struct MyFloat
+        {
+            private readonly float _value;
+
+            public MyFloat(float value) => _value = value;
+
+            public static implicit operator float(MyFloat value) => value._value;
+            public static implicit operator MyFloat(float value) => new MyFloat(value);
+        }
+        public void TestMethod()
+        {
+            float x = 1;
+            MyFloat y = 2;
+            Assert.That(x, Is.LessThanOrEqualTo((float)y));
+        }");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+        }
     }
 }
