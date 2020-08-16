@@ -47,6 +47,22 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             var invocationIdentifier = diagnostic.Properties[AnalyzerPropertyKeys.ModelName];
             var isGenericMethod = diagnostic.Properties[AnalyzerPropertyKeys.IsGenericMethod] == true.ToString();
 
+            var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+
+            string? GetUserDefinedImplicitTypeConversion(ExpressionSyntax expression)
+            {
+                var typeInfo = semanticModel.GetTypeInfo(expression, context.CancellationToken);
+                var convertedType = typeInfo.ConvertedType;
+                var conversion = semanticModel.ClassifyConversion(expression, convertedType);
+
+                if (!conversion.IsUserDefined)
+                {
+                    return null;
+                }
+
+                return convertedType.ToString();
+            }
+
             // First, replace the original method invocation name to "That".
             var descendantNodes = invocationNode.DescendantNodes(_ => true).ToArray();
 
@@ -77,7 +93,27 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfAssertThat));
 
             // Now, replace the arguments.
-            var arguments = invocationNode.ArgumentList.Arguments.ToList();
+            List<ArgumentSyntax> arguments = invocationNode.ArgumentList.Arguments.ToList();
+
+            ArgumentSyntax CastIfNecessary(ArgumentSyntax argument)
+            {
+                string? implicitTypeConversion = GetUserDefinedImplicitTypeConversion(argument.Expression);
+                if (implicitTypeConversion is null)
+                    return argument;
+
+                // Assert.That only expects objects whilst the classic methods have overloads
+                // Add an explicit cast operation for the first argument.
+                return SyntaxFactory.Argument(SyntaxFactory.CastExpression(
+                    SyntaxFactory.ParseTypeName(implicitTypeConversion),
+                    argument.Expression));
+            }
+
+            // See if we need to cast the arguments when they were using a specific classic overload.
+            arguments[0] = CastIfNecessary(arguments[0]);
+            if (arguments.Count > 1)
+                arguments[1] = CastIfNecessary(arguments[1]);
+
+            // Do the rule specific conversion
             if (typeArguments == null)
                 this.UpdateArguments(diagnostic, arguments);
             else
