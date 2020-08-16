@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
@@ -23,13 +23,10 @@ namespace NUnit.Analyzers.ContainsConstraintWrongActualType
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
             = ImmutableArray.Create(descriptor);
 
-        protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
+        protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            var cancellationToken = context.CancellationToken;
-            var semanticModel = context.SemanticModel;
-
-            if (!AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
-                out var actualExpression, out var constraintExpression))
+            if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
+                out var actualOperation, out var constraintExpression))
             {
                 return;
             }
@@ -40,12 +37,12 @@ namespace NUnit.Analyzers.ContainsConstraintWrongActualType
                     return;
 
                 if (constraintPart.GetConstraintName() != NunitFrameworkConstants.NameOfDoesContain
-                    || constraintPart.GetConstraintTypeSymbol()?.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfContainsConstraint)
+                    || constraintPart.Root?.Type.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfContainsConstraint)
                 {
                     continue;
                 }
 
-                var actualType = AssertHelper.GetUnwrappedActualType(actualExpression, semanticModel, cancellationToken);
+                var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
                 // Valid if actualType is String
                 if (actualType == null

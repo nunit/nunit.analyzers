@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 
 namespace NUnit.Analyzers.ConstraintUsage
@@ -51,36 +50,18 @@ namespace NUnit.Analyzers.ConstraintUsage
             };
 
         protected override (DiagnosticDescriptor? descriptor, string? suggestedConstraint) GetDiagnosticData(
-            SyntaxNodeAnalysisContext context, ExpressionSyntax actual, bool negated)
+            OperationAnalysisContext context, IOperation actual, bool negated)
         {
-            if (actual is InvocationExpressionSyntax invocationExpression
-                && invocationExpression.ArgumentList.Arguments.Count == 1
-                && invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression
-                && IsMethodSupported(memberAccessExpression.Name, context, out var methodName))
+            if (actual is IInvocationOperation invocation
+                && invocation.Arguments.Length == 1
+                && invocation.TargetMethod.ContainingType.SpecialType == SpecialType.System_String
+                && invocation.TargetMethod.Name is var methodName
+                && SupportedMethods.ContainsKey(methodName))
             {
                 return GetDiagnosticData(methodName, negated);
             }
 
             return (null, null);
-        }
-
-        private static bool IsMethodSupported(SimpleNameSyntax nameSyntax, SyntaxNodeAnalysisContext context,
-            [NotNullWhen(true)] out string? methodName)
-        {
-            var symbol = context.SemanticModel.GetSymbolInfo(nameSyntax).Symbol;
-
-            if (symbol is IMethodSymbol methodSymbol
-                && methodSymbol.ContainingType.SpecialType == SpecialType.System_String
-                && SupportedMethods.ContainsKey(methodSymbol.Name))
-            {
-                methodName = methodSymbol.Name;
-                return true;
-            }
-            else
-            {
-                methodName = null;
-                return false;
-            }
         }
 
         private static (DiagnosticDescriptor, string) GetDiagnosticData(string stringMethod, bool negated)

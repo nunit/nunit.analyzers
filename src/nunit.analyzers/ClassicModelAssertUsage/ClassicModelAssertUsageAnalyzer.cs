@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using static NUnit.Analyzers.Constants.NunitFrameworkConstants;
@@ -235,14 +235,15 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.NameToDescriptor.Values.ToImmutableArray();
 
-        protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
-            InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
+        protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
+            var methodSymbol = assertOperation.TargetMethod;
+
             if (ClassicModelAssertUsageAnalyzer.NameToDescriptor.TryGetValue(methodSymbol.Name, out DiagnosticDescriptor? descriptor))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     descriptor,
-                    assertExpression.GetLocation(),
+                    assertOperation.Syntax.GetLocation(),
                     ClassicModelAssertUsageAnalyzer.GetProperties(methodSymbol)));
             }
         }

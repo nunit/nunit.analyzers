@@ -1,10 +1,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using NUnit.Analyzers.Syntax;
+using NUnit.Analyzers.Operations;
 using NUnit.Framework;
 
-namespace NUnit.Analyzers.Tests.Syntax
+namespace NUnit.Analyzers.Tests.Operations
 {
     public class ConstraintExpressionTests
     {
@@ -81,7 +81,9 @@ namespace NUnit.Analyzers.Tests.Syntax
                 .OfType<ExpressionSyntax>()
                 .First(e => e.ToString() == expressionString);
 
-            return new ConstraintExpression(expression, model);
+            var operation = model.GetOperation(expression);
+
+            return new ConstraintExpression(operation);
         }
     }
 }

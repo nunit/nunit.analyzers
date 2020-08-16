@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Helpers;
 
@@ -21,18 +21,19 @@ namespace NUnit.Analyzers.SameActualExpectedValue
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-        protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
-            InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
+        protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            if (!AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, context.SemanticModel,
-                out var actualExpression, out var constraintExpression))
+            if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
+                out var actualOperation, out var constraintExpression))
             {
                 return;
             }
 
+            var actualSyntax = actualOperation.Syntax;
+
             var sameExpectedExpressions = constraintExpression.ConstraintParts
-                .Select(part => part.GetExpectedArgumentExpression())
-                .Where(e => e != null && actualExpression.IsEquivalentTo(e));
+                .Select(part => part.GetExpectedArgument()?.Syntax)
+                .Where(e => e != null && actualSyntax.IsEquivalentTo(e));
 
             foreach (var expected in sameExpectedExpressions)
             {

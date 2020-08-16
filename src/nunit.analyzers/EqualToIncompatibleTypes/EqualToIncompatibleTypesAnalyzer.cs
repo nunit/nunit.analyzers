@@ -1,13 +1,12 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
-using NUnit.Analyzers.Syntax;
+using NUnit.Analyzers.Operations;
 
 namespace NUnit.Analyzers.EqualToIncompatibleTypes
 {
@@ -24,14 +23,10 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-        protected override void AnalyzeAssertInvocation(SyntaxNodeAnalysisContext context,
-            InvocationExpressionSyntax assertExpression, IMethodSymbol methodSymbol)
+        protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            var cancellationToken = context.CancellationToken;
-            var semanticModel = context.SemanticModel;
-
-            if (!AssertHelper.TryGetActualAndConstraintExpressions(assertExpression, semanticModel,
-                out var actualExpression, out var constraintExpression))
+            if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
+                out var actualOperation, out var constraintExpression))
             {
                 return;
             }
@@ -53,31 +48,24 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                     continue;
                 }
 
-                var expectedArgumentExpression = constraintPartExpression.GetExpectedArgumentExpression();
+                var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
-                if (expectedArgumentExpression == null)
+                var expectedArgumentExpression = constraintPartExpression.GetExpectedArgument();
+                var expectedType = expectedArgumentExpression?.Type;
+
+                if (actualType == null || expectedArgumentExpression == null || expectedType == null)
                     continue;
 
-                var actualTypeInfo = semanticModel.GetTypeInfo(actualExpression, cancellationToken);
-                var actualType = actualTypeInfo.Type ?? actualTypeInfo.ConvertedType;
-
-                if (actualType == null)
-                    continue;
-
-                actualType = AssertHelper.UnwrapActualType(actualType);
-
-                var expectedType = semanticModel.GetTypeInfo(expectedArgumentExpression, cancellationToken).Type;
-
-                if (!NUnitEqualityComparerHelper.CanBeEqual(actualType, expectedType, semanticModel.Compilation))
+                if (!NUnitEqualityComparerHelper.CanBeEqual(actualType, expectedType, context.Compilation))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         descriptor,
-                        expectedArgumentExpression.GetLocation()));
+                        expectedArgumentExpression.Syntax.GetLocation()));
                 }
             }
         }
 
-        private static bool HasIncompatiblePrefixes(ConstraintPartExpression constraintPartExpression)
+        private static bool HasIncompatiblePrefixes(ConstraintExpressionPart constraintPartExpression)
         {
             // Currently only 'Not' suffix supported, as all other suffixes change actual type for constraint
             // (e.g. All, Some, Property, Count, etc.)
@@ -85,7 +73,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
             return constraintPartExpression.GetPrefixesNames().Any(s => s != NunitFrameworkConstants.NameOfIsNot);
         }
 
-        private static bool HasCustomEqualityComparer(ConstraintPartExpression constraintPartExpression)
+        private static bool HasCustomEqualityComparer(ConstraintExpressionPart constraintPartExpression)
         {
             return constraintPartExpression.GetSuffixesNames().Any(s => s == NunitFrameworkConstants.NameOfUsing);
         }

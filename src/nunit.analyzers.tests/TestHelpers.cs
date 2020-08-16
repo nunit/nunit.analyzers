@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests
 {
@@ -16,11 +16,8 @@ namespace NUnit.Analyzers.Tests
 
             return CSharpCompilation.Create(Guid.NewGuid().ToString("N"),
                 syntaxTrees,
-                references: new[]
-                {
-                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                    MetadataReference.CreateFromFile(typeof(Assert).Assembly.Location)
-                });
+                references: AnalyzerAssert.MetadataReferences,
+                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         }
 
         internal static async Task<(SyntaxNode Node, SemanticModel Model)> GetRootAndModel(string code)
@@ -29,11 +26,8 @@ namespace NUnit.Analyzers.Tests
 
             var compilation = CSharpCompilation.Create(Guid.NewGuid().ToString("N"),
                 syntaxTrees: new[] { tree },
-                references: new[]
-                {
-                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                    MetadataReference.CreateFromFile(typeof(Assert).Assembly.Location)
-                });
+                references: AnalyzerAssert.MetadataReferences,
+                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
             var model = compilation.GetSemanticModel(tree);
             var root = await tree.GetRootAsync().ConfigureAwait(false);
