@@ -17,9 +17,29 @@ namespace NUnit.Analyzers.Extensions
         {
             return DerivesFromInterface(compilation, @this, NunitFrameworkConstants.FullNameOfTypeITestBuilder);
         }
+
         public static bool DerivesFromIParameterDataSource(this AttributeData @this, Compilation compilation)
         {
             return DerivesFromInterface(compilation, @this, NunitFrameworkConstants.FullNameOfTypeIParameterDataSource);
+        }
+
+        public static bool IsTestMethodAttribute(this AttributeData @this, Compilation compilation)
+        {
+            return @this.DerivesFromITestBuilder(compilation) ||
+                   @this.DerivesFromISimpleTestBuilder(compilation);
+        }
+
+        public static bool IsSetUpOrTearDownMethodAttribute(this AttributeData @this, Compilation compilation)
+        {
+            var attributeType = @this.AttributeClass;
+
+            if (attributeType == null)
+                return false;
+
+            return attributeType.IsType(NunitFrameworkConstants.FullNameOfTypeOneTimeSetUpAttribute, compilation)
+                || attributeType.IsType(NunitFrameworkConstants.FullNameOfTypeOneTimeTearDownAttribute, compilation)
+                || attributeType.IsType(NunitFrameworkConstants.FullNameOfTypeSetUpAttribute, compilation)
+                || attributeType.IsType(NunitFrameworkConstants.FullNameOfTypeTearDownAttribute, compilation);
         }
 
         public static AttributeArgumentSyntax? GetConstructorArgumentSyntax(this AttributeData @this, int position,
