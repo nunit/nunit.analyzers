@@ -68,7 +68,7 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
 
         private static bool IsPublicOrInternalMethod(IMethodSymbol method)
         {
-            switch(method.DeclaredAccessibility)
+            switch (method.DeclaredAccessibility)
             {
                 case Accessibility.Public:
                 case Accessibility.Internal:

@@ -65,10 +65,15 @@ namespace NUnit.Analyzers.Extensions
 
         private static bool DerivesFromInterface(Compilation compilation, AttributeData attributeData, string interfaceTypeFullName)
         {
+            if (attributeData.AttributeClass is null)
+                return false;
+
             var interfaceType = compilation.GetTypeByMetadataName(interfaceTypeFullName);
 
-            return attributeData.AttributeClass != null
-                && attributeData.AttributeClass.AllInterfaces.Any(i => i.Equals(interfaceType));
+            if (interfaceType is null)
+                return false;
+
+            return attributeData.AttributeClass.AllInterfaces.Any(i => i.Equals(interfaceType));
         }
     }
 }

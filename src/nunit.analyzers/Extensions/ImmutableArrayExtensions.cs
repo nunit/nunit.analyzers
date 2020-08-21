@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NUnit.Analyzers.Extensions
 {
     public static class ImmutableArrayExtensions
     {
-        public static bool TryGetValue<TKey, TValue>(this ImmutableArray<KeyValuePair<TKey, TValue>> @this, TKey key, out TValue value)
+        public static bool TryGetValue<TKey, TValue>(this ImmutableArray<KeyValuePair<TKey, TValue>> @this,
+            TKey key, [MaybeNullWhen(false)] out TValue value)
         {
             foreach (var keyValue in @this)
             {
@@ -16,7 +18,7 @@ namespace NUnit.Analyzers.Extensions
                 }
             }
 
-            value = default!;
+            value = default;
             return false;
         }
     }
