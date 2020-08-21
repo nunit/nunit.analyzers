@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
                 var expected = Guid.Empty;
                 var actual = expected;
 
-                ↓Assert.That(actual, Is.SameAs(expected));
+                Assert.That(actual, Is.SameAs(↓expected));
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
@@ -49,7 +49,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var code = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
 
-                ↓Assert.That(() => expected, Is.Not.SameAs(expected), ""message"");
+                Assert.That(() => expected, Is.Not.SameAs(↓expected), ""message"");
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
@@ -65,7 +65,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var code = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
 
-                ↓Assert.That(Task.FromResult(expected), Is.SameAs(expected), ""message"", Guid.Empty);
+                Assert.That(Task.FromResult(expected), Is.SameAs(↓expected), ""message"", Guid.Empty);
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
@@ -82,7 +82,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
                 var expected = Guid.Empty;
                 var actual = expected;
 
-                ↓Assert.AreSame(expected, actual);
+                Assert.AreSame(↓expected, actual);
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
@@ -99,7 +99,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var code = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
 
-                ↓Assert.AreNotSame(expected, Guid.NewGuid(), ""message"");
+                Assert.AreNotSame(↓expected, Guid.NewGuid(), ""message"");
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
@@ -115,13 +115,24 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var code = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
 
-                ↓Assert.AreSame(expected, expected, ""message"", Guid.Empty);
+                Assert.AreSame(↓expected, expected, ""message"", Guid.Empty);
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
 
                 Assert.AreEqual(expected, expected, ""message"", Guid.Empty);
             ");
+            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
+        }
+
+        [Test]
+        public void AnalyzeWhenMoreThanOneConstraintExpressionIsUsed()
+        {
+            var code = TestUtility.WrapInTestMethod(
+                @"Assert.That(""1"", Is.Not.SameAs(""1"") & Is.Not.SameAs(↓2));");
+
+            var fixedCode = TestUtility.WrapInTestMethod(
+                @"Assert.That(""1"", Is.Not.SameAs(""1"") & Is.Not.EqualTo(2));");
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
         }
     }

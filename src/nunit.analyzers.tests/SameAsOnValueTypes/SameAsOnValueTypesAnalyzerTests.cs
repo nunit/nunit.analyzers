@@ -16,7 +16,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeWhenLiteralTypesProvided()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                "↓Assert.That(1, Is.SameAs(1));");
+                "Assert.That(1, Is.SameAs(↓1));");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -28,7 +28,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
                 var expected = Guid.Empty;
                 var actual = expected;
 
-                ↓Assert.That(actual, Is.SameAs(expected));");
+                Assert.That(actual, Is.SameAs(↓expected));");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -39,7 +39,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var testCode = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
 
-                ↓Assert.That(() => expected, Is.SameAs(expected));");
+                Assert.That(() => expected, Is.SameAs(↓expected));");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -50,7 +50,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var testCode = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
 
-                ↓Assert.That(Task.FromResult(expected), Is.SameAs(expected));");
+                Assert.That(Task.FromResult(expected), Is.SameAs(↓expected));");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -59,7 +59,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeWhenActualIsReferenceTypeAndExpectedIsValueType()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"↓Assert.That(""3"", Is.Not.SameAs(3));");
+                @"Assert.That(""3"", Is.Not.SameAs(↓3));");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -68,7 +68,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeWhenActualIsValueTypeAndExpectedIsReferenceType()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"↓Assert.That(3, Is.Not.SameAs(""3""));");
+                @"Assert.That(↓3, Is.Not.SameAs(""3""));");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -98,7 +98,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeClassicWhenLiteralTypesProvided()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                "↓Assert.AreSame(1, 1);");
+                "Assert.AreSame(↓1, 1);");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -110,7 +110,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
                 var expected = Guid.Empty;
                 var actual = expected;
 
-                ↓Assert.AreSame(expected, actual);");
+                Assert.AreSame(↓expected, actual);");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -119,7 +119,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeClassicWhenActualIsReferenceTypeAndExpectedIsValueType()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"↓Assert.AreNotSame(3, ""3"");");
+                @"Assert.AreNotSame(↓3, ""3"");");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -128,7 +128,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeClassicWhenActualIsValueTypeAndExpectedIsReferenceType()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"↓Assert.AreNotSame(""3"", 3);");
+                @"Assert.AreNotSame(""3"", ↓3);");
 
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -140,6 +140,15 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
                 @"Assert.AreSame(""3"", ""3"");");
 
             AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenMoreThanOneConstraintExpressionIsUsed()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                @"Assert.That(""1"", Is.Not.SameAs(""1"") & Is.Not.SameAs(↓2);");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
     }
 }

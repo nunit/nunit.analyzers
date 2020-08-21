@@ -26,13 +26,15 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
             IOperation? actualOperation;
-            IOperation? expectedOperation = null;
+            IOperation? expectedOperation;
 
             if (assertOperation.TargetMethod.Name.Equals(NunitFrameworkConstants.NameOfAssertAreSame) ||
                 assertOperation.TargetMethod.Name.Equals(NunitFrameworkConstants.NameOfAssertAreNotSame))
             {
                 actualOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfActualParameter);
                 expectedOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfExpectedParameter);
+
+                CheckActualVsExpectedOperation(context, actualOperation, expectedOperation);
             }
             else
             {
@@ -59,10 +61,14 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
                     }
 
                     expectedOperation = constraintPartExpression.GetExpectedArgument();
-                    break;
+
+                    CheckActualVsExpectedOperation(context, actualOperation, expectedOperation);
                 }
             }
+        }
 
+        private static void CheckActualVsExpectedOperation(OperationAnalysisContext context, IOperation? actualOperation, IOperation? expectedOperation)
+        {
             if (actualOperation == null || expectedOperation == null)
                 return;
 
@@ -72,11 +78,17 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
             if (actualType == null || expectedType == null)
                 return;
 
-            if (actualType.IsValueType || expectedType.IsValueType)
+            if (expectedType.IsValueType)
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     descriptor,
-                    assertOperation.Syntax.GetLocation()));
+                    expectedOperation.Syntax.GetLocation()));
+            }
+            else if (actualType.IsValueType)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    descriptor,
+                    actualOperation.Syntax.GetLocation()));
             }
         }
 
