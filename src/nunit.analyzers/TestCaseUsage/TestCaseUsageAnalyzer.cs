@@ -65,7 +65,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                     var attributeSymbol = context.SemanticModel.GetSymbolInfo(attributeNode).Symbol;
 
                     if (testCaseType.ContainingAssembly.Identity == attributeSymbol?.ContainingAssembly.Identity &&
-                        NunitFrameworkConstants.NameOfTestCaseAttribute == attributeSymbol?.ContainingType.Name)
+                        attributeSymbol?.ContainingType.Name == NunitFrameworkConstants.NameOfTestCaseAttribute)
                     {
                         context.CancellationToken.ThrowIfCancellationRequested();
 
@@ -198,7 +198,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                         continue;
                     }
                 }
-                
+
                 context.ReportDiagnostic(Diagnostic.Create(parameterTypeMismatch,
                     attributeArgument.GetLocation(),
                     i,

@@ -45,7 +45,7 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
                     continue;
 
                 // e.g. Is.EqualTo(expected).IgnoreCase
-                // Need to check type of expected 
+                // Need to check type of expected
 
                 var ignoreCaseSuffix = constraintPart.GetSuffix(NunitFrameworkConstants.NameOfIgnoreCase) as IPropertyReferenceOperation;
 

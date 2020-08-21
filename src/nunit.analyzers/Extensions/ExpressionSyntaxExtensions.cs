@@ -9,8 +9,10 @@ namespace NUnit.Analyzers.Extensions
         /// <summary>
         /// Returns argument expression by parameter name.
         /// </summary>
-        public static ExpressionSyntax? GetArgumentExpression(this InvocationExpressionSyntax invocationSyntax,
-            IMethodSymbol methodSymbol, string parameterName)
+        public static ExpressionSyntax? GetArgumentExpression(
+            this InvocationExpressionSyntax invocationSyntax,
+            IMethodSymbol methodSymbol,
+            string parameterName)
         {
             var arguments = invocationSyntax.ArgumentList.Arguments;
 

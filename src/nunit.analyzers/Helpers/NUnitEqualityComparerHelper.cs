@@ -11,7 +11,7 @@ namespace NUnit.Analyzers.Helpers
     {
         /// <summary>
         /// Returns true if it is possible that <see cref="NUnit.Framework.Constraints.NUnitEqualityComparer.AreEqual"/>
-        /// returns true for given argument types. 
+        /// returns true for given argument types.
         /// False otherwise.
         /// </summary>
         public static bool CanBeEqual(
@@ -58,7 +58,6 @@ namespace NUnit.Analyzers.Helpers
 
             var actualFullName = actualType.GetFullMetadataName();
             var expectedFullName = expectedType.GetFullMetadataName();
-
 
             if (actualType is INamedTypeSymbol namedActualType
                 && expectedType is INamedTypeSymbol namedExpectedType)

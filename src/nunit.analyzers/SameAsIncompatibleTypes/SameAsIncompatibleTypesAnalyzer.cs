@@ -23,7 +23,6 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
             if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,

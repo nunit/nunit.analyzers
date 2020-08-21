@@ -1,6 +1,6 @@
 namespace NUnit.Analyzers.Constants
 {
-    class ParallelizableUsageAnalyzerConstants
+    internal class ParallelizableUsageAnalyzerConstants
     {
         internal const string ParallelScopeSelfNoEffectOnAssemblyTitle = "Specifying ParallelScope.Self on assembly level has no effect.";
         internal const string ParallelScopeSelfNoEffectOnAssemblyMessage = "Specifying ParallelScope.Self on assembly level has no effect.";

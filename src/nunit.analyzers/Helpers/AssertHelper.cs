@@ -10,7 +10,7 @@ namespace NUnit.Analyzers.Helpers
     internal static class AssertHelper
     {
         /// <summary>
-        /// Get provided 'actual' and 'expression' arguments to Assert.That method
+        /// Get provided 'actual' and 'expression' arguments to Assert.That method.
         /// </summary>
         /// <returns>
         /// True, if arguments found. Otherwise - false.

@@ -88,7 +88,7 @@ namespace NUnit.Analyzers.TestMethodAccessibilityLevel
             return new SyntaxTokenList(newSyntaxTokens);
         }
 
-        public static SyntaxTokenList AddPublicModifier(MethodDeclarationSyntax originalExpression)
+        private static SyntaxTokenList AddPublicModifier(MethodDeclarationSyntax originalExpression)
         {
             var modifiers = originalExpression.Modifiers;
             var syntaxTriviaList = modifiers.Any()

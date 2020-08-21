@@ -8,7 +8,7 @@ using NUnit.Analyzers.Extensions;
 namespace NUnit.Analyzers.Operations
 {
     /// <summary>
-    /// Represents assert constraint expression, e.g. 'Is.EqualTo(expected)', 'Is.Not.Null & Is.Not.Empty'
+    /// Represents assert constraint expression, e.g. 'Is.EqualTo(expected)', 'Is.Not.Null & Is.Not.Empty'.
     /// </summary>
     internal class ConstraintExpression
     {
@@ -47,7 +47,7 @@ namespace NUnit.Analyzers.Operations
 
         /// <summary>
         /// If provided constraint expression is combined using &, | operators - return multiple split expressions.
-        /// Otherwise - returns single <paramref name="constraintExpression"/> value
+        /// Otherwise - returns single <paramref name="constraintExpression"/> value.
         /// </summary>
         private static IEnumerable<IOperation> SplitConstraintByBinaryOperators(IOperation constraintExpression)
         {
@@ -69,7 +69,7 @@ namespace NUnit.Analyzers.Operations
         }
 
         /// <summary>
-        /// If constraint expression is combined using And, Or, With properties - 
+        /// If constraint expression is combined using And, Or, With properties -
         /// returns parts of expression split by those properties.
         /// For each part returns operations split by call chains.
         /// </summary>
@@ -77,7 +77,7 @@ namespace NUnit.Analyzers.Operations
             SplitConstraintByConstraintExpressionOperators(IOperation constraintExpression)
         {
             // e.g. Does.Contain(a).IgnoreCase.And.Contain(b).And.Not.Null
-            // --> 
+            // -->
             // Does.Contain(a).IgnoreCase,
             // Does.Contain(a).IgnoreCase.And.Contain(b)
             // Does.Contain(a).IgnoreCase.And.Contain(b).And.Not.Null
@@ -103,7 +103,7 @@ namespace NUnit.Analyzers.Operations
         }
 
         /// <summary>
-        /// Returns true if current expression is And/Or/With constraint operator
+        /// Returns true if current expression is And/Or/With constraint operator.
         /// </summary>
         private static bool IsConstraintExpressionOperator(IOperation operation)
         {

@@ -61,7 +61,7 @@ namespace NUnit.Analyzers.ParallelizableUsage
             var attributeSymbol = context.SemanticModel.GetSymbolInfo(attributeNode).Symbol;
 
             if (parallelizableAttributeType.ContainingAssembly.Identity != attributeSymbol?.ContainingAssembly.Identity ||
-                NunitFrameworkConstants.NameOfParallelizableAttribute != attributeSymbol?.ContainingType.Name)
+                attributeSymbol?.ContainingType.Name != NunitFrameworkConstants.NameOfParallelizableAttribute)
             {
                 return;
             }

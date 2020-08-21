@@ -9,7 +9,7 @@ using NUnit.Analyzers.Extensions;
 namespace NUnit.Analyzers.Operations
 {
     /// <summary>
-    /// Represents part of <see cref="ConstraintExpression"/>, which is combined with others with 
+    /// Represents part of <see cref="ConstraintExpression"/>, which is combined with others with
     /// binary operators ('&', '|')  or methods ('And', 'Or', 'With').
     /// </summary>
     internal class ConstraintExpressionPart
@@ -140,7 +140,7 @@ namespace NUnit.Analyzers.Operations
         {
             get
             {
-                // If constraint is built using And/ Or methods, and current part is second operand, 
+                // If constraint is built using And/ Or methods, and current part is second operand,
                 // we need to cut after operator.
                 var operation = this.callChainOperations[0];
                 var syntax = operation.Syntax;

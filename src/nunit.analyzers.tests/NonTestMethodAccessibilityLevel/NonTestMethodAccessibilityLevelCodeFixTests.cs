@@ -30,14 +30,14 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }
 
-        static readonly object[] NonPrivateModifiers =
+        private static readonly object[] NonPrivateModifiers =
         {
-            new object [] { "public", "private" },
-            new object [] { "internal", "private" },
-            new object [] { "protected internal", "protected" },
-            new object [] { "static public", "static private" },
-            new object [] { "static internal", "static private" },
-            new object [] { "static protected internal", "static protected" },
+            new object[] { "public", "private" },
+            new object[] { "internal", "private" },
+            new object[] { "protected internal", "protected" },
+            new object[] { "static public", "static private" },
+            new object[] { "static internal", "static private" },
+            new object[] { "static protected internal", "static protected" },
         };
     }
 }

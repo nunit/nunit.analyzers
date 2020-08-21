@@ -22,7 +22,7 @@ namespace NUnit.Analyzers.Extensions
         internal static bool IsAssert(this ITypeSymbol @this)
         {
             return @this != null &&
-                NunitFrameworkConstants.NUnitFrameworkAssemblyName == @this.ContainingAssembly.Name &&
+                @this.ContainingAssembly.Name == NunitFrameworkConstants.NUnitFrameworkAssemblyName &&
                 @this.Name == NunitFrameworkConstants.NameOfAssert;
         }
 
@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.Extensions
         {
             return @this != null && @this.GetAllBaseTypes()
                 .Any(t => t.Name == NunitFrameworkConstants.NameOfConstraint
-                    && NunitFrameworkConstants.NUnitFrameworkAssemblyName == @this.ContainingAssembly.Name);
+                    && @this.ContainingAssembly.Name == NunitFrameworkConstants.NUnitFrameworkAssemblyName);
         }
 
         internal static string GetFullMetadataName(this ITypeSymbol @this)
@@ -142,7 +142,7 @@ namespace NUnit.Analyzers.Extensions
         /// Return value indicates whether type implements IEnumerable interface.
         /// </summary>
         /// <param name="elementType">Contains IEnumerable generic argument, or null, if type implements
-        /// only non-generic IEnumerable interface, or no IEnumerable interface at all</param>
+        /// only non-generic IEnumerable interface, or no IEnumerable interface at all.</param>
         internal static bool IsIEnumerable(this ITypeSymbol @this, out ITypeSymbol? elementType)
         {
             elementType = null;

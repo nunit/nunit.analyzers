@@ -64,7 +64,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             return (null, null);
         }
 
-        private static (DiagnosticDescriptor, string) GetDiagnosticData(string stringMethod, bool negated)
+        private static (DiagnosticDescriptor descriptor, string suggestedConstraint) GetDiagnosticData(string stringMethod, bool negated)
         {
             var (doesMethod, descriptor) = SupportedMethods[stringMethod];
 

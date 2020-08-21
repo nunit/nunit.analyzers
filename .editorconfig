@@ -118,3 +118,75 @@ dotnet_naming_rule.public_fields.style = pascal_case
 dotnet_naming_rule.parameters_and_locals.severity = suggestion
 dotnet_naming_rule.parameters_and_locals.symbols = parameters_and_locals
 dotnet_naming_rule.parameters_and_locals.style = camel_case
+
+# SA0001: Xml comment analysis disabled
+dotnet_diagnostic.SA0001.severity = none
+
+# SA1101: Prefix local calls with this
+dotnet_diagnostic.SA1101.severity = none
+
+# SA1116: Split parameters should start on line after declaration
+dotnet_diagnostic.SA1116.severity = none
+
+# SA1117: Parameters should be on same line or separate lines
+dotnet_diagnostic.SA1117.severity = none
+
+# SA1122: Use string.Empty for empty strings
+dotnet_diagnostic.SA1122.severity = none
+
+# SA1124: Do not use regions
+dotnet_diagnostic.SA1124.severity = none
+
+# SA1118: Parameter should not span multiple lines
+dotnet_diagnostic.SA1118.severity = none
+
+# SA1200: Using directives should be placed correctly
+dotnet_diagnostic.SA1200.severity = none
+
+# SA1201: Elements should appear in the correct order
+dotnet_diagnostic.SA1201.severity = none
+
+# SA1202: Elements should be ordered by access
+dotnet_diagnostic.SA1202.severity = none
+
+# SA1204: Static elements should appear before instance elements
+dotnet_diagnostic.SA1204.severity = none
+
+# SA1311: Static readonly fields should begin with upper-case letter
+dotnet_diagnostic.SA1311.severity = none
+
+# SA1316: Tuple element names should use correct casing
+dotnet_diagnostic.SA1316.severity = none
+
+# SA1401: Fields should be private
+dotnet_diagnostic.SA1401.severity = none
+
+# SA1413: Use trailing comma in multi-line initializers
+dotnet_diagnostic.SA1413.severity = none
+
+# SA1503: Braces should not be omitted
+dotnet_diagnostic.SA1503.severity = none
+
+# SA1512: Single-line comments should not be followed by blank line
+dotnet_diagnostic.SA1512.severity = none
+
+# SA1516: Elements should be separated by blank line
+dotnet_diagnostic.SA1516.severity = none
+
+# SA1600: Elements should be documented
+dotnet_diagnostic.SA1600.severity = none
+
+# SA1623: Property summary documentation should match accessors
+dotnet_diagnostic.SA1623.severity = none
+
+# SA1615: Element return value should be documented
+dotnet_diagnostic.SA1615.severity = none
+
+# SA1611: Element parameters should be documented
+dotnet_diagnostic.SA1611.severity = none
+
+# SA1612: Element parameter documentation should match element parameters
+dotnet_diagnostic.SA1612.severity = none
+
+# SA1633: File should have header
+dotnet_diagnostic.SA1633.severity = none

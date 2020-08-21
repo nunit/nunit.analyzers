@@ -152,10 +152,9 @@ namespace NUnit.Analyzers.Tests
                                                  .OrderBy(x => x.Id);
             foreach (var descriptor in descriptors)
             {
-                var enabledEmoji  = descriptor.IsEnabledByDefault ? ":white_check_mark:" : ":x:";
+                var enabledEmoji = descriptor.IsEnabledByDefault ? ":white_check_mark:" : ":x:";
                 builder.Append($"| [{descriptor.Id}]({descriptor.HelpLinkUri})")
-                       .AppendLine($"| {descriptor.Title.EscapeTags()} | {enabledEmoji} |");
-
+                       .AppendLine($"| {EscapeTags(descriptor.Title)} | {enabledEmoji} |");
             }
 
             var expected = builder.ToString();
@@ -202,6 +201,9 @@ namespace NUnit.Analyzers.Tests
             Console.WriteLine();
         }
 
+        private static string EscapeTags(LocalizableString str)
+            => str.ToString(CultureInfo.InvariantCulture).Replace("<", @"\<");
+
         public class DescriptorInfo
         {
             private DescriptorInfo(DiagnosticAnalyzer analyzer, DiagnosticDescriptor descriptor)
@@ -245,7 +247,7 @@ namespace NUnit.Analyzers.Tests
                 var text = builder.ToString();
                 var stub = $@"# {descriptor.Id}
 
-## {descriptor.Title.EscapeTags()}
+## {EscapeTags(descriptor.Title)}
 
 | Topic    | Value
 | :--      | :--
@@ -257,7 +259,7 @@ namespace NUnit.Analyzers.Tests
 
 ## Description
 
-{descriptor.Description.EscapeTags()}
+{EscapeTags(descriptor.Description)}
 
 ## Motivation
 
@@ -326,7 +328,7 @@ Or put this at the top of the file to disable all instances.
 
         public class CodeFile
         {
-            private const string repoOnMaster = "https://github.com/nunit/nunit.analyzers/blob/master";
+            private const string RepoOnMaster = "https://github.com/nunit/nunit.analyzers/blob/master";
 
             private static readonly ConcurrentDictionary<Type, CodeFile> cache =
                 new ConcurrentDictionary<Type, CodeFile>();
@@ -338,7 +340,7 @@ Or put this at the top of the file to disable all instances.
 
             public string Name { get; }
 
-            public string Uri => repoOnMaster + this.Name.Substring(RepositoryDirectory.FullName.Length).Replace("\\", "/");
+            public string Uri => RepoOnMaster + this.Name.Substring(RepositoryDirectory.FullName.Length).Replace("\\", "/");
 
             public static CodeFile Find(Type type)
             {
@@ -357,11 +359,5 @@ Or put this at the top of the file to disable all instances.
                 return new CodeFile(fileName);
             }
         }
-    }
-
-    public static class LocalizableStringExtensions
-    {
-        public static string EscapeTags(this LocalizableString @this)
-            => @this.ToString(CultureInfo.InvariantCulture).Replace("<", @"\<");
     }
 }

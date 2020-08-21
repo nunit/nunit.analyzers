@@ -22,16 +22,6 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
         protected virtual string Title => CodeFixConstants.TransformToConstraintModelDescription;
 
-        protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments, TypeArgumentListSyntax typeArguments)
-        {
-            throw new InvalidOperationException($"Class must override {nameof(UpdateArguments)} accepting {nameof(TypeArgumentListSyntax)}");
-        }
-
-        protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
-        {
-            throw new InvalidOperationException($"Class must override {nameof(UpdateArguments)}");
-        }
-
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
@@ -131,6 +121,16 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                     this.Title,
                     _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
                     this.Title), diagnostic);
+        }
+
+        protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments, TypeArgumentListSyntax typeArguments)
+        {
+            throw new InvalidOperationException($"Class must override {nameof(UpdateArguments)} accepting {nameof(TypeArgumentListSyntax)}");
+        }
+
+        protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
+        {
+            throw new InvalidOperationException($"Class must override {nameof(UpdateArguments)}");
         }
     }
 }

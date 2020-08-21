@@ -57,8 +57,10 @@ namespace NUnit.Analyzers.Tests.Operations
                 "Is.Not.Empty & Is.EqualTo(new [] { \"1\" }).IgnoreCase.Or.EquivalentTo(new[] { \"1\", \"2\" })");
 
             var constraintParts = constraintExpression.ConstraintParts.Select(p => p.ToString());
-            Assert.That(constraintParts, Is.EqualTo(new[] {
-                "Is.Not.Empty", "Is.EqualTo(new [] { \"1\" }).IgnoreCase", "EquivalentTo(new[] { \"1\", \"2\" })" }));
+            Assert.That(constraintParts, Is.EqualTo(new[]
+            {
+                "Is.Not.Empty", "Is.EqualTo(new [] { \"1\" }).IgnoreCase", "EquivalentTo(new[] { \"1\", \"2\" })"
+            }));
         }
 
         [Test]
@@ -68,8 +70,10 @@ namespace NUnit.Analyzers.Tests.Operations
                 "Has.Property(\"Foo\").With.Property(\"Bar\").EqualTo(\"Baz\")");
 
             var constraintParts = constraintExpression.ConstraintParts.Select(p => p.ToString());
-            Assert.That(constraintParts, Is.EqualTo(new[] {
-                "Has.Property(\"Foo\").With.Property(\"Bar\").EqualTo(\"Baz\")" }));
+            Assert.That(constraintParts, Is.EqualTo(new[]
+            {
+                "Has.Property(\"Foo\").With.Property(\"Bar\").EqualTo(\"Baz\")"
+            }));
         }
 
         private static async Task<ConstraintExpression> CreateConstraintExpression(string expressionString)

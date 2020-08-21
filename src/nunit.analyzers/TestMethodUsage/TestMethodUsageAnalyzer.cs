@@ -28,7 +28,6 @@ namespace NUnit.Analyzers.TestCaseUsage
             defaultSeverity: DiagnosticSeverity.Error,
             description: TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodDescription);
 
-
         private static readonly DiagnosticDescriptor noExpectedResultButNonVoidReturnType = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType,
             title: TestMethodUsageAnalyzerConstants.NoExpectedResultButNonVoidReturnTypeTitle,

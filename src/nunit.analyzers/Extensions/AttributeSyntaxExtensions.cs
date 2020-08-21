@@ -57,25 +57,6 @@ namespace NUnit.Analyzers.Extensions
             return DerivesFromInterface(semanticModel, @this, NunitFrameworkConstants.FullNameOfTypeIParameterDataSource);
         }
 
-        private static bool DerivesFromInterface(
-            SemanticModel semanticModel,
-            AttributeSyntax attributeSyntax,
-            string interfaceTypeFullName)
-        {
-            var interfaceType = semanticModel.Compilation.GetTypeByMetadataName(interfaceTypeFullName);
-
-            if (interfaceType == null)
-                return false;
-
-            var attributeType = semanticModel.GetTypeInfo(attributeSyntax).Type;
-
-            if (attributeType == null)
-                return false;
-
-            return attributeType.AllInterfaces.Any(i => i.Equals(interfaceType));
-
-        }
-
         internal static bool IsSetUpOrTearDownMethodAttribute(this AttributeSyntax attributeSyntax, SemanticModel semanticModel)
         {
             var attributeType = semanticModel.GetTypeInfo(attributeSyntax).Type;
@@ -99,6 +80,24 @@ namespace NUnit.Analyzers.Extensions
         {
             return attributeSyntax.DerivesFromITestBuilder(semanticModel) ||
                    attributeSyntax.DerivesFromISimpleTestBuilder(semanticModel);
+        }
+
+        private static bool DerivesFromInterface(
+            SemanticModel semanticModel,
+            AttributeSyntax attributeSyntax,
+            string interfaceTypeFullName)
+        {
+            var interfaceType = semanticModel.Compilation.GetTypeByMetadataName(interfaceTypeFullName);
+
+            if (interfaceType == null)
+                return false;
+
+            var attributeType = semanticModel.GetTypeInfo(attributeSyntax).Type;
+
+            if (attributeType == null)
+                return false;
+
+            return attributeType.AllInterfaces.Any(i => i.Equals(interfaceType));
         }
     }
 }

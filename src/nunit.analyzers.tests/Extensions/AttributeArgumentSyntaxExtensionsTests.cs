@@ -13,7 +13,7 @@ namespace NUnit.Analyzers.Tests.Extensions
     [TestFixture]
     public sealed class AttributeArgumentSyntaxExtensionsTests
     {
-        static IEnumerable<TestCaseData> GetTestData()
+        private static IEnumerable<TestCaseData> GetTestData()
         {
             yield return new TestCaseData("null", "object", "object", Is.True).
                 SetName("CanAssignToWhenArgumentIsNullAndTargetIsReferenceType");
@@ -103,7 +103,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
             Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), expectedResult);
         }
 
-        private async static Task<(AttributeArgumentSyntax Syntax, ITypeSymbol TypeSymbol, SemanticModel Model)> GetAttributeSyntaxAsync(string code)
+        private static async Task<(AttributeArgumentSyntax Syntax, ITypeSymbol TypeSymbol, SemanticModel Model)> GetAttributeSyntaxAsync(string code)
         {
             var rootAndModel = await TestHelpers.GetRootAndModel(code);
 

@@ -102,7 +102,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             "TearDown"
         };
 
-        static IEnumerable<string> NonPublicModifiers => new string[]
+        private static IEnumerable<string> NonPublicModifiers => new string[]
         {
             "",
             "private",
@@ -127,7 +127,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             "private static protected",
         };
 
-        static IEnumerable<string> NonPublicOrFamilyModifiers => new string[]
+        private static IEnumerable<string> NonPublicOrFamilyModifiers => new string[]
         {
             "",
             "private",

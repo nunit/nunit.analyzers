@@ -52,7 +52,6 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 $"{TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage} is missing.");
         }
 
-
         private static IEnumerable<TestCaseData> SpecialConversions
         {
             get

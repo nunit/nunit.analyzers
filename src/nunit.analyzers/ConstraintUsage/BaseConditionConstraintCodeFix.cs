@@ -88,7 +88,8 @@ namespace NUnit.Analyzers.ConstraintUsage
                 ? assertNode.ArgumentList.Arguments.Skip(2)
                 : assertNode.ArgumentList.Arguments.Skip(1);
 
-            var newArguments = new[] {
+            var newArguments = new[]
+            {
                 SyntaxFactory.Argument(actual),
                 SyntaxFactory.Argument(constraintExpression)
             }.Union(remainingArguments);

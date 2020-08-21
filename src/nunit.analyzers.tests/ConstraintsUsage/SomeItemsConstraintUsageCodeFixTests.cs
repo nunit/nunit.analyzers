@@ -32,6 +32,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             AnalyzerAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
         }
+
         [Test]
         public void AnalyzeWhenListContainsUsed_AssertIsTrue()
         {
@@ -73,6 +74,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             AnalyzerAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
         }
+
         [Test]
         public void AnalyzeWhenLinqContainsUsed_AssertIsTrue()
         {
@@ -86,6 +88,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             AnalyzerAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
         }
+
         [Test]
         public void AnalyzeWhenLinqContainsUsed_AssertIsFalse()
         {
