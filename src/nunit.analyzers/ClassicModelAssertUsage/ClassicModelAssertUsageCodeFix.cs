@@ -15,12 +15,12 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
     public abstract class ClassicModelAssertUsageCodeFix
         : CodeFixProvider
     {
+        protected virtual string Title => CodeFixConstants.TransformToConstraintModelDescription;
+
         public sealed override FixAllProvider GetFixAllProvider()
         {
             return WellKnownFixAllProviders.BatchFixer;
         }
-
-        protected virtual string Title => CodeFixConstants.TransformToConstraintModelDescription;
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {

@@ -15,6 +15,11 @@ namespace NUnit.Analyzers.Operations
         private readonly IOperation expressionOperation;
         private ConstraintExpressionPart[]? constraintParts;
 
+        public ConstraintExpression(IOperation expressionOperation)
+        {
+            this.expressionOperation = expressionOperation;
+        }
+
         public ConstraintExpressionPart[] ConstraintParts
         {
             get
@@ -28,11 +33,6 @@ namespace NUnit.Analyzers.Operations
 
                 return this.constraintParts;
             }
-        }
-
-        public ConstraintExpression(IOperation expressionOperation)
-        {
-            this.expressionOperation = expressionOperation;
         }
 
         /// <summary>

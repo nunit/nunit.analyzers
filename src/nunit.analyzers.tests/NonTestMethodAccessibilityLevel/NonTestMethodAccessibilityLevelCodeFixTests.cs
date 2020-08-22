@@ -14,6 +14,16 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.NonTestMethodIsPublic);
 
+        private static readonly object[] NonPrivateModifiers =
+        {
+            new object[] { "public", "private" },
+            new object[] { "internal", "private" },
+            new object[] { "protected internal", "protected" },
+            new object[] { "static public", "static private" },
+            new object[] { "static internal", "static private" },
+            new object[] { "static protected internal", "static protected" },
+        };
+
         [TestCaseSource(nameof(NonPrivateModifiers))]
         public void FixesPublicAccessModifiers(string modifiers, string modifiersAfter)
         {
@@ -29,15 +39,5 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
 
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }
-
-        private static readonly object[] NonPrivateModifiers =
-        {
-            new object[] { "public", "private" },
-            new object[] { "internal", "private" },
-            new object[] { "protected internal", "protected" },
-            new object[] { "static public", "static private" },
-            new object[] { "static internal", "static private" },
-            new object[] { "static protected internal", "static protected" },
-        };
     }
 }

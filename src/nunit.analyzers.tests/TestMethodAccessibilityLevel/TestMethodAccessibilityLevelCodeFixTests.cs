@@ -15,6 +15,30 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestMethodIsNotPublic);
 
+        private static readonly object[] NonPublicModifiers =
+        {
+            new object[] { "private", "public" },
+            new object[] { "protected", "public" },
+            new object[] { "internal", "public" },
+            new object[] { "protected internal", "public" },
+            new object[] { "private protected", "public" },
+
+            new object[] { "static private", "static public" },
+            new object[] { "static protected", "static public" },
+            new object[] { "static internal", "static public" },
+            new object[] { "static protected internal", "static public" },
+            new object[] { "static private protected", "static public" },
+
+            new object[] { "private static", "public static" },
+            new object[] { "protected static", "public static" },
+            new object[] { "internal static", "public static" },
+            new object[] { "protected internal static", "public static" },
+            new object[] { "private protected static", "public static" },
+
+            new object[] { "protected static internal", "public static" },
+            new object[] { "private static protected", "public static" },
+        };
+
         [TestCaseSource(nameof(NonPublicModifiers))]
         public void FixesNonPublicAccessModifiers(string modifiers, string modifiersAfter)
         {
@@ -70,29 +94,5 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
 
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }
-
-        private static readonly object[] NonPublicModifiers =
-        {
-            new object[] { "private", "public" },
-            new object[] { "protected", "public" },
-            new object[] { "internal", "public" },
-            new object[] { "protected internal", "public" },
-            new object[] { "private protected", "public" },
-
-            new object[] { "static private", "static public" },
-            new object[] { "static protected", "static public" },
-            new object[] { "static internal", "static public" },
-            new object[] { "static protected internal", "static public" },
-            new object[] { "static private protected", "static public" },
-
-            new object[] { "private static", "public static" },
-            new object[] { "protected static", "public static" },
-            new object[] { "internal static", "public static" },
-            new object[] { "protected internal static", "public static" },
-            new object[] { "private protected static", "public static" },
-
-            new object[] { "protected static internal", "public static" },
-            new object[] { "private static protected", "public static" },
-        };
     }
 }

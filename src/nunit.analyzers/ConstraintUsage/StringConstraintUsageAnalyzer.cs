@@ -38,9 +38,6 @@ namespace NUnit.Analyzers.ConstraintUsage
 
         #endregion Descriptors
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
-            = ImmutableArray.Create(containsDescriptor, startsWithDescriptor, endsWithDescriptor);
-
         private static readonly Dictionary<string, (string doesMethod, DiagnosticDescriptor descriptor)> SupportedMethods
             = new Dictionary<string, (string, DiagnosticDescriptor)>
             {
@@ -48,6 +45,9 @@ namespace NUnit.Analyzers.ConstraintUsage
                 [nameof(string.StartsWith)] = (NunitFrameworkConstants.NameOfDoesStartWith, startsWithDescriptor),
                 [nameof(string.EndsWith)] = (NunitFrameworkConstants.NameOfDoesEndWith, endsWithDescriptor)
             };
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
+            = ImmutableArray.Create(containsDescriptor, startsWithDescriptor, endsWithDescriptor);
 
         protected override (DiagnosticDescriptor? descriptor, string? suggestedConstraint) GetDiagnosticData(
             OperationAnalysisContext context, IOperation actual, bool negated)
