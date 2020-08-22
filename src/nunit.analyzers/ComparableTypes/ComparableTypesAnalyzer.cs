@@ -14,6 +14,12 @@ namespace NUnit.Analyzers.ComparableTypes
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ComparableTypesAnalyzer : BaseAssertionAnalyzer
     {
+        private static readonly ImmutableHashSet<string> SupportedConstraints = ImmutableHashSet.Create(
+            NunitFrameworkConstants.NameOfIsLessThan,
+            NunitFrameworkConstants.NameOfIsLessThanOrEqualTo,
+            NunitFrameworkConstants.NameOfIsGreaterThan,
+            NunitFrameworkConstants.NameOfIsGreaterThanOrEqualTo);
+
         private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.ComparableTypes,
             title: ComparableTypesConstants.Title,
@@ -23,12 +29,6 @@ namespace NUnit.Analyzers.ComparableTypes
             description: ComparableTypesConstants.Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
-
-        private static readonly ImmutableHashSet<string> SupportedConstraints = ImmutableHashSet.Create(
-            NunitFrameworkConstants.NameOfIsLessThan,
-            NunitFrameworkConstants.NameOfIsLessThanOrEqualTo,
-            NunitFrameworkConstants.NameOfIsGreaterThan,
-            NunitFrameworkConstants.NameOfIsGreaterThanOrEqualTo);
 
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {

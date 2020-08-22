@@ -13,6 +13,8 @@ namespace NUnit.Analyzers
             context.RegisterOperationAction(this.AnalyzeInvocation, OperationKind.Invocation);
         }
 
+        protected abstract void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation);
+
         private void AnalyzeInvocation(OperationAnalysisContext context)
         {
             if (!(context.Operation is IInvocationOperation invocationOperation))
@@ -27,7 +29,5 @@ namespace NUnit.Analyzers
 
             this.AnalyzeAssertInvocation(context, invocationOperation);
         }
-
-        protected abstract void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation);
     }
 }
