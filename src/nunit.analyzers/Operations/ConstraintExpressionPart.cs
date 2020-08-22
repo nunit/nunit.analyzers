@@ -23,24 +23,24 @@ namespace NUnit.Analyzers.Operations
         }
 
         /// <summary>
-        /// Helper class used to access constraints,
+        /// Gets helper class used to access constraints,
         /// e.g. 'Has', 'Is', 'Throws', 'Does', etc.
         /// </summary>
         public ITypeSymbol? HelperClass { get; }
 
         /// <summary>
-        /// Constraint modifiers that go before actual constraint,
+        /// Gets constraint modifiers that go before actual constraint,
         /// e.g. 'Not', 'Some', 'Property(propertyName)', etc.
         /// </summary>
         public IReadOnlyCollection<IOperation> Prefixes { get; }
 
         /// <summary>
-        /// Actual constraint, e.g. 'EqualTo(expected)', 'Null', 'Empty', etc.
+        /// Gets actual constraint, e.g. 'EqualTo(expected)', 'Null', 'Empty', etc.
         /// </summary>
         public IOperation? Root { get; }
 
         /// <summary>
-        /// Constraint modifiers that go after actual constraint,
+        /// Gets constraint modifiers that go after actual constraint,
         /// e.g. 'IgnoreCase', 'After(timeout)', 'Within(range)', etc.
         /// </summary>
         public IReadOnlyCollection<IOperation> Suffixes { get; }
