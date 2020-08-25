@@ -3,7 +3,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using NUnit.Analyzers.Constants;
 
 namespace NUnit.Analyzers.Extensions
 {
@@ -40,64 +39,6 @@ namespace NUnit.Analyzers.Extensions
             }
 
             return (positionalArguments.ToImmutableArray(), namedArguments.ToImmutableArray());
-        }
-
-        internal static bool DerivesFromISimpleTestBuilder(this AttributeSyntax @this, SemanticModel semanticModel)
-        {
-            return DerivesFromInterface(semanticModel, @this, NunitFrameworkConstants.FullNameOfTypeISimpleTestBuilder);
-        }
-
-        internal static bool DerivesFromITestBuilder(this AttributeSyntax @this, SemanticModel semanticModel)
-        {
-            return DerivesFromInterface(semanticModel, @this, NunitFrameworkConstants.FullNameOfTypeITestBuilder);
-        }
-
-        internal static bool DerivesFromIParameterDataSource(this AttributeSyntax @this, SemanticModel semanticModel)
-        {
-            return DerivesFromInterface(semanticModel, @this, NunitFrameworkConstants.FullNameOfTypeIParameterDataSource);
-        }
-
-        internal static bool IsSetUpOrTearDownMethodAttribute(this AttributeSyntax attributeSyntax, SemanticModel semanticModel)
-        {
-            var attributeType = semanticModel.GetTypeInfo(attributeSyntax).Type;
-
-            if (attributeType == null)
-                return false;
-
-            switch (attributeType.ToString())
-            {
-                case NunitFrameworkConstants.FullNameOfTypeOneTimeSetUpAttribute:
-                case NunitFrameworkConstants.FullNameOfTypeOneTimeTearDownAttribute:
-                case NunitFrameworkConstants.FullNameOfTypeSetUpAttribute:
-                case NunitFrameworkConstants.FullNameOfTypeTearDownAttribute:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        internal static bool IsTestMethodAttribute(this AttributeSyntax attributeSyntax, SemanticModel semanticModel)
-        {
-            return attributeSyntax.DerivesFromITestBuilder(semanticModel) ||
-                   attributeSyntax.DerivesFromISimpleTestBuilder(semanticModel);
-        }
-
-        private static bool DerivesFromInterface(
-            SemanticModel semanticModel,
-            AttributeSyntax attributeSyntax,
-            string interfaceTypeFullName)
-        {
-            var interfaceType = semanticModel.Compilation.GetTypeByMetadataName(interfaceTypeFullName);
-
-            if (interfaceType == null)
-                return false;
-
-            var attributeType = semanticModel.GetTypeInfo(attributeSyntax).Type;
-
-            if (attributeType == null)
-                return false;
-
-            return attributeType.AllInterfaces.Any(i => i.Equals(interfaceType));
         }
     }
 }

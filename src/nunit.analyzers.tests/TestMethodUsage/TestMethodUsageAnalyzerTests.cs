@@ -6,10 +6,10 @@ using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.TestCaseUsage;
+using NUnit.Analyzers.TestMethodUsage;
 using NUnit.Framework;
 
-namespace NUnit.Analyzers.Tests.TestCaseUsage
+namespace NUnit.Analyzers.Tests.TestMethodUsage
 {
     [TestFixture]
     public sealed class TestMethodUsageAnalyzerTests
@@ -509,6 +509,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
     [↓Test]
+    [Category(""Test"")]
     public void M(int p)
     {
         Assert.That(p, Is.EqualTo(42));

@@ -27,6 +27,15 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
+        public void AnalyzeClassicWhenIncompatibleTypesProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                "Assert.AreEqual(↓\"1\", 1);");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenCollectionsWithIncompatibleValueTypesProvided()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
@@ -215,6 +224,27 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
             var actual = new A();
             var expected = new B();
             Assert.That(actual, Is.Not.EqualTo(↓expected));
+        }
+    }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeClassicWhenIncompatibleTypesProvided_WithNegatedAssert()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class A { }
+    class B { }
+
+    public class Tests
+    {
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        {
+            var actual = new A();
+            var expected = new B();
+            Assert.AreNotEqual(↓expected, actual);
         }
     }");
 
@@ -839,6 +869,15 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
                 Assert.That(task1, Is.SameAs(task2));");
 
             AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenMoreThanOneConstraintExpressionIsUsed()
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                Assert.That(5, Is.Not.EqualTo(4) & Is.Not.EqualTo(↓""6""));");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
     }
 }

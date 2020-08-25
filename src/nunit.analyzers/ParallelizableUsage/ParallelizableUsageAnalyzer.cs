@@ -1,8 +1,7 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
@@ -12,8 +11,6 @@ namespace NUnit.Analyzers.ParallelizableUsage
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ParallelizableUsageAnalyzer : DiagnosticAnalyzer
     {
-        internal const string AssemblyAttributeTargetSpecifier = "assembly";
-
         private static readonly DiagnosticDescriptor scopeSelfNoEffectOnAssemblyUsage = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.ParallelScopeSelfNoEffectOnAssemblyUsage,
             title: ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyTitle,
@@ -46,70 +43,85 @@ namespace NUnit.Analyzers.ParallelizableUsage
         public override void Initialize(AnalysisContext context)
         {
             context.EnableConcurrentExecution();
-
-            context.RegisterSyntaxNodeAction(ParallelizableUsageAnalyzer.AnalyzeAttribute, SyntaxKind.Attribute);
+            context.RegisterCompilationAction(AnalyzeCompilation);
+            context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
         }
 
-        private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeCompilation(CompilationAnalysisContext context)
         {
-            var parallelizableAttributeType = context.SemanticModel.Compilation.GetTypeByMetadataName(
-                NunitFrameworkConstants.FullNameOfTypeParallelizableAttribute);
-            if (parallelizableAttributeType == null)
-                return;
-
-            var attributeNode = (AttributeSyntax)context.Node;
-            var attributeSymbol = context.SemanticModel.GetSymbolInfo(attributeNode).Symbol;
-
-            if (parallelizableAttributeType.ContainingAssembly.Identity != attributeSymbol?.ContainingAssembly.Identity ||
-                attributeSymbol?.ContainingType.Name != NunitFrameworkConstants.NameOfParallelizableAttribute)
+            if (!TryGetAttributeEnumValue(context.Compilation, context.Compilation.Assembly,
+                out int enumValue,
+                out var attributeData))
             {
                 return;
             }
-
-            context.CancellationToken.ThrowIfCancellationRequested();
-
-            var possibleEnumValue = GetOptionalEnumValue(context, attributeNode);
-            if (possibleEnumValue == null)
-                return;
-
-            int enumValue = possibleEnumValue.Value;
-            var attributeListSyntax = attributeNode.Parent as AttributeListSyntax;
-            if (attributeListSyntax == null)
-                return;
 
             if (HasExactFlag(enumValue, ParallelizableUsageAnalyzerConstants.ParallelScope.Self))
             {
                 // Specifying ParallelScope.Self on an assembly level attribute has no effect
-                var atAssemblyLevel = attributeListSyntax.Target?.Identifier.ValueText == AssemblyAttributeTargetSpecifier;
-                if (atAssemblyLevel)
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(scopeSelfNoEffectOnAssemblyUsage,
-                        attributeNode.GetLocation()));
-                }
+                context.ReportDiagnostic(Diagnostic.Create(
+                    scopeSelfNoEffectOnAssemblyUsage,
+                    attributeData.ApplicationSyntaxReference.GetLocation()));
             }
-            else if (HasFlag(enumValue, ParallelizableUsageAnalyzerConstants.ParallelScope.Children))
+        }
+
+        private static void AnalyzeMethod(SymbolAnalysisContext context)
+        {
+            if (!TryGetAttributeEnumValue(context.Compilation, context.Symbol,
+                out int enumValue,
+                out var attributeData))
+            {
+                return;
+            }
+
+            var methodSymbol = (IMethodSymbol)context.Symbol;
+
+            if (HasFlag(enumValue, ParallelizableUsageAnalyzerConstants.ParallelScope.Children))
             {
                 // One may not specify ParallelScope.Children on a non-parameterized test method
-                if (IsNonParameterizedTestMethod(context, attributeListSyntax.Parent as MethodDeclarationSyntax))
+                if (IsNonParameterizedTestMethod(context, methodSymbol))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(scopeChildrenOnNonParameterizedTest,
-                        attributeNode.GetLocation()));
+                        attributeData.ApplicationSyntaxReference.GetLocation()));
                 }
             }
             else if (HasFlag(enumValue, ParallelizableUsageAnalyzerConstants.ParallelScope.Fixtures))
             {
                 // One may not specify ParallelScope.Fixtures on a test method
-                if (attributeListSyntax.Parent is MethodDeclarationSyntax)
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(scopeFixturesOnTest,
-                        attributeNode.GetLocation()));
-                }
+                context.ReportDiagnostic(Diagnostic.Create(scopeFixturesOnTest,
+                    attributeData.ApplicationSyntaxReference.GetLocation()));
             }
         }
 
-        private static int? GetOptionalEnumValue(SyntaxNodeAnalysisContext context, AttributeSyntax attributeNode)
+        private static bool TryGetAttributeEnumValue(Compilation compilation, ISymbol symbol,
+            out int enumValue,
+            [NotNullWhen(true)] out AttributeData? attributeData)
         {
-            var (attributePositionalArguments, _) = attributeNode.GetArguments();
+            enumValue = 0;
+            attributeData = null;
+
+            var parallelizableAttributeType = compilation.GetTypeByMetadataName(
+                NunitFrameworkConstants.FullNameOfTypeParallelizableAttribute);
+            if (parallelizableAttributeType == null)
+                return false;
+
+            attributeData = symbol.GetAttributes()
+                .FirstOrDefault(a => a.AttributeClass?.Equals(parallelizableAttributeType) == true);
+
+            if (attributeData?.ApplicationSyntaxReference is null)
+                return false;
+
+            var optionalEnumValue = GetOptionalEnumValue(attributeData);
+            if (optionalEnumValue == null)
+                return false;
+
+            enumValue = optionalEnumValue.Value;
+            return true;
+        }
+
+        private static int? GetOptionalEnumValue(AttributeData attributeData)
+        {
+            var attributePositionalArguments = attributeData.ConstructorArguments;
             var noExplicitEnumArgument = attributePositionalArguments.Length == 0;
             if (noExplicitEnumArgument)
             {
@@ -118,30 +130,19 @@ namespace NUnit.Analyzers.ParallelizableUsage
             else
             {
                 var arg = attributePositionalArguments[0];
-                var constantValue = context.SemanticModel.GetConstantValue(arg.Expression);
-                if (constantValue.HasValue)
-                {
-                    return constantValue.Value as int?;
-                }
+                return arg.Value as int?;
             }
-
-            return null;
         }
 
-        private static bool IsNonParameterizedTestMethod(SyntaxNodeAnalysisContext context,
-            MethodDeclarationSyntax? methodDeclarationSyntax)
+        private static bool IsNonParameterizedTestMethod(SymbolAnalysisContext context, IMethodSymbol methodSymbol)
         {
-            if (methodDeclarationSyntax == null)
-                return false;
-
             // The method is only a parametric method if (see DefaultTestCaseBuilder.BuildFrom)
             // * it has parameters
             // * is marked with one or more attributes deriving from ITestBuilder
             // * the attributes defines tests (difficult to access without evaluating the code)
-            bool noParameters = methodDeclarationSyntax.ParameterList.Parameters.Count == 0;
+            bool noParameters = methodSymbol.Parameters.IsEmpty;
+            bool noITestBuilders = !methodSymbol.GetAttributes().Any(a => a.DerivesFromITestBuilder(context.Compilation));
 
-            var allAttributes = methodDeclarationSyntax.AttributeLists.SelectMany(al => al.Attributes);
-            bool noITestBuilders = !allAttributes.Any(a => a.DerivesFromITestBuilder(context.SemanticModel));
             return noParameters && noITestBuilders;
         }
 

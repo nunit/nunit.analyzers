@@ -1,13 +1,11 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 
-namespace NUnit.Analyzers.TestCaseUsage
+namespace NUnit.Analyzers.TestMethodUsage
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class TestMethodUsageAnalyzer : DiagnosticAnalyzer
@@ -80,107 +78,90 @@ namespace NUnit.Analyzers.TestCaseUsage
         {
             context.EnableConcurrentExecution();
 
-            context.RegisterSyntaxNodeAction(
-                TestMethodUsageAnalyzer.AnalyzeAttribute, SyntaxKind.Attribute);
+            context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
         }
 
-        private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeMethod(SymbolAnalysisContext context)
         {
-            var declarationNode = context.Node.Parent?.Parent;
-            if (declarationNode is MethodDeclarationSyntax methodNode)
+            var methodSymbol = (IMethodSymbol)context.Symbol;
+
+            var testCaseType = context.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
+            var testType = context.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestAttribute);
+
+            if (testCaseType == null || testType == null)
+                return;
+
+            var methodAttributes = methodSymbol.GetAttributes();
+
+            foreach (var attribute in methodAttributes)
             {
-                if (!methodNode.ContainsDiagnostics)
+                if (attribute.AttributeClass is null)
+                    continue;
+
+                var isTestCaseAttribute = attribute.AttributeClass.Equals(testCaseType);
+                var isTestAttribute = attribute.AttributeClass.Equals(testType);
+
+                if (isTestCaseAttribute
+                    || (isTestAttribute && !HasITestBuilderAttribute(context.Compilation, methodAttributes)))
                 {
-                    var testCaseType = context.SemanticModel.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
-                    var testType = context.SemanticModel.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestAttribute);
+                    context.CancellationToken.ThrowIfCancellationRequested();
 
-                    if (testCaseType == null || testType == null)
-                        return;
+                    AnalyzeExpectedResult(context, attribute, methodSymbol);
+                }
 
-                    var attributeNode = (AttributeSyntax)context.Node;
-                    var attributeSymbol = context.SemanticModel.GetSymbolInfo(attributeNode).Symbol;
+                var isSimpleTestBulderAttribute = attribute.DerivesFromISimpleTestBuilder(context.Compilation);
 
-                    var isTestCaseAttribute = IsAttribute(testCaseType, NunitFrameworkConstants.NameOfTestCaseAttribute, attributeSymbol);
-                    var isTestAttribute = IsAttribute(testType, NunitFrameworkConstants.NameOfTestAttribute, attributeSymbol);
-
-                    if (isTestCaseAttribute || (isTestAttribute && !HasITestBuilderAttribute(context.SemanticModel, methodNode.AttributeLists)))
-                    {
-                        context.CancellationToken.ThrowIfCancellationRequested();
-
-                        var methodSymbol = context.SemanticModel.GetDeclaredSymbol(methodNode);
-
-                        context.CancellationToken.ThrowIfCancellationRequested();
-                        TestMethodUsageAnalyzer.AnalyzeExpectedResult(context, attributeNode, methodSymbol);
-                    }
-
-                    var parameters = methodNode.ParameterList.Parameters;
-                    var testMethodParameters = parameters.Count;
-                    var hasISimpleTestBuilderAttribute = HasISimpleTestBuilderAttribute(context.SemanticModel, methodNode.AttributeLists);
-                    var hasITestBuilderAttribute = HasITestBuilderAttribute(context.SemanticModel, methodNode.AttributeLists);
+                if (isSimpleTestBulderAttribute)
+                {
+                    var parameters = methodSymbol.Parameters;
+                    var testMethodParameters = parameters.Length;
+                    var hasITestBuilderAttribute = HasITestBuilderAttribute(context.Compilation, methodAttributes);
                     var parametersMarkedWithIParameterDataSourceAttribute =
-                        parameters.Count(p => HasIParameterDataSourceAttribute(context.SemanticModel, p.AttributeLists));
+                        parameters.Count(p => HasIParameterDataSourceAttribute(context.Compilation, p.GetAttributes()));
 
                     if (testMethodParameters > 0 &&
-                        hasISimpleTestBuilderAttribute &&
                         !hasITestBuilderAttribute &&
                         parametersMarkedWithIParameterDataSourceAttribute < testMethodParameters)
                     {
-                        context.ReportDiagnostic(
-                            Diagnostic.Create(
-                                simpleTestHasParameters,
-                                attributeNode.GetLocation(),
-                                testMethodParameters,
-                                parametersMarkedWithIParameterDataSourceAttribute));
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            simpleTestHasParameters,
+                            attribute.ApplicationSyntaxReference.GetLocation(),
+                            testMethodParameters,
+                            parametersMarkedWithIParameterDataSourceAttribute));
                     }
                 }
             }
         }
 
-        private static bool IsAttribute(INamedTypeSymbol nunitType, string nunitTypeName, ISymbol attributeSymbol) =>
-            nunitType.ContainingAssembly.Identity == attributeSymbol?.ContainingAssembly.Identity &&
-            nunitTypeName == attributeSymbol?.ContainingType.Name;
-
-        private static bool HasITestBuilderAttribute(SemanticModel semanticModel, SyntaxList<AttributeListSyntax> attributeLists)
+        private static bool HasITestBuilderAttribute(Compilation compilation, ImmutableArray<AttributeData> attributes)
         {
-            var allAttributes = attributeLists.SelectMany(al => al.Attributes);
-            return allAttributes.Any(a => a.DerivesFromITestBuilder(semanticModel));
+            return attributes.Any(a => a.DerivesFromITestBuilder(compilation));
         }
 
-        private static bool HasISimpleTestBuilderAttribute(SemanticModel semanticModel, SyntaxList<AttributeListSyntax> attributeLists)
+        private static bool HasIParameterDataSourceAttribute(Compilation compilation, ImmutableArray<AttributeData> attributes)
         {
-            var allAttributes = attributeLists.SelectMany(al => al.Attributes);
-            return allAttributes.Any(a => a.DerivesFromISimpleTestBuilder(semanticModel));
+            return attributes.Any(a => a.DerivesFromIParameterDataSource(compilation));
         }
 
-        private static bool HasIParameterDataSourceAttribute(SemanticModel semanticModel, SyntaxList<AttributeListSyntax> attributeLists)
+        private static void AnalyzeExpectedResult(SymbolAnalysisContext context,
+            AttributeData attribute, IMethodSymbol methodSymbol)
         {
-            var allAttributes = attributeLists.SelectMany(al => al.Attributes);
-            return allAttributes.Any(a => a.DerivesFromIParameterDataSource(semanticModel));
-        }
-
-        private static void AnalyzeExpectedResult(SyntaxNodeAnalysisContext context,
-            AttributeSyntax attributeNode, IMethodSymbol methodSymbol)
-        {
-            var (_, attributeNamedArguments) = attributeNode.GetArguments();
-
-            var expectedResultNamedArgument = attributeNamedArguments.SingleOrDefault(
-                _ => _.DescendantTokens().Any(_ => _.Text == NunitFrameworkConstants.NameOfExpectedResult));
-
-            if (expectedResultNamedArgument != null)
+            if (attribute.NamedArguments.TryGetValue(NunitFrameworkConstants.NameOfExpectedResult,
+                out var expectedResultNamedArgument))
             {
-                ExpectedResultSupplied(context, methodSymbol, attributeNode, expectedResultNamedArgument);
+                ExpectedResultSupplied(context, methodSymbol, attribute, expectedResultNamedArgument);
             }
             else
             {
-                NoExpectedResultSupplied(context, methodSymbol, attributeNode);
+                NoExpectedResultSupplied(context, methodSymbol, attribute);
             }
         }
 
         private static void ExpectedResultSupplied(
-            SyntaxNodeAnalysisContext context,
+            SymbolAnalysisContext context,
             IMethodSymbol methodSymbol,
-            AttributeSyntax attributeNode,
-            AttributeArgumentSyntax expectedResultNamedArgument)
+            AttributeData attributeData,
+            TypedConstant expectedResultNamedArgument)
         {
             var methodReturnValueType = methodSymbol.ReturnType;
 
@@ -188,73 +169,100 @@ namespace NUnit.Analyzers.TestCaseUsage
             {
                 if (awaitReturnType.SpecialType == SpecialType.System_Void)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(asyncExpectedResultButReturnTypeNotGenericTask,
-                        attributeNode.GetLocation(), methodReturnValueType.ToDisplayString()));
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        asyncExpectedResultButReturnTypeNotGenericTask,
+                        attributeData.ApplicationSyntaxReference.GetLocation(),
+                        methodReturnValueType.ToDisplayString()));
                 }
                 else
                 {
                     ReportIfExpectedResultTypeCannotBeAssignedToReturnType(
-                        ref context, expectedResultNamedArgument, awaitReturnType);
+                        ref context, attributeData, expectedResultNamedArgument, awaitReturnType);
                 }
             }
             else
             {
                 if (methodReturnValueType.SpecialType == SpecialType.System_Void)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(specifiedExpectedResultForVoid,
-                        expectedResultNamedArgument.GetLocation()));
+                    var expectedResultLocation = GetExpectedArgumentLocation(attributeData);
+
+                    if (expectedResultLocation != null)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            specifiedExpectedResultForVoid,
+                            expectedResultLocation));
+                    }
                 }
                 else
                 {
                     ReportIfExpectedResultTypeCannotBeAssignedToReturnType(
-                        ref context, expectedResultNamedArgument, methodReturnValueType);
+                        ref context, attributeData, expectedResultNamedArgument, methodReturnValueType);
                 }
             }
         }
 
         private static void ReportIfExpectedResultTypeCannotBeAssignedToReturnType(
-            ref SyntaxNodeAnalysisContext context,
-            AttributeArgumentSyntax expectedResultNamedArgument,
+            ref SymbolAnalysisContext context,
+            AttributeData attributeData,
+            TypedConstant expectedResultNamedArgument,
             ITypeSymbol typeSymbol)
         {
             if (typeSymbol.IsTypeParameterAndDeclaredOnMethod())
                 return;
 
-            if (!expectedResultNamedArgument.CanAssignTo(typeSymbol, context.SemanticModel))
+            if (!expectedResultNamedArgument.CanAssignTo(typeSymbol, context.Compilation))
             {
-                context.ReportDiagnostic(Diagnostic.Create(expectedResultTypeMismatch,
-                    expectedResultNamedArgument.GetLocation(), typeSymbol.MetadataName));
+                var location = GetExpectedArgumentLocation(attributeData);
+
+                if (location != null)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        expectedResultTypeMismatch,
+                        location,
+                        typeSymbol.MetadataName));
+                }
             }
         }
 
         private static void NoExpectedResultSupplied(
-            SyntaxNodeAnalysisContext context,
+            SymbolAnalysisContext context,
             IMethodSymbol methodSymbol,
-            AttributeSyntax attributeNode)
+            AttributeData attributeData)
         {
             var methodReturnValueType = methodSymbol.ReturnType;
 
             if (methodSymbol.IsAsync
                 && methodReturnValueType.SpecialType == SpecialType.System_Void)
             {
-                context.ReportDiagnostic(Diagnostic.Create(asyncNoExpectedResultAndVoidReturnType, attributeNode.GetLocation()));
+                context.ReportDiagnostic(Diagnostic.Create(
+                    asyncNoExpectedResultAndVoidReturnType,
+                    attributeData.ApplicationSyntaxReference.GetLocation()));
             }
             else if (methodReturnValueType.IsAwaitable(out var awaitReturnType))
             {
                 if (awaitReturnType.SpecialType != SpecialType.System_Void)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(asyncNoExpectedResultAndNonTaskReturnType,
-                        attributeNode.GetLocation(), methodReturnValueType.ToDisplayString()));
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        asyncNoExpectedResultAndNonTaskReturnType,
+                        attributeData.ApplicationSyntaxReference.GetLocation(),
+                        methodReturnValueType.ToDisplayString()));
                 }
             }
             else
             {
                 if (methodReturnValueType.SpecialType != SpecialType.System_Void)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(noExpectedResultButNonVoidReturnType,
-                        attributeNode.GetLocation(), methodReturnValueType.ToDisplayString()));
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        noExpectedResultButNonVoidReturnType,
+                        attributeData.ApplicationSyntaxReference.GetLocation(),
+                        methodReturnValueType.ToDisplayString()));
                 }
             }
+        }
+
+        private static Location? GetExpectedArgumentLocation(AttributeData attributeData)
+        {
+            return attributeData.GetNamedArgumentSyntax(NunitFrameworkConstants.NameOfExpectedResult)?.GetLocation();
         }
     }
 }

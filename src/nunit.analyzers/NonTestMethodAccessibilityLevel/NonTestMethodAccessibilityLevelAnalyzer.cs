@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
@@ -29,26 +27,23 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
         {
             context.EnableConcurrentExecution();
 
-            context.RegisterSyntaxNodeAction(AnalyzeMethod, SyntaxKind.ClassDeclaration);
+            context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
         }
 
-        private static void AnalyzeMethod(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeType(SymbolAnalysisContext context)
         {
-            var classNode = context.Node as ClassDeclarationSyntax;
-
-            if (classNode is null)
-            {
-                return;
-            }
+            var typeSymbol = (INamedTypeSymbol)context.Symbol;
 
             // Is this even a TestFixture, i.e.: Does it has any test methods.
             // If not public methods are fine.
             bool hasTestMethods = false;
 
-            var publicNonTestMethods = new List<MethodDeclarationSyntax>();
-            foreach (var method in classNode.Members.OfType<MethodDeclarationSyntax>())
+            var publicNonTestMethods = new List<IMethodSymbol>();
+
+            var methods = typeSymbol.GetMembers().OfType<IMethodSymbol>().Where(m => m.MethodKind == MethodKind.Ordinary);
+            foreach (var method in methods)
             {
-                if (IsTestRelatedMethod(context.SemanticModel, method.AttributeLists))
+                if (IsTestRelatedMethod(context.Compilation, method))
                     hasTestMethods = true;
                 else if (IsPublicOrInternalMethod(method))
                     publicNonTestMethods.Add(method);
@@ -60,21 +55,29 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         nonTestMethodIsPublic,
-                        method.Identifier.GetLocation()));
+                        method.Locations[0]));
                 }
             }
         }
 
-        private static bool IsTestRelatedMethod(SemanticModel semanticModel, SyntaxList<AttributeListSyntax> attributeLists)
+        private static bool IsTestRelatedMethod(Compilation compilation, IMethodSymbol methodSymbol)
         {
-            var allAttributes = attributeLists.SelectMany(al => al.Attributes);
-            return allAttributes.Any(a => a.IsSetUpOrTearDownMethodAttribute(semanticModel) ||
-                                          a.IsTestMethodAttribute(semanticModel));
+            return methodSymbol.GetAttributes().Any(
+                a => a.IsSetUpOrTearDownMethodAttribute(compilation) || a.IsTestMethodAttribute(compilation));
         }
 
-        private static bool IsPublicOrInternalMethod(MethodDeclarationSyntax method)
+        private static bool IsPublicOrInternalMethod(IMethodSymbol method)
         {
-            return method.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword) || m.IsKind(SyntaxKind.InternalKeyword));
+            switch (method.DeclaredAccessibility)
+            {
+                case Accessibility.Public:
+                case Accessibility.Internal:
+                case Accessibility.ProtectedOrInternal:
+                    return true;
+
+                default:
+                    return false;
+            }
         }
     }
 }

@@ -33,6 +33,13 @@ namespace NUnit.Analyzers.Extensions
                     && @this.ContainingAssembly.Name == NunitFrameworkConstants.NUnitFrameworkAssemblyName);
         }
 
+        internal static bool IsType([NotNullWhen(true)] this ITypeSymbol? @this, string fullMetadataName, Compilation compilation)
+        {
+            var typeSymbol = compilation.GetTypeByMetadataName(fullMetadataName);
+
+            return typeSymbol != null && typeSymbol.Equals(@this);
+        }
+
         internal static string GetFullMetadataName(this ITypeSymbol @this)
         {
             // e.g. System.Collections.Generic.IEnumerable`1

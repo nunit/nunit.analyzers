@@ -5,11 +5,10 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NUnit.Analyzers.Extensions
 {
-    internal static class AttributeArgumentSyntaxExtensions
+    internal static class AttributeArgumentTypedConstantExtensions
     {
         private static readonly IReadOnlyList<Type> ConvertibleTypes = new List<Type>
         {
@@ -52,21 +51,16 @@ namespace NUnit.Analyzers.Extensions
                 (typeof(Version), null),
             };
 
-        internal static bool CanAssignTo(this AttributeArgumentSyntax @this, ITypeSymbol target, SemanticModel model,
+        internal static bool CanAssignTo(this TypedConstant @this, ITypeSymbol target, Compilation compilation,
             bool allowImplicitConversion = false,
             bool allowEnumToUnderlyingTypeConversion = false)
         {
             // See https://github.com/nunit/nunit/blob/f16d12d6fa9e5c879601ad57b4b24ec805c66054/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L396
             // for the reasoning behind this implementation.
-            Optional<object> possibleConstantValue = model.GetConstantValue(@this.Expression);
-            object? argumentValue = null;
-            if (possibleConstantValue.HasValue)
-            {
-                argumentValue = possibleConstantValue.Value;
-            }
 
-            TypeInfo sourceTypeInfo = model.GetTypeInfo(@this.Expression);
-            ITypeSymbol? argumentType = sourceTypeInfo.Type;
+            object? argumentValue = GetValue(@this);
+
+            ITypeSymbol? argumentType = @this.Type;
             ITypeSymbol? targetType = GetTargetType(target);
 
             if (allowEnumToUnderlyingTypeConversion && targetType?.TypeKind == TypeKind.Enum)
@@ -75,7 +69,7 @@ namespace NUnit.Analyzers.Extensions
             if (targetType == null)
                 return false;
 
-            if (argumentType == null)
+            if (argumentValue == null)
             {
                 if (target.IsReferenceType ||
                     target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
@@ -92,7 +86,7 @@ namespace NUnit.Analyzers.Extensions
                     return false;
 
                 if (targetType.IsAssignableFrom(argumentType)
-                    || (allowImplicitConversion && HasBuiltInImplicitConversion(argumentType, targetType, model)))
+                    || (allowImplicitConversion && HasBuiltInImplicitConversion(argumentType, targetType, compilation)))
                 {
                     return true;
                 }
@@ -121,13 +115,23 @@ namespace NUnit.Analyzers.Extensions
 
                         if (canConvert)
                         {
-                            return AttributeArgumentSyntaxExtensions.TryChangeType(targetType, argumentValue);
+                            return AttributeArgumentTypedConstantExtensions.TryChangeType(targetType, argumentValue);
                         }
                     }
                 }
             }
 
-            return CanBeTranslatedByTypeConverter(targetType, argumentValue, model.Compilation);
+            return CanBeTranslatedByTypeConverter(targetType, argumentValue, compilation);
+        }
+
+        private static object? GetValue(TypedConstant typedConstant)
+        {
+            if (typedConstant.IsNull)
+                return null;
+
+            return typedConstant.Kind == TypedConstantKind.Array
+                ? typedConstant.Values
+                : typedConstant.Value;
         }
 
         private static ITypeSymbol GetTargetType(ITypeSymbol target)
@@ -170,9 +174,9 @@ namespace NUnit.Analyzers.Extensions
             }
         }
 
-        private static bool HasBuiltInImplicitConversion(ITypeSymbol argumentType, ITypeSymbol targetType, SemanticModel model)
+        private static bool HasBuiltInImplicitConversion(ITypeSymbol argumentType, ITypeSymbol targetType, Compilation compilation)
         {
-            var conversion = model.Compilation.ClassifyConversion(argumentType, targetType);
+            var conversion = compilation.ClassifyConversion(argumentType, targetType);
             return conversion.IsImplicit && !conversion.IsUserDefined;
         }
 
