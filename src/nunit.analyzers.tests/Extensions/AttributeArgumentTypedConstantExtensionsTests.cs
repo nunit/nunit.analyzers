@@ -11,7 +11,7 @@ using NUnit.Framework.Constraints;
 namespace NUnit.Analyzers.Tests.Extensions
 {
     [TestFixture]
-    public sealed class AttributeArgumentSyntaxExtensionsTests
+    public sealed class AttributeArgumentTypedConstantExtensionsTests
     {
         static IEnumerable<TestCaseData> GetTestData()
         {
@@ -23,8 +23,6 @@ namespace NUnit.Analyzers.Tests.Extensions
                 SetName("CanAssignToWhenArgumentIsNullAndTargetIsValueType");
             yield return new TestCaseData("\"x\"", "object", "string", Is.True).
                 SetName("CanAssignToWhenArgumentIsNotNullableAndAssignable");
-            yield return new TestCaseData("3", "int", "int?", Is.True).
-                SetName("CanAssignToWhenArgumentIsNullableAndAssignable");
             yield return new TestCaseData("\"c14564a0-c59e-475d-9ee9-6303f9687c03\"", "Guid", "string", Is.True).
                 SetName("CanAssignToWhenParameterIsGuidAndArgumentIsValidString");
             yield return new TestCaseData("\"x\"", "Guid", "string", Is.False).
@@ -98,24 +96,26 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         }}
     }}
 }}";
-            var values = await AttributeArgumentSyntaxExtensionsTests.GetAttributeSyntaxAsync(testCode);
+            var (typedConstant, typeSymbol, compilation) = await GetAttributeConstantAsync(testCode);
 
-            Assert.That(values.Syntax.CanAssignTo(values.TypeSymbol, values.Model), expectedResult);
+            Assert.That(typedConstant.CanAssignTo(typeSymbol, compilation), expectedResult);
         }
 
-        private async static Task<(AttributeArgumentSyntax Syntax, ITypeSymbol TypeSymbol, SemanticModel Model)> GetAttributeSyntaxAsync(string code)
+        private async static Task<(TypedConstant, ITypeSymbol, Compilation)> GetAttributeConstantAsync(string code)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModel(code);
+            var (root, semanticModel) = await TestHelpers.GetRootAndModel(code);
 
             // It's assumed the code will have one attribute with one argument,
             // along with one method with one parameter
-            var attributeArgumentSyntax = rootAndModel.Node.DescendantNodes().OfType<AttributeSyntax>()
-                .Single(_ => _.Name.ToFullString() == "Arguments")
-                .DescendantNodes().OfType<AttributeArgumentSyntax>().Single();
-            var typeSymbol = rootAndModel.Model.GetDeclaredSymbol(
-                    rootAndModel.Node.DescendantNodes().OfType<MethodDeclarationSyntax>().Single()).Parameters[0].Type;
+            var methodSymbol = semanticModel.GetDeclaredSymbol(root.DescendantNodes().OfType<MethodDeclarationSyntax>().Single());
 
-            return (attributeArgumentSyntax, typeSymbol, rootAndModel.Model);
+            var attributeArgumentTypedConstant = methodSymbol.GetAttributes()
+                .First(a => a.AttributeClass.Name == "ArgumentsAttribute")
+                .ConstructorArguments[0];
+
+            var typeSymbol = methodSymbol.Parameters[0].Type;
+
+            return (attributeArgumentTypedConstant, typeSymbol, semanticModel.Compilation);
         }
     }
 }

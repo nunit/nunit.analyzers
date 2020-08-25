@@ -1,8 +1,6 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
@@ -27,75 +25,42 @@ namespace NUnit.Analyzers.TestMethodAccessibilityLevel
         {
             context.EnableConcurrentExecution();
 
-            context.RegisterSyntaxNodeAction(AnalyzeMethod, SyntaxKind.MethodDeclaration);
+            context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
         }
 
-        private static void AnalyzeMethod(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeMethod(SymbolAnalysisContext context)
         {
-            var methodNode = context.Node as MethodDeclarationSyntax;
+            var methodSymbol = (IMethodSymbol)context.Symbol;
 
-            if (methodNode != null && !methodNode.ContainsDiagnostics)
+            if (IsTestMethod(context.Compilation, methodSymbol))
             {
-                if (IsTestMethod(context.SemanticModel, methodNode.AttributeLists))
+                if (methodSymbol.DeclaredAccessibility != Accessibility.Public)
                 {
-                    if (!IsPublic(methodNode.Modifiers))
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            testMethodIsNotPublic,
-                            methodNode.Identifier.GetLocation()));
-                    }
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        testMethodIsNotPublic,
+                        methodSymbol.Locations[0]));
                 }
-                else if (IsSetUpTearDownMethod(context.SemanticModel, methodNode.AttributeLists))
+            }
+            else if (IsSetUpTearDownMethod(context.Compilation, methodSymbol))
+            {
+                if (methodSymbol.DeclaredAccessibility != Accessibility.Public
+                    && methodSymbol.DeclaredAccessibility != Accessibility.Protected)
                 {
-                    if (!IsPublicOrFamily(methodNode.Modifiers))
-                    {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            testMethodIsNotPublic,
-                            methodNode.Identifier.GetLocation()));
-                    }
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        testMethodIsNotPublic,
+                        methodSymbol.Locations[0]));
                 }
             }
         }
 
-        private static bool IsTestMethod(SemanticModel semanticModel, SyntaxList<AttributeListSyntax> attributeLists)
+        private static bool IsTestMethod(Compilation compilation, IMethodSymbol methodSymbol)
         {
-            var allAttributes = attributeLists.SelectMany(al => al.Attributes);
-            return allAttributes.Any(a => a.IsTestMethodAttribute(semanticModel));
+            return methodSymbol.GetAttributes().Any(a => a.IsTestMethodAttribute(compilation));
         }
 
-        private static bool IsSetUpTearDownMethod(SemanticModel semanticModel, SyntaxList<AttributeListSyntax> attributeLists)
+        private static bool IsSetUpTearDownMethod(Compilation compilation, IMethodSymbol methodSymbol)
         {
-            var allAttributes = attributeLists.SelectMany(al => al.Attributes);
-            return allAttributes.Any(a => a.IsSetUpOrTearDownMethodAttribute(semanticModel));
-        }
-
-        private static bool IsPublic(SyntaxTokenList modifiers)
-        {
-            return modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword));
-        }
-
-        // 'MethodInfo.IsFamily' which means protected, but neither 'protected internal' nor 'private protected'
-        // See: https://docs.microsoft.com/en-us/dotnet/api/system.reflection.methodbase.isfamily?view=netcore-3.1
-        private static bool IsPublicOrFamily(SyntaxTokenList modifiers)
-        {
-            bool protectedSeen = false;
-            foreach (var modifier in modifiers)
-            {
-                if (modifier.IsKind(SyntaxKind.PublicKeyword))
-                {
-                    return true;
-                }
-                else if (modifier.IsKind(SyntaxKind.ProtectedKeyword))
-                {
-                    protectedSeen = true;
-                }
-                else if (modifier.IsKind(SyntaxKind.PrivateKeyword) || modifier.IsKind(SyntaxKind.InternalKeyword))
-                {
-                    return false;
-                }
-            }
-
-            return protectedSeen;
+            return methodSymbol.GetAttributes().Any(a => a.IsSetUpOrTearDownMethodAttribute(compilation));
         }
     }
 }
