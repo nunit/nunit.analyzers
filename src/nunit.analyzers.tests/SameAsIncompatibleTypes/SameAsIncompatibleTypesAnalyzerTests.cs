@@ -34,6 +34,27 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
+        public void AnalyzeClassicWhenIncompatibleTypesProvided()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class A { }
+    class B { }
+
+    public class Tests
+    {
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided()
+        {
+            var actual = new A();
+            var expected = new B();
+            Assert.AreSame(↓expected, actual);
+        }
+    }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenIncompatibleTypesProvided_WithImplicitConversion()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
@@ -87,6 +108,27 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
             var actual = new A();
             var expected = new B();
             Assert.That(actual, Is.Not.SameAs(↓expected));
+        }
+    }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeClassicWhenIncompatibleTypesProvided_WithNegatedAssert()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class A { }
+    class B { }
+
+    public class Tests
+    {
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        {
+            var actual = new A();
+            var expected = new B();
+            Assert.AreNotSame(↓expected, actual);
         }
     }");
 
@@ -198,6 +240,18 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
             AnalyzerAssert.Valid(analyzer, testCode);
         }
 
+
+        [Test]
+        public void NoDiagnosticClassicWhenActualAndExpectedTypesAreSame()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = """";
+                var expected = """";
+                Assert.AreSame(expected, actual);");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
         [Test]
         public void NoDiagnosticWhenActualAndExpectedTypesAreSame_WithNegatedAssert()
         {
@@ -205,6 +259,17 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 var actual = """";
                 var expected = """";
                 Assert.That(actual, Is.Not.SameAs(expected));");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticClassicWhenActualAndExpectedTypesAreSame_WithNegatedAssert()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = """";
+                var expected = """";
+                Assert.AreNotSame(expected, actual);");
 
             AnalyzerAssert.Valid(analyzer, testCode);
         }
@@ -333,6 +398,28 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
     }");
 
             AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenMoreThanOneConstraintExpressionIsUsed()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class A { }
+    class B { }
+
+    public class Tests
+    {
+        [Test]
+        public void AnalyzeWhenIncompatibleTypesProvided()
+        {
+            var actual = new A();
+            var expected1 = new A();
+            var expected2 = new B();
+            Assert.That(actual, Is.Not.SameAs(expected1) & Is.Not.SameAs(↓expected2));
+        }
+    }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
     }
 }
