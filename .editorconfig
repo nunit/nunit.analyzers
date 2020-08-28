@@ -60,6 +60,7 @@ csharp_indent_labels = flush_left
 # https://docs.nunit.org/articles/developer-info/Coding-Standards.html#file-organization
 dotnet_separate_import_directive_groups = false
 dotnet_sort_system_directives_first = true
+csharp_using_directive_placement = outside_namespace:warning
 
 # https://docs.nunit.org/articles/developer-info/Coding-Standards.html#naming
 # Always use "this." and "Me." when applicable; let StyleCop Analyzers provide the warning and fix

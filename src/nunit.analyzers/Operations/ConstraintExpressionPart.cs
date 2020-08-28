@@ -10,7 +10,7 @@ namespace NUnit.Analyzers.Operations
 {
     /// <summary>
     /// Represents part of <see cref="ConstraintExpression"/>, which is combined with others with
-    /// binary operators ('&', '|')  or methods ('And', 'Or', 'With').
+    /// binary operators ('&amp;', '|')  or methods ('And', 'Or', 'With').
     /// </summary>
     internal class ConstraintExpressionPart
     {

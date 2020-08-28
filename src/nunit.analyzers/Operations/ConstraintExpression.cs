@@ -8,7 +8,7 @@ using NUnit.Analyzers.Extensions;
 namespace NUnit.Analyzers.Operations
 {
     /// <summary>
-    /// Represents assert constraint expression, e.g. 'Is.EqualTo(expected)', 'Is.Not.Null & Is.Not.Empty'.
+    /// Represents assert constraint expression, e.g. 'Is.EqualTo(expected)', 'Is.Not.Null &amp; Is.Not.Empty'.
     /// </summary>
     internal class ConstraintExpression
     {
@@ -36,7 +36,7 @@ namespace NUnit.Analyzers.Operations
         }
 
         /// <summary>
-        /// Split constraints into parts by binary ('&' or '|')  or constraint expression operators.
+        /// Split constraints into parts by binary ('&amp;' or '|')  or constraint expression operators.
         /// Returns oparations split by call chains.
         /// </summary>
         private static IEnumerable<List<IOperation>> SplitConstraintByOperators(IOperation constraintExpression)
@@ -46,7 +46,7 @@ namespace NUnit.Analyzers.Operations
         }
 
         /// <summary>
-        /// If provided constraint expression is combined using &, | operators - return multiple split expressions.
+        /// If provided constraint expression is combined using &amp;, | operators - return multiple split expressions.
         /// Otherwise - returns single <paramref name="constraintExpression"/> value.
         /// </summary>
         private static IEnumerable<IOperation> SplitConstraintByBinaryOperators(IOperation constraintExpression)

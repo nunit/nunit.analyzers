@@ -11,7 +11,7 @@ namespace NUnit.Analyzers.Extensions
         /// <param name="this">The <see cref="IMethodSymbol"/> reference to get parameters from.</param>
         /// <returns>
         /// The first count is the required parameters, the second is the optional count,
-        /// and the last is the <c>params</c> count.
+        /// and the last is the <see langword="params" /> count.
         /// </returns>
         internal static (uint requiredParameters, uint optionalParameters, uint paramsCount) GetParameterCounts(
             this IMethodSymbol @this)
