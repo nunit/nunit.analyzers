@@ -98,9 +98,6 @@ dotnet_style_coalesce_expression = true:suggestion
 dotnet_style_null_propagation = true:suggestion
 dotnet_style_explicit_tuple_names = true:suggestion
 
-# https://docs.nunit.org/articles/developer-info/Coding-Standards.html#file-organization
-dotnet_sort_system_directives_first = true
-
 # The first matching rule wins, more specific rules at the top
 
 # dotnet_naming_rule.*.symbols does not yet support a comma-separated list https://github.com/dotnet/roslyn/issues/20891

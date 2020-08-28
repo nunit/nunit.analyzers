@@ -37,7 +37,7 @@ namespace NUnit.Analyzers.Operations
 
         /// <summary>
         /// Split constraints into parts by binary ('&amp;' or '|')  or constraint expression operators.
-        /// Returns oparations split by call chains.
+        /// Returns operations split by call chains.
         /// </summary>
         private static IEnumerable<List<IOperation>> SplitConstraintByOperators(IOperation constraintExpression)
         {
