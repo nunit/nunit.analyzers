@@ -40,7 +40,7 @@ namespace NUnit.Analyzers.MissingProperty
 
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
-                // Only 'Has' allowed (or none) - e.g. 'Throws' leads to verification on exception, which is not supported here. 
+                // Only 'Has' allowed (or none) - e.g. 'Throws' leads to verification on exception, which is not supported here.
                 var helperClassName = constraintPart.HelperClass?.Name;
                 if (helperClassName != null && helperClassName != NunitFrameworkConstants.NameOfHas)
                 {

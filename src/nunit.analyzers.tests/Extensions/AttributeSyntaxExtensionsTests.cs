@@ -65,7 +65,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
             Assert.That(namedArguments.Length, Is.EqualTo(0), nameof(namedArguments));
         }
 
-        private async static Task<AttributeSyntax> GetAttributeSyntaxAsync(string code, string typeName)
+        private static async Task<AttributeSyntax> GetAttributeSyntaxAsync(string code, string typeName)
         {
             var rootAndModel = await TestHelpers.GetRootAndModel(code);
 

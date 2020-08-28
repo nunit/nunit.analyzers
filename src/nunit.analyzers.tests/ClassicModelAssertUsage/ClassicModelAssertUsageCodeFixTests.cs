@@ -22,7 +22,9 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray<string>.Empty;
 
-            protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments) { }
+            protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
+            {
+            }
         }
     }
 }

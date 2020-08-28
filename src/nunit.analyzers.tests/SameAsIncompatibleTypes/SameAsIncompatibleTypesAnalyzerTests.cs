@@ -240,7 +240,6 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
             AnalyzerAssert.Valid(analyzer, testCode);
         }
 
-
         [Test]
         public void NoDiagnosticClassicWhenActualAndExpectedTypesAreSame()
         {

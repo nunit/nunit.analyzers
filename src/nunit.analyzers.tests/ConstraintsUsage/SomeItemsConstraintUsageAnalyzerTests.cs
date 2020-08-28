@@ -25,6 +25,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             AnalyzerAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
         }
+
         [Test]
         public void AnalyzeWhenListContainsUsed_AssertIsTrue()
         {
@@ -54,6 +55,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             AnalyzerAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
         }
+
         [Test]
         public void AnalyzeWhenLinqContainsUsed_AssertIsTrue()
         {
@@ -63,6 +65,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             AnalyzerAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
         }
+
         [Test]
         public void AnalyzeWhenLinqContainsUsed_AssertIsFalse()
         {

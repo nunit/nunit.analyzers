@@ -13,11 +13,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
     public sealed class IsTrueAndTrueClassicModelAssertUsageCondensedCodeFix
         : ClassicModelAssertUsageCodeFix
     {
+        public const string Suffix = " (condensed)";
+
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
             AnalyzerIdentifiers.IsTrueUsage,
             AnalyzerIdentifiers.TrueUsage);
-
-        public const string Suffix = " (condensed)";
 
         protected override string Title => base.Title + Suffix;
 

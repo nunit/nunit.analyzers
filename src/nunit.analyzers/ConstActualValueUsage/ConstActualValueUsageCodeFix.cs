@@ -16,14 +16,16 @@ namespace NUnit.Analyzers.ConstActualValueUsage
     [Shared]
     public class ConstActualValueUsageCodeFix : CodeFixProvider
     {
-        private static readonly string[] SupportedClassicAsserts = new[] {
+        private static readonly string[] SupportedClassicAsserts = new[]
+        {
             NunitFrameworkConstants.NameOfAssertAreEqual,
             NunitFrameworkConstants.NameOfAssertAreNotEqual,
             NunitFrameworkConstants.NameOfAssertAreSame,
             NunitFrameworkConstants.NameOfAssertAreNotSame
         };
 
-        private static readonly string[] SupportedIsConstraints = new[] {
+        private static readonly string[] SupportedIsConstraints = new[]
+        {
             NunitFrameworkConstants.NameOfIsEqualTo,
             NunitFrameworkConstants.NameOfIsSameAs,
             NunitFrameworkConstants.NameOfIsSamePath

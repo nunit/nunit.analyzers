@@ -10,8 +10,8 @@ namespace NUnit.Analyzers.Extensions
         /// </summary>
         /// <param name="this">The <see cref="IMethodSymbol"/> reference to get parameters from.</param>
         /// <returns>
-        /// The first count is the required parameters, the second is the optional count, 
-        /// and the last is the <code>params</code> count.
+        /// The first count is the required parameters, the second is the optional count,
+        /// and the last is the <see langword="params" /> count.
         /// </returns>
         internal static (uint requiredParameters, uint optionalParameters, uint paramsCount) GetParameterCounts(
             this IMethodSymbol @this)
@@ -42,7 +42,7 @@ namespace NUnit.Analyzers.Extensions
         }
 
         /// <summary>
-        /// Returns true if method is implementation of method in interface
+        /// Returns true if method is implementation of method in interface.
         /// </summary>
         internal static bool IsInterfaceImplementation(this IMethodSymbol @this, string interfaceFullName)
         {

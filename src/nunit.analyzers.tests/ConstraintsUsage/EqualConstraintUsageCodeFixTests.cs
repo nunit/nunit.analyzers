@@ -174,7 +174,6 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.IsFalse(actual.Equals(""bcd""));");
 
-
             var fixedCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";
                 Assert.That(actual, Is.Not.EqualTo(""bcd""));");
@@ -203,7 +202,6 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual.Equals(""abc""), Is.True, ""Assertion message"");");
 
-
             var fixedCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";
                 Assert.That(actual, Is.EqualTo(""abc""), ""Assertion message"");");
@@ -218,7 +216,6 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.True(actual.Equals(""abc""), ""Assertion message"");");
 
-
             var fixedCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";
                 Assert.That(actual, Is.EqualTo(""abc""), ""Assertion message"");");
@@ -232,7 +229,6 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             var code = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";
                 Assert.False(actual.Equals(""bcd""), ""Assertion message"");");
-
 
             var fixedCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";

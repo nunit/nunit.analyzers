@@ -189,6 +189,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                                 methodParametersFromAttribute,
                                 method.Parameters.Length));
                         }
+
                         break;
                 }
             }

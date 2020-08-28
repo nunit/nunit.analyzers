@@ -4,12 +4,6 @@ namespace NUnit.Analyzers.SourceCommon
 {
     internal sealed class SourceAttributeInformation
     {
-        public INamedTypeSymbol SourceType { get; }
-        public string? SourceName { get; }
-        public SyntaxNode? SyntaxNode { get; }
-        public bool IsStringLiteral { get; }
-        public int? NumberOfMethodParameters { get; }
-
         public SourceAttributeInformation(
             INamedTypeSymbol sourceType,
             string? sourceName,
@@ -23,5 +17,11 @@ namespace NUnit.Analyzers.SourceCommon
             this.IsStringLiteral = isStringLiteral;
             this.NumberOfMethodParameters = numberOfMethodParameters;
         }
+
+        public INamedTypeSymbol SourceType { get; }
+        public string? SourceName { get; }
+        public SyntaxNode? SyntaxNode { get; }
+        public bool IsStringLiteral { get; }
+        public int? NumberOfMethodParameters { get; }
     }
 }

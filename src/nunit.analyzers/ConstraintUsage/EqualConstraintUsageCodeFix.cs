@@ -46,8 +46,9 @@ namespace NUnit.Analyzers.ConstraintUsage
                     {
                         return (memberAccess.Expression, arguments[0].Expression);
                     }
+
                     // Equals(actual, expected)
-                    else if (invocation.Expression.IsKind(SyntaxKind.IdentifierName)
+                    if (invocation.Expression.IsKind(SyntaxKind.IdentifierName)
                         && arguments.Count == 2)
                     {
                         return (arguments[0].Expression, arguments[1].Expression);

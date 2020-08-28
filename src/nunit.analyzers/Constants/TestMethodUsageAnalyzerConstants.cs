@@ -9,7 +9,7 @@ namespace NUnit.Analyzers.Constants
 
         internal const string SpecifiedExpectedResultForVoidMethodTitle = "ExpectedResult must not be specified when the method returns void.";
         internal const string SpecifiedExpectedResultForVoidMethodMessage = "Don't specify ExpectedResult when the method returns void";
-        internal const string SpecifiedExpectedResultForVoidMethodDescription= "ExpectedResult must not be specified when the method returns void. This will lead to an error at run-time.";
+        internal const string SpecifiedExpectedResultForVoidMethodDescription = "ExpectedResult must not be specified when the method returns void. This will lead to an error at run-time.";
 
         internal const string NoExpectedResultButNonVoidReturnTypeTitle = "The method has non-void return type, but no result is expected in ExpectedResult.";
         internal const string NoExpectedResultButNonVoidReturnTypeMessage = "The method has non-void return type '{0}', but no result is expected in ExpectedResult.";

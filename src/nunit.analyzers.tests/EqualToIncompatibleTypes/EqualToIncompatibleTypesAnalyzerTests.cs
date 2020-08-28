@@ -12,7 +12,8 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualToIncompatibleTypes);
 
-        private static readonly string[] NumericTypes = new[] {
+        private static readonly string[] NumericTypes = new[]
+        {
             "decimal", "double", "float", "int", "uint", "long", "ulong", "short", "ushort"
         };
 
@@ -514,7 +515,6 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
 
             AnalyzerAssert.Valid(analyzer, testCode);
         }
-
 
         [Test]
         public void NoDiagnosticForStreams()

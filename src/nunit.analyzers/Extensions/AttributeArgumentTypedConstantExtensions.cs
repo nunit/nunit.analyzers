@@ -55,8 +55,8 @@ namespace NUnit.Analyzers.Extensions
             bool allowImplicitConversion = false,
             bool allowEnumToUnderlyingTypeConversion = false)
         {
-            //See https://github.com/nunit/nunit/blob/f16d12d6fa9e5c879601ad57b4b24ec805c66054/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L396
-            //for the reasoning behind this implementation.
+            // See https://github.com/nunit/nunit/blob/f16d12d6fa9e5c879601ad57b4b24ec805c66054/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L396
+            // for the reasoning behind this implementation.
 
             object? argumentValue = GetValue(@this);
 

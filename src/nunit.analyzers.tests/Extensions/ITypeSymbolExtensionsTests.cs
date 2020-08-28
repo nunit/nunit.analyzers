@@ -121,7 +121,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
                 {
                     "IsAssignableFromWhenOtherIsNotASubclassA",
                     "IsAssignableFromWhenOtherIsNotASubclassB"
-              });
+                });
 
             Assert.That(types[0].IsAssignableFrom(types[1]), Is.False);
         }

@@ -13,13 +13,15 @@ namespace NUnit.Analyzers.ConstraintUsage
     {
         internal const string SuggestedConstraintString = nameof(SuggestedConstraintString);
 
-        protected static readonly string[] SupportedPositiveAssertMethods = new[] {
+        protected static readonly string[] SupportedPositiveAssertMethods = new[]
+        {
             NameOfAssertThat,
             NameOfAssertTrue,
             NameOfAssertIsTrue
         };
 
-        protected static readonly string[] SupportedNegativeAssertMethods = new[] {
+        protected static readonly string[] SupportedNegativeAssertMethods = new[]
+        {
             NameOfAssertFalse,
             NameOfAssertIsFalse
         };

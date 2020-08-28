@@ -15,21 +15,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
     public abstract class ClassicModelAssertUsageCodeFix
         : CodeFixProvider
     {
+        protected virtual string Title => CodeFixConstants.TransformToConstraintModelDescription;
+
         public sealed override FixAllProvider GetFixAllProvider()
         {
             return WellKnownFixAllProviders.BatchFixer;
-        }
-
-        protected virtual string Title => CodeFixConstants.TransformToConstraintModelDescription;
-
-        protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments, TypeArgumentListSyntax typeArguments)
-        {
-            throw new InvalidOperationException($"Class must override {nameof(UpdateArguments)} accepting {nameof(TypeArgumentListSyntax)}");
-        }
-
-        protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
-        {
-            throw new InvalidOperationException($"Class must override {nameof(UpdateArguments)}");
         }
 
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
@@ -131,6 +121,16 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                     this.Title,
                     _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
                     this.Title), diagnostic);
+        }
+
+        protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments, TypeArgumentListSyntax typeArguments)
+        {
+            throw new InvalidOperationException($"Class must override {nameof(UpdateArguments)} accepting {nameof(TypeArgumentListSyntax)}");
+        }
+
+        protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
+        {
+            throw new InvalidOperationException($"Class must override {nameof(UpdateArguments)}");
         }
     }
 }

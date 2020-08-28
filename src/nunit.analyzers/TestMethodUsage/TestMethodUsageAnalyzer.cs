@@ -101,7 +101,8 @@ namespace NUnit.Analyzers.TestMethodUsage
                 var isTestCaseAttribute = attribute.AttributeClass.Equals(testCaseType);
                 var isTestAttribute = attribute.AttributeClass.Equals(testType);
 
-                if (isTestCaseAttribute || isTestAttribute && !HasITestBuilderAttribute(context.Compilation, methodAttributes))
+                if (isTestCaseAttribute
+                    || (isTestAttribute && !HasITestBuilderAttribute(context.Compilation, methodAttributes)))
                 {
                     context.CancellationToken.ThrowIfCancellationRequested();
 

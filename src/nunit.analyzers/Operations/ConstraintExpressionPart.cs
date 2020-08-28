@@ -9,8 +9,8 @@ using NUnit.Analyzers.Extensions;
 namespace NUnit.Analyzers.Operations
 {
     /// <summary>
-    /// Represents part of <see cref="ConstraintExpression"/>, which is combined with others with 
-    /// binary operators ('&', '|')  or methods ('And', 'Or', 'With').
+    /// Represents part of <see cref="ConstraintExpression"/>, which is combined with others with
+    /// binary operators ('&amp;', '|')  or methods ('And', 'Or', 'With').
     /// </summary>
     internal class ConstraintExpressionPart
     {
@@ -23,27 +23,53 @@ namespace NUnit.Analyzers.Operations
         }
 
         /// <summary>
-        /// Helper class used to access constraints,
+        /// Gets helper class used to access constraints,
         /// e.g. 'Has', 'Is', 'Throws', 'Does', etc.
         /// </summary>
         public ITypeSymbol? HelperClass { get; }
 
         /// <summary>
-        /// Constraint modifiers that go before actual constraint,
+        /// Gets constraint modifiers that go before actual constraint,
         /// e.g. 'Not', 'Some', 'Property(propertyName)', etc.
         /// </summary>
         public IReadOnlyCollection<IOperation> Prefixes { get; }
 
         /// <summary>
-        /// Actual constraint, e.g. 'EqualTo(expected)', 'Null', 'Empty', etc.
+        /// Gets actual constraint, e.g. 'EqualTo(expected)', 'Null', 'Empty', etc.
         /// </summary>
         public IOperation? Root { get; }
 
         /// <summary>
-        /// Constraint modifiers that go after actual constraint,
+        /// Gets constraint modifiers that go after actual constraint,
         /// e.g. 'IgnoreCase', 'After(timeout)', 'Within(range)', etc.
         /// </summary>
         public IReadOnlyCollection<IOperation> Suffixes { get; }
+
+        public TextSpan Span
+        {
+            get
+            {
+                // If constraint is built using And/ Or methods, and current part is second operand,
+                // we need to cut after operator.
+                var operation = this.callChainOperations[0];
+                var syntax = operation.Syntax;
+
+                int spanStart = syntax.SpanStart;
+
+                // If instance is null - that means we're accessing static helper class, no need to cut anything.
+                if (operation.GetInstance() != null)
+                {
+                    if (syntax is MemberAccessExpressionSyntax memberAccess)
+                        spanStart = memberAccess.Name.Span.Start;
+                    else if (syntax is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax invokedMemberAccess })
+                        spanStart = invokedMemberAccess.Name.Span.Start;
+                }
+
+                var spanEnd = this.callChainOperations.Last().Syntax.Span.End;
+
+                return TextSpan.FromBounds(spanStart, spanEnd);
+            }
+        }
 
         /// <summary>
         /// Returns prefixes names (i.e. method or property names).
@@ -134,32 +160,6 @@ namespace NUnit.Analyzers.Operations
             }
 
             return false;
-        }
-
-        public TextSpan Span
-        {
-            get
-            {
-                // If constraint is built using And/ Or methods, and current part is second operand, 
-                // we need to cut after operator.
-                var operation = this.callChainOperations[0];
-                var syntax = operation.Syntax;
-
-                int spanStart = syntax.SpanStart;
-
-                // If instance is null - that means we're accessing static helper class, no need to cut anything.
-                if (operation.GetInstance() != null)
-                {
-                    if (syntax is MemberAccessExpressionSyntax memberAccess)
-                        spanStart = memberAccess.Name.Span.Start;
-                    else if (syntax is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax invokedMemberAccess })
-                        spanStart = invokedMemberAccess.Name.Span.Start;
-                }
-
-                var spanEnd = this.callChainOperations.Last().Syntax.Span.End;
-
-                return TextSpan.FromBounds(spanStart, spanEnd);
-            }
         }
 
         public Location GetLocation()

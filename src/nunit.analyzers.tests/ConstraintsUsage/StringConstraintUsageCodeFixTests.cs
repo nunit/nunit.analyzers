@@ -12,16 +12,18 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         private static readonly DiagnosticAnalyzer analyzer = new StringConstraintUsageAnalyzer();
         private static readonly CodeFixProvider fix = new StringConstraintUsageCodeFix();
 
-        private static readonly object[] PositiveAssertData = new[] {
-            new [] { nameof(string.Contains), AnalyzerIdentifiers.StringContainsConstraintUsage, "Does.Contain" },
-            new [] { nameof(string.StartsWith), AnalyzerIdentifiers.StringStartsWithConstraintUsage, "Does.StartWith" },
-            new [] { nameof(string.EndsWith), AnalyzerIdentifiers.StringEndsWithConstraintUsage, "Does.EndWith" }
+        private static readonly object[] PositiveAssertData = new[]
+        {
+            new[] { nameof(string.Contains), AnalyzerIdentifiers.StringContainsConstraintUsage, "Does.Contain" },
+            new[] { nameof(string.StartsWith), AnalyzerIdentifiers.StringStartsWithConstraintUsage, "Does.StartWith" },
+            new[] { nameof(string.EndsWith), AnalyzerIdentifiers.StringEndsWithConstraintUsage, "Does.EndWith" }
         };
 
-        private static readonly object[] NegativeAssertData = new[] {
-            new [] { nameof(string.Contains), AnalyzerIdentifiers.StringContainsConstraintUsage, "Does.Not.Contain" },
-            new [] { nameof(string.StartsWith), AnalyzerIdentifiers.StringStartsWithConstraintUsage, "Does.Not.StartWith" },
-            new [] { nameof(string.EndsWith), AnalyzerIdentifiers.StringEndsWithConstraintUsage, "Does.Not.EndWith" }
+        private static readonly object[] NegativeAssertData = new[]
+        {
+            new[] { nameof(string.Contains), AnalyzerIdentifiers.StringContainsConstraintUsage, "Does.Not.Contain" },
+            new[] { nameof(string.StartsWith), AnalyzerIdentifiers.StringStartsWithConstraintUsage, "Does.Not.StartWith" },
+            new[] { nameof(string.EndsWith), AnalyzerIdentifiers.StringEndsWithConstraintUsage, "Does.Not.EndWith" }
         };
 
         [TestCaseSource(nameof(PositiveAssertData))]

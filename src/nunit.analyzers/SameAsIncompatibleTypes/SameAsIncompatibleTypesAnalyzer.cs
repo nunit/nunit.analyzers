@@ -83,7 +83,7 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     descriptor,
-                        expectedOperation.Syntax.GetLocation()));
+                    expectedOperation.Syntax.GetLocation()));
             }
         }
 

@@ -16,6 +16,17 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
     {
         private static readonly DiagnosticAnalyzer analyzer = new TestMethodUsageAnalyzer();
 
+        private static IEnumerable<TestCaseData> SpecialConversions
+        {
+            get
+            {
+                yield return new TestCaseData("2019-10-10", typeof(DateTime));
+                yield return new TestCaseData("23:59:59", typeof(TimeSpan));
+                yield return new TestCaseData("2019-10-10", typeof(DateTimeOffset));
+                yield return new TestCaseData("2019-10-14T19:15:25+00:00", typeof(DateTimeOffset));
+            }
+        }
+
         [Test]
         public void VerifySupportedDiagnostics()
         {
@@ -50,18 +61,6 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                 $"{TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage} is missing.");
             Assert.That(diagnosticMessage, Contains.Item(TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
                 $"{TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage} is missing.");
-        }
-
-
-        private static IEnumerable<TestCaseData> SpecialConversions
-        {
-            get
-            {
-                yield return new TestCaseData("2019-10-10", typeof(DateTime));
-                yield return new TestCaseData("23:59:59", typeof(TimeSpan));
-                yield return new TestCaseData("2019-10-10", typeof(DateTimeOffset));
-                yield return new TestCaseData("2019-10-14T19:15:25+00:00", typeof(DateTimeOffset));
-            }
         }
 
         [TestCaseSource(nameof(SpecialConversions))]

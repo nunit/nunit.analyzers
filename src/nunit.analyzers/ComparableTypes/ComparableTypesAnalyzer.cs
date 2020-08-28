@@ -14,21 +14,21 @@ namespace NUnit.Analyzers.ComparableTypes
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ComparableTypesAnalyzer : BaseAssertionAnalyzer
     {
-        private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
-            id: AnalyzerIdentifiers.ComparableTypes,
-            title: ComparableConstants.Title,
-            messageFormat: ComparableConstants.Message,
-            category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
-            description: ComparableConstants.Description);
-
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
-
         private static readonly ImmutableHashSet<string> SupportedConstraints = ImmutableHashSet.Create(
             NunitFrameworkConstants.NameOfIsLessThan,
             NunitFrameworkConstants.NameOfIsLessThanOrEqualTo,
             NunitFrameworkConstants.NameOfIsGreaterThan,
             NunitFrameworkConstants.NameOfIsGreaterThanOrEqualTo);
+
+        private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.ComparableTypes,
+            title: ComparableTypesConstants.Title,
+            messageFormat: ComparableTypesConstants.Message,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            description: ComparableTypesConstants.Description);
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {

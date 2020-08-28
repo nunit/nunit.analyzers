@@ -111,7 +111,6 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
-
         [Test]
         public void VerifyIsNotInstanceOfSingleNestedGenericFix()
         {

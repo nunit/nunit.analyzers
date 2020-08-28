@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -13,7 +12,7 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.StringConstraintWrongActualType);
 
-        public static readonly string[] StringConstraints = new[]
+        private static readonly string[] StringConstraints = new[]
         {
             "Does.StartWith(\"12\")",
             "Does.EndWith(\"34\")",

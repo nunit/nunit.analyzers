@@ -13,7 +13,33 @@ namespace NUnit.Analyzers.Tests.Extensions
     [TestFixture]
     public sealed class AttributeArgumentTypedConstantExtensionsTests
     {
-        static IEnumerable<TestCaseData> GetTestData()
+        [TestCaseSource(nameof(GetTestData))]
+        public async Task CanAssignToTests(string arguments, string methodParameterType,
+            string attributeParameterType, Constraint expectedResult)
+        {
+            var testCode = $@"
+using System;
+
+namespace NUnit.Analyzers.Tests.Targets.Extensions
+{{
+    public sealed class CanAssignToWhenArgumentIsNullAndTargetIsReferenceType
+    {{
+        [Arguments({arguments})]
+        public void Foo({methodParameterType} a) {{ }}
+
+        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+        public sealed class ArgumentsAttribute : Attribute
+        {{
+            public ArgumentsAttribute({attributeParameterType} x) {{ }}
+        }}
+    }}
+}}";
+            var (typedConstant, typeSymbol, compilation) = await GetAttributeConstantAsync(testCode);
+
+            Assert.That(typedConstant.CanAssignTo(typeSymbol, compilation), expectedResult);
+        }
+
+        private static IEnumerable<TestCaseData> GetTestData()
         {
             yield return new TestCaseData("null", "object", "object", Is.True).
                 SetName("CanAssignToWhenArgumentIsNullAndTargetIsReferenceType");
@@ -75,33 +101,8 @@ namespace NUnit.Analyzers.Tests.Extensions
                 SetName("CanAssignToWhenParameterIsVersionAndArgumentIsInValidString");
         }
 
-        [TestCaseSource(nameof(GetTestData))]
-        public async Task CanAssignToTests(string arguments, string methodParameterType,
-            string attributeParameterType, Constraint expectedResult)
-        {
-            var testCode = $@"
-using System;
-
-namespace NUnit.Analyzers.Tests.Targets.Extensions
-{{
-    public sealed class CanAssignToWhenArgumentIsNullAndTargetIsReferenceType
-    {{
-        [Arguments({arguments})]
-        public void Foo({methodParameterType} a) {{ }}
-
-        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-        public sealed class ArgumentsAttribute : Attribute
-        {{
-            public ArgumentsAttribute({attributeParameterType} x) {{ }}
-        }}
-    }}
-}}";
-            var (typedConstant, typeSymbol, compilation) = await GetAttributeConstantAsync(testCode);
-
-            Assert.That(typedConstant.CanAssignTo(typeSymbol, compilation), expectedResult);
-        }
-
-        private async static Task<(TypedConstant, ITypeSymbol, Compilation)> GetAttributeConstantAsync(string code)
+        private static async Task<(TypedConstant argumentConstant, ITypeSymbol typeSymbol, Compilation compilation)>
+            GetAttributeConstantAsync(string code)
         {
             var (root, semanticModel) = await TestHelpers.GetRootAndModel(code);
 
