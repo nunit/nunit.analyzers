@@ -65,7 +65,7 @@ namespace NUnit.Analyzers.Operations
                         spanStart = invokedMemberAccess.Name.Span.Start;
                 }
 
-                var spanEnd = this.callChainOperations.Last().Syntax.Span.End;
+                var spanEnd = this.callChainOperations[this.callChainOperations.Count - 1].Syntax.Span.End;
 
                 return TextSpan.FromBounds(spanStart, spanEnd);
             }
@@ -170,7 +170,7 @@ namespace NUnit.Analyzers.Operations
 
         public override string ToString()
         {
-            var operationSyntax = this.callChainOperations.Last().Syntax;
+            var operationSyntax = this.callChainOperations[this.callChainOperations.Count - 1].Syntax;
             var startDelta = this.Span.Start - operationSyntax.Span.Start;
 
             return operationSyntax.ToString().Substring(startDelta);

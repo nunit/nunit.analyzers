@@ -70,7 +70,7 @@ namespace NUnit.Analyzers.Tests
         [TestCaseSource(nameof(DescriptorsWithDocs))]
         public void EnsureThatFirstLineMatchesId(DescriptorInfo descriptorInfo)
         {
-            var firstLine = descriptorInfo.DocumentationFile.AllLines.First();
+            var firstLine = descriptorInfo.DocumentationFile.AllLines[0];
             Assert.That(firstLine, Is.EqualTo($"# {descriptorInfo.Descriptor.Id}"));
         }
 
