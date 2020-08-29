@@ -20,7 +20,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void VerifyGetFixableDiagnosticIds()
         {
             var fix = new SameAsOnValueTypesCodeFix();
-            var ids = fix.FixableDiagnosticIds.ToImmutableArray();
+            var ids = fix.FixableDiagnosticIds;
 
             Assert.That(ids, Is.EquivalentTo(new[] { AnalyzerIdentifiers.SameAsOnValueTypes }));
         }
