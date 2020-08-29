@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
@@ -33,13 +34,13 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
 
             foreach (var diagnostic in diagnostics)
             {
-                Assert.That(diagnostic.Title.ToString(), Is.Not.Empty,
+                Assert.That(diagnostic.Title.ToString(CultureInfo.InvariantCulture), Is.Not.Empty,
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
                 Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
             }
 
-            var diagnosticMessage = diagnostics.Select(_ => _.MessageFormat.ToString()).ToImmutableArray();
+            var diagnosticMessage = diagnostics.Select(_ => _.MessageFormat.ToString(CultureInfo.InvariantCulture)).ToImmutableArray();
 
             Assert.That(diagnosticMessage, Contains.Item(ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage),
                 $"{ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage} is missing.");

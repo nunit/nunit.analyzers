@@ -1,3 +1,4 @@
+using System.Globalization;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -14,10 +15,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         private static readonly CodeFixProvider fix = new SomeItemsConstraintUsageCodeFix();
 
         private static readonly ExpectedDiagnostic doesContainDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.CollectionContainsConstraintUsage,
-            string.Format(SomeItemsConstraintUsageConstants.Message, "Does.Contain"));
+            string.Format(CultureInfo.InvariantCulture, SomeItemsConstraintUsageConstants.Message, "Does.Contain"));
 
         private static readonly ExpectedDiagnostic doesNotContainDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.CollectionContainsConstraintUsage,
-            string.Format(SomeItemsConstraintUsageConstants.Message, "Does.Not.Contain"));
+            string.Format(CultureInfo.InvariantCulture, SomeItemsConstraintUsageConstants.Message, "Does.Not.Contain"));
 
         [Test]
         public void AnalyzeWhenListContainsUsed_AssertThat()

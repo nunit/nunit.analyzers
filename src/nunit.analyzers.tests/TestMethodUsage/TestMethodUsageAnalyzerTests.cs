@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
@@ -47,7 +48,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
 
             foreach (var diagnostic in diagnostics)
             {
-                Assert.That(diagnostic.Title.ToString(), Is.Not.Empty,
+                Assert.That(diagnostic.Title.ToString(CultureInfo.InvariantCulture), Is.Not.Empty,
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
                 Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
@@ -55,7 +56,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.DefaultSeverity)}");
             }
 
-            var diagnosticMessage = diagnostics.Select(_ => _.MessageFormat.ToString()).ToImmutableArray();
+            var diagnosticMessage = diagnostics.Select(_ => _.MessageFormat.ToString(CultureInfo.InvariantCulture)).ToImmutableArray();
 
             Assert.That(diagnosticMessage, Contains.Item(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage),
                 $"{TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage} is missing.");
@@ -108,7 +109,8 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
-                string.Format(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
+                string.Format(CultureInfo.InvariantCulture,
+                    TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect
@@ -124,7 +126,8 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
-                string.Format(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
+                string.Format(CultureInfo.InvariantCulture,
+                    TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType
@@ -327,7 +330,8 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
-                string.Format(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
+                string.Format(CultureInfo.InvariantCulture,
+                    TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResultIsIncorrect
@@ -368,7 +372,8 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
-                string.Format(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
+                string.Format(CultureInfo.InvariantCulture,
+                    TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
 
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
                 [TestCase(ExpectedResult = '1')]

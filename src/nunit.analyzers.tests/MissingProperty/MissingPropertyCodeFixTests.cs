@@ -1,3 +1,4 @@
+using System.Globalization;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -29,7 +30,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 additionalUsings: "using System.Collections.Generic;");
 
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: string.Format(CodeFixConstants.UsePropertyDescriptionFormat, "Count"));
+                fixTitle: string.Format(CultureInfo.InvariantCulture, CodeFixConstants.UsePropertyDescriptionFormat, "Count"));
         }
 
         [Test]
@@ -46,7 +47,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 additionalUsings: "using System.Collections.Generic;");
 
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: string.Format(CodeFixConstants.UsePropertyDescriptionFormat, "Length"));
+                fixTitle: string.Format(CultureInfo.InvariantCulture, CodeFixConstants.UsePropertyDescriptionFormat, "Length"));
         }
 
         [Test]

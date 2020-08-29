@@ -1,3 +1,4 @@
+using System.Globalization;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -10,9 +11,11 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
     {
         private static readonly DiagnosticAnalyzer analyzer = new EqualConstraintUsageAnalyzer();
         private static readonly ExpectedDiagnostic isEqualToDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualConstraintUsage, string.Format(EqualConstraintUsageConstants.Message, "Is.EqualTo"));
+            ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualConstraintUsage,
+                string.Format(CultureInfo.InvariantCulture, EqualConstraintUsageConstants.Message, "Is.EqualTo"));
         private static readonly ExpectedDiagnostic isNotEqualToDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualConstraintUsage, string.Format(EqualConstraintUsageConstants.Message, "Is.Not.EqualTo"));
+            ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualConstraintUsage,
+                string.Format(CultureInfo.InvariantCulture, EqualConstraintUsageConstants.Message, "Is.Not.EqualTo"));
 
         [Test]
         public void AnalyzeWhenEqualsOperatorUsed()

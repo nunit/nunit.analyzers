@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
@@ -24,9 +25,9 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             foreach (var diagnostic in diagnostics)
             {
-                Assert.That(diagnostic.Title.ToString(), Is.Not.Empty,
+                Assert.That(diagnostic.Title.ToString(CultureInfo.InvariantCulture), Is.Not.Empty,
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
-                Assert.That(diagnostic.MessageFormat.ToString(), Is.Not.Empty,
+                Assert.That(diagnostic.MessageFormat.ToString(CultureInfo.InvariantCulture), Is.Not.Empty,
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.MessageFormat)}");
                 Assert.That(diagnostic.Category, Is.EqualTo(Categories.Assertion),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
