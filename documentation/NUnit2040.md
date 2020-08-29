@@ -39,11 +39,20 @@ Assert.That(actual, Is.EqualTo(expected));
 <!-- start generated config severity -->
 ## Configure severity
 
-### Via ruleset file.
+### Via ruleset file
 
 Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
 
-### Via #pragma directive.
+### Via .editorconfig file
+
+```ini
+# NUnit2040: Non-reference types for SameAs constraint.
+dotnet_diagnostic.NUnit2040.severity = chosenSeverity
+```
+
+where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, or `error`.
+
+### Via #pragma directive
 
 ```csharp
 #pragma warning disable NUnit2040 // Non-reference types for SameAs constraint.
@@ -57,7 +66,7 @@ Or put this at the top of the file to disable all instances.
 #pragma warning disable NUnit2040 // Non-reference types for SameAs constraint.
 ```
 
-### Via attribute `[SuppressMessage]`.
+### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
