@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -28,8 +29,8 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
             IOperation? actualOperation;
             IOperation? expectedOperation;
 
-            if (assertOperation.TargetMethod.Name.Equals(NunitFrameworkConstants.NameOfAssertAreEqual) ||
-                assertOperation.TargetMethod.Name.Equals(NunitFrameworkConstants.NameOfAssertAreNotEqual))
+            if (assertOperation.TargetMethod.Name.Equals(NunitFrameworkConstants.NameOfAssertAreEqual, StringComparison.Ordinal) ||
+                assertOperation.TargetMethod.Name.Equals(NunitFrameworkConstants.NameOfAssertAreNotEqual, StringComparison.Ordinal))
             {
                 actualOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfActualParameter);
                 expectedOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfExpectedParameter);

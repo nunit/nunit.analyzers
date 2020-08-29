@@ -81,7 +81,7 @@ namespace NUnit.Analyzers.Tests
             var actual = descriptorInfo
                 .DocumentationFile.AllLines
                 .Skip(1)
-                .Select(l => l.Replace(@"\<", "<"))
+                .Select(l => l.Replace(@"\<", "<", StringComparison.Ordinal))
                 .Take(2);
 
             Assert.AreEqual(expected, actual);
@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.Tests
                               .SkipWhile(l => !l.StartsWith("## Description", StringComparison.OrdinalIgnoreCase))
                               .Skip(1)
                               .FirstOrDefault(l => !string.IsNullOrWhiteSpace(l))
-                              ?.Replace("`", string.Empty);
+                              ?.Replace("`", string.Empty, StringComparison.Ordinal);
 
             DumpIfDebug(expected);
             DumpIfDebug(actual);
@@ -165,7 +165,7 @@ namespace NUnit.Analyzers.Tests
 
         private static string GetTable(string doc, string headerRow)
         {
-            var startIndex = doc.IndexOf(headerRow);
+            var startIndex = doc.IndexOf(headerRow, StringComparison.Ordinal);
             if (startIndex < 0)
             {
                 return string.Empty;
@@ -202,7 +202,7 @@ namespace NUnit.Analyzers.Tests
         }
 
         private static string EscapeTags(LocalizableString str)
-            => str.ToString(CultureInfo.InvariantCulture).Replace("<", @"\<");
+            => str.ToString(CultureInfo.InvariantCulture).Replace("<", @"\<", StringComparison.Ordinal);
 
         public class DescriptorInfo
         {
@@ -309,8 +309,8 @@ Or put this at the top of the file to disable all instances.
 <!-- end generated config severity -->
 ";
 
-                return stub.Replace("| Code     | [<TYPENAME>](<URL>)\r\n", text)
-                           .Replace("| Code     | [<TYPENAME>](<URL>)\n", text);
+                return stub.Replace("| Code     | [<TYPENAME>](<URL>)\r\n", text, StringComparison.Ordinal)
+                           .Replace("| Code     | [<TYPENAME>](<URL>)\n", text, StringComparison.Ordinal);
             }
         }
 
@@ -349,7 +349,7 @@ Or put this at the top of the file to disable all instances.
 
             public string Name { get; }
 
-            public string Uri => RepoOnMaster + this.Name.Substring(RepositoryDirectory.FullName.Length).Replace("\\", "/");
+            public string Uri => RepoOnMaster + this.Name.Substring(RepositoryDirectory.FullName.Length).Replace('\\', '/');
 
             public static CodeFile Find(Type type)
             {

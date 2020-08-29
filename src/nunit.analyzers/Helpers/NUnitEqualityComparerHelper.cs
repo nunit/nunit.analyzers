@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -177,7 +178,7 @@ namespace NUnit.Analyzers.Helpers
 
         private static bool IsTuple(string fullName)
         {
-            return fullName.StartsWith("System.Tuple`");
+            return fullName.StartsWith("System.Tuple`", StringComparison.Ordinal);
         }
 
         private static bool IsIEquatable(ITypeSymbol typeSymbol, ITypeSymbol equatableTypeArguments)
