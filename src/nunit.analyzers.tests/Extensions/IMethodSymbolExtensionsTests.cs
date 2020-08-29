@@ -22,7 +22,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         public void Foo(int a1, int a2, int a3, string b1 = ""b1"", string b2 = ""b2"", params char[] c) { }
     }
 }";
-            var method = await GetMethodSymbolAsync(testCode);
+            var method = await GetMethodSymbolAsync(testCode).ConfigureAwait(false);
             var (requiredParameters, optionalParameters, paramsCount) = method.GetParameterCounts();
 
             Assert.That(requiredParameters, Is.EqualTo(3), nameof(requiredParameters));
@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
         private static async Task<IMethodSymbol> GetMethodSymbolAsync(string code)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModel(code);
+            var rootAndModel = await TestHelpers.GetRootAndModel(code).ConfigureAwait(false);
 
             return rootAndModel.Model.GetDeclaredSymbol(rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>().Single()

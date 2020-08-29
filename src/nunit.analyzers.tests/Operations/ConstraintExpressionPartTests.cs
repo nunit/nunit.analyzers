@@ -14,7 +14,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task ConstraintMethodWithNoPrefixesAndSuffixes()
         {
-            var constraintPart = await CreateConstraintPart("Does.Contain(1)");
+            var constraintPart = await CreateConstraintPart("Does.Contain(1)").ConfigureAwait(false);
 
             Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Does"));
 
@@ -27,7 +27,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task ConstraintPropertyWithNoPrefixesAndSuffixes()
         {
-            var constraintPart = await CreateConstraintPart("Is.Null");
+            var constraintPart = await CreateConstraintPart("Is.Null").ConfigureAwait(false);
 
             Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Is"));
 
@@ -40,7 +40,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task WithPropertyPrefix()
         {
-            var constraintPart = await CreateConstraintPart("Has.Some.EqualTo(1)");
+            var constraintPart = await CreateConstraintPart("Has.Some.EqualTo(1)").ConfigureAwait(false);
 
             Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Has"));
 
@@ -53,7 +53,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task WithMethodPrefix()
         {
-            var constraintPart = await CreateConstraintPart("Has.Property(\"Prop\").EqualTo(2)");
+            var constraintPart = await CreateConstraintPart("Has.Property(\"Prop\").EqualTo(2)").ConfigureAwait(false);
 
             Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Has"));
             Assert.That(constraintPart.Suffixes, Is.Empty);
@@ -65,7 +65,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task WithPropertySuffix()
         {
-            var constraintPart = await CreateConstraintPart("Is.EqualTo(\"A\").IgnoreCase");
+            var constraintPart = await CreateConstraintPart("Is.EqualTo(\"A\").IgnoreCase").ConfigureAwait(false);
 
             Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Is"));
             Assert.That(constraintPart.Prefixes, Is.Empty);
@@ -77,7 +77,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task WithMethodSuffix()
         {
-            var constraintPart = await CreateConstraintPart("Is.EqualTo(1).After(10)");
+            var constraintPart = await CreateConstraintPart("Is.EqualTo(1).After(10)").ConfigureAwait(false);
 
             Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Is"));
             Assert.That(constraintPart.Prefixes, Is.Empty);
@@ -89,7 +89,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task ConstraintIsBuiltUsingMethodOperator()
         {
-            var constraintParts = await CreateConstraintParts("Is.Empty.Or.Some.EqualTo(\"A\").IgnoreCase");
+            var constraintParts = await CreateConstraintParts("Is.Empty.Or.Some.EqualTo(\"A\").IgnoreCase").ConfigureAwait(false);
 
             var firstPart = constraintParts[0];
             Assert.That(firstPart.HelperClass.Name, Is.EqualTo("Is"));
@@ -107,7 +107,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task ConstraintIsCreatedViaConstructor()
         {
-            var constraintPart = await CreateConstraintPart("new NUnit.Framework.Constraints.EqualConstraint(1)");
+            var constraintPart = await CreateConstraintPart("new NUnit.Framework.Constraints.EqualConstraint(1)").ConfigureAwait(false);
 
             Assert.That(constraintPart.HelperClass, Is.Null);
             Assert.That(constraintPart.Prefixes, Is.Empty);
@@ -119,7 +119,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task PrefixNameReturnsPropertyName()
         {
-            var constraintPart = await CreateConstraintPart("Is.Not.Null");
+            var constraintPart = await CreateConstraintPart("Is.Not.Null").ConfigureAwait(false);
 
             Assert.That(constraintPart.GetPrefixesNames(), Is.EqualTo(new[] { "Not" }));
         }
@@ -127,7 +127,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task PrefixNameReturnsMethodName()
         {
-            var constraintPart = await CreateConstraintPart("Has.Exactly(2).EqualTo(2)");
+            var constraintPart = await CreateConstraintPart("Has.Exactly(2).EqualTo(2)").ConfigureAwait(false);
 
             Assert.That(constraintPart.GetPrefixesNames(), Is.EqualTo(new[] { "Exactly" }));
         }
@@ -135,7 +135,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task SuffixNameReturnsPropertyName()
         {
-            var constraintPart = await CreateConstraintPart("Is.EqualTo(\"A\").IgnoreCase");
+            var constraintPart = await CreateConstraintPart("Is.EqualTo(\"A\").IgnoreCase").ConfigureAwait(false);
 
             Assert.That(constraintPart.GetSuffixesNames(), Is.EqualTo(new[] { "IgnoreCase" }));
         }
@@ -143,7 +143,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task SuffixNameReturnsMethodName()
         {
-            var constraintPart = await CreateConstraintPart("Is.EqualTo(1).After(100, 10)");
+            var constraintPart = await CreateConstraintPart("Is.EqualTo(1).After(100, 10)").ConfigureAwait(false);
 
             Assert.That(constraintPart.GetSuffixesNames(), Is.EqualTo(new[] { "After" }));
         }
@@ -151,7 +151,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task GetConstraintNameReturnsPropertyName()
         {
-            var constraintPart = await CreateConstraintPart("Is.Not.Empty");
+            var constraintPart = await CreateConstraintPart("Is.Not.Empty").ConfigureAwait(false);
 
             Assert.That(constraintPart.GetConstraintName(), Is.EqualTo("Empty"));
         }
@@ -159,7 +159,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task GetConstraintNameReturnsMethodName()
         {
-            var constraintPart = await CreateConstraintPart("Is.EqualTo(new[] {1, 2}).IgnoreCase");
+            var constraintPart = await CreateConstraintPart("Is.EqualTo(new[] {1, 2}).IgnoreCase").ConfigureAwait(false);
 
             Assert.That(constraintPart.GetConstraintName(), Is.EqualTo("EqualTo"));
         }
@@ -167,7 +167,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task GetHelperClassNameReturnsIdentifierName()
         {
-            var constraintPart = await CreateConstraintPart("Is.EqualTo(1).IgnoreCase");
+            var constraintPart = await CreateConstraintPart("Is.EqualTo(1).IgnoreCase").ConfigureAwait(false);
 
             Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Is"));
         }
@@ -175,7 +175,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task GetPrefixExpressionByName()
         {
-            var constraintPart = await CreateConstraintPart("Has.Property(\"Prop\").EqualTo(1)");
+            var constraintPart = await CreateConstraintPart("Has.Property(\"Prop\").EqualTo(1)").ConfigureAwait(false);
 
             var prefixExpression = constraintPart.GetPrefix("Property");
 
@@ -185,7 +185,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task GetSuffixExpressionByName()
         {
-            var constraintPart = await CreateConstraintPart("Is.EqualTo(\"a\").IgnoreCase");
+            var constraintPart = await CreateConstraintPart("Is.EqualTo(\"a\").IgnoreCase").ConfigureAwait(false);
 
             var suffixExpression = constraintPart.GetSuffix("IgnoreCase");
 
@@ -195,7 +195,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task GetConstraintMethodReturnsMethodSymbol()
         {
-            var constraintPart = await CreateConstraintPart("Has.Exactly(2).Items.EqualTo(1.0).Within(0.01)");
+            var constraintPart = await CreateConstraintPart("Has.Exactly(2).Items.EqualTo(1.0).Within(0.01)").ConfigureAwait(false);
 
             var methodSymbol = constraintPart.GetConstraintMethod();
 
@@ -207,7 +207,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task GetConstraintMethodReturnsNullForPropertyConstraint()
         {
-            var constraintPart = await CreateConstraintPart("Has.Exactly(2).Items.Null.After(1)");
+            var constraintPart = await CreateConstraintPart("Has.Exactly(2).Items.Null.After(1)").ConfigureAwait(false);
 
             Assert.That(constraintPart.GetConstraintMethod(), Is.Null);
         }
@@ -215,7 +215,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task GetExpectedArgumentExpression()
         {
-            var constraintPart = await CreateConstraintPart("Has.Exactly(2).Items.EqualTo(new[] {1, 2, 3}).After(1)");
+            var constraintPart = await CreateConstraintPart("Has.Exactly(2).Items.EqualTo(new[] {1, 2, 3}).After(1)").ConfigureAwait(false);
 
             var expectedExpression = constraintPart.GetExpectedArgument()?.Syntax;
 
@@ -225,7 +225,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task HasUnknownExpressionsReturnsTrueIfTernaryExpressionPresent()
         {
-            var constraintPart = await CreateConstraintPart("(true ? Has.Some : Has.None).EqualTo(1)");
+            var constraintPart = await CreateConstraintPart("(true ? Has.Some : Has.None).EqualTo(1)").ConfigureAwait(false);
 
             Assert.That(constraintPart.HasUnknownExpressions(), Is.True);
         }
@@ -238,7 +238,7 @@ namespace NUnit.Analyzers.Tests.Operations
                     var presentExpected = true;
                     var prefix = presentExpected ? Has.Some : Has.None;
                     Assert.That(new[] {1, 2, 3}, prefix.EqualTo(1));",
-                expressionString: "prefix.EqualTo(1)"))[0];
+                expressionString: "prefix.EqualTo(1)").ConfigureAwait(false))[0];
 
             Assert.That(constraintPart.HasUnknownExpressions(), Is.True);
         }
@@ -263,7 +263,7 @@ namespace NUnit.Analyzers.Tests.Operations
 
         private static async Task<ConstraintExpressionPart> CreateConstraintPart(string expressionString)
         {
-            return (await CreateConstraintParts(expressionString)).Single();
+            return (await CreateConstraintParts(expressionString).ConfigureAwait(false)).Single();
         }
 
         private static Task<ConstraintExpressionPart[]> CreateConstraintParts(string expressionString)
@@ -274,7 +274,7 @@ namespace NUnit.Analyzers.Tests.Operations
         private static async Task<ConstraintExpressionPart[]> CreateConstraintParts(string testMethod, string expressionString)
         {
             var testCode = TestUtility.WrapInTestMethod(testMethod);
-            var (node, model) = await TestHelpers.GetRootAndModel(testCode);
+            var (node, model) = await TestHelpers.GetRootAndModel(testCode).ConfigureAwait(false);
 
             var expression = node.DescendantNodes()
                 .OfType<ExpressionSyntax>()

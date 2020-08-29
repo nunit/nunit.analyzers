@@ -33,7 +33,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         public double BProperty { get; set; }
     }
 }";
-            var attribute = await AttributeSyntaxExtensionsTests.GetAttributeSyntaxAsync(testCode, "GetArguments");
+            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArguments").ConfigureAwait(false);
             var (positionalArguments, namedArguments) = attribute.GetArguments();
 
             Assert.That(positionalArguments.Length, Is.EqualTo(1), nameof(positionalArguments));
@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
     public sealed class NoArgumentsAttribute : Attribute
     { }
 }";
-            var attribute = await AttributeSyntaxExtensionsTests.GetAttributeSyntaxAsync(testCode, "GetArgumentsWhenNoneExist");
+            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArgumentsWhenNoneExist").ConfigureAwait(false);
             var (positionalArguments, namedArguments) = attribute.GetArguments();
 
             Assert.That(positionalArguments.Length, Is.EqualTo(0), nameof(positionalArguments));
@@ -67,7 +67,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
         private static async Task<AttributeSyntax> GetAttributeSyntaxAsync(string code, string typeName)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModel(code);
+            var rootAndModel = await TestHelpers.GetRootAndModel(code).ConfigureAwait(false);
 
             return rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>()
