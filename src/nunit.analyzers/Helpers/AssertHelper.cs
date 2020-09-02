@@ -39,15 +39,15 @@ namespace NUnit.Analyzers.Helpers
         // Unwrap underlying type from delegate or awaitable.
         public static ITypeSymbol UnwrapActualType(ITypeSymbol actualType)
         {
-            if (actualType is INamedTypeSymbol namedType && namedType.DelegateInvokeMethod != null)
+            if (actualType is INamedTypeSymbol namedType &&
+                namedType.GetFullMetadataName() == NunitFrameworkConstants.FullNameOfActualValueDelegate)
             {
                 ITypeSymbol returnType = namedType.DelegateInvokeMethod.ReturnType;
 
                 if (returnType.IsAwaitable(out ITypeSymbol? awaitReturnType))
                     returnType = awaitReturnType;
 
-                if (returnType.SpecialType != SpecialType.System_Void)
-                    actualType = returnType;
+                return returnType;
             }
 
             return actualType;
