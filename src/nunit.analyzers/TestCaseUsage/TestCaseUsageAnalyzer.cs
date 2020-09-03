@@ -138,7 +138,7 @@ namespace NUnit.Analyzers.TestCaseUsage
 
         private static bool IsSoleParameterAnObjectArray(IMethodSymbol methodSymbol)
         {
-            if (methodSymbol.Parameters.Count() != 1)
+            if (methodSymbol.Parameters.Length != 1)
                 return false;
 
             var parameterType = methodSymbol.Parameters[0].Type;

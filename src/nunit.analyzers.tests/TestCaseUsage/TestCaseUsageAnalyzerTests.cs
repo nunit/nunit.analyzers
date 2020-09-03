@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
@@ -44,14 +45,14 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 
             foreach (var diagnostic in diagnostics)
             {
-                Assert.That(diagnostic.Title.ToString(), Is.Not.Empty);
+                Assert.That(diagnostic.Title.ToString(CultureInfo.InvariantCulture), Is.Not.Empty);
                 Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
                 Assert.That(diagnostic.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Error),
                     $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.DefaultSeverity)}");
             }
 
-            var diagnosticMessage = diagnostics.Select(_ => _.MessageFormat.ToString()).ToImmutableArray();
+            var diagnosticMessage = diagnostics.Select(_ => _.MessageFormat.ToString(CultureInfo.InvariantCulture)).ToImmutableArray();
 
             Assert.That(diagnosticMessage, Contains.Item(TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage),
                 $"{TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage} is missing.");
@@ -323,7 +324,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "int", "a", "char"));
+                string.Format(CultureInfo.InvariantCulture,
+                    TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "int", "a", "char"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentTypeIsIncorrect
@@ -339,7 +341,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "<null>", "a", "char"));
+                string.Format(CultureInfo.InvariantCulture,
+                    TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "<null>", "a", "char"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentPassesNullToValueType
@@ -466,7 +469,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "int", "a", "string[]"));
+                string.Format(CultureInfo.InvariantCulture, TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage,
+                              0, "int", "a", "string[]"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect
@@ -482,7 +486,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                string.Format(TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "<null>", "a", "int[]"));
+                string.Format(CultureInfo.InvariantCulture, TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage,
+                              0, "<null>", "a", "int[]"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType

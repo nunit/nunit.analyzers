@@ -21,9 +21,9 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 {
     public sealed class IsAssignableFromWhenThisIsNull { }
 }";
-            var types = await this.GetTypeSymbolAsync(
+            var types = await GetTypeSymbolAsync(
                 testCode,
-                new[] { "IsAssignableFromWhenThisIsNull" });
+                new[] { "IsAssignableFromWhenThisIsNull" }).ConfigureAwait(false);
             var other = types[0];
 
             Assert.That((null as ITypeSymbol).IsAssignableFrom(other), Is.False);
@@ -37,9 +37,9 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 {
     public sealed class IsAssignableFromWhenOtherIsNull { }
 }";
-            var types = await this.GetTypeSymbolAsync(
+            var types = await GetTypeSymbolAsync(
                 testCode,
-                new[] { "IsAssignableFromWhenOtherIsNull" });
+                new[] { "IsAssignableFromWhenOtherIsNull" }).ConfigureAwait(false);
             var instance = types[0];
 
             Assert.That(instance.IsAssignableFrom(null as ITypeSymbol), Is.False);
@@ -53,9 +53,9 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 {
     public sealed class IsAssignableFromWhenOtherIsSameTypeAsThis { }
 }";
-            var types = await this.GetTypeSymbolAsync(
+            var types = await GetTypeSymbolAsync(
                 testCode,
-                new[] { "IsAssignableFromWhenOtherIsSameTypeAsThis" });
+                new[] { "IsAssignableFromWhenOtherIsSameTypeAsThis" }).ConfigureAwait(false);
             var instance = types[0];
             var other = instance;
 
@@ -70,13 +70,13 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 {
     public sealed class IsAssignableFromWhenOtherIsInDifferentAssembly { }
 }";
-            var types1 = await this.GetTypeSymbolAsync(
+            var types1 = await GetTypeSymbolAsync(
                 testCode,
-                new[] { "IsAssignableFromWhenOtherIsInDifferentAssembly" });
+                new[] { "IsAssignableFromWhenOtherIsInDifferentAssembly" }).ConfigureAwait(false);
             var instance = types1[0];
-            var types2 = await this.GetTypeSymbolAsync(
+            var types2 = await GetTypeSymbolAsync(
                 testCode,
-                new[] { "IsAssignableFromWhenOtherIsInDifferentAssembly" });
+                new[] { "IsAssignableFromWhenOtherIsInDifferentAssembly" }).ConfigureAwait(false);
             var other = types2[0];
 
             Assert.That(instance.IsAssignableFrom(other), Is.False);
@@ -94,13 +94,13 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
        : IsAssignableFromWhenOtherIsASubclassBase
     { }
 }";
-            var types = await this.GetTypeSymbolAsync(
+            var types = await GetTypeSymbolAsync(
                 testCode,
                 new[]
                 {
                     "IsAssignableFromWhenOtherIsASubclassBase",
                     "IsAssignableFromWhenOtherIsASubclassSub"
-                });
+                }).ConfigureAwait(false);
 
             Assert.That(types[0].IsAssignableFrom(types[1]), Is.True);
         }
@@ -115,13 +115,13 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
     public class IsAssignableFromWhenOtherIsNotASubclassB { }
 }";
-            var types = await this.GetTypeSymbolAsync(
+            var types = await GetTypeSymbolAsync(
                 testCode,
                 new[]
                 {
                     "IsAssignableFromWhenOtherIsNotASubclassA",
                     "IsAssignableFromWhenOtherIsNotASubclassB"
-                });
+                }).ConfigureAwait(false);
 
             Assert.That(types[0].IsAssignableFrom(types[1]), Is.False);
         }
@@ -138,13 +138,13 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         : IsAssignableFromWhenOtherImplementsInterface
     { }
 }";
-            var types = await this.GetTypeSymbolAsync(
+            var types = await GetTypeSymbolAsync(
                 testCode,
                 new[]
                 {
                     "IsAssignableFromWhenOtherImplementsInterface",
                     "IsAssignableFromWhenOtherImplementsInterfaceType"
-                });
+                }).ConfigureAwait(false);
 
             Assert.That(types[0].IsAssignableFrom(types[1]), Is.True);
         }
@@ -162,7 +162,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         public Guid x;
     }
 }";
-            var typeSymbol = await this.GetTypeSymbolFromFieldAsync(testCode, "IsAssertWhenSymbolIsNotInNUnitAssembly");
+            var typeSymbol = await GetTypeSymbolFromFieldAsync(testCode, "IsAssertWhenSymbolIsNotInNUnitAssembly").ConfigureAwait(false);
             Assert.That(typeSymbol.IsAssert(), Is.False);
         }
 
@@ -179,7 +179,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         public Is x;
     }
 }";
-            var typeSymbol = await this.GetTypeSymbolFromFieldAsync(testCode, "IsAssertWhenSymbolIsInNUnitAssemblyAndNotAssertType");
+            var typeSymbol = await GetTypeSymbolFromFieldAsync(testCode, "IsAssertWhenSymbolIsInNUnitAssemblyAndNotAssertType").ConfigureAwait(false);
             Assert.That(typeSymbol.IsAssert(), Is.False);
         }
 
@@ -196,13 +196,13 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         public Assert x;
     }
 }";
-            var typeSymbol = await this.GetTypeSymbolFromFieldAsync(testCode, "IsAssertWhenSymbolIsAssertType");
+            var typeSymbol = await GetTypeSymbolFromFieldAsync(testCode, "IsAssertWhenSymbolIsAssertType").ConfigureAwait(false);
             Assert.That(typeSymbol.IsAssert(), Is.True);
         }
 
-        private async Task<ImmutableArray<ITypeSymbol>> GetTypeSymbolAsync(string code, string[] typeNames)
+        private static async Task<ImmutableArray<ITypeSymbol>> GetTypeSymbolAsync(string code, string[] typeNames)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModel(code);
+            var rootAndModel = await TestHelpers.GetRootAndModel(code).ConfigureAwait(false);
 
             var types = new List<ITypeSymbol>();
 
@@ -216,9 +216,9 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
             return types.ToImmutableArray();
         }
 
-        private async Task<ITypeSymbol> GetTypeSymbolFromFieldAsync(string code, string typeName)
+        private static async Task<ITypeSymbol> GetTypeSymbolFromFieldAsync(string code, string typeName)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModel(code);
+            var rootAndModel = await TestHelpers.GetRootAndModel(code).ConfigureAwait(false);
 
             var fieldNode = rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>()

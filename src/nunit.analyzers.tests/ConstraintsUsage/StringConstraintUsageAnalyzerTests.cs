@@ -1,3 +1,4 @@
+using System.Globalization;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -25,72 +26,72 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         };
 
         [TestCaseSource(nameof(PositiveAssertData))]
-        public void AnalyzeStringBooleanMethod_AssertTrue(string method, string analyzerId, string suggestedConstraint)
+        public void AnalyzeStringBooleanMethodAssertTrue(string method, string analyzerId, string suggestedConstraint)
         {
             var testCode = TestUtility.WrapInTestMethod($@"Assert.True(↓""abc"".{method}(""ab""));");
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(StringConstraintUsageConstants.Message, suggestedConstraint));
+                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
             AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
-        public void AnalyzeStringBooleanMethod_AssertIsTrue(string method, string analyzerId, string suggestedConstraint)
+        public void AnalyzeStringBooleanMethodAssertIsTrue(string method, string analyzerId, string suggestedConstraint)
         {
             var testCode = TestUtility.WrapInTestMethod($@"Assert.IsTrue(↓""abc"".{method}(""ab""));");
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(StringConstraintUsageConstants.Message, suggestedConstraint));
+                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
             AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
-        public void AnalyzeStringBooleanMethod_AssertThat(string method, string analyzerId, string suggestedConstraint)
+        public void AnalyzeStringBooleanMethodAssertThat(string method, string analyzerId, string suggestedConstraint)
         {
             var testCode = TestUtility.WrapInTestMethod($@"Assert.That(↓""abc"".{method}(""ab""));");
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(StringConstraintUsageConstants.Message, suggestedConstraint));
+                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
             AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
-        public void AnalyzeStringBooleanMethod_AssertThat_IsTrue(string method, string analyzerId, string suggestedConstraint)
+        public void AnalyzeStringBooleanMethodAssertThatIsTrue(string method, string analyzerId, string suggestedConstraint)
         {
             var testCode = TestUtility.WrapInTestMethod($@"Assert.That(↓""abc"".{method}(""ab""), Is.True);");
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(StringConstraintUsageConstants.Message, suggestedConstraint));
+                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
             AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
-        public void AnalyzeStringBooleanMethod_AssertFalse(string method, string analyzerId, string suggestedConstraint)
+        public void AnalyzeStringBooleanMethodAssertFalse(string method, string analyzerId, string suggestedConstraint)
         {
             var testCode = TestUtility.WrapInTestMethod($@"Assert.False(↓""abc"".{method}(""ab""));");
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(StringConstraintUsageConstants.Message, suggestedConstraint));
+                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
             AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
-        public void AnalyzeStringBooleanMethod_AssertIsFalse(string method, string analyzerId, string suggestedConstraint)
+        public void AnalyzeStringBooleanMethodAssertIsFalse(string method, string analyzerId, string suggestedConstraint)
         {
             var testCode = TestUtility.WrapInTestMethod($@"Assert.IsFalse(↓""abc"".{method}(""ab""));");
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(StringConstraintUsageConstants.Message, suggestedConstraint));
+                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
             AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
-        public void AnalyzeStringBooleanMethod_AssertThat_IsFalse(string method, string analyzerId, string suggestedConstraint)
+        public void AnalyzeStringBooleanMethodAssertThatIsFalse(string method, string analyzerId, string suggestedConstraint)
         {
             var testCode = TestUtility.WrapInTestMethod($@"Assert.That(↓""abc"".{method}(""ab""), Is.False);");
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(StringConstraintUsageConstants.Message, suggestedConstraint));
+                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
             AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 

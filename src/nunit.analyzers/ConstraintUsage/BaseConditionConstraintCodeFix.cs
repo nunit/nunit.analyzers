@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -22,7 +23,8 @@ namespace NUnit.Analyzers.ConstraintUsage
         {
             var suggestedConstraintString = context.Diagnostics[0].Properties[BaseConditionConstraintAnalyzer.SuggestedConstraintString];
 
-            var description = string.Format(CodeFixConstants.UseConstraintDescriptionFormat, suggestedConstraintString);
+            var description = string.Format(CultureInfo.InvariantCulture,
+                CodeFixConstants.UseConstraintDescriptionFormat, suggestedConstraintString);
 
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);

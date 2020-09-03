@@ -34,8 +34,8 @@ namespace NUnit.Analyzers.ConstraintUsage
                 var symbol = invocationOperation.TargetMethod;
                 var argumentCount = invocationOperation.Arguments.Length;
 
-                if ((argumentCount == 1 && this.IsCollectionContains(symbol))
-                    || (argumentCount == 2 && this.IsLinqContains(symbol)))
+                if ((argumentCount == 1 && IsCollectionContains(symbol))
+                    || (argumentCount == 2 && IsLinqContains(symbol)))
                 {
                     var suggestedConstraint = negated ? DoesNotContain : DoesContain;
                     return (descriptor, suggestedConstraint);
@@ -45,14 +45,14 @@ namespace NUnit.Analyzers.ConstraintUsage
             return (null, null);
         }
 
-        private bool IsLinqContains(IMethodSymbol methodSymbol)
+        private static bool IsLinqContains(IMethodSymbol methodSymbol)
         {
             return methodSymbol.IsExtensionMethod
                && methodSymbol.Name == "Contains"
                && methodSymbol.ContainingType.GetFullMetadataName() == typeof(System.Linq.Enumerable).FullName;
         }
 
-        private bool IsCollectionContains(IMethodSymbol methodSymbol)
+        private static bool IsCollectionContains(IMethodSymbol methodSymbol)
         {
             return methodSymbol.Name == "Contains"
                 && (methodSymbol.IsInterfaceImplementation(typeof(ICollection<>).FullName!)

@@ -86,6 +86,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             AnalyzerAssert.Valid<TestMethodAccessibilityLevelAnalyzer>(testCode);
         }
 
+        [Test]
         public void AnalyzeWhenSimpleTestMethodIsPublic()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"

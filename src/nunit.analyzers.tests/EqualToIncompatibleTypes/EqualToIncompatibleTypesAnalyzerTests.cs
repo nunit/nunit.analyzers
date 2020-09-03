@@ -167,7 +167,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithCombinedConstraints()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithCombinedConstraints()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A { }
@@ -188,7 +188,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithModifier()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithModifier()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
             var actual = 1;
@@ -199,7 +199,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithMessage()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithMessage()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
             var actual = 1;
@@ -210,7 +210,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A { }
@@ -219,7 +219,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
     public class Tests
     {
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
             var actual = new A();
             var expected = new B();
@@ -231,7 +231,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void AnalyzeClassicWhenIncompatibleTypesProvided_WithNegatedAssert()
+        public void AnalyzeClassicWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A { }
@@ -240,7 +240,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
     public class Tests
     {
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
             var actual = new A();
             var expected = new B();
@@ -252,7 +252,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithLambdaActualValue()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithLambdaActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A { }
@@ -261,7 +261,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
     public class Tests
     {
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
             var expected = new B();
             Assert.That(() => new A(), Is.Not.EqualTo(↓expected));
@@ -272,7 +272,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithLocalFunctionActualValue()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithLocalFunctionActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A { }
@@ -281,7 +281,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
     public class Tests
     {
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
             A actual() => new A();
             var expected = new B();
@@ -293,7 +293,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithFuncActualValue()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithFuncActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A { }
@@ -302,7 +302,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
     public class Tests
     {
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
             Func<A> actual = () => new A();
             var expected = new B();
@@ -314,7 +314,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithTaskActualValue()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithTaskActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A { }
@@ -323,7 +323,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
     public class Tests
     {
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
             var actual = Task.FromResult(new A());
             var expected = new B();
@@ -335,7 +335,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void AnalyzeWhenActualAndExpectedTypesAreSame_WithTaskActualValue()
+        public void AnalyzeWhenActualAndExpectedTypesAreSameWithTaskActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = Task.FromResult("""");
@@ -368,7 +368,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSame_WithNegatedAssert()
+        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithNegatedAssert()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = """";
@@ -379,7 +379,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSame_WithLambdaActualValue()
+        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithLambdaActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var expected = """";
@@ -389,7 +389,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSame_WithFuncActualValue()
+        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithFuncActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 Func<string> actual = () => """";
@@ -400,7 +400,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         }
 
         [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSame_WithLocalFunctionActualValue()
+        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithLocalFunctionActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 string actual() => """";

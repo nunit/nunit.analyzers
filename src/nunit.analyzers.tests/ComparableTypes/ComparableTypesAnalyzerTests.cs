@@ -27,7 +27,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
 
         [Test]
-        public void AnalyzeWhenNonComparableTypesProvided_WithLambdaActualValue()
+        public void AnalyzeWhenNonComparableTypesProvidedWithLambdaActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A { }
@@ -35,7 +35,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
     public class Tests
     {
         [Test]
-        public void AnalyzeWhenNonComparableTypesProvided_WithLambdaActualValue()
+        public void AnalyzeWhenNonComparableTypesProvidedWithLambdaActualValue()
         {
             var expected = new A();
             Assert.That(() => new A(), Is.GreaterThanOrEqualTo(↓expected));
@@ -46,7 +46,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithLocalFunctionActualValue()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithLocalFunctionActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A { }
@@ -54,7 +54,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
     public class Tests
     {
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithLocalFunctionActualValue()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithLocalFunctionActualValue()
         {
             A actual() => new A();
             var expected = new A();
@@ -66,7 +66,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithFuncActualValue()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithFuncActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A { }
@@ -74,7 +74,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
     public class Tests
     {
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
             Func<A> actual = () => new A();
             var expected = new A();
@@ -86,7 +86,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithTaskActualValue()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithTaskActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     class A { }
@@ -94,7 +94,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
     public class Tests
     {
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided_WithNegatedAssert()
+        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
             var actual = Task.FromResult(new A());
             var expected = new A();

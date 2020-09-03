@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -99,7 +100,7 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
             if (fullName == "System.Collections.Generic.KeyValuePair`2")
                 return namedType.TypeArguments.Any(t => IsTypeSupported(t, checkedTypes));
 
-            if (fullName.StartsWith("System.Tuple`"))
+            if (fullName.StartsWith("System.Tuple`", StringComparison.Ordinal))
                 return namedType.TypeArguments.Any(t => IsTypeSupported(t, checkedTypes));
 
             // Only value might be supported for Dictionary

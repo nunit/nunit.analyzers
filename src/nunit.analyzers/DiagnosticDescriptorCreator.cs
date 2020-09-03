@@ -1,3 +1,4 @@
+using System;
 using Microsoft.CodeAnalysis;
 
 namespace NUnit.Analyzers
@@ -37,7 +38,7 @@ namespace NUnit.Analyzers
                 isEnabledByDefault: isEnabledByDefault,
                 description: description,
                 helpLinkUri: CreateLink(id),
-                customTags: new string[0]);
+                customTags: Array.Empty<string>());
 
         private static string CreateLink(string id) =>
             $"https://github.com/nunit/nunit.analyzers/tree/master/documentation/{id}.md";

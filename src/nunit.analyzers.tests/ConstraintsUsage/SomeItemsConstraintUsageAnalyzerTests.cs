@@ -1,3 +1,4 @@
+using System.Globalization;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -11,13 +12,13 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         private static readonly DiagnosticAnalyzer analyzer = new SomeItemsConstraintUsageAnalyzer();
 
         private static readonly ExpectedDiagnostic doesContainDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.CollectionContainsConstraintUsage,
-            string.Format(SomeItemsConstraintUsageConstants.Message, "Does.Contain"));
+            string.Format(CultureInfo.InvariantCulture, SomeItemsConstraintUsageConstants.Message, "Does.Contain"));
 
         private static readonly ExpectedDiagnostic doesNotContainDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.CollectionContainsConstraintUsage,
-            string.Format(SomeItemsConstraintUsageConstants.Message, "Does.Not.Contain"));
+            string.Format(CultureInfo.InvariantCulture, SomeItemsConstraintUsageConstants.Message, "Does.Not.Contain"));
 
         [Test]
-        public void AnalyzeWhenListContainsUsed_AssertThat()
+        public void AnalyzeWhenListContainsUsedAssertThat()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 Assert.That(↓new List<int> {1, 2, 3}.Contains(1));",
@@ -27,7 +28,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         }
 
         [Test]
-        public void AnalyzeWhenListContainsUsed_AssertIsTrue()
+        public void AnalyzeWhenListContainsUsedAssertIsTrue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 Assert.IsTrue(↓new List<int> {1, 2, 3}.Contains(1));",
@@ -37,7 +38,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         }
 
         [Test]
-        public void AnalyzeWhenListContainsUsed_AssertIsFalse()
+        public void AnalyzeWhenListContainsUsedAssertIsFalse()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 Assert.IsFalse(↓new List<int> {1, 2, 3}.Contains(1));",
@@ -47,7 +48,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         }
 
         [Test]
-        public void AnalyzeWhenLinqContainsUsed_AssertThat()
+        public void AnalyzeWhenLinqContainsUsedAssertThat()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 Assert.That(↓new[] {1, 2, 3}.Contains(1));",
@@ -57,7 +58,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         }
 
         [Test]
-        public void AnalyzeWhenLinqContainsUsed_AssertIsTrue()
+        public void AnalyzeWhenLinqContainsUsedAssertIsTrue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 Assert.IsTrue(↓new[] {1, 2, 3}.Contains(1));",
@@ -67,7 +68,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         }
 
         [Test]
-        public void AnalyzeWhenLinqContainsUsed_AssertIsFalse()
+        public void AnalyzeWhenLinqContainsUsedAssertIsFalse()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 Assert.IsFalse(↓new[] {1, 2, 3}.Contains(1));",

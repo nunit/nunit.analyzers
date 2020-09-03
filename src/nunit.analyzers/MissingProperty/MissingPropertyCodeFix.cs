@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -58,7 +59,8 @@ namespace NUnit.Analyzers.MissingProperty
 
                 var newRoot = root.ReplaceNode(originalExpression, memberAccess);
 
-                var description = string.Format(CodeFixConstants.UsePropertyDescriptionFormat, target);
+                var description = string.Format(CultureInfo.InvariantCulture,
+                        CodeFixConstants.UsePropertyDescriptionFormat, target);
 
                 var codeAction = CodeAction.Create(
                     description,
