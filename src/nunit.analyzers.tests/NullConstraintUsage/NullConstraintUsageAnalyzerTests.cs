@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -104,6 +106,108 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 Assert.That(task, {constraint});");
 
             AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("Is.Null")]
+        [TestCase("Is.Not.Null")]
+        public void ValidWhenActualIsAction(string constraint)
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                Action<bool> action = b => {{ }};
+                Assert.That(action, {constraint});");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("Is.Null")]
+        [TestCase("Is.Not.Null")]
+        public void ValidWhenActualIsFunc(string constraint)
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                Func<bool, bool> function = b => b;
+                Assert.That(function, {constraint});");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("Is.Null")]
+        [TestCase("Is.Not.Null")]
+        public void AnalyzeWhenActualIsTestDelegate(string constraint)
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                Action<bool> action = b => {{ }};
+                Assert.That(() => action(true), ↓{constraint});");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void ActualNUnitFunction()
+        {
+            bool functionCalled = false;
+
+#pragma warning disable IDE0039 // Use local function
+            Func<bool> function = () =>
+            {
+                functionCalled = true;
+                return false;
+            };
+#pragma warning restore IDE0039 // Use local function
+
+            Assert.That(function, Is.Not.Null);
+            Assert.That(functionCalled, Is.False);
+
+            Assert.That(() => function, Is.Not.Null);
+            Assert.That(functionCalled, Is.False);
+
+            Assert.That(() => function(), Is.Not.Null);
+            Assert.That(functionCalled, Is.True);
+        }
+
+        [Test]
+        public void ActualNUnitAsyncFunction()
+        {
+            bool functionCalled = false;
+
+#pragma warning disable IDE0039 // Use local function
+            Func<Task<bool>> asyncFunction = () =>
+            {
+                functionCalled = true;
+                return Task.FromResult(false);
+            };
+#pragma warning restore IDE0039 // Use local function
+
+            Assert.That(asyncFunction, Is.Not.Null);
+            Assert.That(functionCalled, Is.False);
+
+            Assert.That(() => asyncFunction, Is.Not.Null);
+            Assert.That(functionCalled, Is.False);
+
+            Assert.That(() => asyncFunction(), Is.Not.Null);
+            Assert.That(functionCalled, Is.True);
+        }
+
+        [Test]
+        public void ActualNUnitForAction()
+        {
+            bool actionCalled = false;
+
+#pragma warning disable IDE0039 // Use local function
+            Action action = () => actionCalled = true;
+#pragma warning restore IDE0039 // Use local function
+
+            Assert.That(action, Is.Not.Null);
+            Assert.That(actionCalled, Is.False);
+
+            Assert.That(() => action, Is.Not.Null);
+            Assert.That(actionCalled, Is.False);
+
+            Assert.That(() => action(), Is.Not.Null);
+
+#if EXPECT_TEST_DELEGATE_TO_BE_CALLED
+            // The above test succeeds, but does not call the action!
+            Assert.That(actionCalled, Is.True);
+#endif
         }
     }
 }
