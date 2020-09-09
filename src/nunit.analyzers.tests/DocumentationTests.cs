@@ -8,7 +8,10 @@ using System.Linq;
 using System.Text;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.ConstraintUsage;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests
@@ -24,6 +27,15 @@ namespace NUnit.Analyzers.Tests
                 .Select(t => (DiagnosticAnalyzer)Activator.CreateInstance(t))
                 .ToArray();
 
+        private static readonly IReadOnlyList<string> diagnosticsWithCodeFixes =
+            typeof(BaseConditionConstraintCodeFix)
+                .Assembly
+                .GetTypes()
+                .Where(t => typeof(CodeFixProvider).IsAssignableFrom(t) && !t.IsAbstract)
+                .Select(t => (CodeFixProvider)Activator.CreateInstance(t))
+                .SelectMany(c => c.FixableDiagnosticIds)
+                .ToArray();
+
         private static readonly IReadOnlyList<DescriptorInfo> descriptorInfos =
             analyzers
             .SelectMany(DescriptorInfo.Create)
@@ -37,6 +49,14 @@ namespace NUnit.Analyzers.Tests
 
         private static DirectoryInfo DocumentsDirectory =>
             RepositoryDirectory.EnumerateDirectories("documentation", SearchOption.TopDirectoryOnly).Single();
+
+        private static Dictionary<DiagnosticSeverity, string> SeverityEmoji => new Dictionary<DiagnosticSeverity, string>
+        {
+            { DiagnosticSeverity.Hidden, ":thought_balloon:" },
+            { DiagnosticSeverity.Info, ":information_source:" },
+            { DiagnosticSeverity.Warning, ":warning:" },
+            { DiagnosticSeverity.Error, ":exclamation:" }
+        };
 
         [TestCaseSource(nameof(descriptorInfos))]
         public void EnsureAllDescriptorsHaveDocumentation(DescriptorInfo descriptorInfo)
@@ -139,33 +159,47 @@ namespace NUnit.Analyzers.Tests
             }
         }
 
-        [Test]
-        public void EnsureThatIndexIsAsExpected()
+        [TestCase(Categories.Structure, true)]
+        [TestCase(Categories.Assertion, false)]
+        public void EnsureThatIndexIsAsExpected(string category, bool firstTable)
         {
             var builder = new StringBuilder();
-            const string headerRow = "| Id       | Title       | Enabled by Default |";
+            const string headerRow = "| Id       | Title       | :mag: | :memo: | :bulb: |";
             builder.AppendLine(headerRow)
-                   .AppendLine("| :--      | :--         | :--:               |");
+                   .AppendLine("| :--      | :--         | :--:  | :--:   | :--:   |");
 
-            var descriptors = DescriptorsWithDocs.Select(x => x.Descriptor)
-                                                 .Distinct()
-                                                 .OrderBy(x => x.Id);
+            var descriptors = DescriptorsWithDocs
+                .Select(x => x.Descriptor)
+                .Where(x => x.Category == category)
+                .Distinct()
+                .OrderBy(x => x.Id);
+
             foreach (var descriptor in descriptors)
             {
                 var enabledEmoji = descriptor.IsEnabledByDefault ? ":white_check_mark:" : ":x:";
-                builder.Append($"| [{descriptor.Id}]({descriptor.HelpLinkUri})")
-                       .AppendLine($"| {EscapeTags(descriptor.Title)} | {enabledEmoji} |");
+                var severityEmoji = SeverityEmoji[descriptor.DefaultSeverity];
+
+                var codefixEmoji = diagnosticsWithCodeFixes.Contains(descriptor.Id)
+                    ? ":white_check_mark:"
+                    : ":x:";
+
+                builder.Append($"| [{descriptor.Id}]({descriptor.HelpLinkUri}) ")
+                       .Append($"| {EscapeTags(descriptor.Title)} | {enabledEmoji} ")
+                       .AppendLine($"| {severityEmoji} | {codefixEmoji} |");
             }
 
             var expected = builder.ToString();
             DumpIfDebug(expected);
-            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), headerRow);
+            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), headerRow, firstTable);
             CodeAssert.AreEqual(expected, actual);
         }
 
-        private static string GetTable(string doc, string headerRow)
+        private static string GetTable(string doc, string headerRow, bool firstTable = true)
         {
-            var startIndex = doc.IndexOf(headerRow, StringComparison.Ordinal);
+            var startIndex = firstTable
+                ? doc.IndexOf(headerRow, StringComparison.Ordinal)
+                : doc.LastIndexOf(headerRow, StringComparison.Ordinal);
+
             if (startIndex < 0)
             {
                 return string.Empty;
