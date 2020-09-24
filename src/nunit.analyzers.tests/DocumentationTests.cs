@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.Tests
             var actual = descriptorInfo
                 .DocumentationFile.AllLines
                 .Skip(1)
-                .Select(l => l.Replace(@"\<", "<", StringComparison.Ordinal))
+                .Select(l => Replace(l, @"\<", "<"))
                 .Take(2);
 
             Assert.AreEqual(expected, actual);
@@ -116,12 +116,12 @@ namespace NUnit.Analyzers.Tests
                               .ToString(CultureInfo.InvariantCulture)
                               .Split('\n')
                               .First();
-            var actual =
+            var actualRaw =
                 descriptorInfo.DocumentationFile.AllLines
                               .SkipWhile(l => !l.StartsWith("## Description", StringComparison.OrdinalIgnoreCase))
                               .Skip(1)
-                              .FirstOrDefault(l => !string.IsNullOrWhiteSpace(l))
-                              ?.Replace("`", string.Empty, StringComparison.Ordinal);
+                              .FirstOrDefault(l => !string.IsNullOrWhiteSpace(l));
+            var actual = Replace(actualRaw, "`", string.Empty);
 
             DumpIfDebug(expected);
             DumpIfDebug(actual);
@@ -236,7 +236,16 @@ namespace NUnit.Analyzers.Tests
         }
 
         private static string EscapeTags(LocalizableString str)
-            => str.ToString(CultureInfo.InvariantCulture).Replace("<", @"\<", StringComparison.Ordinal);
+            => Replace(str.ToString(CultureInfo.InvariantCulture), "<", @"\<");
+
+        private static string Replace(string originalString, string oldValue, string newValue)
+        {
+#if NET461
+            return originalString?.Replace(oldValue, newValue);
+#else
+            return originalString?.Replace(oldValue, newValue, StringComparison.Ordinal);
+#endif
+        }
 
         public class DescriptorInfo
         {
@@ -342,9 +351,8 @@ Or put this at the top of the file to disable all instances.
 ```
 <!-- end generated config severity -->
 ";
-
-                return stub.Replace("| Code     | [<TYPENAME>](<URL>)\r\n", text, StringComparison.Ordinal)
-                           .Replace("| Code     | [<TYPENAME>](<URL>)\n", text, StringComparison.Ordinal);
+                var replacedText = Replace(stub, "| Code     | [<TYPENAME>](<URL>)\r\n", text);
+                return Replace(replacedText, "| Code     | [<TYPENAME>](<URL>)\n", text);
             }
         }
 
