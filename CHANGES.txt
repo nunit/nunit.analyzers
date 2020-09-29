@@ -1,4 +1,51 @@
-﻿NUnit Analyzers 0.4 - July 25, 2020
+﻿NUnit Analyzers 0.5 - September 30, 2020
+
+This release of the NUnit Analyzers adds three new diagnostics. One for ensuring that only test methods
+are public in a test class, one disallowing the SameAs constraint on non-reference types, and one enforcing
+that only compatible types are used in a comparison constraint. We have also extended several of the existing
+diagnostics so that they apply to more cases.
+
+Furthermore, we have significantly improved the performance of many of the existing diagnostics - inspired
+by work done on the xunit.analyzers.
+
+Finally, the documentation has been improved with additional information in the index and information about
+configuration of the diagnostics using .editorconfig, and we have added StyleCop and FxCop analyzers
+to enforce the coding standard.
+
+The release contains contributions from the following users (in alphabetical order):
+* Dreamescaper
+* jnm2
+* manfred-brands
+* mikkelbu
+
+Issues Resolved
+
+Features and Enhancements
+* #147 Analyzer for non-test methods to be non-public
+* #197 Handle custom type converters
+* #270 Get inspiration from the performance improvements made for the xunit.analyzers
+* #273 NUnit2003: Add code fix with less explicit overload for testing if something is true
+* #276 SameAs should warn if used with value types
+* #279 Augment SameAsIncompatibleTypes and EqualToIncompatibleTypes to apply for more cases
+* #293 Make diagnostic's severity consistent
+
+Bugs
+* #274 NUnit2021 fires on delegates
+* #290 Not treating Func<T> and Action properly for type compatibility.
+* #280 Consider overload resolution when transforming to comparison constraints
+
+Tooling, Process, and Documentation
+* #20 Add StyleCop.Analyzers & fix warnings
+* #191 Make it possible to run tests both in .NET framework and .NET Core
+* #210 index.md in the documentation should also contain information about Severity
+* #267 chore: Bump version to 0.5
+* #268 Correct typo in NUnit1027 documentation
+* #271 Documentation: Add section for each analyzer on how to configure severity using an .editorconfig file
+* #288 Add FxCop Roslyn analyzer
+* #296 fix: Make code compile in both targets
+
+
+NUnit Analyzers 0.4 - July 25, 2020
 
 This release of the NUnit Analyzers adds 13 new diagnostics and codefixes for asserts in the classical model -
 e.g. Assert.Greater, Assert.IsNotEmpty, Assert.IsNotInstanceOf etc. We have also improved the handling of
