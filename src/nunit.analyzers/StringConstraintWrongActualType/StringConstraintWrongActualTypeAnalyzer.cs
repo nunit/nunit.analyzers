@@ -18,7 +18,7 @@ namespace NUnit.Analyzers.StringConstraintWrongActualType
             title: StringConstraintWrongActualTypeConstants.Title,
             messageFormat: StringConstraintWrongActualTypeConstants.Message,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Error,
             description: StringConstraintWrongActualTypeConstants.Description);
 
         private static readonly HashSet<string> SupportedConstraints = new HashSet<string>

@@ -25,7 +25,7 @@ namespace NUnit.Analyzers.ComparableTypes
             title: ComparableTypesConstants.Title,
             messageFormat: ComparableTypesConstants.Message,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Error,
             description: ComparableTypesConstants.Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);

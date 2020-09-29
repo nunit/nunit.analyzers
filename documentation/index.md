@@ -46,7 +46,7 @@ Rules which enforce structural requirements on the test code.
 | [NUnit1025](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1025.md) | The ValueSource argument does not specify an existing member. | :white_check_mark: | :exclamation: | :x: |
 | [NUnit1026](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1026.md) | The test or setup/teardown method is not public. | :white_check_mark: | :exclamation: | :white_check_mark: |
 | [NUnit1027](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1027.md) | The test method has parameters, but no arguments are supplied by attributes. | :white_check_mark: | :exclamation: | :x: |
-| [NUnit1028](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1028.md) | The non-test method is public. | :x: | :warning: | :white_check_mark: |
+| [NUnit1028](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1028.md) | The non-test method is public. | :white_check_mark: | :information_source: | :white_check_mark: |
 
 ### Assertion Rules (NUnit2001 - )
 
@@ -73,17 +73,17 @@ Rules which improve assertions in the test code.
 | [NUnit2017](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2017.md) | Consider using Assert.That(expr, Is.Null) instead of Assert.IsNull(expr). | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2018](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2018.md) | Consider using Assert.That(expr, Is.Not.Null) instead of Assert.NotNull(expr). | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2019](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2019.md) | Consider using Assert.That(expr, Is.Not.Null) instead of Assert.IsNotNull(expr). | :white_check_mark: | :information_source: | :white_check_mark: |
-| [NUnit2020](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2020.md) | Incompatible types for SameAs constraint. | :white_check_mark: | :warning: | :x: |
-| [NUnit2021](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2021.md) | Incompatible types for EqualTo constraint. | :white_check_mark: | :warning: | :x: |
-| [NUnit2022](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2022.md) | Missing property required for constraint. | :white_check_mark: | :warning: | :white_check_mark: |
-| [NUnit2023](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2023.md) | Invalid NullConstraint usage. | :white_check_mark: | :warning: | :x: |
-| [NUnit2024](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2024.md) | Wrong actual type used with String Constraint. | :white_check_mark: | :warning: | :x: |
-| [NUnit2025](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2025.md) | Wrong actual type used with ContainsConstraint. | :white_check_mark: | :warning: | :x: |
-| [NUnit2026](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2026.md) | Wrong actual type used with the SomeItemsConstraint with EqualConstraint. | :white_check_mark: | :warning: | :x: |
-| [NUnit2027](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2027.md) | Consider using Assert.That(actual, Is.GreaterThan(expected)) instead of Assert.Greater(actual, expected). | :white_check_mark: | :warning: | :white_check_mark: |
-| [NUnit2028](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2028.md) | Consider using Assert.That(actual, Is.GreaterThanOrEqualTo(expected)) instead of Assert.GreaterOrEqual(actual, expected). | :white_check_mark: | :warning: | :white_check_mark: |
-| [NUnit2029](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2029.md) | Consider using Assert.That(actual, Is.LessThan(expected)) instead of Assert.Less(actual, expected). | :white_check_mark: | :warning: | :white_check_mark: |
-| [NUnit2030](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2030.md) | Consider using Assert.That(actual, Is.LessThanOrEqualTo(expected)) instead of Assert.LessOrEqual(actual, expected). | :white_check_mark: | :warning: | :white_check_mark: |
+| [NUnit2020](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2020.md) | Incompatible types for SameAs constraint. | :white_check_mark: | :exclamation: | :x: |
+| [NUnit2021](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2021.md) | Incompatible types for EqualTo constraint. | :white_check_mark: | :exclamation: | :x: |
+| [NUnit2022](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2022.md) | Missing property required for constraint. | :white_check_mark: | :exclamation: | :white_check_mark: |
+| [NUnit2023](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2023.md) | Invalid NullConstraint usage. | :white_check_mark: | :exclamation: | :x: |
+| [NUnit2024](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2024.md) | Wrong actual type used with String Constraint. | :white_check_mark: | :exclamation: | :x: |
+| [NUnit2025](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2025.md) | Wrong actual type used with ContainsConstraint. | :white_check_mark: | :exclamation: | :x: |
+| [NUnit2026](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2026.md) | Wrong actual type used with the SomeItemsConstraint with EqualConstraint. | :white_check_mark: | :exclamation: | :x: |
+| [NUnit2027](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2027.md) | Consider using Assert.That(actual, Is.GreaterThan(expected)) instead of Assert.Greater(actual, expected). | :white_check_mark: | :information_source: | :white_check_mark: |
+| [NUnit2028](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2028.md) | Consider using Assert.That(actual, Is.GreaterThanOrEqualTo(expected)) instead of Assert.GreaterOrEqual(actual, expected). | :white_check_mark: | :information_source: | :white_check_mark: |
+| [NUnit2029](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2029.md) | Consider using Assert.That(actual, Is.LessThan(expected)) instead of Assert.Less(actual, expected). | :white_check_mark: | :information_source: | :white_check_mark: |
+| [NUnit2030](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2030.md) | Consider using Assert.That(actual, Is.LessThanOrEqualTo(expected)) instead of Assert.LessOrEqual(actual, expected). | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2031](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2031.md) | Consider using Assert.That(actual, Is.Not.SameAs(expected)) instead of Assert.AreNotSame(expected, actual). | :white_check_mark: | :warning: | :white_check_mark: |
 | [NUnit2032](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2032.md) | Consider using Assert.That(expr, Is.Zero) instead of Assert.Zero(expr). | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2033](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2033.md) | Consider using Assert.That(expr, Is.Not.Zero) instead of Assert.NotZero(expr). | :white_check_mark: | :information_source: | :white_check_mark: |
@@ -94,4 +94,4 @@ Rules which improve assertions in the test code.
 | [NUnit2038](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2038.md) | Consider using Assert.That(actual, Is.InstanceOf(expected)) instead of Assert.IsInstanceOf(expected, actual). | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2039](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2039.md) | Consider using Assert.That(actual, Is.Not.InstanceOf(expected)) instead of Assert.IsNotInstanceOf(expected, actual). | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2040](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2040.md) | Non-reference types for SameAs constraint. | :white_check_mark: | :exclamation: | :white_check_mark: |
-| [NUnit2041](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2041.md) | Incompatible types for comparison constraint. | :white_check_mark: | :warning: | :x: |
+| [NUnit2041](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2041.md) | Incompatible types for comparison constraint. | :white_check_mark: | :exclamation: | :x: |

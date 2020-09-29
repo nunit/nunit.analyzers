@@ -19,7 +19,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
             title: EqualToIncompatibleTypesConstants.Title,
             messageFormat: EqualToIncompatibleTypesConstants.Message,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Error,
             description: EqualToIncompatibleTypesConstants.Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
