@@ -15,7 +15,7 @@ namespace NUnit.Analyzers.NullConstraintUsage
             title: NullConstraintUsageAnalyzerConstants.Title,
             messageFormat: NullConstraintUsageAnalyzerConstants.Message,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Error,
             description: NullConstraintUsageAnalyzerConstants.Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);

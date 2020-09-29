@@ -5,8 +5,8 @@
 | Topic    | Value
 | :--      | :--
 | Id       | NUnit1028
-| Severity | Warning
-| Enabled  | False
+| Severity | Info
+| Enabled  | True
 | Category | Structure
 | Code     | [NonTestMethodAccessibilityLevelAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/NonTestMethodAccessibilityLevel/NonTestMethodAccessibilityLevelAnalyzer.cs)
 ## Description

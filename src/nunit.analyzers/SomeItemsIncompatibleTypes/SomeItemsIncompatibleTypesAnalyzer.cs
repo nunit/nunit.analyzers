@@ -18,7 +18,7 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
             title: SomeItemsIncompatibleTypesConstants.Title,
             messageFormat: SomeItemsIncompatibleTypesConstants.Message,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Error,
             description: SomeItemsIncompatibleTypesConstants.Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }

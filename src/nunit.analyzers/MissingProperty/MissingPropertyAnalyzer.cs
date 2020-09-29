@@ -17,7 +17,7 @@ namespace NUnit.Analyzers.MissingProperty
             title: MissingPropertyConstants.Title,
             messageFormat: MissingPropertyConstants.MessageFormat,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Error,
             description: MissingPropertyConstants.Description);
 
         private static readonly string[] implicitPropertyConstraints = new[]

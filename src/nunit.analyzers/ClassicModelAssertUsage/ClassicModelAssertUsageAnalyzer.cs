@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.Extensions;
 using static NUnit.Analyzers.Constants.NunitFrameworkConstants;
 
 namespace NUnit.Analyzers.ClassicModelAssertUsage
@@ -105,7 +104,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             title: ClassicModelUsageAnalyzerConstants.GreaterTitle,
             messageFormat: ClassicModelUsageAnalyzerConstants.GreaterMessage,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.GreaterDescription);
 
         private static readonly DiagnosticDescriptor greaterOrEqualDescriptor = DiagnosticDescriptorCreator.Create(
@@ -113,7 +112,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             title: ClassicModelUsageAnalyzerConstants.GreaterOrEqualTitle,
             messageFormat: ClassicModelUsageAnalyzerConstants.GreaterOrEqualMessage,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.GreaterOrEqualDescription);
 
         private static readonly DiagnosticDescriptor lessDescriptor = DiagnosticDescriptorCreator.Create(
@@ -121,7 +120,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             title: ClassicModelUsageAnalyzerConstants.LessTitle,
             messageFormat: ClassicModelUsageAnalyzerConstants.LessMessage,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.LessDescription);
 
         private static readonly DiagnosticDescriptor lessOrEqualDescriptor = DiagnosticDescriptorCreator.Create(
@@ -129,7 +128,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             title: ClassicModelUsageAnalyzerConstants.LessOrEqualTitle,
             messageFormat: ClassicModelUsageAnalyzerConstants.LessOrEqualMessage,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.LessOrEqualDescription);
 
         private static readonly DiagnosticDescriptor areNotSameDescriptor = DiagnosticDescriptorCreator.Create(

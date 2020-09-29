@@ -16,8 +16,8 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
             title: NonTestMethodAccessibilityLevelConstants.NonTestMethodIsPublicTitle,
             messageFormat: NonTestMethodAccessibilityLevelConstants.NonTestMethodIsPublicMessage,
             category: Categories.Structure,
-            defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: false,
+            defaultSeverity: DiagnosticSeverity.Info,
+            isEnabledByDefault: true,
             description: NonTestMethodAccessibilityLevelConstants.NonTestMethodIsPublicDescription);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
