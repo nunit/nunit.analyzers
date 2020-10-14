@@ -195,6 +195,22 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeParameterIsArray()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeArgumentIsArray
+    {
+        [TestCase(new byte[] { })]
+        [TestCase(new byte[] { 1 })]
+        [TestCase(new byte[] { 1, 2 })]
+        [TestCase(new byte[] { 1, 2, 3 })]
+        [TestCase(new byte[] { 1, 2, 3, 4 })]
+        public void Test(byte[] buffer) { }
+    }");
+            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+        }
+
+        [Test]
         public void AnalyzeArgumentIsStringConvertedToEnum()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
