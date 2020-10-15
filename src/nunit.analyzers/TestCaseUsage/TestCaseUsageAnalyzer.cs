@@ -118,7 +118,9 @@ namespace NUnit.Analyzers.TestCaseUsage
         private static ImmutableArray<TypedConstant> AdjustArguments(ImmutableArray<TypedConstant> attributePositionalArguments)
         {
             if (attributePositionalArguments.Length == 1
-                && attributePositionalArguments[0] is { Kind: TypedConstantKind.Array } arrayArgument)
+                && attributePositionalArguments[0] is { Kind: TypedConstantKind.Array } arrayArgument
+                && arrayArgument.Type is IArrayTypeSymbol arrayType
+                && arrayType.ElementType.SpecialType == SpecialType.System_Object)
             {
                 // params overload, need to check array values instead
 
