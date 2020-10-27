@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -71,38 +72,20 @@ namespace NUnit.Analyzers.SourceCommon
             return null;
         }
 
-        public static ISymbol? GetMember(SyntaxNodeAnalysisContext context, SourceAttributeInformation attributeInformation)
+        public static ISymbol? GetMember(SourceAttributeInformation attributeInformation)
         {
             if (attributeInformation.SyntaxNode == null || !SyntaxFacts.IsValidIdentifier(attributeInformation.SourceName))
             {
                 return null;
             }
 
-            foreach (var syntaxReference in attributeInformation.SourceType.DeclaringSyntaxReferences)
-            {
-                if (syntaxReference.GetSyntax() is ClassDeclarationSyntax syntax)
-                {
-                    var classIdentifier = syntax.Identifier;
+            var symbol = attributeInformation.SourceType
+                .GetMembers(attributeInformation.SourceName)
+                .FirstOrDefault(m => m.Kind == SymbolKind.Field
+                    || m.Kind == SymbolKind.Property
+                    || m.Kind == SymbolKind.Method);
 
-                    var symbols = context.SemanticModel.LookupSymbols(
-                        classIdentifier.Span.Start,
-                        container: attributeInformation.SourceType,
-                        name: attributeInformation.SourceName);
-
-                    foreach (var symbol in symbols)
-                    {
-                        switch (symbol.Kind)
-                        {
-                            case SymbolKind.Field:
-                            case SymbolKind.Property:
-                            case SymbolKind.Method:
-                                return symbol;
-                        }
-                    }
-                }
-            }
-
-            return null;
+            return symbol;
         }
 
         public static SourceAttributeInformation? ExtractInfoFromAttribute(

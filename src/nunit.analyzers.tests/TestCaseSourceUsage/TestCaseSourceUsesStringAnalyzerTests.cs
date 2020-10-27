@@ -1,3 +1,4 @@
+using System.Linq;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -415,6 +416,51 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }", additionalUsings: "using System.Collections.Generic;");
             AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenAllInformationIsProvidedByAttributeWhenDataClassIsInSeparateAssembly()
+        {
+            var testCode = @"
+    using NUnit.Framework;
+    using Project2;
+
+    namespace Project1
+    {
+        public class Tests
+        {
+            [Test]
+            [TestCaseSource(typeof(TestData), nameof(TestData.TestCaseDataProvider))]
+            public void Test1(int a, int b, int c)
+            {
+                Assert.That(a + b, Is.EqualTo(c));
+            }
+        }
+    }";
+
+            var testDataCode = @"
+    using System.Collections;
+
+    namespace Project2
+    {
+        public static class TestData
+        {
+            public static IEnumerable TestCaseDataProvider()
+            {
+                yield return new object[] { 1, 2, 3 };
+                yield return new object[] { 2, 3, 5 };
+            }
+        }
+    }";
+
+            var testDataReference = MetadataReferences.CreateBinary(testDataCode);
+            var references = AnalyzerAssert.MetadataReferences.Concat(new[] { testDataReference });
+
+            var solution = CodeFactory.CreateSolution(testCode,
+                CodeFactory.DefaultCompilationOptions(analyzer),
+                references);
+
+            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(solution);
         }
 
         [Test]
