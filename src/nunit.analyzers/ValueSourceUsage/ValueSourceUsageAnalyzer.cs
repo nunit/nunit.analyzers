@@ -85,7 +85,7 @@ namespace NUnit.Analyzers.ValueSourceUsage
                 return;
             }
 
-            var symbol = SourceHelpers.GetMember(context, attributeInfo);
+            var symbol = SourceHelpers.GetMember(attributeInfo);
             if (symbol is null)
             {
                 context.ReportDiagnostic(Diagnostic.Create(
