@@ -27,6 +27,45 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
 
         [Test]
+        public void AnalyzeWhenObjectTypesProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                @"
+        object o = 0;
+        Assert.That(o, Is.LessThan(↓1));
+        ");
+
+            AnalyzerAssert.Diagnostics(analyzer,
+                ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparableOnObject), testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticsWhenIComparableTypesProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                @"
+        IComparable smallValue = 0;
+        IComparable bigValue = 9;
+        Assert.That(smallValue, Is.LessThan(bigValue));
+        ");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticsWhenGenericIComparableTypesProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                @"
+        IComparable<int> smallValue = 0;
+        int bigValue = 9;
+        Assert.That(smallValue, Is.LessThan(bigValue));
+        ");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenNonComparableTypesProvidedWithLambdaActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
