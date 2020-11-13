@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -118,7 +119,7 @@ namespace NUnit.Analyzers.ComparableTypes
 
             // NUnit doesn't demand that IComparable is for the same type.
             // But MS does: https://docs.microsoft.com/en-us/dotnet/api/system.icomparable.compareto?view=netcore-3.1
-            if (actualType == expectedType && IsIComparable(actualType))
+            if (actualType.Equals(expectedType) && IsIComparable(actualType))
                 return true;
 
             return false;
