@@ -81,5 +81,27 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         {modifiers} void ↓AssertMethod() {{ }}");
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
+
+        [TestCaseSource(nameof(TestMethodRelatedAttributes))]
+        public void AnalyzeWhenTestMethodIsPublicAndOverridden(string attribute)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+        public class BaseTestClass
+        {{
+            [{attribute}]
+            public virtual void TestMethod() {{ }}
+        }}
+
+        public sealed class DerivedTestClass : BaseTestClass
+        {{
+            public override void TestMethod() {{ }}
+
+            [Test]
+            public void OtherTestMethod() {{ }}
+        }}
+        ");
+
+            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+        }
     }
 }

@@ -62,6 +62,12 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
 
         private static bool IsTestRelatedMethod(Compilation compilation, IMethodSymbol methodSymbol)
         {
+            return HasTestRelatedAttributes(compilation, methodSymbol) ||
+                (methodSymbol.IsOverride && IsTestRelatedMethod(compilation, methodSymbol.OverriddenMethod));
+        }
+
+        private static bool HasTestRelatedAttributes(Compilation compilation, IMethodSymbol methodSymbol)
+        {
             return methodSymbol.GetAttributes().Any(
                 a => a.IsSetUpOrTearDownMethodAttribute(compilation) || a.IsTestMethodAttribute(compilation));
         }
