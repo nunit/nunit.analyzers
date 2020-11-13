@@ -399,6 +399,33 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
 
         [Test]
+        public void AnalyzeWhenTypeImplementsComparableToOtherTypeProvided()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+                class A : IComparable<A>, IComparable<double>
+                {
+                    public int CompareTo(A other) => 0;
+                    public int CompareTo(double other) => 0;
+                }
+
+                class TestClass
+                {
+                    [Test]
+                    public void TestMethod()
+                    {
+                        var actual = new A();
+                        double expected = 123.4;
+                        Assert.That(actual, Is.LessThanOrEqualTo(expected));
+                        // Even though an 'int' is implicit convertible to a 'double', NUnit is not doing this.
+                        int implicitConversion = 567;
+                        Assert.That(actual, Is.LessThanOrEqualTo(↓implicitConversion));
+                    }
+                }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenDifferentNonGenericComparableTypesProvided()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"

@@ -106,12 +106,15 @@ namespace NUnit.Analyzers.ComparableTypes
 
         private static bool CanCompare(ITypeSymbol actualType, ITypeSymbol expectedType, Compilation compilation)
         {
-            var conversion = compilation.ClassifyConversion(actualType, expectedType);
-            if (conversion.IsNumeric)
-                return true;
-
             if (IsIComparable(actualType, expectedType) || IsIComparable(expectedType, actualType))
                 return true;
+
+            var conversion = compilation.ClassifyConversion(actualType, expectedType);
+            if (conversion.IsNumeric)
+            {
+                // Shortcut numerics as per NUnitComparer
+                return true;
+            }
 
             // NUnit doesn't demand that IComparable is for the same type.
             // But MS does: https://docs.microsoft.com/en-us/dotnet/api/system.icomparable.compareto?view=netcore-3.1
