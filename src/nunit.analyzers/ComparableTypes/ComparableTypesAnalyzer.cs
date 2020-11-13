@@ -123,10 +123,16 @@ namespace NUnit.Analyzers.ComparableTypes
 
         private static bool IsIComparable(ITypeSymbol typeSymbol, ITypeSymbol comparableTypeArguments)
         {
-            const string IComparable = "System.IComparable`1";
+            const string iComparable = "System.IComparable`1";
+
+            if (typeSymbol is ITypeParameterSymbol typeParameterSymbol)
+            {
+                var constraints = typeParameterSymbol.ConstraintTypes;
+                return constraints.Any(t => IsIComparable(t, comparableTypeArguments));
+            }
 
             if (typeSymbol.TypeKind == TypeKind.Interface &&
-                typeSymbol.GetFullMetadataName() == IComparable)
+                typeSymbol.GetFullMetadataName() == iComparable)
             {
                 if (((INamedTypeSymbol)typeSymbol).TypeArguments[0].Equals(comparableTypeArguments))
                 {
@@ -136,7 +142,7 @@ namespace NUnit.Analyzers.ComparableTypes
 
             if (typeSymbol.AllInterfaces.Any(i => i.TypeArguments.Length == 1
                 && i.TypeArguments[0].Equals(comparableTypeArguments)
-                && i.GetFullMetadataName() == IComparable))
+                && i.GetFullMetadataName() == iComparable))
             {
                 return true;
             }
@@ -148,10 +154,16 @@ namespace NUnit.Analyzers.ComparableTypes
 
         private static bool IsIComparable(ITypeSymbol typeSymbol)
         {
-            const string IComparable = "System.IComparable";
+            const string iComparable = "System.IComparable";
 
-            return (typeSymbol.TypeKind == TypeKind.Interface && typeSymbol.GetFullMetadataName() == IComparable) ||
-                typeSymbol.AllInterfaces.Any(i => i.TypeArguments.Length == 0 && i.GetFullMetadataName() == IComparable);
+            if (typeSymbol is ITypeParameterSymbol typeParameterSymbol)
+            {
+                var constraints = typeParameterSymbol.ConstraintTypes;
+                return constraints.Any(t => IsIComparable(t));
+            }
+
+            return (typeSymbol.TypeKind == TypeKind.Interface && typeSymbol.GetFullMetadataName() == iComparable) ||
+                typeSymbol.AllInterfaces.Any(i => i.TypeArguments.Length == 0 && i.GetFullMetadataName() == iComparable);
         }
 
         private static bool HasIncompatiblePrefixes(ConstraintExpressionPart constraintPartExpression)

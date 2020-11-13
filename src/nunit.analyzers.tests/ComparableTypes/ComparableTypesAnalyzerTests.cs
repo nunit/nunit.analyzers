@@ -249,6 +249,44 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
 
         [Test]
+        public void NoDiagnosticForGenericWithIComparableConstraint()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public static class LightWeightAssert
+            {
+                public static void Less<T>(T value, T threshold)
+                    where T : IComparable
+                {
+                    if (value.CompareTo(threshold) >= 0)
+                    {
+                        Assert.That(value, Is.LessThan(threshold));
+                    }
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticForGenericWithIComparableTConstraint()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public static class LightWeightAssert
+            {
+                public static void Less<T>(T value, T threshold)
+                    where T : IComparable<T>
+                {
+                    if (value.CompareTo(threshold) >= 0)
+                    {
+                        Assert.That(value, Is.LessThan(threshold));
+                    }
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void NoDiagnosticWhenCustomComparerProvided()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
