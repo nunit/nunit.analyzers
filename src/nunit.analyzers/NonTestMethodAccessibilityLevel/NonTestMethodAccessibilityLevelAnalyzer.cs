@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -45,7 +46,7 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
             {
                 if (IsTestRelatedMethod(context.Compilation, method))
                     hasTestMethods = true;
-                else if (IsPublicOrInternalMethod(method))
+                else if (IsPublicOrInternalMethod(method) && !IsDisposeMethod(method))
                     publicNonTestMethods.Add(method);
             }
 
@@ -84,6 +85,16 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
                 default:
                     return false;
             }
+        }
+
+        private static bool IsDisposeMethod(IMethodSymbol method)
+        {
+            if (method.IsOverride)
+            {
+                return IsDisposeMethod(method.OverriddenMethod);
+            }
+
+            return method.IsInterfaceImplementation("System.IDisposable");
         }
     }
 }

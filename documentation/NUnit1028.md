@@ -13,6 +13,7 @@
 ## Description
 
 A fixture should not contain any public non-test methods.
+There are two exceptions: A public constructor and an `IDisposable.Dispose` method implementation.
 
 ## Motivation
 

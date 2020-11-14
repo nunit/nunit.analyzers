@@ -103,5 +103,74 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 
             AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
         }
+
+        [Test]
+        public void AnalyzeConstructor()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        public sealed class TestClass
+        {
+            public TestClass() {}
+
+            [Test]
+            public void TestMethod() { }
+        }
+        ");
+
+            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenMethodIsExplicitDispose()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        public sealed class TestClass : IDisposable
+        {
+            [Test]
+            public void TestMethod() { }
+
+            void IDisposable.Dispose() { }
+        }
+        ");
+
+            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenMethodIsDispose()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        public sealed class TestClass : IDisposable
+        {
+            [Test]
+            public void TestMethod() { }
+
+            public void Dispose() { }
+        }
+        ");
+
+            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenMethodIsDisposeOverride()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        public class BaseClass : IDisposable
+        {
+            public virtual void Dispose() { }
+        }
+
+        public sealed class DerivedClass : BaseClass
+        {
+            [Test]
+            public void TestMethod() { }
+
+            public override void Dispose() { }
+        }
+        ");
+
+            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+        }
     }
 }
