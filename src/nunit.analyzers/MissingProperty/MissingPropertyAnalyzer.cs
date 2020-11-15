@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
+using NUnit.Analyzers.Operations;
 
 namespace NUnit.Analyzers.MissingProperty
 {
@@ -49,6 +50,9 @@ namespace NUnit.Analyzers.MissingProperty
 
                 if (constraintPart.Prefixes.Count == 0)
                     continue;
+
+                if (HasUnsupportedPrefixes(constraintPart))
+                    return;
 
                 // Only first prefix supported (as preceding prefixes might change validated type)
                 var prefix = constraintPart.Prefixes.First();
@@ -101,6 +105,16 @@ namespace NUnit.Analyzers.MissingProperty
             }
 
             return null;
+        }
+
+        private static bool HasUnsupportedPrefixes(ConstraintExpressionPart constraintPart)
+        {
+            // Disable analyzer if part has constraint prefixes other than property operators or Not operator,
+            // as they might change validated type and lead to false positives (e.g. All/Some operators).
+            return constraintPart.GetPrefixesNames().Any(prefix =>
+                !implicitPropertyConstraints.Contains(prefix)
+                && prefix != NunitFrameworkConstants.NameOfHasProperty
+                && prefix != NunitFrameworkConstants.NameOfIsNot);
         }
     }
 }
