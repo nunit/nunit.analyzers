@@ -47,7 +47,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
     }");
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.ValueSourceIsNotStatic)
-                .WithMessage("The specified source 'Tests' is not static.");
+                .WithMessage("The specified source 'Tests' is not static");
             AnalyzerAssert.Diagnostics<ValueSourceUsageAnalyzer>(expectedDiagnostic, testCode);
         }
 
@@ -93,7 +93,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
         }}
     }}");
 
-            var message = "Consider using nameof(TestCases) instead of \"TestCases\".";
+            var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnosticCodeFix.WithMessage(message), testCode, fixedCode);
         }
 
@@ -134,7 +134,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
         }
     }");
 
-            var message = "Consider using nameof(TestCases) instead of \"TestCases\".";
+            var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnosticCodeFix.WithMessage(message), testCode, fixedCode);
         }
 
@@ -161,7 +161,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.ValueSourceMethodExpectParameters)
-                .WithMessage("The ValueSource cannot supply parameters, but the target method expects '1' parameter(s).");
+                .WithMessage("The ValueSource cannot supply parameters, but the target method expects '1' parameter(s)");
             AnalyzerAssert.Diagnostics<ValueSourceUsageAnalyzer>(expectedDiagnostic, testCode);
         }
 
@@ -191,7 +191,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.ValueSourceMethodExpectParameters)
-                .WithMessage("The ValueSource cannot supply parameters, but the target method expects '2' parameter(s).");
+                .WithMessage("The ValueSource cannot supply parameters, but the target method expects '2' parameter(s)");
             AnalyzerAssert.Diagnostics<ValueSourceUsageAnalyzer>(expectedDiagnostic, testCode);
         }
 
@@ -333,7 +333,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
         }}
     }}");
 
-            var message = "Consider using nameof(InnerClass.TestCases) instead of \"TestCases\".";
+            var message = "Consider using nameof(InnerClass.TestCases) instead of \"TestCases\"";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnosticCodeFix.WithMessage(message), testCode, fixedCode);
         }
 
@@ -364,7 +364,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
         public static string[] TestCases = new[] {{ ""Data"" }};
     }}");
 
-            var message = "Consider using nameof(AnotherClass.TestCases) instead of \"TestCases\".";
+            var message = "Consider using nameof(AnotherClass.TestCases) instead of \"TestCases\"";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnosticCodeFix.WithMessage(message), testCode, fixedCode);
         }
 
@@ -401,7 +401,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
         }}
     }}");
 
-            var message = "Consider using nameof(AnotherClass.InnerClass.TestCases) instead of \"TestCases\".";
+            var message = "Consider using nameof(AnotherClass.InnerClass.TestCases) instead of \"TestCases\"";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnosticCodeFix.WithMessage(message), testCode, fixedCode);
         }
     }

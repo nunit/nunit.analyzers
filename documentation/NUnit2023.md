@@ -1,6 +1,6 @@
 # NUnit2023
 
-## Invalid NullConstraint usage.
+## Invalid NullConstraint usage
 
 | Topic    | Value
 | :--      | :--
@@ -32,7 +32,7 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 ### Via .editorconfig file
 
 ```ini
-# NUnit2023: Invalid NullConstraint usage.
+# NUnit2023: Invalid NullConstraint usage
 dotnet_diagnostic.NUnit2023.severity = chosenSeverity
 ```
 
@@ -41,22 +41,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit2023 // Invalid NullConstraint usage.
+#pragma warning disable NUnit2023 // Invalid NullConstraint usage
 Code violating the rule here
-#pragma warning restore NUnit2023 // Invalid NullConstraint usage.
+#pragma warning restore NUnit2023 // Invalid NullConstraint usage
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit2023 // Invalid NullConstraint usage.
+#pragma warning disable NUnit2023 // Invalid NullConstraint usage
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
-    "NUnit2023:Invalid NullConstraint usage.",
+    "NUnit2023:Invalid NullConstraint usage",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

@@ -1,6 +1,6 @@
 # NUnit2036
 
-## Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection).
+## Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection)
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-Consider using the constraint model, Assert.That(collection, Is.Not.Empty), instead of the classic model, Assert.IsNotEmpty(collection).
+Consider using the constraint model, `Assert.That(collection, Is.Not.Empty)`, instead of the classic model, `Assert.IsNotEmpty(collection)`.
 
 ## Motivation
 
@@ -50,7 +50,7 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 ### Via .editorconfig file
 
 ```ini
-# NUnit2036: Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection).
+# NUnit2036: Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection)
 dotnet_diagnostic.NUnit2036.severity = chosenSeverity
 ```
 
@@ -59,22 +59,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit2036 // Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection).
+#pragma warning disable NUnit2036 // Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection)
 Code violating the rule here
-#pragma warning restore NUnit2036 // Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection).
+#pragma warning restore NUnit2036 // Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection)
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit2036 // Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection).
+#pragma warning disable NUnit2036 // Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection)
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
-    "NUnit2036:Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection).",
+    "NUnit2036:Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection)",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

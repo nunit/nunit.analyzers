@@ -247,9 +247,9 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             }
         }
 
-        private static ImmutableDictionary<string, string> GetProperties(IMethodSymbol invocationSymbol)
+        private static ImmutableDictionary<string, string?> GetProperties(IMethodSymbol invocationSymbol)
         {
-            return new Dictionary<string, string>
+            return new Dictionary<string, string?>
             {
                 { AnalyzerPropertyKeys.ModelName, invocationSymbol.Name },
                 {

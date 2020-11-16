@@ -20,7 +20,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
                 var str = ""test"";
                 Assert.That(str, Is.{constraintMethod}(↓str));");
 
-            var message = "The actual and the expected argument is the same 'str'.";
+            var message = "The actual and the expected argument is the same 'str'";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
@@ -31,7 +31,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
                 var str = ""test"";
                 Assert.That(str.Trim(), Is.EqualTo(↓str.Trim()));");
 
-            var message = "The actual and the expected argument is the same 'str.Trim()'.";
+            var message = "The actual and the expected argument is the same 'str.Trim()'";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
@@ -56,7 +56,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
                     .Or.EquivalentTo(↓str)
                     .And.StartsWith(↓str));");
 
-            var message = "The actual and the expected argument is the same 'str'.";
+            var message = "The actual and the expected argument is the same 'str'";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 

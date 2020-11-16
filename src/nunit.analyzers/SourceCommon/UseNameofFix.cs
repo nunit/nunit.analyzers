@@ -25,6 +25,11 @@ namespace NUnit.Analyzers.SourceCommon
             var syntaxRoot = await context.Document.GetSyntaxRootAsync(context.CancellationToken)
                                           .ConfigureAwait(false);
 
+            if (syntaxRoot is null)
+            {
+                return;
+            }
+
             foreach (var diagnostic in context.Diagnostics)
             {
                 if (syntaxRoot.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true) is LiteralExpressionSyntax literal)

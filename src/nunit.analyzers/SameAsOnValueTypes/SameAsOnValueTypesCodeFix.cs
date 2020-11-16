@@ -28,22 +28,27 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
+            if (root is null)
+            {
+                return;
+            }
+
             context.CancellationToken.ThrowIfCancellationRequested();
 
             var diagnostic = context.Diagnostics.First();
             var node = root.FindNode(diagnostic.Location.SourceSpan);
             var argumentNode = node as ArgumentSyntax;
-            if (argumentNode == null)
+            if (argumentNode is null)
                 return;
 
-            var invocationNode = argumentNode.Parent.Parent as InvocationExpressionSyntax;
+            var invocationNode = argumentNode.Parent?.Parent as InvocationExpressionSyntax;
 
-            if (invocationNode == null)
+            if (invocationNode is null)
                 return;
 
             var assertExpression = invocationNode.Expression as MemberAccessExpressionSyntax;
 
-            if (assertExpression == null)
+            if (assertExpression is null)
                 return;
 
             ExpressionSyntax original = assertExpression;

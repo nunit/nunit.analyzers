@@ -42,6 +42,7 @@ namespace NUnit.Analyzers.ParallelizableUsage
 
         public override void Initialize(AnalysisContext context)
         {
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
             context.RegisterCompilationAction(AnalyzeCompilation);
             context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
@@ -106,7 +107,7 @@ namespace NUnit.Analyzers.ParallelizableUsage
                 return false;
 
             attributeData = symbol.GetAttributes()
-                .FirstOrDefault(a => a.AttributeClass?.Equals(parallelizableAttributeType) == true);
+                .FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, parallelizableAttributeType));
 
             if (attributeData?.ApplicationSyntaxReference is null)
                 return false;

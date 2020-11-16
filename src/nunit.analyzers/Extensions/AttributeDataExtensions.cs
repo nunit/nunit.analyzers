@@ -45,10 +45,10 @@ namespace NUnit.Analyzers.Extensions
         public static AttributeArgumentSyntax? GetConstructorArgumentSyntax(this AttributeData @this, int position,
             CancellationToken cancellationToken = default)
         {
-            if (!(@this.ApplicationSyntaxReference.GetSyntax(cancellationToken) is AttributeSyntax attributeSyntax))
+            if (!(@this.ApplicationSyntaxReference?.GetSyntax(cancellationToken) is AttributeSyntax attributeSyntax))
                 return null;
 
-            return attributeSyntax.ArgumentList.Arguments
+            return attributeSyntax.ArgumentList?.Arguments
                 .Where(a => a.NameEquals == null)
                 .ElementAtOrDefault(position);
         }
@@ -56,10 +56,10 @@ namespace NUnit.Analyzers.Extensions
         public static AttributeArgumentSyntax? GetNamedArgumentSyntax(this AttributeData @this, string name,
             CancellationToken cancellationToken = default)
         {
-            if (!(@this.ApplicationSyntaxReference.GetSyntax(cancellationToken) is AttributeSyntax attributeSyntax))
+            if (!(@this.ApplicationSyntaxReference?.GetSyntax(cancellationToken) is AttributeSyntax attributeSyntax))
                 return null;
 
-            return attributeSyntax.ArgumentList.Arguments
+            return attributeSyntax.ArgumentList?.Arguments
                 .FirstOrDefault(a => a.NameEquals?.Name.Identifier.Text == name);
         }
 
@@ -73,7 +73,7 @@ namespace NUnit.Analyzers.Extensions
             if (interfaceType is null)
                 return false;
 
-            return attributeData.AttributeClass.AllInterfaces.Any(i => i.Equals(interfaceType));
+            return attributeData.AttributeClass.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, interfaceType));
         }
     }
 }

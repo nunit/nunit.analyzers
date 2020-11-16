@@ -1,6 +1,6 @@
 # NUnit2025
 
-## Wrong actual type used with ContainsConstraint.
+## Wrong actual type used with ContainsConstraint
 
 | Topic    | Value
 | :--      | :--
@@ -32,7 +32,7 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 ### Via .editorconfig file
 
 ```ini
-# NUnit2025: Wrong actual type used with ContainsConstraint.
+# NUnit2025: Wrong actual type used with ContainsConstraint
 dotnet_diagnostic.NUnit2025.severity = chosenSeverity
 ```
 
@@ -41,22 +41,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit2025 // Wrong actual type used with ContainsConstraint.
+#pragma warning disable NUnit2025 // Wrong actual type used with ContainsConstraint
 Code violating the rule here
-#pragma warning restore NUnit2025 // Wrong actual type used with ContainsConstraint.
+#pragma warning restore NUnit2025 // Wrong actual type used with ContainsConstraint
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit2025 // Wrong actual type used with ContainsConstraint.
+#pragma warning disable NUnit2025 // Wrong actual type used with ContainsConstraint
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
-    "NUnit2025:Wrong actual type used with ContainsConstraint.",
+    "NUnit2025:Wrong actual type used with ContainsConstraint",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

@@ -29,7 +29,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
                 $"Assert.That(123, ↓{this.constraint}(1));");
 
             AnalyzerAssert.Diagnostics(analyzer,
-                expectedDiagnostic.WithMessage($"The '{this.constraint}' constraint cannot be used with actual argument of type 'int' and expected argument of type 'int'."),
+                expectedDiagnostic.WithMessage($"The '{this.constraint}' constraint cannot be used with actual argument of type 'int' and expected argument of type 'int'"),
                 testCode);
         }
 
@@ -40,7 +40,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
                 $"Assert.That(new[] {{\"1\", \"2\"}}, ↓{this.constraint}(1));");
 
             AnalyzerAssert.Diagnostics(analyzer,
-                expectedDiagnostic.WithMessage($"The '{this.constraint}' constraint cannot be used with actual argument of type 'string[]' and expected argument of type 'int'."),
+                expectedDiagnostic.WithMessage($"The '{this.constraint}' constraint cannot be used with actual argument of type 'string[]' and expected argument of type 'int'"),
                 testCode);
         }
 
@@ -51,7 +51,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
                 $"Assert.That(Task.FromResult(new[] {{1,2,3}}), ↓{this.constraint}(1));");
 
             AnalyzerAssert.Diagnostics(analyzer,
-                expectedDiagnostic.WithMessage($"The '{this.constraint}' constraint cannot be used with actual argument of type 'Task<int[]>' and expected argument of type 'int'."),
+                expectedDiagnostic.WithMessage($"The '{this.constraint}' constraint cannot be used with actual argument of type 'Task<int[]>' and expected argument of type 'int'"),
                 testCode);
         }
 

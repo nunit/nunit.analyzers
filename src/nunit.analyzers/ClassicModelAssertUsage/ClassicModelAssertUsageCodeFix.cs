@@ -26,6 +26,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
+            if (root is null)
+            {
+                return;
+            }
+
             context.CancellationToken.ThrowIfCancellationRequested();
 
             var diagnostic = context.Diagnostics.First();
@@ -43,6 +48,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             {
                 var typeInfo = semanticModel.GetTypeInfo(expression, context.CancellationToken);
                 var convertedType = typeInfo.ConvertedType;
+                if (convertedType is null)
+                {
+                    return null;
+                }
+
                 var conversion = semanticModel.ClassifyConversion(expression, convertedType);
 
                 if (!conversion.IsUserDefined)

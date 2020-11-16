@@ -174,7 +174,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [↓Test]
         public string Test3() => ""12"";
     }");
-            var message = "The method has non-void return type 'string', but no result is expected in ExpectedResult.";
+            var message = "The method has non-void return type 'string', but no result is expected in ExpectedResult";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
@@ -190,7 +190,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [↓TestCase(1)]
         public int Test4(int i) => ""12"";
     }");
-            var message = "The method has non-void return type 'int', but no result is expected in ExpectedResult.";
+            var message = "The method has non-void return type 'int', but no result is expected in ExpectedResult";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
@@ -206,7 +206,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [↓Test]
         public async Task<int> AsyncGenericTaskTest() => await Task.FromResult(1);
     }");
-            var message = "The async test method must have a non-generic Task return type when no result is expected, but the return type was 'System.Threading.Tasks.Task<int>'.";
+            var message = "The async test method must have a non-generic Task return type when no result is expected, but the return type was 'System.Threading.Tasks.Task<int>'";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
@@ -222,7 +222,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [↓Test]
         public Task<int> AsyncGenericTaskTest() => Task.FromResult(1);
     }");
-            var message = "The async test method must have a non-generic Task return type when no result is expected, but the return type was 'System.Threading.Tasks.Task<int>'.";
+            var message = "The async test method must have a non-generic Task return type when no result is expected, but the return type was 'System.Threading.Tasks.Task<int>'";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
@@ -402,7 +402,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
           await Task.Run(() => 1);
         }
     }");
-            var message = "The async test method must have a Task<T> return type when a result is expected, but the return type was 'System.Threading.Tasks.Task'.";
+            var message = "The async test method must have a Task<T> return type when a result is expected, but the return type was 'System.Threading.Tasks.Task'";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
@@ -421,7 +421,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
           return Task.Run(() => 1);
         }
     }");
-            var message = "The async test method must have a Task<T> return type when a result is expected, but the return type was 'System.Threading.Tasks.Task'.";
+            var message = "The async test method must have a Task<T> return type when a result is expected, but the return type was 'System.Threading.Tasks.Task'";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
@@ -522,7 +522,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         Assert.That(p, Is.EqualTo(42));
     }");
 
-            var message = "The test method has '1' parameter(s), but only '0' argument(s) are supplied by attributes.";
+            var message = "The test method has '1' parameter(s), but only '0' argument(s) are supplied by attributes";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
@@ -539,7 +539,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         Assert.That(p, Is.EqualTo(q + r));
     }");
 
-            var message = "The test method has '3' parameter(s), but only '1' argument(s) are supplied by attributes.";
+            var message = "The test method has '3' parameter(s), but only '1' argument(s) are supplied by attributes";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 

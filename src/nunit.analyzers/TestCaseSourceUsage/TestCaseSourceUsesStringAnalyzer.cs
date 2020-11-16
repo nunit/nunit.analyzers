@@ -15,8 +15,8 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
     {
         private static readonly DiagnosticDescriptor missingSourceDescriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.TestCaseSourceIsMissing,
-            title: "The TestCaseSource argument does not specify an existing member.",
-            messageFormat: "The TestCaseSource argument '{0}' does not specify an existing member.",
+            title: "The TestCaseSource argument does not specify an existing member",
+            messageFormat: "The TestCaseSource argument '{0}' does not specify an existing member",
             category: Categories.Structure,
             defaultSeverity: DiagnosticSeverity.Error,
             description: "The TestCaseSource argument does not specify an existing member. This will lead to an error at run-time.");
@@ -89,8 +89,8 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
         public override void Initialize(AnalysisContext context)
         {
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-
             context.RegisterSyntaxNodeAction(x => AnalyzeAttribute(x), SyntaxKind.Attribute);
         }
 
@@ -109,7 +109,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             var attributeNode = (AttributeSyntax)context.Node;
             var stringConstant = attributeInfo.SourceName;
 
-            if (stringConstant is null && attributeNode.ArgumentList.Arguments.Count == 1)
+            if (stringConstant is null && attributeNode.ArgumentList?.Arguments.Count == 1)
             {
                 // The Type argument in this form represents the class that provides test cases.
                 // It must have a default constructor and implement IEnumerable.

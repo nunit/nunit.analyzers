@@ -29,11 +29,11 @@ namespace NUnit.Analyzers.SourceCommon
                     context.SemanticModel,
                     syntaxNode.GetLocation().SourceSpan.Start);
 
-                var nameOfTarget = attributeInfo.SourceType == context.ContainingSymbol.ContainingType
+                var nameOfTarget = SymbolEqualityComparer.Default.Equals(attributeInfo.SourceType, context.ContainingSymbol?.ContainingType)
                     ? stringConstant
                     : $"{nameOfClassTarget}.{stringConstant}";
 
-                var properties = new Dictionary<string, string>
+                var properties = new Dictionary<string, string?>
                     {
                         { SourceCommonConstants.PropertyKeyNameOfTarget, nameOfTarget }
                     };
@@ -74,7 +74,7 @@ namespace NUnit.Analyzers.SourceCommon
 
         public static ISymbol? GetMember(SourceAttributeInformation attributeInformation)
         {
-            if (attributeInformation.SyntaxNode == null || !SyntaxFacts.IsValidIdentifier(attributeInformation.SourceName))
+            if (attributeInformation.SourceName is null || !SyntaxFacts.IsValidIdentifier(attributeInformation.SourceName))
             {
                 return null;
             }
@@ -121,7 +121,7 @@ namespace NUnit.Analyzers.SourceCommon
             }
             else
             {
-                var sourceType = context.ContainingSymbol.ContainingType;
+                var sourceType = context.ContainingSymbol?.ContainingType;
                 return ExtractElementsInAttribute(context, sourceType, positionalArguments, 0);
             }
         }
@@ -132,7 +132,7 @@ namespace NUnit.Analyzers.SourceCommon
             ImmutableArray<AttributeArgumentSyntax> positionalArguments,
             int sourceNameIndex)
         {
-            if (sourceType == null)
+            if (sourceType is null)
             {
                 return null;
             }
@@ -178,7 +178,7 @@ namespace NUnit.Analyzers.SourceCommon
                 return null;
             }
 
-            Optional<object> possibleConstant = context.SemanticModel.GetConstantValue(argumentSyntax.Expression);
+            Optional<object?> possibleConstant = context.SemanticModel.GetConstantValue(argumentSyntax.Expression);
 
             if (possibleConstant.HasValue && possibleConstant.Value is string stringConstant)
             {
@@ -195,7 +195,7 @@ namespace NUnit.Analyzers.SourceCommon
         private static int? GetNumberOfParametersToMethod(AttributeArgumentSyntax attributeArgumentSyntax)
         {
             var lastExpression = attributeArgumentSyntax?.Expression as ArrayCreationExpressionSyntax;
-            return lastExpression?.Initializer.Expressions.Count;
+            return lastExpression?.Initializer?.Expressions.Count;
         }
     }
 }

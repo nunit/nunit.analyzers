@@ -190,3 +190,10 @@ dotnet_diagnostic.CA1056.severity = none
 # CA1062: Validate arguments of public methods
 # Our callers are roslyn and ourselves.
 dotnet_diagnostic.CA1062.severity = none
+
+##################################################################################
+# Roslyn Analyzers
+
+# Default severity for analyzer diagnostics with category 'MicrosoftCodeAnalysisReleaseTracking'
+dotnet_analyzer_diagnostic.category-MicrosoftCodeAnalysisReleaseTracking.severity = none
+

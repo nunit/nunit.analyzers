@@ -216,7 +216,7 @@ namespace NUnit.Analyzers.Extensions
             else if (argumentValue is null || argumentValue is string)
             {
                 if (compilation.GetTypeByMetadataName(typeof(TypeConverterAttribute).FullName) is { } typeConverterAttribute
-                    && targetTypeSymbol.GetAllAttributes().Any(data => typeConverterAttribute.Equals(data.AttributeClass)))
+                    && targetTypeSymbol.GetAllAttributes().Any(data => SymbolEqualityComparer.Default.Equals(typeConverterAttribute, data.AttributeClass)))
                 {
                     return true;
                 }

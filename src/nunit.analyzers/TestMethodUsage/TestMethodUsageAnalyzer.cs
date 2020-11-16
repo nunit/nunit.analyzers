@@ -76,8 +76,8 @@ namespace NUnit.Analyzers.TestMethodUsage
 
         public override void Initialize(AnalysisContext context)
         {
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-
             context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
         }
 
@@ -98,8 +98,8 @@ namespace NUnit.Analyzers.TestMethodUsage
                 if (attribute.AttributeClass is null)
                     continue;
 
-                var isTestCaseAttribute = attribute.AttributeClass.Equals(testCaseType);
-                var isTestAttribute = attribute.AttributeClass.Equals(testType);
+                var isTestCaseAttribute = SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, testCaseType);
+                var isTestAttribute = SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, testType);
 
                 if (isTestCaseAttribute
                     || (isTestAttribute && !HasITestBuilderAttribute(context.Compilation, methodAttributes)))

@@ -23,16 +23,26 @@ namespace NUnit.Analyzers.ConstraintUsage
         {
             var suggestedConstraintString = context.Diagnostics[0].Properties[BaseConditionConstraintAnalyzer.SuggestedConstraintString];
 
+            if (suggestedConstraintString is null)
+            {
+                return;
+            }
+
             var description = string.Format(CultureInfo.InvariantCulture,
                 CodeFixConstants.UseConstraintDescriptionFormat, suggestedConstraintString);
 
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
 
+            if (root is null || semanticModel is null)
+            {
+                return;
+            }
+
             context.CancellationToken.ThrowIfCancellationRequested();
             var conditionNode = (root.FindNode(context.Span) as ArgumentSyntax)?.Expression;
 
-            if (conditionNode == null)
+            if (conditionNode is null)
                 return;
 
             // If condition is logical not expression - use operand
