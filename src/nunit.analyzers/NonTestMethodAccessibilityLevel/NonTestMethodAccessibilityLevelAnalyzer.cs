@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -45,7 +46,7 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
             {
                 if (IsTestRelatedMethod(context.Compilation, method))
                     hasTestMethods = true;
-                else if (IsPublicOrInternalMethod(method))
+                else if (IsPublicOrInternalMethod(method) && !IsDisposeMethod(method))
                     publicNonTestMethods.Add(method);
             }
 
@@ -61,6 +62,12 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
         }
 
         private static bool IsTestRelatedMethod(Compilation compilation, IMethodSymbol methodSymbol)
+        {
+            return HasTestRelatedAttributes(compilation, methodSymbol) ||
+                (methodSymbol.IsOverride && IsTestRelatedMethod(compilation, methodSymbol.OverriddenMethod));
+        }
+
+        private static bool HasTestRelatedAttributes(Compilation compilation, IMethodSymbol methodSymbol)
         {
             return methodSymbol.GetAttributes().Any(
                 a => a.IsSetUpOrTearDownMethodAttribute(compilation) || a.IsTestMethodAttribute(compilation));
@@ -78,6 +85,16 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
                 default:
                     return false;
             }
+        }
+
+        private static bool IsDisposeMethod(IMethodSymbol method)
+        {
+            if (method.IsOverride)
+            {
+                return IsDisposeMethod(method.OverriddenMethod);
+            }
+
+            return method.IsInterfaceImplementation("System.IDisposable");
         }
     }
 }
