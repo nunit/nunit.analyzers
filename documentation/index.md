@@ -95,3 +95,4 @@ Rules which improve assertions in the test code.
 | [NUnit2039](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2039.md) | Consider using Assert.That(actual, Is.Not.InstanceOf(expected)) instead of Assert.IsNotInstanceOf(expected, actual). | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2040](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2040.md) | Non-reference types for SameAs constraint. | :white_check_mark: | :exclamation: | :white_check_mark: |
 | [NUnit2041](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2041.md) | Incompatible types for comparison constraint. | :white_check_mark: | :exclamation: | :x: |
+| [NUnit2042](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2042.md) | Comparison constraint on object. | :white_check_mark: | :information_source: | :x: |

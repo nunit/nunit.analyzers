@@ -27,6 +27,45 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
 
         [Test]
+        public void AnalyzeWhenObjectTypesProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                @"
+        object o = 0;
+        Assert.That(o, Is.LessThan(↓1));
+        ");
+
+            AnalyzerAssert.Diagnostics(analyzer,
+                ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparableOnObject), testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticsWhenIComparableTypesProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                @"
+        IComparable smallValue = 0;
+        IComparable bigValue = 9;
+        Assert.That(smallValue, Is.LessThan(bigValue));
+        ");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticsWhenGenericIComparableTypesProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(
+                @"
+        IComparable<int> smallValue = 0;
+        int bigValue = 9;
+        Assert.That(smallValue, Is.LessThan(bigValue));
+        ");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenNonComparableTypesProvidedWithLambdaActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
@@ -210,6 +249,44 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
 
         [Test]
+        public void NoDiagnosticForGenericWithIComparableConstraint()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public static class LightWeightAssert
+            {
+                public static void Less<T>(T value, T threshold)
+                    where T : IComparable
+                {
+                    if (value.CompareTo(threshold) >= 0)
+                    {
+                        Assert.That(value, Is.LessThan(threshold));
+                    }
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoDiagnosticForGenericWithIComparableTConstraint()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public static class LightWeightAssert
+            {
+                public static void Less<T>(T value, T threshold)
+                    where T : IComparable<T>
+                {
+                    if (value.CompareTo(threshold) >= 0)
+                    {
+                        Assert.That(value, Is.LessThan(threshold));
+                    }
+                }
+            }");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void NoDiagnosticWhenCustomComparerProvided()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
@@ -315,6 +392,33 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                         var actual = new A();
                         var expected = new B();
                         Assert.That(actual, Is.LessThanOrEqualTo(↓expected));
+                    }
+                }");
+
+            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTypeImplementsComparableToOtherTypeProvided()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+                class A : IComparable<A>, IComparable<double>
+                {
+                    public int CompareTo(A other) => 0;
+                    public int CompareTo(double other) => 0;
+                }
+
+                class TestClass
+                {
+                    [Test]
+                    public void TestMethod()
+                    {
+                        var actual = new A();
+                        double expected = 123.4;
+                        Assert.That(actual, Is.LessThanOrEqualTo(expected));
+                        // Even though an 'int' is implicit convertible to a 'double', NUnit is not doing this.
+                        int implicitConversion = 567;
+                        Assert.That(actual, Is.LessThanOrEqualTo(↓implicitConversion));
                     }
                 }");
 

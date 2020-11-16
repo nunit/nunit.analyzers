@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -20,7 +21,7 @@ namespace NUnit.Analyzers.ComparableTypes
             NunitFrameworkConstants.NameOfIsGreaterThan,
             NunitFrameworkConstants.NameOfIsGreaterThanOrEqualTo);
 
-        private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
+        private static readonly DiagnosticDescriptor comparableTypesDescriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.ComparableTypes,
             title: ComparableTypesConstants.Title,
             messageFormat: ComparableTypesConstants.Message,
@@ -28,7 +29,16 @@ namespace NUnit.Analyzers.ComparableTypes
             defaultSeverity: DiagnosticSeverity.Error,
             description: ComparableTypesConstants.Description);
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
+        private static readonly DiagnosticDescriptor comparableOnObjectDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.ComparableOnObject,
+            title: ComparableOnObjectConstants.Title,
+            messageFormat: ComparableOnObjectConstants.Message,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ComparableOnObjectConstants.Description);
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+            ImmutableArray.Create(comparableTypesDescriptor, comparableOnObjectDescriptor);
 
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
@@ -70,10 +80,25 @@ namespace NUnit.Analyzers.ComparableTypes
                 if (expectedType == null)
                     continue;
 
-                if (!CanCompare(actualType, expectedType, context.Compilation))
+                if (actualType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+                    actualType = ((INamedTypeSymbol)actualType).TypeArguments[0];
+
+                if (expectedType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+                    expectedType = ((INamedTypeSymbol)expectedType).TypeArguments[0];
+
+                if (actualType.SpecialType == SpecialType.System_Object ||
+                    expectedType.SpecialType == SpecialType.System_Object)
+                {
+                    // An instance of object might not implement IComparable resulting in runtime errors.
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        comparableOnObjectDescriptor,
+                        expectedOperation.Syntax.GetLocation(),
+                        constraintMethod.Name));
+                }
+                else if (!CanCompare(actualType, expectedType, context.Compilation))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
-                        descriptor,
+                        comparableTypesDescriptor,
                         expectedOperation.Syntax.GetLocation(),
                         constraintMethod.Name));
                 }
@@ -82,22 +107,19 @@ namespace NUnit.Analyzers.ComparableTypes
 
         private static bool CanCompare(ITypeSymbol actualType, ITypeSymbol expectedType, Compilation compilation)
         {
-            if (actualType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
-                actualType = ((INamedTypeSymbol)actualType).TypeArguments[0];
-
-            if (expectedType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
-                expectedType = ((INamedTypeSymbol)expectedType).TypeArguments[0];
-
-            var conversion = compilation.ClassifyConversion(actualType, expectedType);
-            if (conversion.IsNumeric)
-                return true;
-
             if (IsIComparable(actualType, expectedType) || IsIComparable(expectedType, actualType))
                 return true;
 
+            var conversion = compilation.ClassifyConversion(actualType, expectedType);
+            if (conversion.IsNumeric)
+            {
+                // Shortcut numerics as per NUnitComparer
+                return true;
+            }
+
             // NUnit doesn't demand that IComparable is for the same type.
             // But MS does: https://docs.microsoft.com/en-us/dotnet/api/system.icomparable.compareto?view=netcore-3.1
-            if (actualType == expectedType && IsIComparable(actualType))
+            if (actualType.Equals(expectedType) && IsIComparable(actualType))
                 return true;
 
             return false;
@@ -105,9 +127,26 @@ namespace NUnit.Analyzers.ComparableTypes
 
         private static bool IsIComparable(ITypeSymbol typeSymbol, ITypeSymbol comparableTypeArguments)
         {
+            const string iComparable = "System.IComparable`1";
+
+            if (typeSymbol is ITypeParameterSymbol typeParameterSymbol)
+            {
+                var constraints = typeParameterSymbol.ConstraintTypes;
+                return constraints.Any(t => IsIComparable(t, comparableTypeArguments));
+            }
+
+            if (typeSymbol.TypeKind == TypeKind.Interface &&
+                typeSymbol.GetFullMetadataName() == iComparable)
+            {
+                if (((INamedTypeSymbol)typeSymbol).TypeArguments[0].Equals(comparableTypeArguments))
+                {
+                    return true;
+                }
+            }
+
             if (typeSymbol.AllInterfaces.Any(i => i.TypeArguments.Length == 1
                 && i.TypeArguments[0].Equals(comparableTypeArguments)
-                && i.GetFullMetadataName() == "System.IComparable`1"))
+                && i.GetFullMetadataName() == iComparable))
             {
                 return true;
             }
@@ -119,8 +158,16 @@ namespace NUnit.Analyzers.ComparableTypes
 
         private static bool IsIComparable(ITypeSymbol typeSymbol)
         {
-            return typeSymbol.AllInterfaces.Any(i => i.TypeArguments.Length == 0
-                && i.GetFullMetadataName() == "System.IComparable");
+            const string iComparable = "System.IComparable";
+
+            if (typeSymbol is ITypeParameterSymbol typeParameterSymbol)
+            {
+                var constraints = typeParameterSymbol.ConstraintTypes;
+                return constraints.Any(t => IsIComparable(t));
+            }
+
+            return (typeSymbol.TypeKind == TypeKind.Interface && typeSymbol.GetFullMetadataName() == iComparable) ||
+                typeSymbol.AllInterfaces.Any(i => i.TypeArguments.Length == 0 && i.GetFullMetadataName() == iComparable);
         }
 
         private static bool HasIncompatiblePrefixes(ConstraintExpressionPart constraintPartExpression)
