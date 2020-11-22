@@ -188,6 +188,23 @@ namespace NUnit.Analyzers.Tests.MissingProperty
         }
 
         [Test]
+        public void ValidWhenMultiplePartsCombinedWithCollectionOperatorPrefix()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = new[]
+                {
+                    new
+                    {
+                        Foo = ""Fuzz"",
+                        Bar = ""Buzz""
+                    }
+                };
+                Assert.That(actual, Has.Some.With.Property(""Foo"").And.Property(""Bar""));");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void ValidWhenUsedWithThrowsConstraint()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
