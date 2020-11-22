@@ -48,12 +48,12 @@ namespace NUnit.Analyzers.Extensions
         {
             var interfaceType = @this.ContainingType.AllInterfaces.FirstOrDefault(i => i.GetFullMetadataName() == interfaceFullName);
 
-            if (interfaceType == null)
+            if (interfaceType is null)
                 return false;
 
             return interfaceType.GetMembers().OfType<IMethodSymbol>()
                 .Any(interfaceMethod => interfaceMethod.Name == @this.Name
-                    && @this.ContainingType.FindImplementationForInterfaceMember(interfaceMethod)?.Equals(@this) == true);
+                    && SymbolEqualityComparer.Default.Equals(@this.ContainingType.FindImplementationForInterfaceMember(interfaceMethod), @this));
         }
     }
 }

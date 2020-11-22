@@ -23,8 +23,8 @@ namespace NUnit.Analyzers.TestMethodAccessibilityLevel
 
         public override void Initialize(AnalysisContext context)
         {
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-
             context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
         }
 

@@ -45,7 +45,7 @@ namespace NUnit.Analyzers.Helpers
                 if (fullTypeName == NunitFrameworkConstants.FullNameOfActualValueDelegate ||
                     fullTypeName == NunitFrameworkConstants.FullNameOfTestDelegate)
                 {
-                    ITypeSymbol returnType = namedType.DelegateInvokeMethod.ReturnType;
+                    ITypeSymbol returnType = namedType.DelegateInvokeMethod!.ReturnType;
 
                     if (returnType.IsAwaitable(out ITypeSymbol? awaitReturnType))
                         returnType = awaitReturnType;

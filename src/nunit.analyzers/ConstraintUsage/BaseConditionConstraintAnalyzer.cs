@@ -76,7 +76,7 @@ namespace NUnit.Analyzers.ConstraintUsage
 
             if (descriptor != null && suggestedConstraint != null)
             {
-                var properties = ImmutableDictionary.Create<string, string>().Add(SuggestedConstraintString, suggestedConstraint);
+                var properties = ImmutableDictionary.Create<string, string?>().Add(SuggestedConstraintString, suggestedConstraint);
                 var diagnostic = Diagnostic.Create(descriptor, actual.Syntax.GetLocation(), properties, suggestedConstraint);
                 context.ReportDiagnostic(diagnostic);
             }

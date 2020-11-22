@@ -26,8 +26,8 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
 
         public override void Initialize(AnalysisContext context)
         {
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-
             context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
         }
 
@@ -64,7 +64,7 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
         private static bool IsTestRelatedMethod(Compilation compilation, IMethodSymbol methodSymbol)
         {
             return HasTestRelatedAttributes(compilation, methodSymbol) ||
-                (methodSymbol.IsOverride && IsTestRelatedMethod(compilation, methodSymbol.OverriddenMethod));
+                (methodSymbol.OverriddenMethod != null && IsTestRelatedMethod(compilation, methodSymbol.OverriddenMethod));
         }
 
         private static bool HasTestRelatedAttributes(Compilation compilation, IMethodSymbol methodSymbol)
@@ -89,7 +89,7 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
 
         private static bool IsDisposeMethod(IMethodSymbol method)
         {
-            if (method.IsOverride)
+            if (method.OverriddenMethod != null)
             {
                 return IsDisposeMethod(method.OverriddenMethod);
             }

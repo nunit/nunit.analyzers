@@ -48,7 +48,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     }");
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceSourceIsNotStatic)
-                .WithMessage("The specified source 'Tests' is not static.");
+                .WithMessage("The specified source 'Tests' is not static");
             AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
         }
 
@@ -94,7 +94,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }}
     }}");
 
-            var message = "Consider using nameof(TestCases) instead of \"TestCases\".";
+            var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
 
@@ -135,7 +135,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }");
 
-            var message = "Consider using nameof(TestCases) instead of \"TestCases\".";
+            var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
 
@@ -186,7 +186,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
-                .WithMessage("The TestCaseSource provides '1' parameter(s), but the target method expects '0' parameter(s).");
+                .WithMessage("The TestCaseSource provides '1' parameter(s), but the target method expects '0' parameter(s)");
             AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
         }
 
@@ -213,7 +213,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
-                .WithMessage("The TestCaseSource provides '0' parameter(s), but the target method expects '1' parameter(s).");
+                .WithMessage("The TestCaseSource provides '0' parameter(s), but the target method expects '1' parameter(s)");
             AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
         }
 
@@ -240,7 +240,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
-                .WithMessage("The TestCaseSource provides '3' parameter(s), but the target method expects '2' parameter(s).");
+                .WithMessage("The TestCaseSource provides '3' parameter(s), but the target method expects '2' parameter(s)");
             AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
         }
 
@@ -270,7 +270,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
-                .WithMessage("The TestCaseSource provides '3' parameter(s), but the target method expects '2' parameter(s).");
+                .WithMessage("The TestCaseSource provides '3' parameter(s), but the target method expects '2' parameter(s)");
             AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
         }
 
@@ -338,7 +338,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceSuppliesParametersToFieldOrProperty)
-                .WithMessage($"The TestCaseSource provides '3' parameter(s), but {kind} cannot take parameters.");
+                .WithMessage($"The TestCaseSource provides '3' parameter(s), but {kind} cannot take parameters");
             AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
         }
 
@@ -490,7 +490,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }}
     }}");
 
-            var message = "Consider using nameof(InnerClass.TestCases) instead of \"TestCases\".";
+            var message = "Consider using nameof(InnerClass.TestCases) instead of \"TestCases\"";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
 
@@ -521,7 +521,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         public static string[] TestCases = new[] {{ ""Data"" }};
     }}");
 
-            var message = "Consider using nameof(AnotherClass.TestCases) instead of \"TestCases\".";
+            var message = "Consider using nameof(AnotherClass.TestCases) instead of \"TestCases\"";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
 
@@ -558,7 +558,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }}
     }}");
 
-            var message = "Consider using nameof(AnotherClass.InnerClass.TestCases) instead of \"TestCases\".";
+            var message = "Consider using nameof(AnotherClass.InnerClass.TestCases) instead of \"TestCases\"";
             AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
     }

@@ -1,6 +1,6 @@
 # NUnit2042
 
-## Comparison constraint on object.
+## Comparison constraint on object
 
 | Topic    | Value
 | :--      | :--
@@ -56,7 +56,7 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 ### Via .editorconfig file
 
 ```ini
-# NUnit2042: Comparison constraint on object.
+# NUnit2042: Comparison constraint on object
 dotnet_diagnostic.NUnit2042.severity = chosenSeverity
 ```
 
@@ -65,22 +65,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit2042 // Comparison constraint on object.
+#pragma warning disable NUnit2042 // Comparison constraint on object
 Code violating the rule here
-#pragma warning restore NUnit2042 // Comparison constraint on object.
+#pragma warning restore NUnit2042 // Comparison constraint on object
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit2042 // Comparison constraint on object.
+#pragma warning disable NUnit2042 // Comparison constraint on object
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
-    "NUnit2042:Comparison constraint on object.",
+    "NUnit2042:Comparison constraint on object",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

@@ -1,6 +1,6 @@
 # NUnit1028
 
-## The non-test method is public.
+## The non-test method is public
 
 | Topic    | Value
 | :--      | :--
@@ -34,7 +34,7 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 ### Via .editorconfig file
 
 ```ini
-# NUnit1028: The non-test method is public.
+# NUnit1028: The non-test method is public
 dotnet_diagnostic.NUnit1028.severity = chosenSeverity
 ```
 
@@ -43,22 +43,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit1028 // The non-test method is public.
+#pragma warning disable NUnit1028 // The non-test method is public
 Code violating the rule here
-#pragma warning restore NUnit1028 // The non-test method is public.
+#pragma warning restore NUnit1028 // The non-test method is public
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit1028 // The non-test method is public.
+#pragma warning disable NUnit1028 // The non-test method is public
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure",
-    "NUnit1028:The non-test method is public.",
+    "NUnit1028:The non-test method is public",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

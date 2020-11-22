@@ -14,7 +14,7 @@ namespace NUnit.Analyzers.Extensions
         {
             return @this != null &&
                 other != null &&
-                (@this.Equals(other) ||
+                (SymbolEqualityComparer.Default.Equals(@this, other) ||
                 @this.IsAssignableFrom(other.BaseType) ||
                 other.Interfaces.Any(@this.IsAssignableFrom));
         }
@@ -37,7 +37,7 @@ namespace NUnit.Analyzers.Extensions
         {
             var typeSymbol = compilation.GetTypeByMetadataName(fullMetadataName);
 
-            return typeSymbol != null && typeSymbol.Equals(@this);
+            return SymbolEqualityComparer.Default.Equals(typeSymbol, @this);
         }
 
         internal static string GetFullMetadataName(this ITypeSymbol @this)

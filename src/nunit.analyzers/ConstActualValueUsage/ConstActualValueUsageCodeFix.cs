@@ -44,6 +44,11 @@ namespace NUnit.Analyzers.ConstActualValueUsage
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
 
+            if (root is null || semanticModel is null)
+            {
+                return;
+            }
+
             context.CancellationToken.ThrowIfCancellationRequested();
 
             var argumentSyntax = root.FindNode(context.Span);

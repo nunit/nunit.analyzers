@@ -1,6 +1,6 @@
 # NUnit2040
 
-## Non-reference types for SameAs constraint.
+## Non-reference types for SameAs constraint
 
 | Topic    | Value
 | :--      | :--
@@ -46,7 +46,7 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 ### Via .editorconfig file
 
 ```ini
-# NUnit2040: Non-reference types for SameAs constraint.
+# NUnit2040: Non-reference types for SameAs constraint
 dotnet_diagnostic.NUnit2040.severity = chosenSeverity
 ```
 
@@ -55,22 +55,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit2040 // Non-reference types for SameAs constraint.
+#pragma warning disable NUnit2040 // Non-reference types for SameAs constraint
 Code violating the rule here
-#pragma warning restore NUnit2040 // Non-reference types for SameAs constraint.
+#pragma warning restore NUnit2040 // Non-reference types for SameAs constraint
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit2040 // Non-reference types for SameAs constraint.
+#pragma warning disable NUnit2040 // Non-reference types for SameAs constraint
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
-    "NUnit2040:Non-reference types for SameAs constraint.",
+    "NUnit2040:Non-reference types for SameAs constraint",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

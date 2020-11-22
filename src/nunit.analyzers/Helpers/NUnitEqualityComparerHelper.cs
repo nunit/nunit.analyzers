@@ -184,7 +184,7 @@ namespace NUnit.Analyzers.Helpers
         private static bool IsIEquatable(ITypeSymbol typeSymbol, ITypeSymbol equatableTypeArguments)
         {
             return typeSymbol.AllInterfaces.Any(i => i.TypeArguments.Length == 1
-                && i.TypeArguments[0].Equals(equatableTypeArguments)
+                && SymbolEqualityComparer.Default.Equals(i.TypeArguments[0], equatableTypeArguments)
                 && i.GetFullMetadataName() == "System.IEquatable`1");
         }
     }

@@ -119,7 +119,7 @@ namespace NUnit.Analyzers.ComparableTypes
 
             // NUnit doesn't demand that IComparable is for the same type.
             // But MS does: https://docs.microsoft.com/en-us/dotnet/api/system.icomparable.compareto?view=netcore-3.1
-            if (actualType.Equals(expectedType) && IsIComparable(actualType))
+            if (SymbolEqualityComparer.Default.Equals(actualType, expectedType) && IsIComparable(actualType))
                 return true;
 
             return false;
@@ -138,14 +138,14 @@ namespace NUnit.Analyzers.ComparableTypes
             if (typeSymbol.TypeKind == TypeKind.Interface &&
                 typeSymbol.GetFullMetadataName() == iComparable)
             {
-                if (((INamedTypeSymbol)typeSymbol).TypeArguments[0].Equals(comparableTypeArguments))
+                if (SymbolEqualityComparer.Default.Equals(((INamedTypeSymbol)typeSymbol).TypeArguments[0], comparableTypeArguments))
                 {
                     return true;
                 }
             }
 
             if (typeSymbol.AllInterfaces.Any(i => i.TypeArguments.Length == 1
-                && i.TypeArguments[0].Equals(comparableTypeArguments)
+                && SymbolEqualityComparer.Default.Equals(i.TypeArguments[0], comparableTypeArguments)
                 && i.GetFullMetadataName() == iComparable))
             {
                 return true;
@@ -153,7 +153,8 @@ namespace NUnit.Analyzers.ComparableTypes
 
             // NUnit allows for an CompareTo method, even if not implementing IComparable.
             return typeSymbol.GetAllMembers().Any(x => x is IMethodSymbol methodSymbol && methodSymbol.Name == "CompareTo"
-                && methodSymbol.Parameters.Length == 1 && methodSymbol.Parameters[0].Type.Equals(comparableTypeArguments));
+                && methodSymbol.Parameters.Length == 1 &&
+                SymbolEqualityComparer.Default.Equals(methodSymbol.Parameters[0].Type, comparableTypeArguments));
         }
 
         private static bool IsIComparable(ITypeSymbol typeSymbol)

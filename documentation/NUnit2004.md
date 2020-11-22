@@ -1,6 +1,6 @@
 # NUnit2004
 
-## Consider using Assert.That(expr, Is.True) instead of Assert.True(expr).
+## Consider using Assert.That(expr, Is.True) instead of Assert.True(expr)
 
 | Topic    | Value
 | :--      | :--
@@ -50,7 +50,7 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 ### Via .editorconfig file
 
 ```ini
-# NUnit2004: Consider using Assert.That(expr, Is.True) instead of Assert.True(expr).
+# NUnit2004: Consider using Assert.That(expr, Is.True) instead of Assert.True(expr)
 dotnet_diagnostic.NUnit2004.severity = chosenSeverity
 ```
 
@@ -59,22 +59,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit2004 // Consider using Assert.That(expr, Is.True) instead of Assert.True(expr).
+#pragma warning disable NUnit2004 // Consider using Assert.That(expr, Is.True) instead of Assert.True(expr)
 Code violating the rule here
-#pragma warning restore NUnit2004 // Consider using Assert.That(expr, Is.True) instead of Assert.True(expr).
+#pragma warning restore NUnit2004 // Consider using Assert.That(expr, Is.True) instead of Assert.True(expr)
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit2004 // Consider using Assert.That(expr, Is.True) instead of Assert.True(expr).
+#pragma warning disable NUnit2004 // Consider using Assert.That(expr, Is.True) instead of Assert.True(expr)
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
-    "NUnit2004:Consider using Assert.That(expr, Is.True) instead of Assert.True(expr).",
+    "NUnit2004:Consider using Assert.That(expr, Is.True) instead of Assert.True(expr)",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

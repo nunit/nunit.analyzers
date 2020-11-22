@@ -36,6 +36,11 @@ namespace NUnit.Analyzers.MissingProperty
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
+            if (root is null)
+            {
+                return;
+            }
+
             context.CancellationToken.ThrowIfCancellationRequested();
 
             var node = root.FindNode(context.Span);

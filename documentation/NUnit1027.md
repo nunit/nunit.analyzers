@@ -1,6 +1,6 @@
 # NUnit1027
 
-## The test method has parameters, but no arguments are supplied by attributes.
+## The test method has parameters, but no arguments are supplied by attributes
 
 | Topic    | Value
 | :--      | :--
@@ -68,7 +68,7 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 ### Via .editorconfig file
 
 ```ini
-# NUnit1027: The test method has parameters, but no arguments are supplied by attributes.
+# NUnit1027: The test method has parameters, but no arguments are supplied by attributes
 dotnet_diagnostic.NUnit1027.severity = chosenSeverity
 ```
 
@@ -77,22 +77,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit1027 // The test method has parameters, but no arguments are supplied by attributes.
+#pragma warning disable NUnit1027 // The test method has parameters, but no arguments are supplied by attributes
 Code violating the rule here
-#pragma warning restore NUnit1027 // The test method has parameters, but no arguments are supplied by attributes.
+#pragma warning restore NUnit1027 // The test method has parameters, but no arguments are supplied by attributes
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit1027 // The test method has parameters, but no arguments are supplied by attributes.
+#pragma warning disable NUnit1027 // The test method has parameters, but no arguments are supplied by attributes
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure",
-    "NUnit1027:The test method has parameters, but no arguments are supplied by attributes.",
+    "NUnit1027:The test method has parameters, but no arguments are supplied by attributes",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

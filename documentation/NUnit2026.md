@@ -1,6 +1,6 @@
 # NUnit2026
 
-## Wrong actual type used with the SomeItemsConstraint with EqualConstraint.
+## Wrong actual type used with the SomeItemsConstraint with EqualConstraint
 
 | Topic    | Value
 | :--      | :--
@@ -32,7 +32,7 @@ Configure the severity per project, for more info see [MSDN](https://msdn.micros
 ### Via .editorconfig file
 
 ```ini
-# NUnit2026: Wrong actual type used with the SomeItemsConstraint with EqualConstraint.
+# NUnit2026: Wrong actual type used with the SomeItemsConstraint with EqualConstraint
 dotnet_diagnostic.NUnit2026.severity = chosenSeverity
 ```
 
@@ -41,22 +41,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit2026 // Wrong actual type used with the SomeItemsConstraint with EqualConstraint.
+#pragma warning disable NUnit2026 // Wrong actual type used with the SomeItemsConstraint with EqualConstraint
 Code violating the rule here
-#pragma warning restore NUnit2026 // Wrong actual type used with the SomeItemsConstraint with EqualConstraint.
+#pragma warning restore NUnit2026 // Wrong actual type used with the SomeItemsConstraint with EqualConstraint
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit2026 // Wrong actual type used with the SomeItemsConstraint with EqualConstraint.
+#pragma warning disable NUnit2026 // Wrong actual type used with the SomeItemsConstraint with EqualConstraint
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
-    "NUnit2026:Wrong actual type used with the SomeItemsConstraint with EqualConstraint.",
+    "NUnit2026:Wrong actual type used with the SomeItemsConstraint with EqualConstraint",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

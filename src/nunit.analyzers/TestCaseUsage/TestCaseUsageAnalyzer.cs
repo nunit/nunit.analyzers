@@ -41,8 +41,8 @@ namespace NUnit.Analyzers.TestCaseUsage
 
         public override void Initialize(AnalysisContext context)
         {
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-
             context.RegisterSymbolAction(TestCaseUsageAnalyzer.AnalyzeMethod, SymbolKind.Method);
         }
 
@@ -60,8 +60,7 @@ namespace NUnit.Analyzers.TestCaseUsage
 
             var testCaseAttributes = methodSymbol.GetAttributes()
                 .Where(a => a.ApplicationSyntaxReference != null
-                    && a.AttributeClass != null
-                    && a.AttributeClass.Equals(testCaseType));
+                    && SymbolEqualityComparer.Default.Equals(a.AttributeClass, testCaseType));
 
             foreach (var attribute in testCaseAttributes)
             {
@@ -147,9 +146,9 @@ namespace NUnit.Analyzers.TestCaseUsage
             return IsTypeAnObjectArray(parameterType);
         }
 
-        private static bool IsTypeAnObjectArray(ITypeSymbol typeSymbol)
+        private static bool IsTypeAnObjectArray(ITypeSymbol? typeSymbol)
         {
-            return typeSymbol.TypeKind == TypeKind.Array &&
+            return typeSymbol != null && typeSymbol.TypeKind == TypeKind.Array &&
                 ((IArrayTypeSymbol)typeSymbol).ElementType.SpecialType == SpecialType.System_Object;
         }
 
