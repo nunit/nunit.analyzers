@@ -1,4 +1,34 @@
-﻿NUnit Analyzers 0.5 - September 30, 2020
+﻿NUnit Analyzers 0.6 - November 24, 2020
+
+This release of the NUnit Analyzers corrects several false positives from the analyzers.
+
+We have also added a dependency on the Microsoft.CodeAnalysis.Analyzers package to help
+us follow Roslyn best practices. The analyzer project is now multi-targeting to allow
+us to better use Nullable Reference Types in the codebase.
+
+The release contains contributions from the following users (in alphabetical order):
+* Dreamescaper
+* manfred-brands
+* mikkelbu
+
+Issues Resolved
+
+Bugs
+* #300 NUnit2041 false positives
+* #302 False positive NUnit1004 for test functions that receive array parameters
+* #304 Unable to compile test project when classlib with TestCaseSources is referenced
+* #306 NUnit2022 rule has false positive on hierarchies when using And
+* #308 NUnit1028 false positives
+* #311 NUnit1028 vs. IDisposable
+* #312 NUNIT1003 false positive
+
+Tooling, Process, and Documentation
+* #299 chore: Bump version to 0.6
+* #301 fix(documentation): Linting and spelling mistakes
+* #314 Add Microsoft.CodeAnalysis.Analyzers
+
+
+NUnit Analyzers 0.5 - September 30, 2020
 
 This release of the NUnit Analyzers adds three new diagnostics. One for ensuring that only test methods
 are public in a test class, one disallowing the SameAs constraint on non-reference types, and one enforcing
@@ -31,8 +61,8 @@ Features and Enhancements
 
 Bugs
 * #274 NUnit2021 fires on delegates
-* #290 Not treating Func<T> and Action properly for type compatibility.
 * #280 Consider overload resolution when transforming to comparison constraints
+* #290 Not treating Func<T> and Action properly for type compatibility.
 
 Tooling, Process, and Documentation
 * #20 Add StyleCop.Analyzers & fix warnings
