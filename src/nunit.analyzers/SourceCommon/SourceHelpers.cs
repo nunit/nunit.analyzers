@@ -79,11 +79,26 @@ namespace NUnit.Analyzers.SourceCommon
                 return null;
             }
 
-            var symbol = attributeInformation.SourceType
-                .GetMembers(attributeInformation.SourceName)
+            return attributeInformation.SourceType.GetMember(attributeInformation.SourceName);
+        }
+
+        public static ISymbol? GetMember(this INamedTypeSymbol typeSymbol, string name)
+        {
+            ISymbol? symbol = typeSymbol
+                .GetMembers(name)
                 .FirstOrDefault(m => m.Kind == SymbolKind.Field
                     || m.Kind == SymbolKind.Property
                     || m.Kind == SymbolKind.Method);
+
+            if (symbol is null && typeSymbol.BaseType != null)
+            {
+                ISymbol? baseSymbol = GetMember(typeSymbol.BaseType, name);
+
+                if (baseSymbol?.DeclaredAccessibility != Accessibility.Private)
+                {
+                    symbol = baseSymbol;
+                }
+            }
 
             return symbol;
         }
