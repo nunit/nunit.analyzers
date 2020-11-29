@@ -16,7 +16,7 @@ namespace NUnit.Analyzers.Tests
 
             return CSharpCompilation.Create(Guid.NewGuid().ToString("N"),
                 syntaxTrees,
-                references: AnalyzerAssert.MetadataReferences,
+                references: MetadataReferences.FromAttributes(),
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         }
 
@@ -26,7 +26,7 @@ namespace NUnit.Analyzers.Tests
 
             var compilation = CSharpCompilation.Create(Guid.NewGuid().ToString("N"),
                 syntaxTrees: new[] { tree },
-                references: AnalyzerAssert.MetadataReferences,
+                references: MetadataReferences.FromAttributes(),
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
             var model = compilation.GetSemanticModel(tree);

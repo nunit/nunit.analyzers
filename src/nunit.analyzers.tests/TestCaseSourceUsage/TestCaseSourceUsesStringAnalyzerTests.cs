@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         {
         }
     }");
-            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceSourceIsNotStatic)
                 .WithMessage("The specified source 'Tests' is not static");
-            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }");
             var descriptor = new DiagnosticDescriptor(AnalyzerIdentifiers.TestCaseSourceStringUsage, string.Empty, string.Empty, string.Empty, DiagnosticSeverity.Warning, true);
-            AnalyzerAssert.Valid(analyzer, descriptor, testCode);
+            RoslynAssert.Valid(analyzer, descriptor, testCode);
         }
 
         [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]
@@ -95,7 +95,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     }}");
 
             var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
 
         [Test]
@@ -136,7 +136,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     }");
 
             var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
 
         [Test]
@@ -160,7 +160,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }", additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -187,7 +187,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
                 .WithMessage("The TestCaseSource provides '1' parameter(s), but the target method expects '0' parameter(s)");
-            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -214,7 +214,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
                 .WithMessage("The TestCaseSource provides '0' parameter(s), but the target method expects '1' parameter(s)");
-            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -241,7 +241,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
                 .WithMessage("The TestCaseSource provides '3' parameter(s), but the target method expects '2' parameter(s)");
-            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -271,7 +271,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
                 .WithMessage("The TestCaseSource provides '3' parameter(s), but the target method expects '2' parameter(s)");
-            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]
@@ -290,7 +290,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }}
     }}");
 
-            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCase("private static readonly object TestCases = null;", "object")]
@@ -318,7 +318,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceDoesNotReturnIEnumerable)
                 .WithMessage($"The TestCaseSource does not return an IEnumerable or a type that implements IEnumerable. Instead it returns a '{returnType}'.");
-            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", "fields")]
@@ -339,7 +339,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceSuppliesParametersToFieldOrProperty)
                 .WithMessage($"The TestCaseSource provides '3' parameter(s), but {kind} cannot take parameters");
-            AnalyzerAssert.Diagnostics<TestCaseSourceUsesStringAnalyzer>(expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -364,7 +364,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             new object[] { 12, 4, 3 }
         };
     }");
-            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -389,7 +389,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             };
         }
     }");
-            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -415,7 +415,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             yield return ""YetAnotherName"";
         }
     }", additionalUsings: "using System.Collections.Generic;");
-            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -454,13 +454,13 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     }";
 
             var testDataReference = MetadataReferences.CreateBinary(testDataCode);
-            var references = AnalyzerAssert.MetadataReferences.Concat(new[] { testDataReference });
+            var references = MetadataReferences.FromAttributes().Concat(new[] { testDataReference });
 
             var solution = CodeFactory.CreateSolution(testCode,
                 CodeFactory.DefaultCompilationOptions(analyzer),
                 references);
 
-            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(solution);
+            RoslynAssert.Valid(analyzer, solution);
         }
 
         [Test]
@@ -491,7 +491,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     }}");
 
             var message = "Consider using nameof(InnerClass.TestCases) instead of \"TestCases\"";
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
 
         [Test]
@@ -522,7 +522,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     }}");
 
             var message = "Consider using nameof(AnotherClass.TestCases) instead of \"TestCases\"";
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
 
         [Test]
@@ -559,7 +559,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     }}");
 
             var message = "Consider using nameof(AnotherClass.InnerClass.TestCases) instead of \"TestCases\"";
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
         }
     }
 }

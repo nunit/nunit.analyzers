@@ -31,7 +31,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(new List<int> {1, 2, 3}, Does.Contain(1));",
                 additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(new List<int> {1, 2, 3}, Does.Contain(1));",
                 additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(new List<int> {1, 2, 3}, Does.Not.Contain(1));",
                 additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, doesNotContainDiagnostic, testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, doesNotContainDiagnostic, testCode, fixedCode);
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(new[] {1, 2, 3}, Does.Contain(1));",
                 additionalUsings: "using System.Linq;");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
         }
 
         [Test]
@@ -87,7 +87,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(new[] {1, 2, 3}, Does.Contain(1));",
                 additionalUsings: "using System.Linq;");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(new[] {1, 2, 3}, Does.Not.Contain(1));",
                 additionalUsings: "using System.Linq;");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, doesNotContainDiagnostic, testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, doesNotContainDiagnostic, testCode, fixedCode);
         }
     }
 }

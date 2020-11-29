@@ -35,7 +35,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.{classicAssertMethod}(1, expected);
                 }}");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: CodeFixConstants.SwapArgumentsDescription);
         }
 
@@ -56,7 +56,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.AreEqual(actual: expected, expected: 1);
                 }");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: CodeFixConstants.SwapArgumentsDescription);
         }
 
@@ -82,7 +82,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.That(expected, Is.{isConstraint}(""a""));
                 }}");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: CodeFixConstants.SwapArgumentsDescription);
         }
 
@@ -97,7 +97,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.That(↓4, Is.{isConstraint}(expected));
                 }}");
 
-            AnalyzerAssert.NoFix(analyzer, fix, expectedDiagnostic, code);
+            RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, code);
         }
 
         [Test]
@@ -110,7 +110,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.That(↓4, Is.Not.EqualTo(3).And.Not.EqualTo(5));
                 }}");
 
-            AnalyzerAssert.NoFix(analyzer, fix, expectedDiagnostic, code);
+            RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, code);
         }
     }
 }

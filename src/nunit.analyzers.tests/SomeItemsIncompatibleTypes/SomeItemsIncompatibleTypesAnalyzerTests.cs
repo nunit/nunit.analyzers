@@ -28,7 +28,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
             var testCode = TestUtility.WrapInTestMethod(
                 $"Assert.That(123, ↓{this.constraint}(1));");
 
-            AnalyzerAssert.Diagnostics(analyzer,
+            RoslynAssert.Diagnostics(analyzer,
                 expectedDiagnostic.WithMessage($"The '{this.constraint}' constraint cannot be used with actual argument of type 'int' and expected argument of type 'int'"),
                 testCode);
         }
@@ -39,7 +39,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
             var testCode = TestUtility.WrapInTestMethod(
                 $"Assert.That(new[] {{\"1\", \"2\"}}, ↓{this.constraint}(1));");
 
-            AnalyzerAssert.Diagnostics(analyzer,
+            RoslynAssert.Diagnostics(analyzer,
                 expectedDiagnostic.WithMessage($"The '{this.constraint}' constraint cannot be used with actual argument of type 'string[]' and expected argument of type 'int'"),
                 testCode);
         }
@@ -50,7 +50,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
             var testCode = TestUtility.WrapInTestMethod(
                 $"Assert.That(Task.FromResult(new[] {{1,2,3}}), ↓{this.constraint}(1));");
 
-            AnalyzerAssert.Diagnostics(analyzer,
+            RoslynAssert.Diagnostics(analyzer,
                 expectedDiagnostic.WithMessage($"The '{this.constraint}' constraint cannot be used with actual argument of type 'Task<int[]>' and expected argument of type 'int'"),
                 testCode);
         }
@@ -61,7 +61,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
             var testCode = TestUtility.WrapInTestMethod(
                 $"Assert.That(new [] {{1, 2, 3}}, {this.constraint}(2));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
                 Assert.That(actual, {this.constraint}(new[] {{ 2, 3 }}));",
                 additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
             var testCode = TestUtility.WrapInTestMethod(
                 $"Assert.That(new [] {{1.1, 2.0, 3.2}}, {this.constraint}(2));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
                 $"Assert.That(new ArrayList {{ 1, 2, 3 }}, {this.constraint}(2));",
                 additionalUsings: "using System.Collections;");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(new[] { new[] { 1 }, new[] { 1, 2 } }, Has.All.Contain(1));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
             var testCode = TestUtility.WrapInTestMethod(
                 $"Assert.That(() => new[] {{1,2,3}}, {this.constraint}(1));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }

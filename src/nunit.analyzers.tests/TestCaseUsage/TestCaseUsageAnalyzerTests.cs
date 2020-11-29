@@ -74,7 +74,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         private sealed class TestCaseAttribute : Attribute
         { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [Test]
         public void ATest() { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase]
         public void ATest() { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -110,7 +110,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(2)]
         public void Test(int a) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [TestCaseSource(nameof(SpecialConversions))]
@@ -122,7 +122,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(""{value}"")]
         public void Test({targetType.Name} a) {{ }}
     }}");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -134,7 +134,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase((byte)2)]
         public void Test(byte a) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -146,7 +146,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(-2)]
         public void Test(int a) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -161,7 +161,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(TestEnum.B)]
         public void Test(TestEnum e) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -176,7 +176,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(1)]
         public void Test(TestEnum e) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -191,7 +191,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(TestEnum.B)]
         public void Test(int e) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -207,7 +207,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(new byte[] { 1, 2, 3, 4 })]
         public void Test(byte[] buffer) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -222,7 +222,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(↓""B"")]
         public void Test(TestEnum e) { }
     }");
-            AnalyzerAssert.Diagnostics<TestCaseUsageAnalyzer>(
+            RoslynAssert.Diagnostics(this.analyzer,
                 ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
                 testCode);
         }
@@ -239,7 +239,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(↓TestEnum.B)]
         public void Test(string e) { }
     }");
-            AnalyzerAssert.Diagnostics<TestCaseUsageAnalyzer>(
+            RoslynAssert.Diagnostics(this.analyzer,
                 ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
                 testCode);
         }
@@ -253,7 +253,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(uint.MaxValue)]
         public void Test(long e) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -272,7 +272,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     struct CustomType { }
     class CustomTypeConverter : TypeConverter { }");
 
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -291,7 +291,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     struct CustomType { }
     class CustomTypeConverter : TypeConverter { }");
 
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -311,7 +311,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     class BaseType { }
     class BaseTypeConverter : TypeConverter { }");
 
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -330,7 +330,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     struct CustomType { }
     class CustomTypeConverter : TypeConverter { }");
 
-            AnalyzerAssert.Diagnostics<TestCaseUsageAnalyzer>(
+            RoslynAssert.Diagnostics(this.analyzer,
                 ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
                 testCode);
         }
@@ -349,7 +349,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(↓2)]
         public void Test(char a) { }
     }");
-            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -366,7 +366,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(↓null)]
         public void Test(char a) { }
     }");
-            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -378,7 +378,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(null)]
         public void Test(int? a) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -390,7 +390,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(2)]
         public void Test(int? a) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -407,7 +407,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void Test(int a, char b) { }
     }");
             var message = "The TestCaseAttribute provided too few arguments. Expected '2', but got '1'.";
-            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -424,7 +424,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void Test(int a) { }
     }");
             var message = "The TestCaseAttribute provided too many arguments. Expected '1', but got '2'.";
-            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -441,7 +441,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void Test(int a, char b = 'c') { }
     }");
             var message = "The TestCaseAttribute provided too many arguments. Expected '2', but got '3'.";
-            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -453,7 +453,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(1, 2, 3, 4)]
         public void Test(int a, int b, params int[] c) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -465,7 +465,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase]
         public void Test(params object[] a) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -477,7 +477,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(""a"")]
         public void Test(params string[] a) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -494,7 +494,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(↓2)]
         public void Test(params string[] a) { }
     }");
-            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -511,7 +511,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(↓null)]
         public void Test(params int[] a) { }
     }");
-            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -523,7 +523,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(null)]
         public void Test(params string[] a) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -535,7 +535,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(new int[0])]
         public void Test(params int[] a) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -547,7 +547,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(byte.MaxValue)]
         public void Test(params int[] a) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -561,7 +561,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(value)]
         public void Test(decimal a) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -573,7 +573,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(-600)]
         public void Test(decimal a) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -585,7 +585,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(""a"")]
         public void Test(object[] array) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -597,7 +597,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(""a"", ""b"")]
         public void Test(object[] array) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -609,7 +609,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(""a"", ""b"", ""c"")]
         public void Test(object[] array) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -621,7 +621,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(1, ""b"")]
         public void Test(object[] array) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -633,7 +633,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase(1)]
         public void TestWithGenericParameter<T>(T arg1) { }
     }");
-            AnalyzerAssert.Valid<TestCaseUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
     }
 }

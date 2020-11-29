@@ -39,7 +39,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             Assert.That(true, Is.True);
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
         [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             Assert.That(true, Is.True, ""message"");
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
         [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
@@ -77,7 +77,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             Assert.That(true, Is.True, ""message"", Guid.NewGuid());
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
         [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
@@ -116,7 +116,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             MyBool x = true;
             Assert.That((bool)x, Is.True);
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
     }
 }

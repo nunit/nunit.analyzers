@@ -37,7 +37,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         public void TestMethod() {{ AssertMethod(); }}
         {modifiersAfter} void AssertMethod() {{ }}");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }
     }
 }

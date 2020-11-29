@@ -40,7 +40,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
 
                 Assert.That(actual, Is.EqualTo(expected));
             ");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
 
                 Assert.That(() => expected, Is.Not.EqualTo(expected), ""message"");
             ");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
 
                 Assert.That(Task.FromResult(expected), Is.EqualTo(expected), ""message"", Guid.Empty);
             ");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
 
                 Assert.AreEqual(expected, actual);
             ");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
 
                 Assert.AreNotEqual(expected, Guid.NewGuid(), ""message"");
             ");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
 
                 Assert.AreEqual(expected, expected, ""message"", Guid.Empty);
             ");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
 
             var fixedCode = TestUtility.WrapInTestMethod(
                 @"Assert.That(""1"", Is.Not.SameAs(""1"") & Is.Not.EqualTo(2));");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.UseIsEqualToDescription);
         }
     }
 }

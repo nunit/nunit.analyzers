@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
                 string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
@@ -42,7 +42,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
                 string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
@@ -52,7 +52,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
                 string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
@@ -62,7 +62,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
                 string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
@@ -72,7 +72,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
                 string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
@@ -82,7 +82,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
                 string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
@@ -92,7 +92,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
                 string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            AnalyzerAssert.Diagnostics(analyzer, diagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         {
             var testCode = TestUtility.WrapInTestMethod(@"Assert.That(""abc"".IsNormalized());");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             var testCode = TestUtility.WrapInTestMethod(
                 @"Assert.That(new System.Collections.Generic.List<string> { ""a"",""ab""}.Contains(""ab""));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }

@@ -50,7 +50,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         [TestCase(1)]
         {modifiersAfter} void TestMethod(int i) {{ }}");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         [TestCase(1)]
         public void TestMethod(int i) {{ }}");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
     [TestCase(1)]
         public void TestMethod(int i) {{ }}");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         [TestCase(1)]
         public async Task TestMethod(int i) {{ }}");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }
     }
 }

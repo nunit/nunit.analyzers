@@ -23,7 +23,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(1, Is.LessThan(↓\"1\"));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         Assert.That(o, Is.LessThan(↓1));
         ");
 
-            AnalyzerAssert.Diagnostics(analyzer,
+            RoslynAssert.Diagnostics(analyzer,
                 ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparableOnObject), testCode);
         }
 
@@ -49,7 +49,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         Assert.That(smallValue, Is.LessThan(bigValue));
         ");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         Assert.That(smallValue, Is.LessThan(bigValue));
         ");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -121,7 +121,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -141,7 +141,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -154,7 +154,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                 {expectedType} expected = 1;
                 Assert.That(actual, Is.LessThanOrEqualTo(expected));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -174,7 +174,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                     }
                 }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -195,7 +195,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                     }
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -220,7 +220,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                     }
                 }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -245,7 +245,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                     }
                 }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -264,7 +264,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                 }
             }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -283,7 +283,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                 }
             }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -308,7 +308,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
         }
     }", "using System.Collections;");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -319,7 +319,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
             int? expected = 5;
             Assert.That(actual, Is.GreaterThan(expected));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -330,7 +330,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
             double expected = 5.0;
             Assert.That(actual, Is.GreaterThan(expected));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -341,7 +341,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
             double expected = 5.0;
             Assert.That(() => actual, Is.GreaterThan(expected));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -350,13 +350,13 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
             var testCode = TestUtility.WrapInTestMethod($@"
                 Assert.That(5, Is.GreaterThan(4) & Is.LessThan(↓""6""));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
         public void AnalyzeWhenFirstConstraintExpressionUsesComparer()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
                 class AsInt32Comparer : IComparer
                 {
                     public int Compare(object x, object y) => Convert.ToInt32(x).CompareTo(Convert.ToInt32(y));
@@ -368,7 +368,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                     Assert.That(5, Is.GreaterThan(""4"").Using(new AsInt32Comparer()) & Is.LessThan(↓""6""));
                 }", "using System.Collections;");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -395,7 +395,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                     }
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -422,7 +422,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                     }
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -449,7 +449,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                     }
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -472,7 +472,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                     }
                 }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -498,7 +498,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                     }
                 }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }

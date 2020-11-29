@@ -41,7 +41,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             object obj = null;
             Assert.That(obj, Is.Not.Null);
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
         [TestCase("IsNotNull", AnalyzerIdentifiers.IsNotNullUsage)]
@@ -62,7 +62,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             object obj = null;
             Assert.That(obj, Is.Not.Null, ""message"");
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
         [TestCase("IsNotNull", AnalyzerIdentifiers.IsNotNullUsage)]
@@ -83,7 +83,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             object obj = null;
             Assert.That(obj, Is.Not.Null, ""message"", Guid.NewGuid());
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
     }
 }
