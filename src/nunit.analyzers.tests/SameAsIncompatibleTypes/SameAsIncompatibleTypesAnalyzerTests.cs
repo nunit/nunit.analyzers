@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -111,7 +111,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -132,7 +132,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -152,7 +152,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
     class B { }
 
     public class Tests
-    {{
+    {
         [Test]
         public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
@@ -173,7 +173,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -194,7 +194,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -215,7 +215,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -226,7 +226,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 var expected = """";
                 Assert.That(actual, Is.SameAs(↓expected));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -237,7 +237,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 var expected = """";
                 Assert.That(actual, Is.SameAs(expected));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -248,7 +248,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 var expected = """";
                 Assert.AreSame(expected, actual);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -259,7 +259,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 var expected = """";
                 Assert.That(actual, Is.Not.SameAs(expected));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -270,7 +270,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 var expected = """";
                 Assert.AreNotSame(expected, actual);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -280,7 +280,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 var expected = """";
                 Assert.That(() => """", Is.SameAs(expected));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -291,7 +291,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 var expected = """";
                 Assert.That(actual, Is.SameAs(↓expected));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -302,7 +302,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 var expected = """";
                 Assert.That(actual, Is.SameAs(expected));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -323,7 +323,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -344,7 +344,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -353,7 +353,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(new string[0], Has.None.SameAs(string.Empty));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -364,7 +364,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 var expected = """";
                 Assert.That(actual, Is.SameAs(expected));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -375,7 +375,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 dynamic expected = 2;
                 Assert.That(actual, Is.SameAs(expected));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -396,7 +396,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -418,7 +418,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
     }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
     }
 }

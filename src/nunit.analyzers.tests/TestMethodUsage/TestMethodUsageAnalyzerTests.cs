@@ -73,7 +73,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [TestCase(""{value}"", ExpectedResult = ""{value}"")]
         public {targetType.Name} Test({targetType.Name} a) {{ return a; }}
     }}");
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [TestCase(2, ExpectedResult = 3)]
         public int Test(int a) { return 3; }
     }");
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [TestCase(2, ↓ExpectedResult = '3')]
         public void Test(int a) { }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -118,7 +118,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [TestCase(2, ↓ExpectedResult = '3')]
         public int Test(int a) { return 3; }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [TestCase(2, ↓ExpectedResult = null)]
         public int Test(int a) { return 3; }
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -147,7 +147,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [TestCase(2, ExpectedResult = null)]
         public int? Test(int a) { return null; }
     }");
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -159,7 +159,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [TestCase(2, ExpectedResult = 2)]
         public int? Test(int a) { return 2; }
     }");
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -175,7 +175,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         public string Test3() => ""12"";
     }");
             var message = "The method has non-void return type 'string', but no result is expected in ExpectedResult";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -188,10 +188,10 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
     public sealed class AnalyzeWhenTestCaseAttributeExpectedResultIsNotProvidedAndReturnTypeIsNotVoid
     {
         [↓TestCase(1)]
-        public int Test4(int i) => ""12"";
+        public int Test4(int i) => 12;
     }");
             var message = "The method has non-void return type 'int', but no result is expected in ExpectedResult";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -207,7 +207,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         public async Task<int> AsyncGenericTaskTest() => await Task.FromResult(1);
     }");
             var message = "The async test method must have a non-generic Task return type when no result is expected, but the return type was 'System.Threading.Tasks.Task<int>'";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -223,7 +223,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         public Task<int> AsyncGenericTaskTest() => Task.FromResult(1);
     }");
             var message = "The async test method must have a non-generic Task return type when no result is expected, but the return type was 'System.Threading.Tasks.Task<int>'";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -238,7 +238,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [↓Test]
         public async void AsyncVoidTest() => await Task.FromResult(1);
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -253,7 +253,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [↓TestCase(4)]
         public async void AsyncVoidTest(int x) => await Task.FromResult(1);
     }");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -268,7 +268,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         {
         }
     }");
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -283,7 +283,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
           return await Task.Run(() => 1);
         }
     }");
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -298,7 +298,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
           return Task.Run(() => 1);
         }
     }");
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -322,7 +322,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         }
     }
 ");
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -351,7 +351,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         }
     }
 ");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
 #if !NET461
@@ -365,7 +365,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     return 1;
                 }");
 
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -383,7 +383,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     return 1;
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 #endif
 
@@ -403,7 +403,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         }
     }");
             var message = "The async test method must have a Task<T> return type when a result is expected, but the return type was 'System.Threading.Tasks.Task'";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -422,7 +422,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         }
     }");
             var message = "The async test method must have a Task<T> return type when a result is expected, but the return type was 'System.Threading.Tasks.Task'";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -437,7 +437,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
             return arg1;
         }
     }");
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -463,7 +463,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         }
     }",
     additionalUsings: "using System.Collections;");
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -479,7 +479,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
             return value == 1;
         }
     }");
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -505,7 +505,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         }
     }",
     additionalUsings: "using NUnit.Framework.Interfaces; using NUnit.Framework.Internal; using System.Collections.Generic;");
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -523,7 +523,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
     }");
 
             var message = "The test method has '1' parameter(s), but only '0' argument(s) are supplied by attributes";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -540,7 +540,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
     }");
 
             var message = "The test method has '3' parameter(s), but only '1' argument(s) are supplied by attributes";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -553,7 +553,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         Assert.That(p, Is.EqualTo(42));
     }");
 
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -566,7 +566,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         Assert.That(p, Is.EqualTo(42));
     }");
 
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -581,7 +581,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         Assert.That(p, Is.EqualTo(42));
     }");
 
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -600,7 +600,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         private static int[] Source => new[] { 1, 2, 3 };
     }");
 
-            AnalyzerAssert.Valid<TestMethodUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }

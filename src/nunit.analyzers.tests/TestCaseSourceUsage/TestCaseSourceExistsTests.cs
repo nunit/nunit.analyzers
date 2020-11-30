@@ -23,7 +23,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }");
             var message = "The TestCaseSource argument 'Missing' does not specify an existing member";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]

@@ -21,7 +21,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
                 Assert.That(str, Is.{constraintMethod}(↓str));");
 
             var message = "The actual and the expected argument is the same 'str'";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
                 Assert.That(str.Trim(), Is.EqualTo(↓str.Trim()));");
 
             var message = "The actual and the expected argument is the same 'str.Trim()'";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
                 var str = ""test"";
                 Assert.That(str, Is.EqualTo(↓str).And.EquivalentTo(↓str));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
                     .And.StartsWith(↓str));");
 
             var message = "The actual and the expected argument is the same 'str'";
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
                 var str = ""test"";
                 Assert.That(str, Is.EqualTo(↓str) | Is.EquivalentTo(↓str));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
                     & Does.Contain(↓str)
                     | Does.StartWith(↓str));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCase(nameof(Is.EqualTo))]
@@ -93,7 +93,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
                 var str2 = ""test2"";
                 Assert.That(str1, Is.{constraintMethod}(str2));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
                 var str = ""test"";
                 Assert.That(str.Trim(), Is.EqualTo(str.TrimEnd()));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }

@@ -39,7 +39,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             Assert.That(true);
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: CodeFixConstants.TransformToConstraintModelDescription + IsTrueAndTrueClassicModelAssertUsageCondensedCodeFix.Suffix);
         }
 
@@ -59,7 +59,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             Assert.That(true, ""message"");
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: CodeFixConstants.TransformToConstraintModelDescription + IsTrueAndTrueClassicModelAssertUsageCondensedCodeFix.Suffix);
         }
 
@@ -79,7 +79,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             Assert.That(true, ""message"", Guid.NewGuid());
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: CodeFixConstants.TransformToConstraintModelDescription + IsTrueAndTrueClassicModelAssertUsageCondensedCodeFix.Suffix);
         }
     }

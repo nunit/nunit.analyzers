@@ -42,7 +42,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             Assert.That(collection, Is.Not.Empty);
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             Assert.That(collection, Is.Not.Empty, ""message"");
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             Assert.That(collection, Is.Not.Empty, ""message"", Guid.NewGuid());
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
 
         [Test]
@@ -118,7 +118,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             MyString s = ""Hello NUnit"";
             Assert.That((string)s, Is.Not.Empty);
         }");
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
         }
     }
 }

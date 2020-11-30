@@ -74,7 +74,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [{attribute}]
         public void SetUpTearDownMethod() {{ }}");
-            AnalyzerAssert.Valid<TestMethodAccessibilityLevelAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCaseSource(nameof(SetUpTearDownMethodRelatedAttributes))]
@@ -83,7 +83,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [{attribute}]
         protected void SetUpTearDownMethod() {{ }}");
-            AnalyzerAssert.Valid<TestMethodAccessibilityLevelAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [Test]
         public void TestMethod() {{ }}");
-            AnalyzerAssert.Valid<TestMethodAccessibilityLevelAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [TestCase(1)]
         public void TestMethod(int i) {{ }}");
-            AnalyzerAssert.Valid<TestMethodAccessibilityLevelAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -111,7 +111,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [{attribute}]
         {modifiers} void ↓SetUpTearDownMethod() {{ }}");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCaseSource(nameof(NonPublicModifiers))]
@@ -120,7 +120,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [Test]
         {modifiers} void ↓TestMethod() {{ }}");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCaseSource(nameof(NonPublicModifiers))]
@@ -129,7 +129,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [TestCase(1)]
         {modifiers} void ↓TestMethod(int i) {{ }}");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCaseSource(nameof(NonPublicModifiers))]
@@ -138,7 +138,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [Test]
         {modifiers} async Task ↓TestMethod() {{ }}");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCaseSource(nameof(NonPublicModifiers))]
@@ -147,7 +147,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [TestCase(1)]
         {modifiers} async Task ↓TestMethod(int i) {{ }}");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
     }
 }

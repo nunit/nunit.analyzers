@@ -38,7 +38,7 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void AssertMethod() {{ }}");
-            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -48,7 +48,7 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         [Test]
         public void TestMethod() {{ AssertMethod(); }}
         private void AssertMethod() {{ }}");
-            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         [Test]
         public void TestMethod() {{ AssertMethod(); }}
         protected virtual void AssertMethod() {{ }}");
-            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCaseSource(nameof(TestMethodRelatedAttributes))]
@@ -69,7 +69,7 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         public void TestMethod() {{ }}
         [{attribute}]
         public void AuxiliaryMethod() {{ }}");
-            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCaseSource(nameof(NonPrivateModifiers))]
@@ -79,7 +79,7 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         [TestCase(1)]
         public void TestMethod(int i) {{ AssertMethod(); }}
         {modifiers} void ↓AssertMethod() {{ }}");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCaseSource(nameof(TestMethodRelatedAttributes))]
@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         }}
         ");
 
-            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         }
         ");
 
-            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         }
         ");
 
-            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -149,7 +149,7 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         }
         ");
 
-            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -170,7 +170,7 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         }
         ");
 
-            AnalyzerAssert.Valid<NonTestMethodAccessibilityLevelAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }

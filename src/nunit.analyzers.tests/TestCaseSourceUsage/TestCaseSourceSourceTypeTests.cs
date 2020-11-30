@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }",
     additionalUsings: "using System.Collections;");
-            AnalyzerAssert.Valid<TestCaseSourceUsesStringAnalyzer>(testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceSourceTypeNotIEnumerable)
                 .WithMessage("The source type 'MyTests' does not implement IEnumerable");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceSourceTypeNoDefaultConstructor)
                 .WithMessage("The source type 'MyTests' does not have a default constructor");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
     }
 }

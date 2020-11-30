@@ -18,7 +18,7 @@ namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(123, ↓Does.Contain(\"1\"));");
 
-            AnalyzerAssert.Diagnostics(analyzer,
+            RoslynAssert.Diagnostics(analyzer,
                 expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with an actual value of type 'int'"),
                 testCode);
         }
@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
                 var actual = new[] {1, 2, 3};
                 Assert.That(actual, ↓Does.Contain(""1""));");
 
-            AnalyzerAssert.Diagnostics(analyzer,
+            RoslynAssert.Diagnostics(analyzer,
                 expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with an actual value of type 'int[]'"),
                 testCode);
         }
@@ -41,7 +41,7 @@ namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(Task.FromResult(\"1234\"), ↓Does.Contain(\"1\"));");
 
-            AnalyzerAssert.Diagnostics(analyzer,
+            RoslynAssert.Diagnostics(analyzer,
                 expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with an actual value of type 'Task<string>'"),
                 testCode);
         }
@@ -52,7 +52,7 @@ namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(\"123\", Does.Contain(\"1\"));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
                 var actual = new[] {""1"", ""2"", ""3""};
                 Assert.That(actual, Does.Contain(""1""));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -71,7 +71,7 @@ namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(new [] {\"Aa\", \"Ba\", \"Ca\"}, Has.All.Contains(\"a\"));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(() => \"1234\", Does.Contain(\"1\"));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }

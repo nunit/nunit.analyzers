@@ -33,7 +33,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
@@ -43,7 +43,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
@@ -53,7 +53,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
@@ -63,7 +63,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
@@ -73,7 +73,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
@@ -83,7 +83,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
@@ -93,7 +93,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
@@ -103,7 +103,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
     }
 }

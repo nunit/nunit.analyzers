@@ -24,7 +24,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(↓actual == ""abc"");");
 
-            AnalyzerAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(↓actual != ""bcd"");");
 
-            AnalyzerAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(↓actual.Equals(""abc""));");
 
-            AnalyzerAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(↓!actual.Equals(""bcd""));");
 
-            AnalyzerAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(↓Equals(actual,""abc""));");
 
-            AnalyzerAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -72,9 +72,9 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";
-                Assert.That(↓!Equals(actual,""abc"")));");
+                Assert.That(↓!Equals(actual,""abc""));");
 
-            AnalyzerAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(↓actual.Equals(""abc""), Is.True);");
 
-            AnalyzerAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(↓actual.Equals(""abc""), Is.False);");
 
-            AnalyzerAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -104,7 +104,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.True(↓actual.Equals(""abc""));");
 
-            AnalyzerAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.False(↓actual.Equals(""bcd""));");
 
-            AnalyzerAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.IsTrue(↓actual.Equals(""abc""));");
 
-            AnalyzerAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -134,7 +134,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.IsFalse(↓actual.Equals(""bcd""));");
 
-            AnalyzerAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.IsFalse(↓!actual.Equals(""bcd""));");
 
-            AnalyzerAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -154,7 +154,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(↓actual == ""abc"", ""Assertion message"");");
 
-            AnalyzerAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -164,7 +164,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(↓actual.Equals(""abc""), Is.True, ""Assertion message"");");
 
-            AnalyzerAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -174,7 +174,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.True(↓actual.Equals(""abc""), ""Assertion message"");");
 
-            AnalyzerAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -184,7 +184,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.False(↓actual.Equals(""bcd""), ""Assertion message"");");
 
-            AnalyzerAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
 
         [Test]
@@ -194,7 +194,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.EqualTo(""bcd""));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -204,7 +204,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual, Is.Not.EqualTo(""bcd""));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -214,7 +214,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var actual = ""abc"";
                 Assert.That(actual.Contains(""bc""));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }

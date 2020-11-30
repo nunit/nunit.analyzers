@@ -20,7 +20,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 Assert.That(actual, ↓Has.Count.EqualTo(2));",
                 additionalUsings: "using System.Linq;");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 var actual = new System.Collections.Generic.List<int> {1, 2, 3};
                 Assert.That(actual, ↓Has.Length.EqualTo(2));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 Assert.That(actual, ↓Has.Message.EqualTo(2),
                     ""Nope, we can't!"");");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 var actual = 12345;
                 Assert.That(actual, ↓Has.InnerException.TypeOf<InvalidCastException>());");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 var actual = 12345;
                 Assert.That(actual, ↓Has.Property(""Whatever"").EqualTo(1));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -71,7 +71,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 int getActual() => 12345;
                 Assert.That(getActual, ↓Has.Property(""Whatever"").EqualTo(1));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 Assert.That(actual, Has.Count.EqualTo(2));",
                 additionalUsings: "using System.Linq;");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 Assert.That(actual, Has.Count.EqualTo(2));",
                 additionalUsings: "using System.Linq; using System.Collections.Generic;");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 var actual = new[] {1, 2, 3};
                 Assert.That(actual, Has.Length.EqualTo(3));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 var actual = ""ABCDefgh"";
                 Assert.That(actual, Has.Length.EqualTo(8));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -123,7 +123,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 var actual = new Exception(""SomeMessage"");
                 Assert.That(actual, Has.Message.EqualTo(""SomeMessage""));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -134,7 +134,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 var actual = new Exception(""SomeMessage"", innerException);
                 Assert.That(actual, Has.InnerException.Not.Null);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 var actual = DateTime.UtcNow;
                 Assert.That(actual, Has.Property(""Ticks"").GreaterThan(0));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -154,7 +154,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 string getActual() => ""12345"";
                 Assert.That(getActual, Has.Property(""Length"").EqualTo(5));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -164,7 +164,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 string actual = ""321"";
                 Assert.That(actual, Has.No.Property(""Whatever""));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -174,7 +174,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 int actual = 321;
                 Assert.That(actual, Has.No.Count);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -184,7 +184,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 var actual = new { Foo = new { Bar = ""Baz"" } };
                 Assert.That(actual, Has.Property(""Foo"").With.Property(""Bar"").EqualTo(""Baz""));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -201,7 +201,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 };
                 Assert.That(actual, Has.Some.With.Property(""Foo"").And.Property(""Bar""));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -211,7 +211,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 string getActual() => throw new System.Exception(""Oops"");
                 Assert.That(getActual, Throws.Exception.With.Message.EqualTo(""Oops""));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }

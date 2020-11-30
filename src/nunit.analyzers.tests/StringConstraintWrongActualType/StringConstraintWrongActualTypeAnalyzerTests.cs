@@ -34,7 +34,7 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
                 var actual = 1234;
                 Assert.That(actual, ↓{stringConstraint});");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
                 var actual = Task.FromResult(""1234"");
                 Assert.That(actual, ↓{stringConstraint});");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
                 var actual = ""1234"";
                 Assert.That(actual, {stringConstraint});");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
                 var actual = ""1234"";
                 Assert.That(() => actual, {stringConstraint});");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
                 var actual = Task.FromResult(""1234"");
                 Assert.That(() => actual, {stringConstraint});");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
                 var actual = 1234;
                 Assert.That(actual.ToString(), {stringConstraint});");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
                 var actual = new[] {{""11"", ""12"", ""13""}};
                 Assert.That(actual, Has.All.StartsWith(""1""));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }

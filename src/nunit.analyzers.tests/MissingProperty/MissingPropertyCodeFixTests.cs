@@ -29,7 +29,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 Assert.That(collection, Has.Count.EqualTo(1));",
                 additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: string.Format(CultureInfo.InvariantCulture, CodeFixConstants.UsePropertyDescriptionFormat, "Count"));
         }
 
@@ -46,7 +46,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 Assert.That(collection, Has.Length.EqualTo(1));",
                 additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: string.Format(CultureInfo.InvariantCulture, CodeFixConstants.UsePropertyDescriptionFormat, "Length"));
         }
 
@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 Assert.That(actual, ↓Has.Length.EqualTo(2));",
                 additionalUsings: "using System.Linq;");
 
-            AnalyzerAssert.NoFix(analyzer, fix, expectedDiagnostic, testCode);
+            RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 Assert.That(actual, ↓Has.Count.EqualTo(2));",
                 additionalUsings: "using System.Linq;");
 
-            AnalyzerAssert.NoFix(analyzer, fix, expectedDiagnostic, testCode);
+            RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -77,9 +77,9 @@ namespace NUnit.Analyzers.Tests.MissingProperty
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""Can we consider string as message?..."";
-                Assert.That(actual, ↓Has.Message.EqualTo(2);");
+                Assert.That(actual, ↓Has.Message.EqualTo(2));");
 
-            AnalyzerAssert.NoFix(analyzer, fix, expectedDiagnostic, testCode);
+            RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 Assert.That(actual, ↓Has.Property(""Whatever"").EqualTo(1));",
                 additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.NoFix(analyzer, fix, expectedDiagnostic, testCode);
+            RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, testCode);
         }
     }
 }

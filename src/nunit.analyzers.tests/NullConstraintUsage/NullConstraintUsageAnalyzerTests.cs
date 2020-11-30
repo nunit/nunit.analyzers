@@ -21,7 +21,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
             var testCode = TestUtility.WrapInTestMethod($@"
                 var actual = default(int);
                 Assert.That(actual, ↓{constraint});");
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCase("Is.Null")]
@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 var actual = default(int);
                 Assert.That(() => actual, ↓{constraint});");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCase("Is.Null")]
@@ -42,7 +42,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
             var testCode = TestUtility.WrapInTestMethod($@"
                 Assert.That(() => Task.FromResult(3), ↓{constraint});");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCase("Is.Null")]
@@ -53,7 +53,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 bool? actual = false;
                 Assert.That(actual, {constraint});");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCase("Is.Null")]
@@ -64,7 +64,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 var actual = new string[] {{ ""TestString"" }};
                 Assert.That(actual, {constraint});");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCase("Is.Null")]
@@ -75,7 +75,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 var actual = new string[] {{ ""TestString"" }};
                 Assert.That(() => actual, {constraint});");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                     Assert.That(actual, Has.Property(""RefTypeProp"").Null);
                 }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCase("Is.Null")]
@@ -105,7 +105,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 var task = Task.CompletedTask;
                 Assert.That(task, {constraint});");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCase("Is.Null")]
@@ -116,7 +116,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 Action<bool> action = b => {{ }};
                 Assert.That(action, {constraint});");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCase("Is.Null")]
@@ -127,7 +127,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 Func<bool, bool> function = b => b;
                 Assert.That(function, {constraint});");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCase("Is.Null")]
@@ -138,7 +138,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 Action<bool> action = b => {{ }};
                 Assert.That(() => action(true), ↓{constraint});");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]

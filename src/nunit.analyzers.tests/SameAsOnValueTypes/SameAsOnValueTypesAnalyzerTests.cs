@@ -18,7 +18,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(1, Is.SameAs(↓1));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
 
                 Assert.That(actual, Is.SameAs(↓expected));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
 
                 Assert.That(() => expected, Is.SameAs(↓expected));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
 
                 Assert.That(Task.FromResult(expected), Is.SameAs(↓expected));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var testCode = TestUtility.WrapInTestMethod(
                 @"Assert.That(""3"", Is.Not.SameAs(↓3));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var testCode = TestUtility.WrapInTestMethod(
                 @"Assert.That(↓3, Is.Not.SameAs(""3""));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var testCode = TestUtility.WrapInTestMethod(
                 @"Assert.That(""3"", Is.SameAs(""3""));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -91,7 +91,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
                 Assert.That(actual, Is.SameAs(expected));",
                 additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.AreSame(↓1, 1);");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -112,7 +112,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
 
                 Assert.AreSame(↓expected, actual);");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -121,7 +121,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var testCode = TestUtility.WrapInTestMethod(
                 @"Assert.AreNotSame(↓3, ""3"");");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var testCode = TestUtility.WrapInTestMethod(
                 @"Assert.AreNotSame(""3"", ↓3);");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -139,16 +139,16 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var testCode = TestUtility.WrapInTestMethod(
                 @"Assert.AreSame(""3"", ""3"");");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
         public void AnalyzeWhenMoreThanOneConstraintExpressionIsUsed()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"Assert.That(""1"", Is.Not.SameAs(""1"") & Is.Not.SameAs(↓2);");
+                @"Assert.That(""1"", Is.Not.SameAs(""1"") & Is.Not.SameAs(↓2));");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
     }
 }

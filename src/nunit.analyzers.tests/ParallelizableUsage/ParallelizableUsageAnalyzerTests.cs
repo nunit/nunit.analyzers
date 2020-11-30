@@ -67,7 +67,7 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
             var testCode = $@"
 using NUnit.Framework;
 [assembly: Parallelizable(ParallelScope.{enumValue})]";
-            AnalyzerAssert.Valid<ParallelizableUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -80,7 +80,7 @@ using NUnit.Framework;
             var testCode = $@"
 using NUnit.Framework;
 [assembly: ↓Parallelizable(ParallelScope.Self)]";
-            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -93,7 +93,7 @@ using NUnit.Framework;
             var testCode = $@"
 using NUnit.Framework;
 [assembly: ↓Parallelizable()]";
-            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Theory]
@@ -106,7 +106,7 @@ using NUnit.Framework;
     public sealed class AnalyzeWhenAttributeIsOnClass
     {{
     }}");
-            AnalyzerAssert.Valid<ParallelizableUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -122,7 +122,7 @@ using NUnit.Framework;
         {
         }
     }");
-            AnalyzerAssert.Valid<ParallelizableUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [TestCase(ParallelScope.All)]
@@ -144,7 +144,7 @@ using NUnit.Framework;
         {{
         }}
     }}");
-            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -164,7 +164,7 @@ using NUnit.Framework;
         {
         }
     }");
-            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCaseSource(nameof(ParallelScopesExceptFixtures))]
@@ -181,7 +181,7 @@ using NUnit.Framework;
         {{
         }}
     }}");
-            AnalyzerAssert.Valid<ParallelizableUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -201,7 +201,7 @@ using NUnit.Framework;
         {
         }
     }");
-            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCaseSource(nameof(ParallelScopesExceptFixtures))]
@@ -218,7 +218,7 @@ using NUnit.Framework;
         {{
         }}
     }}");
-            AnalyzerAssert.Valid<ParallelizableUsageAnalyzer>(testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -238,7 +238,7 @@ using NUnit.Framework;
         {
         }
     }");
-            AnalyzerAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
     }
 }

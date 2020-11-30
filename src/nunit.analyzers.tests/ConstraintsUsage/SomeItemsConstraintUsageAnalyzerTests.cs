@@ -24,7 +24,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(↓new List<int> {1, 2, 3}.Contains(1));",
                 additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.IsTrue(↓new List<int> {1, 2, 3}.Contains(1));",
                 additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.IsFalse(↓new List<int> {1, 2, 3}.Contains(1));",
                 additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.Diagnostics(analyzer, doesNotContainDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, doesNotContainDiagnostic, testCode);
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(↓new[] {1, 2, 3}.Contains(1));",
                 additionalUsings: "using System.Linq;");
 
-            AnalyzerAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.IsTrue(↓new[] {1, 2, 3}.Contains(1));",
                 additionalUsings: "using System.Linq;");
 
-            AnalyzerAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.IsFalse(↓new[] {1, 2, 3}.Contains(1));",
                 additionalUsings: "using System.Linq;");
 
-            AnalyzerAssert.Diagnostics(analyzer, doesNotContainDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, doesNotContainDiagnostic, testCode);
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(new List<int> { 1, 2, 3 }.Remove(1));",
                 additionalUsings: "using System.Collections.Generic;");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             var testCode = TestUtility.WrapInTestMethod(@"
                 Assert.That(""1, 2, 3"".Contains(""1""));");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }

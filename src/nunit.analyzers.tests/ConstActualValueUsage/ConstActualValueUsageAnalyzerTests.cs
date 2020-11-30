@@ -22,7 +22,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.AreEqual(expected, ↓1);
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.AreEqual(actual: ↓1, expected: expected);
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -48,7 +48,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.That(↓(2 + 3) * 1024, Is.Positive);
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.AreEqual(expected, ↓actual);
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.AreEqual(actual: ↓actual, expected: expected);
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.That(↓actual, Is.EqualTo(expected));
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -108,7 +108,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -126,7 +126,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.AreEqual(actual, string.Empty);
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -152,7 +152,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     Assert.That(string.Empty, Is.EqualTo(actual));
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -170,7 +170,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -188,7 +188,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -206,7 +206,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -224,7 +224,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -242,7 +242,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -260,7 +260,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -277,7 +277,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -294,7 +294,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -309,7 +309,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             }");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }

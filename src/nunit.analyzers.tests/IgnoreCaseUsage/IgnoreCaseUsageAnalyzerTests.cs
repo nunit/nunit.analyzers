@@ -18,7 +18,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
             var testCode = TestUtility.WrapInTestMethod(@"
                 Assert.That(1, Is.EqualTo(1).↓IgnoreCase);");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCase(nameof(Is.EqualTo))]
@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 var expected = new[] {{3,2,1}};
                 Assert.That(actual, Is.{constraintMethod}(expected).↓IgnoreCase);");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 };
                 Assert.That(actual, Is.EqualTo(expected).↓IgnoreCase);");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 var actual = (1, 2, false);
                 Assert.That(actual, Is.EqualTo((1, 2, false)).↓IgnoreCase);");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 var expected = System.Tuple.Create(1, 2);
                 Assert.That(actual, Is.EqualTo(expected).↓IgnoreCase);");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 var actual = new System.Collections.Generic.KeyValuePair<bool, int>(true, 1);
                 Assert.That(actual, Is.EqualTo(expected).↓IgnoreCase);");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                     Assert.That(actual, Is.EqualTo(expected).↓IgnoreCase);
                 }");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
             var testCode = TestUtility.WrapInTestMethod(@"
                 Assert.That(1, Is.EqualTo(1).↓IgnoreCase | Is.EqualTo(true).↓IgnoreCase);");
 
-            AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
             var testCode = TestUtility.WrapInTestMethod(@"
                 Assert.That(""A"", Is.EqualTo(""a"").IgnoreCase);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCase(nameof(Is.EqualTo))]
@@ -128,7 +128,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 var expected = new[] {{""A"",""C"",""B""}};
                 Assert.That(actual, Is.{constraintMethod}(expected).IgnoreCase);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -139,7 +139,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 System.Collections.IEnumerable expected = new[] {""A"",""C"",""B""};
                 Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 };
                 Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 var actual = (""a"", 2, false);
                 Assert.That(actual, Is.EqualTo((""A"", 2, false)).IgnoreCase);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -174,7 +174,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 var expected = System.Tuple.Create(1, ""A"");
                 Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -185,7 +185,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 var actual = new System.Collections.Generic.KeyValuePair<string, int>(""A"", 1);
                 Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -196,7 +196,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 var actual = new System.Collections.Generic.KeyValuePair<int, string>(1, ""A"");
                 Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -207,7 +207,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 var actual = new System.Collections.DictionaryEntry(1, ""A"");
                 Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -218,7 +218,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
                 var expected = (1, new[] { new[] { ""A"" } });
                 Assert.That(actual, Is.EqualTo(expected).IgnoreCase);");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }
