@@ -25,5 +25,26 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var message = "The TestCaseSource argument 'Missing' does not specify an existing member";
             AnalyzerAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
+
+        [Test]
+        public void NoErrorsWhenSourceExists()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    internal class Base
+    {
+        protected static IEnumerable<string> TargetFrameworks { get; } = new[] { ""net48"", ""netcoreapp3.1"" };
+    }
+
+    internal class Tests : Base
+    {
+        [TestCaseSource(nameof(TargetFrameworks))]
+        public void Test(string targetFramework)
+        {
+            Assert.IsNotNull(targetFramework);
+        }
+    }", "using System.Collections.Generic;");
+
+            AnalyzerAssert.Valid(analyzer, testCode);
+        }
     }
 }
