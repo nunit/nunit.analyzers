@@ -44,7 +44,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }", "using System.Collections.Generic;");
 
-            AnalyzerAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }
