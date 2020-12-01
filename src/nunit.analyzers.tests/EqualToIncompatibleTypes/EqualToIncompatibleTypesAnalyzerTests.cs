@@ -649,6 +649,34 @@ using System.Collections.Generic;");
         }
 
         [Test]
+        public void NoDiagnosticWhenExpectedHasIEquatableOfActualAndIsIEnumerable()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+                class B : IEquatable<string>, IEnumerable<string>
+                {
+                    public bool Equals(string other) => true;
+
+                    public IEnumerator<string> GetEnumerator() => new List<string>().GetEnumerator();
+                    IEnumerator IEnumerable.GetEnumerator() => new List<string>().GetEnumerator();
+                }
+
+                public class Tests
+                {
+                    [Test]
+                    public void TestMethod()
+                    {
+                        var actual = ""123"";
+                        var expected = new B();
+                        Assert.That(actual, Is.EqualTo(expected));
+                    }
+                }",
+                additionalUsings: "using System.Collections;" +
+                    "using System.Collections.Generic;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void NoDiagnosticWhenActualIsDynamic()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
