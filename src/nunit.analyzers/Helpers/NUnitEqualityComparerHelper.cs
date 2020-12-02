@@ -111,9 +111,10 @@ namespace NUnit.Analyzers.Helpers
                     // whether types are suitable
                     return true;
                 }
-                else
+
+                if (CanBeEqual(actualElementType, expectedElementType, compilation, checkedTypes))
                 {
-                    return CanBeEqual(actualElementType, expectedElementType, compilation, checkedTypes);
+                    return true;
                 }
             }
 
