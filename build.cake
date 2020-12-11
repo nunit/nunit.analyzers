@@ -4,6 +4,7 @@
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Debug");
+var targetFramework = Argument("targetFramework", "netstandard1.6");
 
 //////////////////////////////////////////////////////////////////////
 // SET PACKAGE VERSION
@@ -183,7 +184,8 @@ Task("Pack")
             OutputDirectory = PACKAGE_DIR,
             Properties = new Dictionary<string, string>()
             {
-                {"Configuration", configuration}
+                {"Configuration", configuration},
+                {"TargetFramework", targetFramework }
             }
         });
     });

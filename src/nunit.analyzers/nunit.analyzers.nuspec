@@ -21,7 +21,7 @@
   </metadata>
   <!-- The convention for analyzers is to put language agnostic dlls in analyzers\portable50 and language specific analyzers in either analyzers\portable50\cs or analyzers\portable50\vb -->
   <files>
-    <file src="bin\$Configuration$\netstandard1.6\nunit.analyzers.dll" target="analyzers\dotnet\cs\" />
+    <file src="bin\$Configuration$\$TargetFramework$\nunit.analyzers.dll" target="analyzers\dotnet\cs\" />
     <file src="tools\*.ps1" target="tools\" />
     <file src="..\..\license.txt" target="" />
     <file src="..\..\nunit_256.png" target="images" />
