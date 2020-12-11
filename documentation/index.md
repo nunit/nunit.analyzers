@@ -96,3 +96,11 @@ Rules which improve assertions in the test code.
 | [NUnit2040](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2040.md) | Non-reference types for SameAs constraint | :white_check_mark: | :exclamation: | :white_check_mark: |
 | [NUnit2041](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2041.md) | Incompatible types for comparison constraint | :white_check_mark: | :exclamation: | :x: |
 | [NUnit2042](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2042.md) | Comparison constraint on object | :white_check_mark: | :information_source: | :x: |
+
+### Suppressor Rules (NUnit3001 - )
+
+Rules which suppress compiler errors based on context.
+
+| Id       | Title       | :mag: | :memo: | :bulb: |
+| :--      | :--         | :--:  | :--:   | :--:   |
+| [NUnit3001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3001.md) | Expression was checked in an Assert.NotNull, Assert.IsNotNull or Assert.That call | :white_check_mark: | :information_source: | :x: |

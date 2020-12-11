@@ -81,5 +81,11 @@ namespace NUnit.Analyzers.Constants
         internal const string ComparableOnObject = "NUnit2042";
 
         #endregion Assertion
+
+        #region Suppression
+
+        internal const string DereferencePossibleNullReference = "NUnit3001";
+
+        #endregion
     }
 }
