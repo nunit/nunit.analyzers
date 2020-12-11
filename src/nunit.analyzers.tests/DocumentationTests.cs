@@ -41,8 +41,28 @@ namespace NUnit.Analyzers.Tests
             .SelectMany(DescriptorInfo.Create)
             .ToArray();
 
+        private static readonly IReadOnlyList<DiagnosticSuppressor> suppressors =
+            typeof(BaseAssertionAnalyzer)
+                .Assembly
+                .GetTypes()
+                .Where(t => typeof(DiagnosticSuppressor).IsAssignableFrom(t) && !t.IsAbstract)
+                .OrderBy(x => x.Name)
+                .Select(t => (DiagnosticSuppressor)Activator.CreateInstance(t))
+                .ToArray();
+
+        private static readonly IReadOnlyList<SuppressorInfo> suppressorInfos =
+            suppressors
+            .SelectMany(SuppressorInfo.Create)
+            .ToArray();
+
         private static IReadOnlyList<DescriptorInfo> DescriptorsWithDocs =>
             descriptorInfos.Where(d => d.DocumentationFile.Exists).ToArray();
+
+        private static IReadOnlyList<SuppressorInfo> SuppressorsWithDocs =>
+            suppressorInfos.Where(d => d.DocumentationFile.Exists).ToArray();
+
+        private static IReadOnlyList<BaseInfo> RulesWithDocs =>
+            ((IEnumerable<BaseInfo>)DescriptorsWithDocs).Concat(SuppressorsWithDocs).ToArray();
 
         private static DirectoryInfo RepositoryDirectory =>
             SolutionFile.Find("nunit.analyzers.sln").Directory.Parent;
@@ -71,6 +91,19 @@ namespace NUnit.Analyzers.Tests
             }
         }
 
+        [TestCaseSource(nameof(suppressorInfos))]
+        public void EnsureAllSuppressorsHaveDocumentation(SuppressorInfo suppressorInfo)
+        {
+            if (!suppressorInfo.DocumentationFile.Exists)
+            {
+                var descriptor = suppressorInfo.Descriptor;
+                var id = descriptor.Id;
+                DumpIfDebug(suppressorInfo.Stub);
+                File.WriteAllText(suppressorInfo.DocumentationFile.Name + ".generated", suppressorInfo.Stub);
+                Assert.Fail($"Documentation is missing for {id}");
+            }
+        }
+
         [TestCaseSource(nameof(descriptorInfos))]
         public void EnsureThatAllIdsAreUnique(DescriptorInfo descriptorInfo)
         {
@@ -87,18 +120,18 @@ namespace NUnit.Analyzers.Tests
             Assert.That(descriptorInfo.Descriptor.HelpLinkUri, Is.EqualTo(expectedUri));
         }
 
-        [TestCaseSource(nameof(DescriptorsWithDocs))]
-        public void EnsureThatFirstLineMatchesId(DescriptorInfo descriptorInfo)
+        [TestCaseSource(nameof(RulesWithDocs))]
+        public void EnsureThatFirstLineMatchesId(BaseInfo info)
         {
-            var firstLine = descriptorInfo.DocumentationFile.AllLines[0];
-            Assert.That(firstLine, Is.EqualTo($"# {descriptorInfo.Descriptor.Id}"));
+            var firstLine = info.DocumentationFile.AllLines[0];
+            Assert.That(firstLine, Is.EqualTo($"# {info.Id}"));
         }
 
-        [TestCaseSource(nameof(DescriptorsWithDocs))]
-        public void EnsureThatTitleIsAsExpected(DescriptorInfo descriptorInfo)
+        [TestCaseSource(nameof(RulesWithDocs))]
+        public void EnsureThatTitleIsAsExpected(BaseInfo info)
         {
-            var expected = new[] { "", $"## {descriptorInfo.Descriptor.Title}" };
-            var actual = descriptorInfo
+            var expected = new[] { "", $"## {info.Title}" };
+            var actual = info
                 .DocumentationFile.AllLines
                 .Skip(1)
                 .Select(l => Replace(l, @"\<", "<"))
@@ -128,22 +161,22 @@ namespace NUnit.Analyzers.Tests
             Assert.AreEqual(expected, actual);
         }
 
-        [TestCaseSource(nameof(DescriptorsWithDocs))]
-        public void EnsureThatTableIsAsExpected(DescriptorInfo descriptorInfo)
+        [TestCaseSource(nameof(RulesWithDocs))]
+        public void EnsureThatTableIsAsExpected(BaseInfo info)
         {
             const string headerRow = "| Topic    | Value";
-            var expected = GetTable(descriptorInfo.Stub, headerRow);
+            var expected = GetTable(info.Stub, headerRow);
             DumpIfDebug(expected);
-            var actual = GetTable(descriptorInfo.DocumentationFile.AllText, headerRow);
+            var actual = GetTable(info.DocumentationFile.AllText, headerRow);
             CodeAssert.AreEqual(expected, actual);
         }
 
-        [TestCaseSource(nameof(DescriptorsWithDocs))]
-        public void EnsureThatConfigSeverityIsAsExpected(DescriptorInfo descriptorInfo)
+        [TestCaseSource(nameof(RulesWithDocs))]
+        public void EnsureThatConfigSeverityIsAsExpected(BaseInfo info)
         {
-            var expected = GetConfigSeverity(descriptorInfo.Stub);
+            var expected = GetConfigSeverity(info.Stub);
             DumpIfDebug(expected);
-            var actual = GetConfigSeverity(descriptorInfo.DocumentationFile.AllText);
+            var actual = GetConfigSeverity(info.DocumentationFile.AllText);
             CodeAssert.AreEqual(expected, actual);
 
             string GetConfigSeverity(string doc)
@@ -154,14 +187,16 @@ namespace NUnit.Analyzers.Tests
             string GetSection(string doc, string startToken, string endToken)
             {
                 var start = doc.IndexOf(startToken, StringComparison.Ordinal);
-                var end = doc.IndexOf(endToken, StringComparison.Ordinal) + endToken.Length;
-                return doc.Substring(start, end - start);
+                Assert.That(start, Is.GreaterThan(0), "Missing: " + startToken);
+                var end = doc.IndexOf(endToken, start, StringComparison.Ordinal);
+                Assert.That(end, Is.GreaterThan(start), "Missing: " + endToken);
+                return doc.Substring(start, end + endToken.Length - start);
             }
         }
 
-        [TestCase(Categories.Structure, true)]
-        [TestCase(Categories.Assertion, false)]
-        public void EnsureThatIndexIsAsExpected(string category, bool firstTable)
+        [TestCase(Categories.Structure, 0)]
+        [TestCase(Categories.Assertion, 1)]
+        public void EnsureThatAnalyzerIndexIsAsExpected(string category, int tableNumber)
         {
             var builder = new StringBuilder();
             const string headerRow = "| Id       | Title       | :mag: | :memo: | :bulb: |";
@@ -190,15 +225,48 @@ namespace NUnit.Analyzers.Tests
 
             var expected = builder.ToString();
             DumpIfDebug(expected);
-            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), headerRow, firstTable);
+            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), headerRow, tableNumber);
             CodeAssert.AreEqual(expected, actual);
         }
 
-        private static string GetTable(string doc, string headerRow, bool firstTable = true)
+        [TestCase(2)]
+        public void EnsureThatSuppressionIndexIsAsExpected(int tableNumber)
         {
-            var startIndex = firstTable
-                ? doc.IndexOf(headerRow, StringComparison.Ordinal)
-                : doc.LastIndexOf(headerRow, StringComparison.Ordinal);
+            var builder = new StringBuilder();
+            const string headerRow = "| Id       | Title       | :mag: | :memo: | :bulb: |";
+            builder.AppendLine(headerRow)
+                   .AppendLine("| :--      | :--         | :--:  | :--:   | :--:   |");
+
+            var suppressors = SuppressorsWithDocs
+                .Distinct()
+                .OrderBy(x => x.Descriptor.Id);
+
+            foreach (var suppressor in suppressors)
+            {
+                var enabledEmoji = ":white_check_mark:";
+                var severityEmoji = SeverityEmoji[DiagnosticSeverity.Info];
+
+                var codefixEmoji = ":x:";
+
+                builder.Append($"| [{suppressor.Id}]({suppressor.HelpLinkUri}) ")
+                       .Append($"| {EscapeTags(suppressor.Title)} | {enabledEmoji} ")
+                       .AppendLine($"| {severityEmoji} | {codefixEmoji} |");
+            }
+
+            var expected = builder.ToString();
+            DumpIfDebug(expected);
+            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), headerRow, tableNumber);
+            CodeAssert.AreEqual(expected, actual);
+        }
+
+        private static string GetTable(string doc, string headerRow, int tableNumber = 0)
+        {
+            int startIndex = -1;
+            do
+            {
+                startIndex = doc.IndexOf(headerRow, startIndex + 1, StringComparison.Ordinal);
+            }
+            while (startIndex >= 0 && tableNumber-- > 0);
 
             if (startIndex < 0)
             {
@@ -247,26 +315,41 @@ namespace NUnit.Analyzers.Tests
 #endif
         }
 
-        public class DescriptorInfo
+        public abstract class BaseInfo
+        {
+            protected BaseInfo(Type analyzerType, string id)
+            {
+                this.Id = id;
+                this.DocumentationFile = new MarkdownFile(Path.Combine(DocumentsDirectory.FullName, id + ".md"));
+                this.AnalyzerFile = CodeFile.Find(analyzerType);
+            }
+
+            public string Id { get; }
+
+            public MarkdownFile DocumentationFile { get; }
+
+            public CodeFile AnalyzerFile { get; }
+
+            public string Stub { get; protected set; }
+
+            public abstract string Title { get; }
+        }
+
+        public sealed class DescriptorInfo : BaseInfo
         {
             private DescriptorInfo(DiagnosticAnalyzer analyzer, DiagnosticDescriptor descriptor)
+                : base(analyzer.GetType(), descriptor.Id)
             {
                 this.Analyzer = analyzer;
                 this.Descriptor = descriptor;
-                this.DocumentationFile = new MarkdownFile(Path.Combine(DocumentsDirectory.FullName, descriptor.Id + ".md"));
-                this.AnalyzerFile = CodeFile.Find(analyzer.GetType());
-                this.Stub = CreateStub(descriptor);
+                this.Stub = CreateStub(analyzer, descriptor);
             }
 
             public DiagnosticAnalyzer Analyzer { get; }
 
             public DiagnosticDescriptor Descriptor { get; }
 
-            public MarkdownFile DocumentationFile { get; }
-
-            public CodeFile AnalyzerFile { get; }
-
-            public string Stub { get; }
+            public override string Title => (string)this.Descriptor.Title;
 
             public static IEnumerable<DescriptorInfo> Create(DiagnosticAnalyzer analyzer)
             {
@@ -278,14 +361,11 @@ namespace NUnit.Analyzers.Tests
 
             public override string ToString() => this.Descriptor.Id;
 
-            private static string CreateStub(DiagnosticDescriptor descriptor)
+            private static string CreateStub(DiagnosticAnalyzer analyzer, DiagnosticDescriptor descriptor)
             {
                 var builder = new StringBuilder();
-                foreach (var analyzer in analyzers.Where(x => x.SupportedDiagnostics.Any(d => d.Id == descriptor.Id)))
-                {
-                    _ = builder.Append($"|{(builder.Length == 0 ? " Code     " : "          ")}| ")
-                               .AppendLine($"[{analyzer.GetType().Name}]({CodeFile.Find(analyzer.GetType()).Uri})");
-                }
+                builder.Append($"|{(builder.Length == 0 ? " Code     " : "          ")}| ");
+                builder.Append($"[{analyzer.GetType().Name}]({CodeFile.Find(analyzer.GetType()).Uri})");
 
                 var text = builder.ToString();
                 var stub = $@"# {descriptor.Id}
@@ -351,9 +431,122 @@ Or put this at the top of the file to disable all instances.
 ```
 <!-- end generated config severity -->
 ";
-                var replacedText = Replace(stub, "| Code     | [<TYPENAME>](<URL>)\r\n", text);
-                return Replace(replacedText, "| Code     | [<TYPENAME>](<URL>)\n", text);
+                return Replace(stub, "| Code     | [<TYPENAME>](<URL>)", text);
             }
+        }
+
+        public sealed class SuppressorInfo : BaseInfo
+        {
+            private static readonly IEqualityComparer<SuppressionDescriptor> Comparer = new SuppressionDescriptorComparer();
+
+            private SuppressorInfo(DiagnosticSuppressor suppressor, SuppressionDescriptor descriptor)
+                : base(suppressor.GetType(), descriptor.Id)
+            {
+                this.Suppressor = suppressor;
+                this.Descriptor = descriptor;
+                var name = descriptor.Id + ".md";
+                this.HelpLinkUri = $"https://github.com/nunit/nunit.analyzers/tree/master/documentation/{name}";
+                this.Stub = CreateStub(suppressor, descriptor);
+            }
+
+            public DiagnosticSuppressor Suppressor { get; }
+
+            public SuppressionDescriptor Descriptor { get; }
+
+            public override string Title => (string)this.Descriptor.Justification;
+
+            public string HelpLinkUri { get; }
+
+            public static IEnumerable<SuppressorInfo> Create(DiagnosticSuppressor suppressor)
+            {
+                foreach (var descriptor in suppressor.SupportedSuppressions.Distinct(Comparer))
+                {
+                    yield return new SuppressorInfo(suppressor, descriptor);
+                }
+            }
+
+            public override string ToString() => this.Descriptor.Id;
+
+            private static string CreateStub(DiagnosticSuppressor suppressor, SuppressionDescriptor descriptor)
+            {
+                var builder = new StringBuilder();
+                builder.Append("| Code     | ");
+                builder.Append($"[{suppressor.GetType().Name}]({CodeFile.Find(suppressor.GetType()).Uri})");
+
+                var text = builder.ToString();
+                var stub = $@"# {descriptor.Id}
+
+## {EscapeTags(descriptor.Justification)}
+
+| Topic    | Value
+| :--      | :--
+| Id       | {descriptor.Id}
+| Severity | Info
+| Enabled  | True
+| Category | Suppressor
+| Code     | [<TYPENAME>](<URL>)
+
+## Description
+
+{EscapeTags(descriptor.Justification)}
+
+## Motivation
+
+ADD MOTIVATION HERE
+
+## How to fix violations
+
+ADD HOW TO FIX VIOLATIONS HERE
+
+<!-- start generated config severity -->
+## Configure severity
+
+The rule has no severity, but can be disabled.
+
+### Via ruleset file
+
+To disable the rule for a project, you need to add a
+[ruleset file](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/DiagnosticSuppressors/NUnit.Analyzers.Suppressions.ruleset)
+
+```xml
+<?xml version=""1.0"" encoding=""utf-8""?>
+<RuleSet Name=""NUnit.Analyzer Suppressions"" Description=""DiagnosticSuppression Rules"" ToolsVersion=""12.0"">
+  <Rules AnalyzerId=""DiagnosticSuppressors"" RuleNamespace=""NUnit.NUnitAnalyzers"">
+    <Rule Id=""NUnit3001"" Action=""Info"" /> <!-- Possible Null Reference -->
+    <Rule Id=""NUnit3002"" Action=""Info"" /> <!-- NonNullableField is Uninitialized -->
+  </Rules>
+</RuleSet>
+```
+
+and add it to the project like:
+
+```xml
+<PropertyGroup>
+  <CodeAnalysisRuleSet>NUnit.Analyzers.Suppressions.ruleset</CodeAnalysisRuleSet>
+</PropertyGroup>
+```
+
+For more info about rulesets see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
+
+### Via .editorconfig file
+
+This is currently not working. Waiting for [Roslyn](https://github.com/dotnet/roslyn/issues/49727)
+
+```ini
+# {descriptor.Id}: {descriptor.Justification.ToString(CultureInfo.InvariantCulture)}
+dotnet_diagnostic.{descriptor.Id}.severity = none
+```
+<!-- end generated config severity -->
+";
+                return Replace(stub, "| Code     | [<TYPENAME>](<URL>)", text);
+            }
+        }
+
+        public sealed class SuppressionDescriptorComparer : IEqualityComparer<SuppressionDescriptor>
+        {
+            public bool Equals(SuppressionDescriptor x, SuppressionDescriptor y) => x?.Id == y?.Id;
+
+            public int GetHashCode(SuppressionDescriptor obj) => obj?.Id.GetHashCode() ?? 0;
         }
 
         public class MarkdownFile
