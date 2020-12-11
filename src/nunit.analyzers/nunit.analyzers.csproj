@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <RootNamespace>NUnit.Analyzers</RootNamespace>
@@ -44,4 +44,15 @@
       <Output TaskParameter="Assemblies" ItemName="AnalyzerAssemblyInfo" />
     </GetAssemblyIdentity>
   </Target>
+  
+  <PropertyGroup>
+    <GenerateNullableAttributes>false</GenerateNullableAttributes>
+  </PropertyGroup>
+
+  <!-- Get nullability information from .NET5.0 when compiling for non net5.0 targets -->
+  <ItemGroup Condition="'$(TargetFramework)' != 'net5.0'">
+    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[5.0.0]" />
+    <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.160" PrivateAssets="all" />
+  </ItemGroup>
+  
 </Project>
