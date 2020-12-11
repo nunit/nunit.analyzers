@@ -6,6 +6,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,4 +41,14 @@
     <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <GenerateNullableAttributes>false</GenerateNullableAttributes>
+  </PropertyGroup>
+
+  <!-- Get nullability information from .NET5.0 when compiling for non net5.0 targets -->
+  <ItemGroup Condition="'$(TargetFramework)' != 'net5.0'">
+    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[5.0.0]" />
+    <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.160" PrivateAssets="all" />
+  </ItemGroup>
+  
 </Project>

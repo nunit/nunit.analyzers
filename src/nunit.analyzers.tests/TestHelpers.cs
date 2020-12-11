@@ -17,7 +17,8 @@ namespace NUnit.Analyzers.Tests
             return CSharpCompilation.Create(Guid.NewGuid().ToString("N"),
                 syntaxTrees,
                 references: MetadataReferences.FromAttributes(),
-                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
+                    reportSuppressedDiagnostics: true));
         }
 
         internal static async Task<(SyntaxNode Node, SemanticModel Model)> GetRootAndModel(string code)

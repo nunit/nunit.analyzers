@@ -17,6 +17,8 @@ and execute your Cake build script with the parameters you provide.
 The build script to execute.
 .PARAMETER Target
 The build script target to run.
+.PARAMETER TargetFramework
+The build script target framework
 .PARAMETER Configuration
 The build configuration to use.
 .PARAMETER Verbosity
@@ -44,6 +46,7 @@ Param(
     [string]$Script = "build.cake",
     [string]$Target,
     [string]$Configuration,
+    [string]$TargetFramework,
     [ValidateSet("Quiet", "Minimal", "Normal", "Verbose", "Diagnostic")]
     [string]$Verbosity,
     [switch]$ShowDescription,
@@ -221,6 +224,7 @@ if (!(Test-Path $CAKE_EXE)) {
 # Build Cake arguments
 $cakeArguments = @("$Script");
 if ($Target) { $cakeArguments += "-target=$Target" }
+if ($TargetFramework) { $cakeArguments += "-targetFramework=$TargetFramework" }
 if ($Configuration) { $cakeArguments += "-configuration=$Configuration" }
 if ($Verbosity) { $cakeArguments += "-verbosity=$Verbosity" }
 if ($ShowDescription) { $cakeArguments += "-showdescription" }

@@ -57,9 +57,12 @@ namespace NUnit.Analyzers.ConstraintUsage
                 .OfType<InvocationExpressionSyntax>()
                 .FirstOrDefault();
 
+            if (actual == null || constraintExpression == null || assertNode == null)
+                return;
+
             var assertMethod = semanticModel.GetSymbolInfo(assertNode).Symbol as IMethodSymbol;
 
-            if (actual == null || constraintExpression == null || assertNode == null || assertMethod == null)
+            if (assertMethod == null)
                 return;
 
             var newAssertNode = UpdateAssertNode(assertNode, assertMethod, actual, constraintExpression);
