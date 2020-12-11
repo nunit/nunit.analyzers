@@ -79,6 +79,7 @@ namespace NUnit.Analyzers.Constants
         internal const string SameAsOnValueTypes = "NUnit2040";
         internal const string ComparableTypes = "NUnit2041";
         internal const string ComparableOnObject = "NUnit2042";
+        internal const string ComparisonConstraintUsage = "NUnit2043";
 
         #endregion Assertion
 

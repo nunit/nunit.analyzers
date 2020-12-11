@@ -69,5 +69,22 @@ namespace NUnit.Analyzers.Helpers
 
             return UnwrapActualType(actualType);
         }
+
+        /// <summary>
+        /// Checks if the operation is an expression only using literal values.
+        /// </summary>
+        public static bool IsLiteralOperation(IOperation operation)
+        {
+            if (operation is ILiteralOperation)
+                return true;
+
+            if (operation is IUnaryOperation unary)
+                return IsLiteralOperation(unary.Operand);
+
+            if (operation is IBinaryOperation binary)
+                return IsLiteralOperation(binary.LeftOperand) && IsLiteralOperation(binary.RightOperand);
+
+            return false;
+        }
     }
 }
