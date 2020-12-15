@@ -24,20 +24,6 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            static bool IsLiteralOperation(IOperation operation)
-            {
-                if (operation is ILiteralOperation)
-                    return true;
-
-                if (operation is IUnaryOperation unary)
-                    return IsLiteralOperation(unary.Operand);
-
-                if (operation is IBinaryOperation binary)
-                    return IsLiteralOperation(binary.LeftOperand) && IsLiteralOperation(binary.RightOperand);
-
-                return false;
-            }
-
             static bool IsStringEmpty(IOperation operation)
             {
                 return operation is IFieldReferenceOperation propertyReference
@@ -57,7 +43,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
             if (actualOperation == null)
                 return;
 
-            if (IsLiteralOperation(actualOperation))
+            if (AssertHelper.IsLiteralOperation(actualOperation))
             {
                 Report(actualOperation);
                 return;

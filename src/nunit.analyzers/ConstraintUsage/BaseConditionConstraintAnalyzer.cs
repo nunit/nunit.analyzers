@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace NUnit.Analyzers.ConstraintUsage
     public abstract class BaseConditionConstraintAnalyzer : BaseAssertionAnalyzer
     {
         internal const string SuggestedConstraintString = nameof(SuggestedConstraintString);
+        internal const string SwapOperands = nameof(SwapOperands);
 
         protected static readonly string[] SupportedPositiveAssertMethods = new[]
         {
@@ -26,8 +28,18 @@ namespace NUnit.Analyzers.ConstraintUsage
             NameOfAssertIsFalse
         };
 
-        protected abstract (DiagnosticDescriptor? descriptor, string? suggestedConstraint) GetDiagnosticData(
-            OperationAnalysisContext context, IOperation actual, bool negated);
+        protected virtual (DiagnosticDescriptor? descriptor, string? suggestedConstraint, bool swapOperands) GetDiagnosticDataWithPossibleSwapOperands(
+            OperationAnalysisContext context, IOperation actual, bool negated)
+        {
+            var (diagnosticDescriptor, suggestedConstraint) = this.GetDiagnosticData(context, actual, negated);
+            return (diagnosticDescriptor, suggestedConstraint, false);
+        }
+
+        protected virtual (DiagnosticDescriptor? descriptor, string? suggestedConstraint) GetDiagnosticData(
+            OperationAnalysisContext context, IOperation actual, bool negated)
+        {
+            throw new InvalidOperationException("You must override one of the 'GetDiagnosticData' versions");
+        }
 
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
@@ -72,12 +84,14 @@ namespace NUnit.Analyzers.ConstraintUsage
                 negated = !negated;
             }
 
-            var (descriptor, suggestedConstraint) = this.GetDiagnosticData(context, unwrappedActual ?? actual, negated);
+            var (descriptor, suggestedConstraint, swapOperands) = this.GetDiagnosticDataWithPossibleSwapOperands(context, unwrappedActual ?? actual, negated);
 
             if (descriptor != null && suggestedConstraint != null)
             {
-                var properties = ImmutableDictionary.Create<string, string?>().Add(SuggestedConstraintString, suggestedConstraint);
-                var diagnostic = Diagnostic.Create(descriptor, actual.Syntax.GetLocation(), properties, suggestedConstraint);
+                var properties = ImmutableDictionary.CreateBuilder<string, string?>();
+                properties.Add(SuggestedConstraintString, suggestedConstraint);
+                properties.Add(SwapOperands, swapOperands.ToString());
+                var diagnostic = Diagnostic.Create(descriptor, actual.Syntax.GetLocation(), properties.ToImmutable(), suggestedConstraint);
                 context.ReportDiagnostic(diagnostic);
             }
         }

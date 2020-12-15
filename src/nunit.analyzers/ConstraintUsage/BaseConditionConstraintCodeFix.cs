@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,7 +23,9 @@ namespace NUnit.Analyzers.ConstraintUsage
 
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var suggestedConstraintString = context.Diagnostics[0].Properties[BaseConditionConstraintAnalyzer.SuggestedConstraintString];
+            ImmutableDictionary<string, string?> properties = context.Diagnostics[0].Properties;
+            var suggestedConstraintString = properties[BaseConditionConstraintAnalyzer.SuggestedConstraintString];
+            bool swapOperands = properties[BaseConditionConstraintAnalyzer.SwapOperands] == true.ToString();
 
             if (suggestedConstraintString is null)
             {
@@ -51,7 +55,8 @@ namespace NUnit.Analyzers.ConstraintUsage
                 conditionNode = unarySyntax.Operand;
             }
 
-            var (actual, constraintExpression) = this.GetActualAndConstraintExpression(conditionNode, suggestedConstraintString);
+            var (actual, constraintExpression) =
+                this.GetActualAndConstraintExpression(conditionNode, suggestedConstraintString, swapOperands);
 
             var assertNode = conditionNode.Ancestors()
                 .OfType<InvocationExpressionSyntax>()
@@ -76,8 +81,17 @@ namespace NUnit.Analyzers.ConstraintUsage
             context.RegisterCodeFix(codeAction, context.Diagnostics);
         }
 
-        protected abstract (ExpressionSyntax? actual, ExpressionSyntax? constraintExpression) GetActualAndConstraintExpression(
-            ExpressionSyntax conditionNode, string suggestedConstraintString);
+        protected virtual (ExpressionSyntax? actual, ExpressionSyntax? constraintExpression) GetActualAndConstraintExpression(
+            ExpressionSyntax conditionNode, string suggestedConstraintString, bool swapOperands)
+        {
+            return this.GetActualAndConstraintExpression(conditionNode, suggestedConstraintString);
+        }
+
+        protected virtual (ExpressionSyntax? actual, ExpressionSyntax? constraintExpression) GetActualAndConstraintExpression(
+            ExpressionSyntax conditionNode, string suggestedConstraintString)
+        {
+            throw new InvalidOperationException("You must override one of the 'GetActualAndConstraintExpression' versions");
+        }
 
         protected static InvocationExpressionSyntax? GetConstraintExpression(string constraintString, ExpressionSyntax? expected)
         {
