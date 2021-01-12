@@ -58,6 +58,12 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     possibleNullReference = castExpression.Expression.ToString();
                 }
 
+                if (IsAssertThrows(node))
+                {
+                    context.ReportSuppression(Suppression.Create(SuppressionDescriptors[diagnostic.Id], diagnostic));
+                    continue;
+                }
+
                 var siblings = parent.ChildNodes().ToList();
 
                 int nodeIndex = siblings.FindIndex(x => x == statement);
@@ -70,9 +76,15 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     {
                         if (expressionStatement.Expression is AssignmentExpressionSyntax assignmentExpression)
                         {
-                            // If the offending symbol is assigned here, stop searching for Assert
+                            // Is the offending symbol assigned here?
                             if (InvalidatedBy(assignmentExpression.Left.ToString(), possibleNullReference))
                             {
+                                if (IsAssertThrows(assignmentExpression.Right))
+                                {
+                                    context.ReportSuppression(Suppression.Create(SuppressionDescriptors[diagnostic.Id], diagnostic));
+                                }
+
+                                // Stop searching for Assert before the assignment.
                                 break;
                             }
                         }
@@ -105,8 +117,37 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                             }
                         }
                     }
+                    else if (previous is LocalDeclarationStatementSyntax localDeclarationStatement)
+                    {
+                        VariableDeclarationSyntax declaration = localDeclarationStatement.Declaration;
+                        foreach (var variable in declaration.Variables)
+                        {
+                            if (variable.Identifier.ToString() == possibleNullReference)
+                            {
+                                if (IsAssertThrows(variable.Initializer?.Value))
+                                {
+                                    context.ReportSuppression(Suppression.Create(SuppressionDescriptors[diagnostic.Id], diagnostic));
+                                }
+                            }
+                        }
+                    }
                 }
             }
+        }
+
+        private static bool IsAssertThrows(SyntaxNode? node)
+        {
+            return (node is InvocationExpressionSyntax invocationExpression &&
+                IsAssertThrows(invocationExpression)) ||
+                (node is ArgumentSyntax argument && IsAssertThrows(argument.Expression));
+        }
+
+        private static bool IsAssertThrows(InvocationExpressionSyntax invocationExpression)
+        {
+            return invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
+                memberAccessExpression.Expression is IdentifierNameSyntax identifierName &&
+                identifierName.Identifier.Text == "Assert" &&
+                memberAccessExpression.Name.Identifier.Text == "Throws";
         }
 
         private static bool InvalidatedBy(string assignment, string possibleNullReference)

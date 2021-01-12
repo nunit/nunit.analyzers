@@ -308,5 +308,103 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
                 .ConfigureAwait(false);
         }
+
+        [TestCase("var")]
+        [TestCase("Exception")]
+        public async Task ThrowsLocalDeclaration(string type)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                #nullable enable
+                [Test]
+                public void Test()
+                {{
+                    {type} ex = Assert.Throws<Exception>(() => throw new InvalidOperationException());
+                    string m = ex.Message;
+                }}
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
+                .ConfigureAwait(false);
+        }
+
+        [TestCase("var")]
+        [TestCase("Exception")]
+        public async Task ThrowsLocalDeclarationInsideAssertMultiple(string type)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                #nullable enable
+                [Test]
+                public void Test()
+                {{
+                    Assert.Multiple(() =>
+                    {{
+                        {type} ex = Assert.Throws<Exception>(() => throw new InvalidOperationException());
+                        string m = ex.Message;
+                    }});
+                }}
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
+                                               .ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task ThrowsLocalAssignment()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                #nullable enable
+                [Test]
+                public void Test()
+                {
+                    Exception ex;
+                    ex = Assert.Throws<Exception>(() => throw new InvalidOperationException());
+                }
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8600"], testCode)
+                .ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task ThrowsPropertyAssignment()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                #nullable enable
+
+                private Exception Ex { get; set; } = new NotImplementedException();
+
+                [Test]
+                public void Test()
+                {
+                    Ex = Assert.Throws<Exception>(() => throw new InvalidOperationException());
+                }
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8601"], testCode)
+                .ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task ThrowsPassedAsArgument()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                #nullable enable
+
+                private void ShowException(Exception ex) => Console.WriteLine(ex.Message);
+
+                [Test]
+                public void Test()
+                {
+                    ShowException(Assert.Throws<Exception>(() => throw new InvalidOperationException()));
+                }
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8604"], testCode)
+                .ConfigureAwait(false);
+        }
     }
 }
