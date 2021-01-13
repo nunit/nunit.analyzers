@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -38,7 +39,6 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             {
                 SyntaxNode? node = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken)
                                                                   .FindNode(diagnostic.Location.SourceSpan);
-                StatementSyntax? statement = node?.AncestorsAndSelf().OfType<StatementSyntax>().FirstOrDefault();
                 BlockSyntax? parent = node?.Ancestors().OfType<BlockSyntax>().FirstOrDefault();
 
                 if (node is null || parent is null)
@@ -48,106 +48,134 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
                 if (IsInsideAssertMultiple(parent))
                 {
+                    // NUnit doesn't throw on failures and therefore the compiler is correct.
                     continue;
                 }
 
-                string possibleNullReference = node.ToString();
-                if (node is CastExpressionSyntax castExpression)
-                {
-                    // Drop the cast.
-                    possibleNullReference = castExpression.Expression.ToString();
-                }
-
-                if (IsAssertThrows(node))
+                if (ShouldBeSuppressed(node, parent))
                 {
                     context.ReportSuppression(Suppression.Create(SuppressionDescriptors[diagnostic.Id], diagnostic));
-                    continue;
-                }
-
-                var siblings = parent.ChildNodes().ToList();
-
-                int nodeIndex = siblings.FindIndex(x => x == statement);
-
-                while (--nodeIndex >= 0)
-                {
-                    SyntaxNode previous = siblings[nodeIndex];
-
-                    if (previous is ExpressionStatementSyntax expressionStatement)
-                    {
-                        if (expressionStatement.Expression is AssignmentExpressionSyntax assignmentExpression)
-                        {
-                            // Is the offending symbol assigned here?
-                            if (InvalidatedBy(assignmentExpression.Left.ToString(), possibleNullReference))
-                            {
-                                if (IsAssertThrows(assignmentExpression.Right))
-                                {
-                                    context.ReportSuppression(Suppression.Create(SuppressionDescriptors[diagnostic.Id], diagnostic));
-                                }
-
-                                // Stop searching for Assert before the assignment.
-                                break;
-                            }
-                        }
-
-                        // Check if this is Assert.NotNull or Assert.IsNotNull for the same symbol
-                        if (expressionStatement.Expression is InvocationExpressionSyntax invocationExpression &&
-                            invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
-                            memberAccessExpression.Expression is IdentifierNameSyntax identifierName &&
-                            identifierName.Identifier.Text == "Assert")
-                        {
-                            var member = memberAccessExpression.Name.Identifier.Text;
-                            if (member == "NotNull" || member == "IsNotNull" || member == "That")
-                            {
-                                if (member == "That")
-                                {
-                                    // We must check the 2nd argument for anything but "Is.Null"
-                                    // E.g.: Is.Not.Null.And.Not.Empty.
-                                    ArgumentSyntax? secondArgument = invocationExpression.ArgumentList.Arguments.ElementAtOrDefault(1);
-                                    if (secondArgument?.ToString() == "Is.Null")
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                ArgumentSyntax firstArgument = invocationExpression.ArgumentList.Arguments.First();
-                                if (CoveredBy(firstArgument.Expression.ToString(), possibleNullReference))
-                                {
-                                    context.ReportSuppression(Suppression.Create(SuppressionDescriptors[diagnostic.Id], diagnostic));
-                                }
-                            }
-                        }
-                    }
-                    else if (previous is LocalDeclarationStatementSyntax localDeclarationStatement)
-                    {
-                        VariableDeclarationSyntax declaration = localDeclarationStatement.Declaration;
-                        foreach (var variable in declaration.Variables)
-                        {
-                            if (variable.Identifier.ToString() == possibleNullReference)
-                            {
-                                if (IsAssertThrows(variable.Initializer?.Value))
-                                {
-                                    context.ReportSuppression(Suppression.Create(SuppressionDescriptors[diagnostic.Id], diagnostic));
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }
 
-        private static bool IsAssertThrows(SyntaxNode? node)
+        private static bool IsInsideAssertMultiple(SyntaxNode parent)
         {
-            return (node is InvocationExpressionSyntax invocationExpression &&
-                IsAssertThrows(invocationExpression)) ||
-                (node is ArgumentSyntax argument && IsAssertThrows(argument.Expression));
+            var possibleAssertMultiple = parent.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
+            return IsAssert("Multiple", possibleAssertMultiple);
         }
 
-        private static bool IsAssertThrows(InvocationExpressionSyntax invocationExpression)
+        private static bool ShouldBeSuppressed(SyntaxNode node, BlockSyntax parent)
         {
-            return invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
+            if (IsKnownToBeNotNull(node))
+            {
+                // Known to be not null value assigned or passed to non-nullable type.
+                return true;
+            }
+
+            string possibleNullReference = node.ToString();
+            if (node is CastExpressionSyntax castExpression)
+            {
+                // Drop the cast.
+                possibleNullReference = castExpression.Expression.ToString();
+            }
+
+            StatementSyntax? statement = node?.AncestorsAndSelf().OfType<StatementSyntax>().FirstOrDefault();
+
+            var siblings = parent.ChildNodes().ToList();
+
+            // Look in earlier statements to see if the variable was previously checked for null.
+            for (int nodeIndex = siblings.FindIndex(x => x == statement); --nodeIndex >= 0;)
+            {
+                SyntaxNode previous = siblings[nodeIndex];
+
+                if (previous is ExpressionStatementSyntax expressionStatement)
+                {
+                    if (expressionStatement.Expression is AssignmentExpressionSyntax assignmentExpression)
+                    {
+                        // Is the offending symbol assigned here?
+                        if (InvalidatedBy(assignmentExpression.Left.ToString(), possibleNullReference))
+                        {
+                            return IsKnownToBeNotNull(assignmentExpression.Right);
+                        }
+                    }
+
+                    // Check if this is Assert.NotNull or Assert.IsNotNull for the same symbol
+                    if (IsAssert(expressionStatement.Expression, out string member, out ArgumentListSyntax? argumentList))
+                    {
+                        if (member == "NotNull" || member == "IsNotNull" || member == "That")
+                        {
+                            if (member == "That")
+                            {
+                                // We must check the 2nd argument for anything but "Is.Null"
+                                // E.g.: Is.Not.Null.And.Not.Empty.
+                                ArgumentSyntax? secondArgument = argumentList.Arguments.ElementAtOrDefault(1);
+                                if (secondArgument?.ToString() == "Is.Null")
+                                {
+                                    continue;
+                                }
+                            }
+
+                            ArgumentSyntax firstArgument = argumentList.Arguments.First();
+                            if (CoveredBy(firstArgument.Expression.ToString(), possibleNullReference))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                else if (previous is LocalDeclarationStatementSyntax localDeclarationStatement)
+                {
+                    VariableDeclarationSyntax declaration = localDeclarationStatement.Declaration;
+                    foreach (var variable in declaration.Variables)
+                    {
+                        if (variable.Identifier.ToString() == possibleNullReference)
+                        {
+                            return IsKnownToBeNotNull(variable.Initializer?.Value);
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsKnownToBeNotNull(SyntaxNode? node)
+        {
+            return (node is ExpressionSyntax expression && IsKnownToBeNotNull(expression)) ||
+                (node is ArgumentSyntax argument && IsKnownToBeNotNull(argument.Expression));
+        }
+
+        private static bool IsKnownToBeNotNull(ExpressionSyntax? expression)
+        {
+            // For now, we only know that Assert.Throws either returns not-null or throws
+            return IsAssert("Throws", expression);
+        }
+
+        private static bool IsAssert(string requestedMember, ExpressionSyntax? expression)
+        {
+            return IsAssert(expression, out string member, out _) && member == requestedMember;
+        }
+
+        private static bool IsAssert(ExpressionSyntax? expression,
+                                     out string member,
+                                     [NotNullWhen(true)] out ArgumentListSyntax? argumentList)
+        {
+            if (expression is InvocationExpressionSyntax invocationExpression &&
+                invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
                 memberAccessExpression.Expression is IdentifierNameSyntax identifierName &&
-                identifierName.Identifier.Text == "Assert" &&
-                memberAccessExpression.Name.Identifier.Text == "Throws";
+                identifierName.Identifier.Text == "Assert")
+            {
+                member = memberAccessExpression.Name.Identifier.Text;
+                argumentList = invocationExpression.ArgumentList;
+                return true;
+            }
+            else
+            {
+                member = string.Empty;
+                argumentList = null;
+                return false;
+            }
         }
 
         private static bool InvalidatedBy(string assignment, string possibleNullReference)
@@ -189,25 +217,6 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 while (question > 0);
 
                 return possibleNullReference == assertedNotNull.Replace("?", string.Empty);
-            }
-
-            return false;
-        }
-
-        private static bool IsInsideAssertMultiple(SyntaxNode parent)
-        {
-            var possibleAssertMultiple = parent.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
-            if (possibleAssertMultiple != null)
-            {
-                if (possibleAssertMultiple.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
-                    memberAccessExpression.Expression is IdentifierNameSyntax identifierName &&
-                    identifierName.Identifier.Text == "Assert")
-                {
-                    if (memberAccessExpression.Name.Identifier.Text == "Multiple")
-                    {
-                        return true;
-                    }
-                }
             }
 
             return false;
