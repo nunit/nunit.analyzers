@@ -243,6 +243,30 @@ namespace NUnit.Analyzers.Tests.Operations
             Assert.That(constraintPart.HasUnknownExpressions(), Is.True);
         }
 
+        [Test]
+        public async Task HasIncompatiblePrefixesReturnsFalseIfNoPrefixes()
+        {
+            var constraintPart = await CreateConstraintPart("Is.Null").ConfigureAwait(false);
+
+            Assert.That(constraintPart.HasIncompatiblePrefixes(), Is.False);
+        }
+
+        [Test]
+        public async Task HasIncompatiblePrefixesReturnsFalseForNot()
+        {
+            var constraintPart = await CreateConstraintPart("Is.Not.EqualTo(1)").ConfigureAwait(false);
+
+            Assert.That(constraintPart.HasIncompatiblePrefixes(), Is.False);
+        }
+
+        [Test]
+        public async Task HasIncompatiblePrefixesReturnsTrueOtherwise()
+        {
+            var constraintPart = await CreateConstraintPart("Is.All.Not.Null").ConfigureAwait(false);
+
+            Assert.That(constraintPart.HasIncompatiblePrefixes(), Is.True);
+        }
+
         private static Framework.Constraints.Constraint IsInvocation(string text)
         {
             return new Framework.Constraints.PredicateConstraint<IOperation>(o =>

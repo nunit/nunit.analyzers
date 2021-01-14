@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.StringConstraintWrongActualType
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
                 // Only 'Not' prefix supported
-                if (constraintPart.GetPrefixesNames().Any(p => p != NunitFrameworkConstants.NameOfIsNot))
+                if (constraintPart.HasIncompatiblePrefixes())
                     return;
 
                 var constraintType = constraintPart.Root?.Type;

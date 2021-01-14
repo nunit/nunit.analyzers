@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.ComparableTypes
 
             foreach (var constraintPartExpression in constraintExpression.ConstraintParts)
             {
-                if (HasIncompatiblePrefixes(constraintPartExpression)
+                if (constraintPartExpression.HasIncompatiblePrefixes()
                     || HasCustomComparer(constraintPartExpression)
                     || constraintPartExpression.HasUnknownExpressions())
                 {
@@ -169,14 +169,6 @@ namespace NUnit.Analyzers.ComparableTypes
 
             return (typeSymbol.TypeKind == TypeKind.Interface && typeSymbol.GetFullMetadataName() == iComparable) ||
                 typeSymbol.AllInterfaces.Any(i => i.TypeArguments.Length == 0 && i.GetFullMetadataName() == iComparable);
-        }
-
-        private static bool HasIncompatiblePrefixes(ConstraintExpressionPart constraintPartExpression)
-        {
-            // Currently only 'Not' suffix supported, as all other suffixes change actual type for constraint
-            // (e.g. All, Some, Property, Count, etc.)
-
-            return constraintPartExpression.GetPrefixesNames().Any(s => s != NunitFrameworkConstants.NameOfIsNot);
         }
 
         private static bool HasCustomComparer(ConstraintExpressionPart constraintPartExpression)

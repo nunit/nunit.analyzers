@@ -47,7 +47,7 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
 
                 foreach (var constraintPartExpression in constraintExpression.ConstraintParts)
                 {
-                    if (HasIncompatiblePrefixes(constraintPartExpression)
+                    if (constraintPartExpression.HasIncompatiblePrefixes()
                         || constraintPartExpression.HasUnknownExpressions())
                     {
                         return;
@@ -91,14 +91,6 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
                     descriptor,
                     actualOperation.Syntax.GetLocation()));
             }
-        }
-
-        private static bool HasIncompatiblePrefixes(ConstraintExpressionPart constraintPartExpression)
-        {
-            // Currently only 'Not' suffix supported, as all other suffixes change actual type for constraint
-            // (e.g. All, Some, Property, Count, etc.)
-
-            return constraintPartExpression.GetPrefixesNames().Any(s => s != NunitFrameworkConstants.NameOfIsNot);
         }
     }
 }

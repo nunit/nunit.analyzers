@@ -40,7 +40,7 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
                     continue;
                 }
 
-                if (HasIncompatibleOperators(constraintPart))
+                if (constraintPart.HasIncompatiblePrefixes())
                     return;
 
                 var expectedType = constraintPart.GetExpectedArgument()?.Type;
@@ -81,11 +81,6 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
         {
             return constraintPart.HelperClass?.Name == NunitFrameworkConstants.NameOfContains
                 && constraintPart.GetConstraintName() == NunitFrameworkConstants.NameOfContainsItem;
-        }
-
-        private static bool HasIncompatibleOperators(ConstraintExpressionPart constraintPart)
-        {
-            return constraintPart.GetPrefixesNames().Any(p => p != NunitFrameworkConstants.NameOfDoesNot);
         }
 
         private static string ConstraintDiagnosticDescription(ConstraintExpressionPart constraintPart)
