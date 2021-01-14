@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -115,6 +117,41 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
                 $"Assert.That(() => new[] {{1,2,3}}, {this.constraint}(1));");
 
             RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenCustomEqualityMethodIsUsed()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var actual = new[] {{ ""1"", ""2"", ""3"" }};
+                Func<string, int, bool> func = (a, b) => true;
+                Assert.That(actual, {this.constraint}(1).Using(func));");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void IgnoredWhenUntypedCustomComparerProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                var actual = new[] {{ ""1"", ""2"", ""3"" }};
+                Assert.That(actual, {this.constraint}(1).Using((IEqualityComparer)StringComparer.Ordinal));",
+                "using System.Collections;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTypedCustomComparerProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                var actual = new[] {{ ""1"", ""2"", ""3"" }};
+                Assert.That(actual, {this.constraint}(1).Using((IEqualityComparer<string>)StringComparer.Ordinal));",
+                "using System.Collections.Generic;");
+
+            RoslynAssert.Diagnostics(analyzer,
+                expectedDiagnostic.WithMessage($"The '{this.constraint}' constraint cannot be used with actual argument of type 'string[]' and expected argument of type 'int'"),
+                testCode);
         }
     }
 }

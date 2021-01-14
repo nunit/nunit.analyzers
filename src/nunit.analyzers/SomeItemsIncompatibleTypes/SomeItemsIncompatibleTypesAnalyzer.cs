@@ -55,6 +55,35 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
                     if (elementType == null)
                         continue;
 
+                    IInvocationOperation? usingInvocation = constraintPart.GetSuffix(NunitFrameworkConstants.NameOfUsing) as IInvocationOperation;
+                    if (usingInvocation != null)
+                    {
+                        IMethodSymbol target = usingInvocation.TargetMethod;
+                        ImmutableArray<ITypeSymbol> typeArguments = target.TypeArguments;
+                        switch (typeArguments.Length)
+                        {
+                            case 1:
+                                // IEqualityComparer<T> or IComparer<T> or Comparison<T>
+                                // Type must match.
+                                break;
+                            case 2:
+                                // Func<TCollection, TMember, bool>
+                                // Allows type translation to TMember.
+                                if (NUnitEqualityComparerHelper.CanBeEqual(typeArguments[0], elementType, context.Compilation))
+                                {
+                                    elementType = typeArguments[1];
+                                }
+
+                                break;
+                            case 0:
+                                // IEqualityComparer, IComparer
+                                // Could potentially compare any type to any type
+                            default:
+                                // Unknown new method
+                                continue;
+                        }
+                    }
+
                     // Valid, if collection element type matches expected type.
                     if (NUnitEqualityComparerHelper.CanBeEqual(elementType, expectedType, context.Compilation))
                         continue;
