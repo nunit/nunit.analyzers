@@ -1,4 +1,4 @@
-namespace NUnit.Analyzers.Constants
+namespace NUnit.Analyzers.ClassicModelAssertUsage
 {
     internal static class ClassicModelUsageAnalyzerConstants
     {

@@ -1,4 +1,4 @@
-namespace NUnit.Analyzers
+namespace NUnit.Analyzers.SameAsIncompatibleTypes
 {
     internal class SameAsIncompatibleTypesConstants
     {

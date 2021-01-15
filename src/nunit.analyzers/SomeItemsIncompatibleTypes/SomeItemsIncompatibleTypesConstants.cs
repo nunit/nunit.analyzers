@@ -1,4 +1,4 @@
-namespace NUnit.Analyzers.Constants
+namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
 {
     internal static class SomeItemsIncompatibleTypesConstants
     {

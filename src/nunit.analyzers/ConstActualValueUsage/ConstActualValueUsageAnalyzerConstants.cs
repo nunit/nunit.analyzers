@@ -1,6 +1,6 @@
 using System;
 
-namespace NUnit.Analyzers.Constants
+namespace NUnit.Analyzers.ConstActualValueUsage
 {
     internal static class ConstActualValueUsageAnalyzerConstants
     {

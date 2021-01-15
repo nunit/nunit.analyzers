@@ -1,4 +1,4 @@
-namespace NUnit.Analyzers.Constants
+namespace NUnit.Analyzers.SameAsOnValueTypes
 {
     internal static class SameAsOnValueTypesConstants
     {
