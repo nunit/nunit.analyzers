@@ -33,7 +33,7 @@ namespace NUnit.Analyzers.ContainsConstraintWrongActualType
 
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
-                if (constraintPart.GetPrefixesNames().Any(p => p != NunitFrameworkConstants.NameOfIsNot))
+                if (constraintPart.HasIncompatiblePrefixes())
                     return;
 
                 if (constraintPart.GetConstraintName() != NunitFrameworkConstants.NameOfDoesContain

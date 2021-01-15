@@ -30,13 +30,7 @@ namespace NUnit.Analyzers.NullConstraintUsage
 
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
-                var prefixes = constraintPart.GetPrefixesNames();
-
-                // Only Not prefix supported
-                var prefixesSupported = prefixes.Length == 0
-                    || (prefixes.Length == 1 && prefixes[0] == NunitFrameworkConstants.NameOfIsNot);
-
-                if (prefixesSupported
+                if (!constraintPart.HasIncompatiblePrefixes()
                     && constraintPart.Root != null
                     && constraintPart.HelperClass?.Name == NunitFrameworkConstants.NameOfIs
                     && constraintPart.GetConstraintName() == NunitFrameworkConstants.NameOfNull)
