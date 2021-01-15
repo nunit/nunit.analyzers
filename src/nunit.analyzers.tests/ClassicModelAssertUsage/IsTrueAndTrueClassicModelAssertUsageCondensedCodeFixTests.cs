@@ -40,7 +40,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             Assert.That(true);
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: CodeFixConstants.TransformToConstraintModelDescription + IsTrueAndTrueClassicModelAssertUsageCondensedCodeFix.Suffix);
+                fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription + IsTrueAndTrueClassicModelAssertUsageCondensedCodeFix.Suffix);
         }
 
         [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
@@ -60,7 +60,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             Assert.That(true, ""message"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: CodeFixConstants.TransformToConstraintModelDescription + IsTrueAndTrueClassicModelAssertUsageCondensedCodeFix.Suffix);
+                fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription + IsTrueAndTrueClassicModelAssertUsageCondensedCodeFix.Suffix);
         }
 
         [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
@@ -80,7 +80,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             Assert.That(true, ""message"", Guid.NewGuid());
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: CodeFixConstants.TransformToConstraintModelDescription + IsTrueAndTrueClassicModelAssertUsageCondensedCodeFix.Suffix);
+                fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription + IsTrueAndTrueClassicModelAssertUsageCondensedCodeFix.Suffix);
         }
     }
 }

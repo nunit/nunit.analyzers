@@ -16,6 +16,8 @@ namespace NUnit.Analyzers.ConstraintUsage
 {
     public abstract class BaseConditionConstraintCodeFix : CodeFixProvider
     {
+        internal const string UseConstraintDescriptionFormat = "Use {0} constraint";
+
         public sealed override FixAllProvider GetFixAllProvider()
         {
             return WellKnownFixAllProviders.BatchFixer;
@@ -33,7 +35,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             }
 
             var description = string.Format(CultureInfo.InvariantCulture,
-                CodeFixConstants.UseConstraintDescriptionFormat, suggestedConstraintString);
+                UseConstraintDescriptionFormat, suggestedConstraintString);
 
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);

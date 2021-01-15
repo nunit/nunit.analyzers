@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 additionalUsings: "using System.Collections.Generic;");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: string.Format(CultureInfo.InvariantCulture, CodeFixConstants.UsePropertyDescriptionFormat, "Count"));
+                fixTitle: string.Format(CultureInfo.InvariantCulture, MissingPropertyCodeFix.UsePropertyDescriptionFormat, "Count"));
         }
 
         [Test]
@@ -47,7 +47,7 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                 additionalUsings: "using System.Collections.Generic;");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: string.Format(CultureInfo.InvariantCulture, CodeFixConstants.UsePropertyDescriptionFormat, "Length"));
+                fixTitle: string.Format(CultureInfo.InvariantCulture, MissingPropertyCodeFix.UsePropertyDescriptionFormat, "Length"));
         }
 
         [Test]

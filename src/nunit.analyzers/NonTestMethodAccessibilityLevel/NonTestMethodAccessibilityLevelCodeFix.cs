@@ -16,6 +16,8 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
     [Shared]
     public class NonTestMethodAccessibilityLevelCodeFix : CodeFixProvider
     {
+        internal const string MakeNonTestMethodPrivate = "Make non-test method private";
+
         public override ImmutableArray<string> FixableDiagnosticIds
             => ImmutableArray.Create(AnalyzerIdentifiers.NonTestMethodIsPublic);
 
@@ -48,9 +50,9 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
                 SyntaxNode newRoot = root.ReplaceNode(originalExpression, newExpression);
 
                 var codeAction = CodeAction.Create(
-                    CodeFixConstants.MakeNonTestMethodPrivate,
+                    MakeNonTestMethodPrivate,
                     _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
-                    CodeFixConstants.MakeNonTestMethodPrivate);
+                    MakeNonTestMethodPrivate);
 
                 context.RegisterCodeFix(codeAction, context.Diagnostics);
             }

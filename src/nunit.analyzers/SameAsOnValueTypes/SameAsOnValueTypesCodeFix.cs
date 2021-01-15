@@ -16,6 +16,8 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
     [Shared]
     public class SameAsOnValueTypesCodeFix : CodeFixProvider
     {
+        internal const string UseIsEqualToDescription = "Use IsEqualTo on value types";
+
         public override ImmutableArray<string> FixableDiagnosticIds
             => ImmutableArray.Create(AnalyzerIdentifiers.SameAsOnValueTypes);
 
@@ -75,9 +77,9 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
 
             context.RegisterCodeFix(
                 CodeAction.Create(
-                    CodeFixConstants.UseIsEqualToDescription,
+                    UseIsEqualToDescription,
                     _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
-                    CodeFixConstants.UseIsEqualToDescription), diagnostic);
+                    UseIsEqualToDescription), diagnostic);
         }
     }
 }
