@@ -4,13 +4,18 @@
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Debug");
-var targetFramework = Argument("targetFramework", "netstandard1.6");
+var targetFramework = Argument("targetFramework", "netstandard2.0");
 
 //////////////////////////////////////////////////////////////////////
 // SET PACKAGE VERSION
 //////////////////////////////////////////////////////////////////////
 
-var version = "0.7.0";
+var isNetstandard16Build = targetFramework == "netstandard1.6";
+var isNetstandard20Build = targetFramework == "netstandard2.0";
+
+var version = isNetstandard20Build
+    ? "3.0.0"
+    : "2.0.0";
 
 var isAppveyor = BuildSystem.IsRunningOnAppVeyor;
 var dbgSuffix = configuration == "Debug" ? "-dbg" : "";
@@ -53,8 +58,14 @@ Setup(context =>
 
         if (tag.IsTag)
         {
-            packageVersion = tag.Name;
-            packageVersionString = tag.Name;
+            var tagName = tag.Name;
+            if (isNetstandard16Build && tagName.StartsWith("3"))
+            {
+                tagName = '2' + tagName.Substring(1);
+            }
+
+            packageVersion = tagName;
+            packageVersionString = tagName;
         }
         else
         {
@@ -181,7 +192,7 @@ Task("Pack")
         NuGetPack("./src/nunit.analyzers/nunit.analyzers.nuspec", new NuGetPackSettings()
         {
             Version = packageVersionString,
-            OutputDirectory = PACKAGE_DIR,
+            OutputDirectory = PACKAGE_DIR + "/" + targetFramework,
             Properties = new Dictionary<string, string>()
             {
                 {"Configuration", configuration},
