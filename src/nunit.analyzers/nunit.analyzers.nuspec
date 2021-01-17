@@ -14,9 +14,12 @@
     <summary>Code analyzers and fixes for NUnit 3</summary>
     <description>
       This package includes analyzers and code fixes for test projects using NUnit 3. The analyzers will mark wrong usages when writing tests, and the code fixes can be used to used to correct these usages.
+
+      Version 3.0 and upwards works in Visual Studio 2019 and also enables supression of compiler errors such as errors arising from nullable reference types.
+      For Visual Studio 2017 one must use versions below 3.0.
     </description>
     <releaseNotes>See the release notes on https://github.com/nunit/nunit.analyzers/blob/master/CHANGES.txt.</releaseNotes>
-    <copyright>Copyright (c) 2018-2020 NUnit project</copyright>
+    <copyright>Copyright (c) 2018-2021 NUnit project</copyright>
     <tags>nunit, analyzers, roslyn-analyzers</tags>
   </metadata>
   <!-- The convention for analyzers is to put language agnostic dlls in analyzers\portable50 and language specific analyzers in either analyzers\portable50\cs or analyzers\portable50\vb -->

@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCompany("NUnit Project")]
 
 [assembly: AssemblyProduct("NUnit Analyzers")]
-[assembly: AssemblyCopyright("Copyright © 2018-2020 NUnit project")]
+[assembly: AssemblyCopyright("Copyright © 2018-2021 NUnit project")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
