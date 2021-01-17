@@ -16,6 +16,8 @@ namespace NUnit.Analyzers.ConstActualValueUsage
     [Shared]
     public class ConstActualValueUsageCodeFix : CodeFixProvider
     {
+        internal const string SwapArgumentsDescription = "Swap actual and expected arguments";
+
         private static readonly string[] SupportedClassicAsserts = new[]
         {
             NunitFrameworkConstants.NameOfAssertAreEqual,
@@ -71,9 +73,9 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                     (node, _) => node == actualArgument ? expectedArgument : actualArgument);
 
             var codeAction = CodeAction.Create(
-                CodeFixConstants.SwapArgumentsDescription,
+                SwapArgumentsDescription,
                 _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
-                CodeFixConstants.SwapArgumentsDescription);
+                SwapArgumentsDescription);
 
             context.RegisterCodeFix(codeAction, context.Diagnostics);
         }

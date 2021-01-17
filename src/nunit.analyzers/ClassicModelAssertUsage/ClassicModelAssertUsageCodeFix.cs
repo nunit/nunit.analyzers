@@ -15,7 +15,9 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
     public abstract class ClassicModelAssertUsageCodeFix
         : CodeFixProvider
     {
-        protected virtual string Title => CodeFixConstants.TransformToConstraintModelDescription;
+        internal const string TransformToConstraintModelDescription = "Transform to constraint model";
+
+        protected virtual string Title => TransformToConstraintModelDescription;
 
         public sealed override FixAllProvider GetFixAllProvider()
         {

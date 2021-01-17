@@ -38,7 +38,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             Assert.That(3d, Is.Not.EqualTo(2d));
         }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             Assert.That(3d, Is.Not.EqualTo(2d), ""message"");
         }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             Assert.That(3d, Is.Not.EqualTo(2d), ""message"", Guid.NewGuid());
         }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }
 }

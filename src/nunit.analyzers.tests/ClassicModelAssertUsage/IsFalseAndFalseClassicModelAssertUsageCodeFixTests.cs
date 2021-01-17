@@ -39,7 +39,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             Assert.That(false, Is.False);
         }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [TestCase("IsFalse", AnalyzerIdentifiers.IsFalseUsage)]
@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             Assert.That(false, Is.False, ""message"");
         }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [TestCase("IsFalse", AnalyzerIdentifiers.IsFalseUsage)]
@@ -77,7 +77,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             Assert.That(false, Is.False, ""message"", Guid.NewGuid());
         }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [TestCase("IsFalse", AnalyzerIdentifiers.IsFalseUsage)]
@@ -116,7 +116,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             MyBool x = false;
             Assert.That((bool)x, Is.False);
         }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }
 }

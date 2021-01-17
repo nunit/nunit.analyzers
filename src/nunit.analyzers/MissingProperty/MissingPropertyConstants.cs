@@ -1,4 +1,4 @@
-namespace NUnit.Analyzers
+namespace NUnit.Analyzers.MissingProperty
 {
     internal static class MissingPropertyConstants
     {

@@ -36,7 +36,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }}");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: CodeFixConstants.SwapArgumentsDescription);
+                fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: CodeFixConstants.SwapArgumentsDescription);
+                fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
         }
 
         [TestCase(nameof(Is.EqualTo))]
@@ -83,7 +83,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }}");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: CodeFixConstants.SwapArgumentsDescription);
+                fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
         }
 
         [TestCase(nameof(Is.GreaterThan))]

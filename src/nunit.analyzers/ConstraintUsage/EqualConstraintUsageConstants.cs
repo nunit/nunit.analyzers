@@ -1,4 +1,4 @@
-namespace NUnit.Analyzers.Constants
+namespace NUnit.Analyzers.ConstraintUsage
 {
     internal static class EqualConstraintUsageConstants
     {

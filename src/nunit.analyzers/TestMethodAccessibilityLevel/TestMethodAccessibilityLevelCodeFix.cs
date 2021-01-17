@@ -16,6 +16,8 @@ namespace NUnit.Analyzers.TestMethodAccessibilityLevel
     [Shared]
     public class TestMethodAccessibilityLevelCodeFix : CodeFixProvider
     {
+        internal const string MakeTestMethodPublic = "Make test method public";
+
         public override ImmutableArray<string> FixableDiagnosticIds
             => ImmutableArray.Create(AnalyzerIdentifiers.TestMethodIsNotPublic);
 
@@ -58,9 +60,9 @@ namespace NUnit.Analyzers.TestMethodAccessibilityLevel
             var newRoot = root.ReplaceNode(originalExpression, newExpression);
 
             var codeAction = CodeAction.Create(
-                CodeFixConstants.MakeTestMethodPublic,
+                MakeTestMethodPublic,
                 _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
-                CodeFixConstants.MakeTestMethodPublic);
+                MakeTestMethodPublic);
 
             context.RegisterCodeFix(codeAction, context.Diagnostics);
         }

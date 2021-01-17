@@ -44,7 +44,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             Assert.That(actual, Is.Not.InstanceOf(expected));
         }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             Assert.That(actual, Is.Not.InstanceOf(expected), ""message"");
         }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             Assert.That(actual, Is.Not.InstanceOf(expected), ""message"", Guid.NewGuid());
         }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
@@ -108,7 +108,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
                 Assert.That(actual, Is.Not.InstanceOf<int>());
             }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
@@ -150,7 +150,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
                 public T Value { get; }
             }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
@@ -194,7 +194,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
                 public T Value { get; }
             }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
@@ -214,7 +214,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
                 Assert.That(actual, Is.Not.InstanceOf<int>(), ""message"");
             }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
@@ -234,7 +234,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
                 Assert.That(actual, Is.Not.InstanceOf<int>(), ""message"", Guid.NewGuid());
             }");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: CodeFixConstants.TransformToConstraintModelDescription);
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }
 }

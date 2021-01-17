@@ -1,4 +1,4 @@
-namespace NUnit.Analyzers.Constants
+namespace NUnit.Analyzers.TestMethodAccessibilityLevel
 {
     internal static class TestMethodAccessibilityLevelConstants
     {

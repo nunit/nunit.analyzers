@@ -1,4 +1,4 @@
-namespace NUnit.Analyzers.Constants
+namespace NUnit.Analyzers.ComparableTypes
 {
     internal static class ComparableOnObjectConstants
     {

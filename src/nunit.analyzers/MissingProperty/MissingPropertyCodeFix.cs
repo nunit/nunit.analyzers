@@ -18,6 +18,8 @@ namespace NUnit.Analyzers.MissingProperty
     [Shared]
     public class MissingPropertyCodeFix : CodeFixProvider
     {
+        internal const string UsePropertyDescriptionFormat = "Use '{0}' property";
+
         private static readonly Dictionary<string, string> supportedCodeFixes = new Dictionary<string, string>
         {
             { NunitFrameworkConstants.NameOfHasCount, NunitFrameworkConstants.NameOfHasLength },
@@ -65,7 +67,7 @@ namespace NUnit.Analyzers.MissingProperty
                 var newRoot = root.ReplaceNode(originalExpression, memberAccess);
 
                 var description = string.Format(CultureInfo.InvariantCulture,
-                        CodeFixConstants.UsePropertyDescriptionFormat, target);
+                        UsePropertyDescriptionFormat, target);
 
                 var codeAction = CodeAction.Create(
                     description,
