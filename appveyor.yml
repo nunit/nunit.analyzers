@@ -1,13 +1,15 @@
 image: Visual Studio 2019
 
 build_script:
-  - ps: .\build.ps1 -Target "Appveyor" -Configuration "Release"
+  - ps: .\build.ps1 -Target "Appveyor" -Configuration "Release" -TargetFramework "netstandard1.6"
+  - ps: .\build.ps1 -Target "Appveyor" -Configuration "Release" -TargetFramework "netstandard2.0"
 
 # disable built-in tests.
 test: off
 
 artifacts:
-  - path: 'package\Release\NUnit.Analyzers*.nupkg'
+  - path: 'package\Release\netstandard1.6\NUnit.Analyzers*.nupkg'
+  - path: 'package\Release\netstandard2.0\NUnit.Analyzers*.nupkg'
 
 deploy:
   - provider: NuGet
