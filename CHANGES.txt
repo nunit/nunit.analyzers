@@ -1,4 +1,44 @@
-﻿NUnit Analyzers 0.6 - November 24, 2020
+﻿NUnit Analyzers 3.0 (and 2.0) - January 18, 2021
+
+This release of the NUnit Analyzers adds the possibility to suppress compiler errors based on context.
+Initially, we support the suppression of errors arising from nullable reference types (many thanks to
+Manfred Brands for this major contribution). This functionality depends on a newer version of Roslyn
+which is not supported in Visual Studio 2017 (only in Visual Studio 2019).
+
+So we have decided to release two versions of the analyzers: versions starting with 2.x can be used in Visual
+Studio 2017 and versions starting with 3.x can be used in Visual Studio 2019 (the major version number matches
+the major version number of Roslyn). Most features will be available in both the 2.x versions and the 3.x versions,
+unless they require Roslyn functionality that is only available in the 3.x versions.
+
+The release also contains some bugfixes to existing diagnostics.
+
+The release contains contributions from the following users (in alphabetical order):
+* Dreamescaper
+* manfred-brands
+* mikkelbu
+
+Issues Resolved
+
+Features and Enhancements
+* #157 Suppress nullability warnings after Is.Not.Null constraint
+* #329 Analyzer to warn against comparison operators in actual expression
+* #333 Add nullable suppression for Assert.Throws
+
+Bugs
+* #320 Incorrect NUnit1011 when TestCaseSource references a base class member
+* #322 NUnit2021 false positive for IEquatable<T>
+* #332 NUnit2026 shouldn't fire when CustomEqualityComparer is used
+
+Tooling, Process, and Documentation
+* #319 chore: Bump version to 0.7
+* #323 Update to latest GuOrg.Roslyn.Asserts
+* #326 fix: Correct missing change `AnalyzerAssert` => `RoslynAssert`
+* #328 fix(docs): Fix linting issue
+* #335 Move Constant code closer to actual rule
+* #336 Create a .NETStandard2.0 release
+
+
+NUnit Analyzers 0.6 - November 24, 2020
 
 This release of the NUnit Analyzers corrects several false positives from the analyzers.
 
