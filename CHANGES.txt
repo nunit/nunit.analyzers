@@ -3,7 +3,7 @@
 This release of the NUnit Analyzers adds the possibility to suppress compiler errors based on context.
 Initially, we support the suppression of errors arising from nullable reference types (many thanks to
 Manfred Brands for this major contribution). This functionality depends on a newer version of Roslyn
-based on .NET Standard 2.0 which is not supported in Visual Studio 2017 (only in Visual Studio 2019).
+which is not supported in Visual Studio 2017 (only in Visual Studio 2019).
 
 So we have decided to release two versions of the analyzers: versions starting with 2.x can be used in Visual
 Studio 2017 and versions starting with 3.x can be used in Visual Studio 2019 (the major version number matches
