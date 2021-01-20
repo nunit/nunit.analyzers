@@ -61,7 +61,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             while ((possibleAssertMultiple = node.Ancestors().OfType<InvocationExpressionSyntax>().FirstOrDefault()) != null)
             {
                 // Is the statement inside a Block which is part of an Assert.Multiple.
-                if (IsAssert("Multiple", possibleAssertMultiple))
+                if (IsAssert(possibleAssertMultiple, "Multiple"))
                 {
                     return true;
                 }
@@ -189,12 +189,12 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsKnownToBeNotNull(ExpressionSyntax? expression)
         {
             // For now, we only know that Assert.Throws either returns not-null or throws
-            return IsAssert("Throws", expression);
+            return IsAssert(expression, "Throws", "Catch", "ThrowsAsync", "CatchAsync");
         }
 
-        private static bool IsAssert(string requestedMember, ExpressionSyntax? expression)
+        private static bool IsAssert(ExpressionSyntax? expression, params string[] requestedMembers)
         {
-            return IsAssert(expression, out string member, out _) && member == requestedMember;
+            return IsAssert(expression, out string member, out _) && requestedMembers.Contains(member);
         }
 
         private static bool IsAssert(ExpressionSyntax? expression,

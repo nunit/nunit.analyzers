@@ -309,16 +309,35 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 .ConfigureAwait(false);
         }
 
-        [TestCase("var")]
-        [TestCase("Exception")]
-        public async Task ThrowsLocalDeclaration(string type)
+        [TestCase("var", "Throws")]
+        [TestCase("Exception", "Catch")]
+        public async Task ThrowsLocalDeclaration(string type, string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
                 #nullable enable
                 [Test]
                 public void Test()
                 {{
-                    {type} ex = Assert.Throws<Exception>(() => throw new InvalidOperationException());
+                    {type} ex = Assert.{assert}<Exception>(() => throw new InvalidOperationException());
+                    string m = ex.Message;
+                }}
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
+                .ConfigureAwait(false);
+        }
+
+        [TestCase("var", "CatchAsync")]
+        [TestCase("Exception", "ThrowsAsync")]
+        public async Task ThrowsAsyncLocalDeclaration(string type, string assert)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                #nullable enable
+                [Test]
+                public void Test()
+                {{
+                    {type} ex = Assert.{assert}<Exception>(() => Task.Delay(0));
                     string m = ex.Message;
                 }}
             ");
@@ -537,7 +556,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     {
                         Assert.DoesNotThrow(() =>
                         {
-                            var e = Assert.Throws<System.Exception>(() => new System.Exception(""Test""));
+                            var e = Assert.Throws<Exception>(() => new Exception(""Test""));
                             if (e.InnerException != null)
                             {
                                 Assert.That(e.InnerException.Message, Is.EqualTo(""Test""));
