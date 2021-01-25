@@ -309,16 +309,35 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 .ConfigureAwait(false);
         }
 
-        [TestCase("var")]
-        [TestCase("Exception")]
-        public async Task ThrowsLocalDeclaration(string type)
+        [TestCase("var", "Throws")]
+        [TestCase("Exception", "Catch")]
+        public async Task ThrowsLocalDeclaration(string type, string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
                 #nullable enable
                 [Test]
                 public void Test()
                 {{
-                    {type} ex = Assert.Throws<Exception>(() => throw new InvalidOperationException());
+                    {type} ex = Assert.{assert}<Exception>(() => throw new InvalidOperationException());
+                    string m = ex.Message;
+                }}
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
+                .ConfigureAwait(false);
+        }
+
+        [TestCase("var", "CatchAsync")]
+        [TestCase("Exception", "ThrowsAsync")]
+        public async Task ThrowsAsyncLocalDeclaration(string type, string assert)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                #nullable enable
+                [Test]
+                public void Test()
+                {{
+                    {type} ex = Assert.{assert}<Exception>(() => Task.Delay(0));
                     string m = ex.Message;
                 }}
             ");
@@ -405,6 +424,153 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
                 DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8604"], testCode)
                 .ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task ThrowAssignedOutsideAssertMultipleUsedInside()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                #nullable enable
+
+                [Test]
+                public void Test()
+                {
+                    var e = Assert.Throws<Exception>(() => throw new Exception(""Test""));
+                    Assert.Multiple(() =>
+                    {
+                        Assert.That(e.Message, Is.EqualTo(""Test""));
+                        Assert.That(e.InnerException, Is.Null);
+                        Assert.That(e.StackTrace, Is.Not.Empty);
+                    });
+                }");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
+                .ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task VariableAssertedOutsideAssertMultipleUsedInside()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                #nullable enable
+
+                [Test]
+                public void Test()
+                {
+                    var e = GetPossibleException();
+                    Assert.That(e, Is.Not.Null);
+                    Assert.Multiple(() =>
+                    {
+                        Assert.That(e.Message, Is.EqualTo(""Test""));
+                        Assert.That(e.InnerException, Is.Null);
+                        Assert.That(e.StackTrace, Is.Not.Empty);
+                    });
+                }
+
+                private Exception? GetPossibleException() => new Exception();
+                ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
+                .ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task VariableAssignedOutsideAssertMultipleUsedInside()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                #nullable enable
+
+                [Test]
+                public void Test()
+                {
+                    var e = GetPossibleException();
+                    Assert.Multiple(() =>
+                    {
+                        Assert.That(e.Message, Is.EqualTo(""Test""));
+                        Assert.That(e.InnerException, Is.Null);
+                        Assert.That(e.StackTrace, Is.Not.Empty);
+                    });
+                }
+
+                private Exception? GetPossibleException() => new Exception();
+                ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
+                                               .ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task VariableAssignedUsedInsideLambda()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                #nullable enable
+
+                [Test]
+                public void Test()
+                {
+                    var e = GetPossibleException();
+                    Assert.That(() => e.Message, Is.EqualTo(""Test""));
+                }
+
+                private Exception? GetPossibleException() => new Exception();
+                ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
+                                               .ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task VariableAssertedUsedInsideLambda()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                #nullable enable
+
+                [Test]
+                public void Test()
+                {
+                    var e = GetPossibleException();
+                    Assert.That(e, Is.Not.Null);
+                    Assert.That(() => e.Message, Is.EqualTo(""Test""));
+                }
+
+                private Exception? GetPossibleException() => new Exception();
+                ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
+                .ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task NestedStatements()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                #nullable enable
+
+                [Test]
+                public void Test()
+                {
+                    Assert.Multiple(() =>
+                    {
+                        Assert.DoesNotThrow(() =>
+                        {
+                            var e = Assert.Throws<Exception>(() => new Exception(""Test""));
+                            if (e.InnerException != null)
+                            {
+                                Assert.That(e.InnerException.Message, Is.EqualTo(""Test""));
+                            }
+                            else
+                            {
+                                Assert.That(e.Message, Is.EqualTo(""Test""));
+                            }
+                        });
+                    });
+                }");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
+                                               .ConfigureAwait(false);
         }
     }
 }

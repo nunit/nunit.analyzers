@@ -39,37 +39,48 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             {
                 SyntaxNode? node = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken)
                                                                   .FindNode(diagnostic.Location.SourceSpan);
-                BlockSyntax? parent = node?.Ancestors().OfType<BlockSyntax>().FirstOrDefault();
 
-                if (node is null || parent is null)
+                if (node is null)
                 {
                     continue;
                 }
 
-                if (IsInsideAssertMultiple(parent))
-                {
-                    // NUnit doesn't throw on failures and therefore the compiler is correct.
-                    continue;
-                }
-
-                if (ShouldBeSuppressed(node, parent))
+                // Was the offending variable assigned or verified to be not null inside an Assert.Multiple?
+                // NUnit doesn't throw on failures and therefore the compiler is correct.
+                if (ShouldBeSuppressed(node, out SyntaxNode? suppressionCause) && !IsInsideAssertMultiple(suppressionCause))
                 {
                     context.ReportSuppression(Suppression.Create(SuppressionDescriptors[diagnostic.Id], diagnostic));
                 }
             }
         }
 
-        private static bool IsInsideAssertMultiple(SyntaxNode parent)
+        private static bool IsInsideAssertMultiple(SyntaxNode node)
         {
-            var possibleAssertMultiple = parent.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
-            return IsAssert("Multiple", possibleAssertMultiple);
+            InvocationExpressionSyntax? possibleAssertMultiple;
+
+            while ((possibleAssertMultiple = node.Ancestors().OfType<InvocationExpressionSyntax>().FirstOrDefault()) != null)
+            {
+                // Is the statement inside a Block which is part of an Assert.Multiple.
+                if (IsAssert(possibleAssertMultiple, "Multiple"))
+                {
+                    return true;
+                }
+
+                // Keep looking at possible parent nested expression.
+                node = possibleAssertMultiple;
+            }
+
+            return false;
         }
 
-        private static bool ShouldBeSuppressed(SyntaxNode node, BlockSyntax parent)
+        private static bool ShouldBeSuppressed(SyntaxNode node, [NotNullWhen(true)] out SyntaxNode? suppressionCause)
         {
+            suppressionCause = default(SyntaxNode);
+
             if (IsKnownToBeNotNull(node))
             {
                 // Known to be not null value assigned or passed to non-nullable type.
+                suppressionCause = node;
                 return true;
             }
 
@@ -80,8 +91,36 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 possibleNullReference = castExpression.Expression.ToString();
             }
 
-            StatementSyntax? statement = node?.AncestorsAndSelf().OfType<StatementSyntax>().FirstOrDefault();
+            bool validatedNotNull;
 
+            do
+            {
+                BlockSyntax? parent = node.Ancestors().OfType<BlockSyntax>().FirstOrDefault();
+
+                if (parent is null)
+                {
+                    return false;
+                }
+
+                validatedNotNull = IsValidatedNotNull(possibleNullReference, parent, node, out suppressionCause);
+                if (parent.Parent is null)
+                {
+                    return false;
+                }
+
+                node = parent.Parent;
+            }
+            while (!validatedNotNull);
+
+            return validatedNotNull;
+        }
+
+        private static bool IsValidatedNotNull(string possibleNullReference, BlockSyntax parent, SyntaxNode node,
+                                               [NotNullWhen(true)] out SyntaxNode? suppressionCause)
+        {
+            suppressionCause = default(SyntaxNode);
+
+            StatementSyntax? statement = node?.AncestorsAndSelf().OfType<StatementSyntax>().FirstOrDefault();
             var siblings = parent.ChildNodes().ToList();
 
             // Look in earlier statements to see if the variable was previously checked for null.
@@ -89,6 +128,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             {
                 SyntaxNode previous = siblings[nodeIndex];
 
+                suppressionCause = previous;
                 if (previous is ExpressionStatementSyntax expressionStatement)
                 {
                     if (expressionStatement.Expression is AssignmentExpressionSyntax assignmentExpression)
@@ -149,12 +189,12 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsKnownToBeNotNull(ExpressionSyntax? expression)
         {
             // For now, we only know that Assert.Throws either returns not-null or throws
-            return IsAssert("Throws", expression);
+            return IsAssert(expression, "Throws", "Catch", "ThrowsAsync", "CatchAsync");
         }
 
-        private static bool IsAssert(string requestedMember, ExpressionSyntax? expression)
+        private static bool IsAssert(ExpressionSyntax? expression, params string[] requestedMembers)
         {
-            return IsAssert(expression, out string member, out _) && member == requestedMember;
+            return IsAssert(expression, out string member, out _) && requestedMembers.Contains(member);
         }
 
         private static bool IsAssert(ExpressionSyntax? expression,
