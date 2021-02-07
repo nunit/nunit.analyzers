@@ -268,12 +268,7 @@ namespace NUnit.Analyzers.Tests
             }
             while (startIndex >= 0 && tableNumber-- > 0);
 
-            if (startIndex < 0)
-            {
-                return string.Empty;
-            }
-
-            return doc.Substring(startIndex, TableLength());
+            return startIndex < 0 ? string.Empty : doc.Substring(startIndex, TableLength());
 
             int TableLength()
             {

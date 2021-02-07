@@ -92,31 +92,28 @@ namespace NUnit.Analyzers.Extensions
                 }
                 else
                 {
-                    if (argumentValue != null)
+                    var canConvert = false;
+
+                    if (targetType.SpecialType == SpecialType.System_Int16 || targetType.SpecialType == SpecialType.System_Byte ||
+                        targetType.SpecialType == SpecialType.System_Int64 ||
+                        targetType.SpecialType == SpecialType.System_SByte || targetType.SpecialType == SpecialType.System_Double)
                     {
-                        var canConvert = false;
+                        canConvert = argumentType.SpecialType == SpecialType.System_Int32;
+                    }
+                    else if (targetType.SpecialType == SpecialType.System_Decimal)
+                    {
+                        canConvert = argumentType.SpecialType == SpecialType.System_Double ||
+                            argumentType.SpecialType == SpecialType.System_String ||
+                            argumentType.SpecialType == SpecialType.System_Int32;
+                    }
+                    else if (targetType.SpecialType == SpecialType.System_DateTime)
+                    {
+                        canConvert = argumentType.SpecialType == SpecialType.System_String;
+                    }
 
-                        if (targetType.SpecialType == SpecialType.System_Int16 || targetType.SpecialType == SpecialType.System_Byte ||
-                            targetType.SpecialType == SpecialType.System_Int64 ||
-                            targetType.SpecialType == SpecialType.System_SByte || targetType.SpecialType == SpecialType.System_Double)
-                        {
-                            canConvert = argumentType.SpecialType == SpecialType.System_Int32;
-                        }
-                        else if (targetType.SpecialType == SpecialType.System_Decimal)
-                        {
-                            canConvert = argumentType.SpecialType == SpecialType.System_Double ||
-                                argumentType.SpecialType == SpecialType.System_String ||
-                                argumentType.SpecialType == SpecialType.System_Int32;
-                        }
-                        else if (targetType.SpecialType == SpecialType.System_DateTime)
-                        {
-                            canConvert = argumentType.SpecialType == SpecialType.System_String;
-                        }
-
-                        if (canConvert)
-                        {
-                            return AttributeArgumentTypedConstantExtensions.TryChangeType(targetType, argumentValue);
-                        }
+                    if (canConvert)
+                    {
+                        return AttributeArgumentTypedConstantExtensions.TryChangeType(targetType, argumentValue);
                     }
                 }
             }
