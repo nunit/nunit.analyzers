@@ -168,7 +168,7 @@ Task("Test")
         DotNetCoreTest(TEST_PROJECT, new DotNetCoreTestSettings
         {
             Configuration = configuration,
-            Logger = "trx",
+            Loggers = new string[] { "trx" },
             VSTestReportPath = "TestResult.xml",
         });
     })
