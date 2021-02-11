@@ -98,6 +98,16 @@ dotnet_style_coalesce_expression = true:suggestion
 dotnet_style_null_propagation = true:suggestion
 dotnet_style_explicit_tuple_names = true:suggestion
 
+# Expression-bodied members
+csharp_style_expression_bodied_accessors = when_on_single_line:suggestion
+csharp_style_expression_bodied_constructors = false:none
+csharp_style_expression_bodied_indexers = when_on_single_line:suggestion
+csharp_style_expression_bodied_lambdas = when_on_single_line:suggestion
+csharp_style_expression_bodied_local_functions = when_on_single_line:silent
+csharp_style_expression_bodied_methods = false:none
+csharp_style_expression_bodied_operators = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = when_on_single_line:warning
+
 # The first matching rule wins, more specific rules at the top
 
 # dotnet_naming_rule.*.symbols does not yet support a comma-separated list https://github.com/dotnet/roslyn/issues/20891
@@ -179,7 +189,13 @@ dotnet_diagnostic.SA1612.severity = none
 dotnet_diagnostic.SA1633.severity = none
 
 ##################################################################################
-# FxCop Analyzers
+# Net Analyzers
+
+# CA1002: Do not expose generic list
+dotnet_diagnostic.CA1002.severity = none
+
+# CA1014: Mark assemblies with CLSCompliant
+dotnet_diagnostic.CA1014.severity = none
 
 # CA1034: Nested types should not be visible
 dotnet_diagnostic.CA1034.severity = none
@@ -190,6 +206,16 @@ dotnet_diagnostic.CA1056.severity = none
 # CA1062: Validate arguments of public methods
 # Our callers are roslyn and ourselves.
 dotnet_diagnostic.CA1062.severity = none
+
+# CA1307: Specify StringComparison for clarity
+dotnet_diagnostic.CA1307.severity = none
+
+# CA1310: Specify StringComparison for correctness
+dotnet_diagnostic.CA1310.severity = error
+
+# CA1802: Use literals where appropriate
+# TEMPORARY because of: https://github.com/dotnet/roslyn-analyzers/issues/4732
+dotnet_diagnostic.CA1802.severity = silent
 
 ##################################################################################
 # Roslyn Analyzers

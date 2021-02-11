@@ -80,7 +80,7 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
             if (actualType == null || expectedType == null)
                 return;
 
-            if (expectedType != null && !CanBeSameType(actualType, expectedType, context.Compilation))
+            if (!CanBeSameType(actualType, expectedType, context.Compilation))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     descriptor,
