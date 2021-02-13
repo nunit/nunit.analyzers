@@ -110,6 +110,7 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfSubstringConstraint = "NUnit.Framework.Constraints.SubstringConstraint";
         public const string FullNameOfContainsConstraint = "NUnit.Framework.Constraints.ContainsConstraint";
         public const string FullNameOfActualValueDelegate = "NUnit.Framework.Constraints.ActualValueDelegate`1";
+        public const string FullNameOfDelayedConstraint = "NUnit.Framework.Constraints.DelayedConstraint";
         public const string FullNameOfTestDelegate = "NUnit.Framework.TestDelegate";
 
         public const string NameOfTestCaseAttribute = "TestCaseAttribute";
