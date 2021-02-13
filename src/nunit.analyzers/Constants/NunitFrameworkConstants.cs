@@ -46,6 +46,8 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfHasInnerException = "InnerException";
         public const string NameOfHasNo = "No";
 
+        public const string NameOfThrows = "Throws";
+
         public const string NameOfAssert = "Assert";
         public const string NameOfAssertIsTrue = "IsTrue";
         public const string NameOfAssertTrue = "True";
@@ -72,6 +74,11 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfAssertContains = "Contains";
         public const string NameOfAssertIsInstanceOf = "IsInstanceOf";
         public const string NameOfAssertIsNotInstanceOf = "IsNotInstanceOf";
+
+        public const string NameOfAssertCatch = "Catch";
+        public const string NameOfAssertCatchAsync = "CatchAsync";
+        public const string NameOfAssertThrows = "Throws";
+        public const string NameOfAssertThrowsAsync = "ThrowsAsync";
 
         public const string FullNameOfTypeIs = "NUnit.Framework.Is";
         public const string FullNameOfTypeTestCaseAttribute = "NUnit.Framework.TestCaseAttribute";
