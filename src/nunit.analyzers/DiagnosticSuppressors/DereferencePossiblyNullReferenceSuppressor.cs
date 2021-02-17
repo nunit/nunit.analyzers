@@ -143,9 +143,11 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     // Check if this is Assert.NotNull or Assert.IsNotNull for the same symbol
                     if (IsAssert(expressionStatement.Expression, out string member, out ArgumentListSyntax? argumentList))
                     {
-                        if (member == "NotNull" || member == "IsNotNull" || member == "That")
+                        if (member == NunitFrameworkConstants.NameOfAssertNotNull ||
+                            member == NunitFrameworkConstants.NameOfAssertIsNotNull ||
+                            member == NunitFrameworkConstants.NameOfAssertThat)
                         {
-                            if (member == "That")
+                            if (member == NunitFrameworkConstants.NameOfAssertThat)
                             {
                                 // We must check the 2nd argument for anything but "Is.Null"
                                 // E.g.: Is.Not.Null.And.Not.Empty.
@@ -189,7 +191,11 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsKnownToBeNotNull(ExpressionSyntax? expression)
         {
             // For now, we only know that Assert.Throws either returns not-null or throws
-            return IsAssert(expression, "Throws", "Catch", "ThrowsAsync", "CatchAsync");
+            return IsAssert(expression,
+                NunitFrameworkConstants.NameOfAssertThrows,
+                NunitFrameworkConstants.NameOfAssertCatch,
+                NunitFrameworkConstants.NameOfAssertThrowsAsync,
+                NunitFrameworkConstants.NameOfAssertCatchAsync);
         }
 
         private static bool IsAssert(ExpressionSyntax? expression, params string[] requestedMembers)
@@ -204,7 +210,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             if (expression is InvocationExpressionSyntax invocationExpression &&
                 invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
                 memberAccessExpression.Expression is IdentifierNameSyntax identifierName &&
-                identifierName.Identifier.Text == "Assert")
+                identifierName.Identifier.Text == NunitFrameworkConstants.NameOfAssert)
             {
                 member = memberAccessExpression.Name.Identifier.Text;
                 argumentList = invocationExpression.ArgumentList;

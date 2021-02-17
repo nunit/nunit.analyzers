@@ -97,6 +97,7 @@ Rules which improve assertions in the test code.
 | [NUnit2041](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2041.md) | Incompatible types for comparison constraint | :white_check_mark: | :exclamation: | :x: |
 | [NUnit2042](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2042.md) | Comparison constraint on object | :white_check_mark: | :information_source: | :x: |
 | [NUnit2043](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2043.md) | Use ComparisonConstraint for better assertion messages in case of failure | :white_check_mark: | :information_source: | :white_check_mark: |
+| [NUnit2044](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2044.md) | Non-delegate actual parameter | :white_check_mark: | :exclamation: | :white_check_mark: |
 
 ### Suppressor Rules (NUnit3001 - )
 

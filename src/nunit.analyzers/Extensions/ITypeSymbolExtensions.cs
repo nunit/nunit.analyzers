@@ -44,20 +44,26 @@ namespace NUnit.Analyzers.Extensions
         {
             // e.g. System.Collections.Generic.IEnumerable`1
 
-            if (@this.ContainingNamespace == null)
-                return @this.MetadataName;
+            var names = new Stack<string>();
+            var type = @this.ContainingType;
 
-            var namespaces = new Stack<string>();
-
-            var @namespace = @this.ContainingNamespace;
-
-            while (!@namespace.IsGlobalNamespace)
+            while (type != null)
             {
-                namespaces.Push(@namespace.Name);
-                @namespace = @namespace.ContainingNamespace;
+                names.Push(type.Name);
+                type = type.ContainingType;
             }
 
-            return $"{string.Join(".", namespaces)}.{@this.MetadataName}";
+            var @namespace = @this.ContainingNamespace;
+            if (@namespace != null)
+            {
+                while (!@namespace.IsGlobalNamespace)
+                {
+                    names.Push(@namespace.Name);
+                    @namespace = @namespace.ContainingNamespace;
+                }
+            }
+
+            return $"{string.Join(".", names)}.{@this.MetadataName}";
         }
 
         internal static IEnumerable<INamedTypeSymbol> GetAllBaseTypes(this ITypeSymbol @this)
