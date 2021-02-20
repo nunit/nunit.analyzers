@@ -56,6 +56,11 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
         private static bool FieldIsAssignedIn(MethodDeclarationSyntax method, string fieldName)
         {
+            if (method.ExpressionBody != null)
+            {
+                return FieldIsAssignedIn(method.ExpressionBody.Expression, fieldName);
+            }
+
             if (method.Body is null)
             {
                 return false;
@@ -64,18 +69,28 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             foreach (var statement in method.Body.Statements)
             {
                 if (statement is ExpressionStatementSyntax expressionStatement &&
-                    expressionStatement.Expression is AssignmentExpressionSyntax assignmentExpression)
+                    FieldIsAssignedIn(expressionStatement.Expression, fieldName))
                 {
-                    if (assignmentExpression.Left.ToString() == fieldName)
-                    {
-                        return true;
-                    }
-                    else if (assignmentExpression.Left is MemberAccessExpressionSyntax memberAccessExpression &&
-                        memberAccessExpression.Expression is ThisExpressionSyntax &&
-                        memberAccessExpression.Name.ToString() == fieldName)
-                    {
-                        return true;
-                    }
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool FieldIsAssignedIn(ExpressionSyntax? expressionStatement, string fieldName)
+        {
+            if (expressionStatement is AssignmentExpressionSyntax assignmentExpression)
+            {
+                if (assignmentExpression.Left.ToString() == fieldName)
+                {
+                    return true;
+                }
+                else if (assignmentExpression.Left is MemberAccessExpressionSyntax memberAccessExpression &&
+                    memberAccessExpression.Expression is ThisExpressionSyntax &&
+                    memberAccessExpression.Name.ToString() == fieldName)
+                {
+                    return true;
                 }
             }
 
