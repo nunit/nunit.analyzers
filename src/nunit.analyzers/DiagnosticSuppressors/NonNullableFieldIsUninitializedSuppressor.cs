@@ -1,8 +1,9 @@
 #if !NETSTANDARD1_6
 
-using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -33,9 +34,44 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     continue;
                 }
 
-                string fieldName = node.ToString();
-
                 var classDeclaration = node.Ancestors().OfType<ClassDeclarationSyntax>().First();
+                var fieldDeclarations = classDeclaration.Members.OfType<FieldDeclarationSyntax>().ToArray();
+
+                string fieldName;
+
+                if (node is VariableDeclaratorSyntax variableDeclarator)
+                {
+                    fieldName = variableDeclarator.Identifier.Text;
+                }
+                else if (node is ConstructorDeclarationSyntax)
+                {
+                    // Unfortunately the actual field name is not directly accessible.
+                    // It seems to be in Argument[1], but that field is an internal property.
+                    // Resort to reflection.
+                    IReadOnlyList<object?>? arguments = (IReadOnlyList<object?>?)diagnostic.GetType()
+                        .GetProperty("Arguments", BindingFlags.NonPublic | BindingFlags.Instance)?
+                        .GetValue(diagnostic);
+                    if (arguments != null && arguments.Count == 2 && arguments[1] is string possibleFieldName)
+                    {
+                        fieldName = possibleFieldName;
+                    }
+                    else
+                    {
+                        // Don't know how to extract field name.
+                        continue;
+                    }
+                }
+                else
+                {
+                    continue;
+                }
+
+                // Verify that the name found is actually a field name.
+                if (!fieldDeclarations.SelectMany(x => x.Declaration.Variables).Any(x => x.Identifier.Text == fieldName))
+                {
+                    continue;
+                }
+
                 var methods = classDeclaration.Members.OfType<MethodDeclarationSyntax>().ToArray();
 
                 foreach (var method in methods)

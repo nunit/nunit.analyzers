@@ -76,5 +76,38 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 NonNullableFieldIsUninitializedSuppressor.NullableFieldInitializedInSetUp, testCode)
                 .ConfigureAwait(false);
         }
+
+        [TestCase("SetUp", "")]
+        [TestCase("OneTimeSetUp", "this.")]
+        public async Task FieldNotAssignedInConstructor(string attribute, string prefix)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                #nullable enable
+
+                private string testName;
+                private string nunitField;
+
+                public TestClass(string name)
+                {{
+                    {prefix}testName = name;
+                }}
+
+                [{attribute}]
+                public void Initialize()
+                {{
+                    {prefix}nunitField = string.Empty;
+                }}
+
+                [Test]
+                public void Test()
+                {{
+                    Assert.That({prefix}nunitField, Is.Not.Null);
+                }}
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                NonNullableFieldIsUninitializedSuppressor.NullableFieldInitializedInSetUp, testCode)
+                .ConfigureAwait(false);
+        }
     }
 }
