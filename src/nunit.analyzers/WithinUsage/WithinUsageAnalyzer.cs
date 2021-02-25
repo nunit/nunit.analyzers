@@ -63,8 +63,8 @@ namespace NUnit.Analyzers.WithinUsage
                 {
                     var syntax = withinSuffix.Syntax is InvocationExpressionSyntax expressionSyntax &&
                         expressionSyntax.Expression is MemberAccessExpressionSyntax memberAccessSyntax
-                        ? memberAccessSyntax.Name
-                        : withinSuffix.Syntax;
+                            ? memberAccessSyntax.Name
+                            : withinSuffix.Syntax;
 
                     context.ReportDiagnostic(Diagnostic.Create(
                         descriptor,

@@ -12,7 +12,7 @@
 
 ## Description
 
-The Within modifier should only be used for numeric or Date/Time arguments or tuples containing only these element types. Using it on another type will not have any effect.
+The `Within` modifier should only be used for numeric or Date/Time arguments or tuples containing only these element types. Using it on another type will not have any effect.
 
 ## Motivation
 
@@ -37,7 +37,7 @@ private sealed record Data(int number, double Value);
 
 ### Explanation
 
-Using Within here doesn't make any sense, because nunit cannot apply comparison with tolerance to the types we're comparing.
+Using `Within` here doesn't make any sense, because NUnit cannot apply comparison with tolerance to the types we're comparing.
 
 ### Fix
 
