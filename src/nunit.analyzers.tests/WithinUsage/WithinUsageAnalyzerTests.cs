@@ -63,11 +63,33 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         public void AnalyzeWhenAppliedToEqualityConstraintForIncompatibleTuples()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
-                var a = (1, ""1"");
-                var b = (1.1, ""1"");
+                var a = (""1"", ""1"");
+                var b = (""1.1"", ""1"");
                 Assert.That(a, Is.EqualTo(b).↓Within(0.1));");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenAppliedToEqualityConstraintForMixedCompatibleTuples()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var a = (1, ""1"");
+                var b = (1.01, ""1"");
+                Assert.That(a, Is.EqualTo(b).Within(0.1));");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenAppliedToEqualityConstraintForNamedTuples()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var a = (value: 1, name: ""1"");
+                var b = (value: 1.01, name: ""1"");
+                Assert.That(a, Is.EqualTo(b).Within(0.1));");
+
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCase("1", "1")]

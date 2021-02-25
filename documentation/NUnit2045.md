@@ -12,7 +12,7 @@
 
 ## Description
 
-The `Within` modifier should only be used for numeric or Date/Time arguments or tuples containing only these element types. Using it on another type will not have any effect.
+The `Within` modifier should only be used for numeric or Date/Time arguments or tuples containing only these element types. Using it on other types will not have any effect.
 
 ## Motivation
 

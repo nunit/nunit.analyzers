@@ -105,14 +105,17 @@ namespace NUnit.Analyzers.WithinUsage
             if (!(type is INamedTypeSymbol namedType))
                 return false;
 
-            // Allowed - tuples
+            // Allowed - tuples having any element of any supported type
             if (namedType.IsTupleType)
-                return namedType.TupleElements.All(e => IsTypeSupported(e.Type, checkedTypes));
+                return namedType.TupleElements.Any(e => IsTypeSupported(e.Type, checkedTypes));
 
             var fullName = namedType.GetFullMetadataName();
 
-            if (fullName.StartsWith("System.Tuple`", StringComparison.Ordinal))
-                return namedType.TypeArguments.All(t => IsTypeSupported(t, checkedTypes));
+            if (fullName.StartsWith("System.Tuple`", StringComparison.Ordinal) ||
+                fullName.StartsWith("System.ValueTuple", StringComparison.Ordinal))
+            {
+                return namedType.TypeArguments.Any(t => IsTypeSupported(t, checkedTypes));
+            }
 
             if (fullName.Equals("System.TimeSpan", StringComparison.Ordinal))
                 return true;
