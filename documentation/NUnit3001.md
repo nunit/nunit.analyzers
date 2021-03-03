@@ -87,7 +87,7 @@ To disable the rule for a project, you need to add a
 <RuleSet Name="NUnit.Analyzer Suppressions" Description="DiagnosticSuppression Rules" ToolsVersion="12.0">
   <Rules AnalyzerId="DiagnosticSuppressors" RuleNamespace="NUnit.NUnitAnalyzers">
     <Rule Id="NUnit3001" Action="Info" /> <!-- Possible Null Reference -->
-    <Rule Id="NUnit3002" Action="Info" /> <!-- NonNullableField is Uninitialized -->
+    <Rule Id="NUnit3002" Action="Info" /> <!-- NonNullableField/Property is Uninitialized -->
   </Rules>
 </RuleSet>
 ```

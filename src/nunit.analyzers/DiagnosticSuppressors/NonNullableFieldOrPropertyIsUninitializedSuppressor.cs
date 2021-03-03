@@ -12,15 +12,15 @@ using NUnit.Analyzers.Constants;
 namespace NUnit.Analyzers.DiagnosticSuppressors
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class NonNullableFieldIsUninitializedSuppressor : DiagnosticSuppressor
+    public class NonNullableFieldOrPropertyIsUninitializedSuppressor : DiagnosticSuppressor
     {
-        internal static readonly SuppressionDescriptor NullableFieldInitializedInSetUp = new SuppressionDescriptor(
-            id: AnalyzerIdentifiers.NonNullableFieldIsUninitialized,
+        internal static readonly SuppressionDescriptor NullableFieldOrPropertyInitializedInSetUp = new SuppressionDescriptor(
+            id: AnalyzerIdentifiers.NonNullableFieldOrPropertyIsUninitialized,
             suppressedDiagnosticId: "CS8618",
-            justification: "Field is initialized in SetUp or OneTimeSetUp method");
+            justification: "Field/Property is initialized in SetUp or OneTimeSetUp method");
 
         public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions { get; } =
-            ImmutableArray.Create(NullableFieldInitializedInSetUp);
+            ImmutableArray.Create(NullableFieldOrPropertyInitializedInSetUp);
 
         public override void ReportSuppressions(SuppressionAnalysisContext context)
         {
@@ -36,12 +36,17 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
                 var classDeclaration = node.Ancestors().OfType<ClassDeclarationSyntax>().First();
                 var fieldDeclarations = classDeclaration.Members.OfType<FieldDeclarationSyntax>().ToArray();
+                var propertyDeclarations = classDeclaration.Members.OfType<PropertyDeclarationSyntax>().ToArray();
 
-                string fieldName;
+                string fieldOrPropertyName;
 
                 if (node is VariableDeclaratorSyntax variableDeclarator)
                 {
-                    fieldName = variableDeclarator.Identifier.Text;
+                    fieldOrPropertyName = variableDeclarator.Identifier.Text;
+                }
+                else if (node is PropertyDeclarationSyntax propertyDeclaration)
+                {
+                    fieldOrPropertyName = propertyDeclaration.Identifier.Text;
                 }
                 else if (node is ConstructorDeclarationSyntax)
                 {
@@ -53,7 +58,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                         .GetValue(diagnostic);
                     if (arguments != null && arguments.Count == 2 && arguments[1] is string possibleFieldName)
                     {
-                        fieldName = possibleFieldName;
+                        fieldOrPropertyName = possibleFieldName;
                     }
                     else
                     {
@@ -66,8 +71,9 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     continue;
                 }
 
-                // Verify that the name found is actually a field name.
-                if (!fieldDeclarations.SelectMany(x => x.Declaration.Variables).Any(x => x.Identifier.Text == fieldName))
+                // Verify that the name found is actually a field or a property name.
+                if (!fieldDeclarations.SelectMany(x => x.Declaration.Variables).Any(x => x.Identifier.Text == fieldOrPropertyName) &&
+                    !propertyDeclarations.Any(x => x.Identifier.Text == fieldOrPropertyName))
                 {
                     continue;
                 }
@@ -81,20 +87,20 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     if (allAttributes.Contains("SetUp") || allAttributes.Contains("OneTimeSetUp"))
                     {
                         // Find (OneTime)SetUps method and check for assignment to this field.
-                        if (FieldIsAssignedIn(method, fieldName))
+                        if (IsAssignedIn(method, fieldOrPropertyName))
                         {
-                            context.ReportSuppression(Suppression.Create(NullableFieldInitializedInSetUp, diagnostic));
+                            context.ReportSuppression(Suppression.Create(NullableFieldOrPropertyInitializedInSetUp, diagnostic));
                         }
                     }
                 }
             }
         }
 
-        private static bool FieldIsAssignedIn(MethodDeclarationSyntax method, string fieldName)
+        private static bool IsAssignedIn(MethodDeclarationSyntax method, string fieldOrPropertyName)
         {
             if (method.ExpressionBody != null)
             {
-                return FieldIsAssignedIn(method.ExpressionBody.Expression, fieldName);
+                return IsAssignedIn(method.ExpressionBody.Expression, fieldOrPropertyName);
             }
 
             if (method.Body is null)
@@ -105,7 +111,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             foreach (var statement in method.Body.Statements)
             {
                 if (statement is ExpressionStatementSyntax expressionStatement &&
-                    FieldIsAssignedIn(expressionStatement.Expression, fieldName))
+                    IsAssignedIn(expressionStatement.Expression, fieldOrPropertyName))
                 {
                     return true;
                 }
@@ -114,17 +120,17 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             return false;
         }
 
-        private static bool FieldIsAssignedIn(ExpressionSyntax? expressionStatement, string fieldName)
+        private static bool IsAssignedIn(ExpressionSyntax? expressionStatement, string fieldOrPropertyName)
         {
             if (expressionStatement is AssignmentExpressionSyntax assignmentExpression)
             {
-                if (assignmentExpression.Left.ToString() == fieldName)
+                if (assignmentExpression.Left.ToString() == fieldOrPropertyName)
                 {
                     return true;
                 }
                 else if (assignmentExpression.Left is MemberAccessExpressionSyntax memberAccessExpression &&
                     memberAccessExpression.Expression is ThisExpressionSyntax &&
-                    memberAccessExpression.Name.ToString() == fieldName)
+                    memberAccessExpression.Name.ToString() == fieldOrPropertyName)
                 {
                     return true;
                 }

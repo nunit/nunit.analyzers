@@ -1,6 +1,6 @@
 # NUnit3002
 
-## Field is initialized in SetUp or OneTimeSetUp method
+## Field/Property is initialized in SetUp or OneTimeSetUp method
 
 | Topic    | Value
 | :--      | :--
@@ -8,16 +8,17 @@
 | Severity | Info
 | Enabled  | True
 | Category | Suppressor
-| Code     | [NonNullableFieldIsUninitializedSuppressor](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/DiagnosticSuppressors/NonNullableFieldIsUninitializedSuppressor.cs)
+| Code     | [NonNullableFieldOrPropertyIsUninitializedSuppressor](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/DiagnosticSuppressors/NonNullableFieldOrPropertyIsUninitializedSuppressor.cs)
 
 ## Description
 
 This rule check diagnostics reported by the CS8618 compiler error:
 
 `CS8618: Non-nullable field '_name_' must contain a non-null value when exiting constructor. Consider declaring the field as nullable.`
+`CS8618: Non-nullable property '_Name_' must contain a non-null value when exiting constructor. Consider declaring the property as nullable.`
 
-If the violating field is set in the `SetUp` or `OneTimeSetUp` method. The rule suppresses the error.
-This allows for non-nullable fields to be used in a `TestFixture`.
+If the violating field/property is set in the `SetUp` or `OneTimeSetUp` method. The rule suppresses the error.
+This allows for non-nullable fields/properties to be used in a `TestFixture`.
 
 ## Motivation
 
@@ -64,7 +65,7 @@ To disable the rule for a project, you need to add a
 <RuleSet Name="NUnit.Analyzer Suppressions" Description="DiagnosticSuppression Rules" ToolsVersion="12.0">
   <Rules AnalyzerId="DiagnosticSuppressors" RuleNamespace="NUnit.NUnitAnalyzers">
     <Rule Id="NUnit3001" Action="Info" /> <!-- Possible Null Reference -->
-    <Rule Id="NUnit3002" Action="Info" /> <!-- NonNullableField is Uninitialized -->
+    <Rule Id="NUnit3002" Action="Info" /> <!-- NonNullableField/Property is Uninitialized -->
   </Rules>
 </RuleSet>
 ```
@@ -84,7 +85,7 @@ For more info about rulesets see [MSDN](https://msdn.microsoft.com/en-us/library
 This is currently not working. Waiting for [Roslyn](https://github.com/dotnet/roslyn/issues/49727)
 
 ```ini
-# NUnit3002: Field is initialized in SetUp or OneTimeSetUp method
+# NUnit3002: Field/Property is initialized in SetUp or OneTimeSetUp method
 dotnet_diagnostic.NUnit3002.severity = none
 ```
 <!-- end generated config severity -->
