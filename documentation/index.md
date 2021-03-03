@@ -106,4 +106,4 @@ Rules which suppress compiler errors based on context. Note that these rules are
 | Id       | Title       | :mag: | :memo: | :bulb: |
 | :--      | :--         | :--:  | :--:   | :--:   |
 | [NUnit3001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3001.md) | Expression was checked in an Assert.NotNull, Assert.IsNotNull or Assert.That call | :white_check_mark: | :information_source: | :x: |
-| [NUnit3002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3002.md) | Field is initialized in SetUp or OneTimeSetUp method | :white_check_mark: | :information_source: | :x: |
+| [NUnit3002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3002.md) | Field/Property is initialized in SetUp or OneTimeSetUp method | :white_check_mark: | :information_source: | :x: |

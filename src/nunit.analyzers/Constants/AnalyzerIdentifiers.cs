@@ -87,7 +87,7 @@ namespace NUnit.Analyzers.Constants
         #region Suppression
 
         internal const string DereferencePossibleNullReference = "NUnit3001";
-        internal const string NonNullableFieldIsUninitialized = "NUnit3002";
+        internal const string NonNullableFieldOrPropertyIsUninitialized = "NUnit3002";
 
         #endregion
     }

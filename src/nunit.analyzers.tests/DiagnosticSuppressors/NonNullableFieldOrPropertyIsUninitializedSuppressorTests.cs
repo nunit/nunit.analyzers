@@ -5,9 +5,9 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 {
-    public class NonNullableFieldIsUninitializedSuppressorTests
+    public class NonNullableFieldOrPropertyIsUninitializedSuppressorTests
     {
-        private static readonly DiagnosticSuppressor suppressor = new NonNullableFieldIsUninitializedSuppressor();
+        private static readonly DiagnosticSuppressor suppressor = new NonNullableFieldOrPropertyIsUninitializedSuppressor();
 
         [Test]
         public async Task FieldNotAssigned()
@@ -52,7 +52,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             ");
 
             await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                NonNullableFieldIsUninitializedSuppressor.NullableFieldInitializedInSetUp, testCode)
+                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
                 .ConfigureAwait(false);
         }
 
@@ -73,7 +73,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             ");
 
             await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                NonNullableFieldIsUninitializedSuppressor.NullableFieldInitializedInSetUp, testCode)
+                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
                 .ConfigureAwait(false);
         }
 
@@ -106,7 +106,53 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             ");
 
             await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                NonNullableFieldIsUninitializedSuppressor.NullableFieldInitializedInSetUp, testCode)
+                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
+                .ConfigureAwait(false);
+        }
+
+        [Test]
+        public async Task PropertyNotAssigned()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                #nullable enable
+
+                protected string Property {{ get; private set; }}
+
+                [Test]
+                public void Test()
+                {{
+                    Assert.That(Property, Is.Not.Null);
+                }}
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
+                                               .ConfigureAwait(false);
+        }
+
+        [TestCase("SetUp", "")]
+        [TestCase("OneTimeSetUp", "this.")]
+        public async Task PropertyAssigned(string attribute, string prefix)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                #nullable enable
+
+                protected string Property {{ get; private set; }}
+
+                [{attribute}]
+                public void Initialize()
+                {{
+                    {prefix}Property = string.Empty;
+                }}
+
+                [Test]
+                public void Test()
+                {{
+                    Assert.That({prefix}Property, Is.Not.Null);
+                }}
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
                 .ConfigureAwait(false);
         }
     }
