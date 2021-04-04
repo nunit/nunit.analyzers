@@ -1,4 +1,44 @@
-﻿NUnit Analyzers 3.0 (and 2.0) - January 18, 2021
+﻿NUnit Analyzers 3.1 (and 2.1) - April 4, 2021
+
+This release of the NUnit Analyzers primarily contains improvements to the analysis of nullable reference types
+to handle even more cases.
+
+The release also contain improvements when passing a non-lambda to Throws assertions and when non-delegate actual
+value is used with DelayedConstraint.
+
+The release contains contributions from the following users (in alphabetical order):
+* manfred-brands
+* mikkelbu
+
+Issues Resolved
+
+Features and Enhancements
+* #368 Extend NonNullableFieldIsUninitialized to also work for properties
+* #363 NonNullableFieldIsUninitializedSuppressor fails when there is a constructor
+* #360 NonNullableFieldIsUnintializedSuppressor doesn't recognize ExpressionBody
+* #357 Warns about passing a non-lambda to Throws assertions
+* #353 Replace deprecated FxCopAnalyzer with NetAnalyzer
+* #345 Nullable warnings should be suppressed for Assert.Catch()
+* #342 Nullable suppression for Assert.Throws does not work in presence of a Assert.Multiple block
+* #149 Warning when non-delegate actual value is used with DelayedConstraint
+
+Tooling, Process, and Documentation
+* #371 chore(deps): Bump Microsoft.NET.Test.Sdk from 16.9.1 to 16.9.4 in /src
+* #370 chore(deps): Bump StyleCop.Analyzers.Unstable from 1.2.0.321 to 1.2.0.333 in /src
+* #365 chore(deps): Bump Microsoft.NET.Test.Sdk from 16.8.3 to 16.9.1 in /src
+* #358 Bump Gu.Roslyn.Asserts from 3.3.1 to 3.3.2 in /src
+* #356 chore: Bump cake bootstrap to latest to make it compatible with Cake 1.0
+* #352 Bump NUnit3TestAdapter from 3.15.1 to 3.17.0 in /src
+* #351 Bump NUnit from 3.13 to 3.13.1 in /src
+* #350 Bump StyleCop.Analyzers.Unstable from 1.2.0.261 to 1.2.0.321 in /src
+* #349 Bump Microsoft.NET.Test.Sdk from 16.8.0 to 16.8.3 in /src
+* #348 Bump Nullable from 1.2.1 to 1.3.0 in /src
+* #347 Update dependabot.yml
+* #346 Create dependabot.yml
+* #341 chore: Bump version to 3.1 (2.1)
+
+
+NUnit Analyzers 3.0 (and 2.0) - January 18, 2021
 
 This release of the NUnit Analyzers adds the possibility to suppress compiler errors based on context.
 Initially, we support the suppression of errors arising from nullable reference types (many thanks to
