@@ -3,11 +3,12 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
+
+using BindingFlags = System.Reflection.BindingFlags;
 
 namespace NUnit.Analyzers.DiagnosticSuppressors
 {
@@ -26,17 +27,15 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         {
             foreach (var diagnostic in context.ReportedDiagnostics)
             {
-                SyntaxNode? node = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken)
-                                                                  .FindNode(diagnostic.Location.SourceSpan);
+                SyntaxTree? sourceTree = diagnostic.Location.SourceTree;
 
-                if (node is null)
+                if (sourceTree is null)
                 {
                     continue;
                 }
 
-                var classDeclaration = node.Ancestors().OfType<ClassDeclarationSyntax>().First();
-                var fieldDeclarations = classDeclaration.Members.OfType<FieldDeclarationSyntax>().ToArray();
-                var propertyDeclarations = classDeclaration.Members.OfType<PropertyDeclarationSyntax>().ToArray();
+                SyntaxNode node = sourceTree.GetRoot(context.CancellationToken)
+                                            .FindNode(diagnostic.Location.SourceSpan);
 
                 string fieldOrPropertyName;
 
@@ -72,22 +71,27 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 }
 
                 // Verify that the name found is actually a field or a property name.
+                var classDeclaration = node.Ancestors().OfType<ClassDeclarationSyntax>().First();
+                var fieldDeclarations = classDeclaration.Members.OfType<FieldDeclarationSyntax>();
+                var propertyDeclarations = classDeclaration.Members.OfType<PropertyDeclarationSyntax>();
+
                 if (!fieldDeclarations.SelectMany(x => x.Declaration.Variables).Any(x => x.Identifier.Text == fieldOrPropertyName) &&
                     !propertyDeclarations.Any(x => x.Identifier.Text == fieldOrPropertyName))
                 {
                     continue;
                 }
 
-                var methods = classDeclaration.Members.OfType<MethodDeclarationSyntax>().ToArray();
+                SemanticModel model = context.GetSemanticModel(sourceTree);
 
+                var methods = classDeclaration.Members.OfType<MethodDeclarationSyntax>();
                 foreach (var method in methods)
                 {
-                    var allAttributes = method.AttributeLists.SelectMany(list => list.Attributes.Select(a => a.Name.ToString()))
-                                                             .ToImmutableHashSet();
-                    if (allAttributes.Contains("SetUp") || allAttributes.Contains("OneTimeSetUp"))
+                    var isSetup = method.AttributeLists.SelectMany(list => list.Attributes.Select(a => a.Name.ToString()))
+                                                       .Any(name => name == "SetUp" || name == "OneTimeSetUp");
+                    if (isSetup)
                     {
                         // Find (OneTime)SetUps method and check for assignment to this field.
-                        if (IsAssignedIn(method, fieldOrPropertyName))
+                        if (IsAssignedIn(model, classDeclaration, method, fieldOrPropertyName))
                         {
                             context.ReportSuppression(Suppression.Create(NullableFieldOrPropertyInitializedInSetUp, diagnostic));
                         }
@@ -96,11 +100,15 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             }
         }
 
-        private static bool IsAssignedIn(MethodDeclarationSyntax method, string fieldOrPropertyName)
+        private static bool IsAssignedIn(
+            SemanticModel model,
+            ClassDeclarationSyntax classDeclaration,
+            MethodDeclarationSyntax method,
+            string fieldOrPropertyName)
         {
             if (method.ExpressionBody != null)
             {
-                return IsAssignedIn(method.ExpressionBody.Expression, fieldOrPropertyName);
+                return IsAssignedIn(model, classDeclaration, method.ExpressionBody.Expression, fieldOrPropertyName);
             }
 
             if (method.Body is null)
@@ -111,7 +119,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             foreach (var statement in method.Body.Statements)
             {
                 if (statement is ExpressionStatementSyntax expressionStatement &&
-                    IsAssignedIn(expressionStatement.Expression, fieldOrPropertyName))
+                    IsAssignedIn(model, classDeclaration, expressionStatement.Expression, fieldOrPropertyName))
                 {
                     return true;
                 }
@@ -120,7 +128,32 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             return false;
         }
 
-        private static bool IsAssignedIn(ExpressionSyntax? expressionStatement, string fieldOrPropertyName)
+        private static bool IsAssignedIn(
+            SemanticModel model,
+            ClassDeclarationSyntax classDeclaration,
+            InvocationExpressionSyntax invocationExpression,
+            string fieldOrPropertyName)
+        {
+            // Check semantic model for actual called method match found by compiler.
+            IMethodSymbol? calledMethod = model.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
+
+            // Find the corresponding declaration
+            MethodDeclarationSyntax? method = calledMethod?.DeclaringSyntaxReferences.FirstOrDefault()?
+                                                           .GetSyntax() as MethodDeclarationSyntax;
+            if (method?.Parent == classDeclaration)
+            {
+                // We only get here if the method is in our source code and our class.
+                return IsAssignedIn(model, classDeclaration, method, fieldOrPropertyName);
+            }
+
+            return false;
+        }
+
+        private static bool IsAssignedIn(
+            SemanticModel model,
+            ClassDeclarationSyntax classDeclaration,
+            ExpressionSyntax? expressionStatement,
+            string fieldOrPropertyName)
         {
             if (expressionStatement is AssignmentExpressionSyntax assignmentExpression)
             {
@@ -130,7 +163,27 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 }
                 else if (assignmentExpression.Left is MemberAccessExpressionSyntax memberAccessExpression &&
                     memberAccessExpression.Expression is ThisExpressionSyntax &&
-                    memberAccessExpression.Name.ToString() == fieldOrPropertyName)
+                    memberAccessExpression.Name.Identifier.Text == fieldOrPropertyName)
+                {
+                    return true;
+                }
+            }
+            else if (expressionStatement is InvocationExpressionSyntax invocationExpression)
+            {
+                string? identifier = null;
+
+                if (invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
+                   memberAccessExpression.Expression is ThisExpressionSyntax)
+                {
+                    identifier = memberAccessExpression.Name.Identifier.Text;
+                }
+                else if (invocationExpression.Expression is IdentifierNameSyntax identifierName)
+                {
+                    identifier = identifierName.Identifier.Text;
+                }
+
+                if (!string.IsNullOrEmpty(identifier) &&
+                    IsAssignedIn(model, classDeclaration, invocationExpression, fieldOrPropertyName))
                 {
                     return true;
                 }

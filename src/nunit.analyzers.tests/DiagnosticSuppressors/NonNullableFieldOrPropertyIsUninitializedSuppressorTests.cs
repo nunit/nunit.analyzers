@@ -155,5 +155,129 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
                 .ConfigureAwait(false);
         }
+
+        [TestCase("SetUp", "")]
+        [TestCase("OneTimeSetUp", "this.")]
+        public async Task FieldAssignedInCalledMethod(string attribute, string prefix)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                #nullable enable
+
+                private string field;
+
+                [{attribute}]
+                public void Initialize()
+                {{
+                    {prefix}SetFields();
+                }}
+
+                [Test]
+                public void Test()
+                {{
+                    Assert.That({prefix}field, Is.Not.Null);
+                }}
+
+                private void SetFields()
+                {{
+                    {prefix}field = string.Empty;
+                }}
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
+                .ConfigureAwait(false);
+        }
+
+        [TestCase("SetUp", "")]
+        [TestCase("OneTimeSetUp", "this.")]
+        public async Task FieldAssignedInCalledMethods(string attribute, string prefix)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                #nullable enable
+
+                private double numericField;
+                private string textField;
+
+                [{attribute}]
+                public void Initialize()
+                {{
+                    {prefix}SetFields();
+                }}
+
+                [Test]
+                public void Test()
+                {{
+                    Assert.That({prefix}numericField, Is.Not.Zero);
+                    Assert.That({prefix}textField, Is.Not.Null);
+                }}
+
+                public void SetFields()
+                {{
+                    {prefix}SetFields(3, 4);
+                    {prefix}SetFields(""Seven"");
+                }}
+                
+                private void SetFields(params double[] numbers)
+                {{
+                    double sum = 0;
+                    for (int i = 0; i < numbers.Length; i++)
+                        sum += numbers[i];
+                    {prefix}numericField = sum;
+                }}
+
+                private void SetFields(string? text)
+                {{
+                    {prefix}textField = text ?? string.Empty;
+                }}
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
+                .ConfigureAwait(false);
+        }
+
+        [TestCase("SetUp", "")]
+        [TestCase("OneTimeSetUp", "this.")]
+        public async Task FieldIndirectAssignedThroughBaseClassSetupMethod(string attribute, string prefix)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@$"
+            #nullable enable
+
+            public class BaseClass
+            {{
+                [{attribute}]
+                public void Initialize()
+                {{
+                    SetFields();
+                }}
+
+                protected virtual void SetFields(string text = ""Default"")
+                {{
+                }}
+            }}
+
+            [TestFixture]
+            public class TestClass : BaseClass
+            {{
+                private string field;
+
+                [Test]
+                public void Test()
+                {{
+                    Assert.That({prefix}field, Is.EqualTo(""Default""));
+                }}
+
+                protected override void SetFields(string text)
+                {{
+                    {prefix}field = text;
+                }}
+            }}
+            ");
+
+            // This is not supported as the BaseClass could be in an external library.
+            // We therefore cannot validate that its SetUp method calls into our overridden method.
+            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
+                                               .ConfigureAwait(false);
+        }
     }
 }
