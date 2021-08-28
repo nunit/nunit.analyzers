@@ -1,4 +1,31 @@
-﻿NUnit Analyzers 3.1 (and 2.1) - April 4, 2021
+﻿NUnit Analyzers 3.2 (and 2.2) - August 28, 2021
+
+This release of the NUnit Analyzers contains an improvement to the supression of 
+'Non-nullable field must contain a non-null value when exiting constructor (CS8618)'
+when the field/property is initialized by a method called from a SetUp/OneTimeSetUp method.
+
+Moreover, several dependencies have been bumped in this release.
+
+The release contains contributions from the following users (in alphabetical order):
+* manfred-brands
+* mikkelbu
+
+Issues Resolved
+
+Features and Enhancements
+* #385 Supress (even more) 'Non-nullable field must contain a non-null value when exiting constructor (CS8618)'
+
+Tooling, Process, and Documentation
+* #384 chore(deps): Bump Microsoft.NET.Test.Sdk from 16.10.0 to 16.11.0 in /src
+* #379 chore(deps): Bump StyleCop.Analyzers.Unstable from 1.2.0.333 to 1.2.0.354 in /src
+* #376 chore(deps): Bump NUnit3TestAdapter from 3.17.0 to 4.0.0 in /src
+* #375 chore(deps): Bump Microsoft.NET.Test.Sdk from 16.9.4 to 16.10.0 in /src
+* #374 chore(deps): Bump NUnit from 3.13.1 to 3.13.2 in /src
+* #373 chore: Bump version to 3.2 (2.2) 
+* #367 chore(deps): Bump Microsoft.CodeAnalysis.CSharp.CodeStyle from 3.8.0 to 3.9.0 in /src
+
+
+NUnit Analyzers 3.1 (and 2.1) - April 4, 2021
 
 This release of the NUnit Analyzers primarily contains improvements to the analysis of nullable reference types
 to handle even more cases.
