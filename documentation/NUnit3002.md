@@ -20,6 +20,8 @@ This rule check diagnostics reported by the CS8618 compiler error:
 If the violating field/property is set in the `SetUp` or `OneTimeSetUp` method. The rule suppresses the error.
 This allows for non-nullable fields/properties to be used in a `TestFixture`.
 
+The rule does detect indirect calls, when the field is set in a method called by the `SetUp` or `OneTimeSetUp` methods.
+
 ## Motivation
 
 ```csharp
