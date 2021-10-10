@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.Helpers;
 
 namespace NUnit.Analyzers.DiagnosticSuppressors
 {
@@ -47,30 +48,11 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
                 // Was the offending variable assigned or verified to be not null inside an Assert.Multiple?
                 // NUnit doesn't throw on failures and therefore the compiler is correct.
-                if (ShouldBeSuppressed(node, out SyntaxNode? suppressionCause) && !IsInsideAssertMultiple(suppressionCause))
+                if (ShouldBeSuppressed(node, out SyntaxNode? suppressionCause) && !AssertHelper.IsInsideAssertMultiple(suppressionCause))
                 {
                     context.ReportSuppression(Suppression.Create(SuppressionDescriptors[diagnostic.Id], diagnostic));
                 }
             }
-        }
-
-        private static bool IsInsideAssertMultiple(SyntaxNode node)
-        {
-            InvocationExpressionSyntax? possibleAssertMultiple;
-
-            while ((possibleAssertMultiple = node.Ancestors().OfType<InvocationExpressionSyntax>().FirstOrDefault()) != null)
-            {
-                // Is the statement inside a Block which is part of an Assert.Multiple.
-                if (IsAssert(possibleAssertMultiple, "Multiple"))
-                {
-                    return true;
-                }
-
-                // Keep looking at possible parent nested expression.
-                node = possibleAssertMultiple;
-            }
-
-            return false;
         }
 
         private static bool ShouldBeSuppressed(SyntaxNode node, [NotNullWhen(true)] out SyntaxNode? suppressionCause)
@@ -141,7 +123,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     }
 
                     // Check if this is Assert.NotNull or Assert.IsNotNull for the same symbol
-                    if (IsAssert(expressionStatement.Expression, out string member, out ArgumentListSyntax? argumentList))
+                    if (AssertHelper.IsAssert(expressionStatement.Expression, out string member, out ArgumentListSyntax? argumentList))
                     {
                         if (member == NunitFrameworkConstants.NameOfAssertNotNull ||
                             member == NunitFrameworkConstants.NameOfAssertIsNotNull ||
@@ -191,37 +173,11 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsKnownToBeNotNull(ExpressionSyntax? expression)
         {
             // For now, we only know that Assert.Throws either returns not-null or throws
-            return IsAssert(expression,
+            return AssertHelper.IsAssert(expression,
                 NunitFrameworkConstants.NameOfAssertThrows,
                 NunitFrameworkConstants.NameOfAssertCatch,
                 NunitFrameworkConstants.NameOfAssertThrowsAsync,
                 NunitFrameworkConstants.NameOfAssertCatchAsync);
-        }
-
-        private static bool IsAssert(ExpressionSyntax? expression, params string[] requestedMembers)
-        {
-            return IsAssert(expression, out string member, out _) && requestedMembers.Contains(member);
-        }
-
-        private static bool IsAssert(ExpressionSyntax? expression,
-                                     out string member,
-                                     [NotNullWhen(true)] out ArgumentListSyntax? argumentList)
-        {
-            if (expression is InvocationExpressionSyntax invocationExpression &&
-                invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
-                memberAccessExpression.Expression is IdentifierNameSyntax identifierName &&
-                identifierName.Identifier.Text == NunitFrameworkConstants.NameOfAssert)
-            {
-                member = memberAccessExpression.Name.Identifier.Text;
-                argumentList = invocationExpression.ArgumentList;
-                return true;
-            }
-            else
-            {
-                member = string.Empty;
-                argumentList = null;
-                return false;
-            }
         }
 
         private static bool InvalidatedBy(string assignment, string possibleNullReference)

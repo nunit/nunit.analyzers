@@ -16,14 +16,24 @@ namespace NUnit.Analyzers
 
         protected abstract void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation);
 
+        protected static bool IsAssert(IOperation operation)
+        {
+            return operation is IExpressionStatementOperation expressionOperation &&
+                expressionOperation.Operation is IInvocationOperation invocationOperation &&
+                IsAssert(invocationOperation);
+        }
+
+        protected static bool IsAssert(IInvocationOperation invocationOperation)
+        {
+            return invocationOperation.TargetMethod.ContainingType.IsAssert();
+        }
+
         private void AnalyzeInvocation(OperationAnalysisContext context)
         {
             if (!(context.Operation is IInvocationOperation invocationOperation))
                 return;
 
-            var methodSymbol = invocationOperation.TargetMethod;
-
-            if (methodSymbol == null || !methodSymbol.ContainingType.IsAssert())
+            if (!IsAssert(invocationOperation))
                 return;
 
             context.CancellationToken.ThrowIfCancellationRequested();
