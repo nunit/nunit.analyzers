@@ -46,6 +46,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfHasInnerException = "InnerException";
         public const string NameOfHasNo = "No";
 
+        public const string NameOfMultiple = "Multiple";
         public const string NameOfThrows = "Throws";
 
         public const string NameOfAssert = "Assert";

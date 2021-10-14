@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
@@ -85,6 +87,57 @@ namespace NUnit.Analyzers.Helpers
                 return IsLiteralOperation(binary.LeftOperand) && IsLiteralOperation(binary.RightOperand);
 
             return false;
+        }
+
+        /// <summary>
+        /// Detects if the current statement is an argument to Assert.Multiple.
+        /// </summary>
+        public static bool IsInsideAssertMultiple(SyntaxNode node)
+        {
+            InvocationExpressionSyntax? possibleAssertMultiple;
+
+            while ((possibleAssertMultiple = node.Ancestors().OfType<InvocationExpressionSyntax>().FirstOrDefault()) != null)
+            {
+                // Is the statement inside a Block which is part of an Assert.Multiple.
+                if (IsAssert(possibleAssertMultiple, NunitFrameworkConstants.NameOfMultiple))
+                {
+                    return true;
+                }
+
+                // Keep looking at possible parent nested expression.
+                node = possibleAssertMultiple;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the current statement is an Assert.<paramref name="requestedMembers"/> statement.
+        /// </summary>
+        public static bool IsAssert(ExpressionSyntax? expression, params string[] requestedMembers)
+        {
+            return IsAssert(expression, out string member, out _) && requestedMembers.Contains(member);
+        }
+
+        public static bool IsAssert(ExpressionSyntax? expression,
+                                    out string member,
+                                    [NotNullWhen(true)] out ArgumentListSyntax? argumentList)
+        {
+            if (expression is InvocationExpressionSyntax invocationExpression &&
+                invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
+                memberAccessExpression.Expression is IdentifierNameSyntax identifierName &&
+                identifierName.Identifier.Text == NunitFrameworkConstants.NameOfAssert)
+            {
+                member = memberAccessExpression.Name.Identifier.Text;
+                argumentList = invocationExpression.ArgumentList;
+                return true;
+            }
+            else
+            {
+                member = string.Empty;
+                argumentList = null;
+                return false;
+            }
         }
     }
 }

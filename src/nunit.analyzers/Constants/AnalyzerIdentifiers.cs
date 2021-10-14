@@ -81,6 +81,7 @@ namespace NUnit.Analyzers.Constants
         internal const string ComparableOnObject = "NUnit2042";
         internal const string ComparisonConstraintUsage = "NUnit2043";
         internal const string DelegateRequired = "NUnit2044";
+        internal const string UseAssertMultiple = "NUnit2045";
 
         #endregion Assertion
 
