@@ -21,6 +21,7 @@ namespace NUnit.Analyzers.Tests.UseCollectionConstraint
             "GreaterThan(1)",
             "LessThan(5)",
             "GreaterThanOrEqualTo(3).And.LessThanOrEqualTo(9)",
+            "Not.LessThan(5)",
         };
 
         [Test]
@@ -69,8 +70,11 @@ namespace NUnit.Analyzers.Tests.UseCollectionConstraint
         }
 
         [TestCase("Is.Zero")]
+        [TestCase("Is.Not.Positive")]
         [TestCase("Is.EqualTo(0)")]
         [TestCase("Is.LessThan(1)")]
+        [TestCase("Is.Not.GreaterThan(0)")]
+        [TestCase("Is.Not.GreaterThanOrEqualTo(1)")]
         public void VerifyIsEmpty(string constraint)
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
