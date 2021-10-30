@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.UseCollectionConstraint
 
             ExpressionSyntax innerConstraintExpression = FindLeftMostTerm(constraintMemberExpression);
 
-            if (!(innerConstraintExpression is SimpleNameSyntax simple && simple.Identifier.ValueText == NunitFrameworkConstants.NameOfIs))
+            if (!(innerConstraintExpression is SimpleNameSyntax simple && simple.Identifier.ValueText == NUnitFrameworkConstants.NameOfIs))
                 return;
 
             var nodesToReplace = new Dictionary<SyntaxNode, SyntaxNode>()
@@ -83,12 +83,12 @@ namespace NUnit.Analyzers.UseCollectionConstraint
                 var propertyName = actualExpression.Name;
                 var hasPropertyExpression = SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfHas),
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfHas),
                         propertyName);
 
                 nodesToReplace.Add(innerConstraintExpression, hasPropertyExpression);
 
-                description = $"Use {NunitFrameworkConstants.NameOfHas}.{propertyName}";
+                description = $"Use {NUnitFrameworkConstants.NameOfHas}.{propertyName}";
             }
 
             var newRoot = root.ReplaceNodes(nodesToReplace.Keys, (node, _) => nodesToReplace[node]);
@@ -108,19 +108,19 @@ namespace NUnit.Analyzers.UseCollectionConstraint
         {
             MemberAccessExpressionSyntax? emptyOrNotEmptyExpression = null;
 
-            if (constraintMemberExpression.Name.Identifier.ValueText == NunitFrameworkConstants.NameOfIsZero ||
-                IsInvocationTo(constraintExpression, NunitFrameworkConstants.NameOfIsEqualTo, "0") ||
-                IsInvocationTo(constraintExpression, NunitFrameworkConstants.NameOfIsLessThan, "1"))
+            if (constraintMemberExpression.Name.Identifier.ValueText == NUnitFrameworkConstants.NameOfIsZero ||
+                IsInvocationTo(constraintExpression, NUnitFrameworkConstants.NameOfIsEqualTo, "0") ||
+                IsInvocationTo(constraintExpression, NUnitFrameworkConstants.NameOfIsLessThan, "1"))
             {
                 // Replace: '.Zero', '.EqualTo(0)' and '.LessThan(1)' with .Empty
                 emptyOrNotEmptyExpression = SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         constraintMemberExpression.Expression,
-                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsEmpty));
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsEmpty));
             }
-            else if (constraintMemberExpression.Name.Identifier.ValueText == NunitFrameworkConstants.NameOfIsPositive ||
-                IsInvocationTo(constraintExpression, NunitFrameworkConstants.NameOfIsGreaterThan, "0") ||
-                IsInvocationTo(constraintExpression, NunitFrameworkConstants.NameOfIsGreaterThanOrEqualTo, "1"))
+            else if (constraintMemberExpression.Name.Identifier.ValueText == NUnitFrameworkConstants.NameOfIsPositive ||
+                IsInvocationTo(constraintExpression, NUnitFrameworkConstants.NameOfIsGreaterThan, "0") ||
+                IsInvocationTo(constraintExpression, NUnitFrameworkConstants.NameOfIsGreaterThanOrEqualTo, "1"))
             {
                 // Replace:'Positive', '.GreatherThan(0)', '.GreaterThanOrEqualTo(1)' with .Not.Empty
                 // Take care of double negatives: '.Not.Positive' becomes 'Empty'.
@@ -131,8 +131,8 @@ namespace NUnit.Analyzers.UseCollectionConstraint
                             SyntaxFactory.MemberAccessExpression(
                                     SyntaxKind.SimpleMemberAccessExpression,
                                     constraintMemberExpression.Expression,
-                                    SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsNot)),
-                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsEmpty));
+                                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsNot)),
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsEmpty));
             }
 
             return emptyOrNotEmptyExpression;
@@ -146,7 +146,7 @@ namespace NUnit.Analyzers.UseCollectionConstraint
                     IsNot(memberAccessExpression.Name));
 
             static bool IsNot(SimpleNameSyntax simpleName) =>
-                simpleName.Identifier.ValueText == NunitFrameworkConstants.NameOfIsNot;
+                simpleName.Identifier.ValueText == NUnitFrameworkConstants.NameOfIsNot;
         }
 
         private static ExpressionSyntax FindLeftMostTerm(MemberAccessExpressionSyntax constraintMemberExpression)

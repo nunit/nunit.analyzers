@@ -54,7 +54,7 @@ namespace NUnit.Analyzers.TestCaseUsage
             if (attributes.Length == 0)
                 return;
 
-            var testCaseType = context.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
+            var testCaseType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
             if (testCaseType == null)
                 return;
 

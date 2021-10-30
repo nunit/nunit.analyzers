@@ -10,17 +10,17 @@ namespace NUnit.Analyzers.Extensions
     {
         public static bool DerivesFromISimpleTestBuilder(this AttributeData @this, Compilation compilation)
         {
-            return DerivesFromInterface(compilation, @this, NunitFrameworkConstants.FullNameOfTypeISimpleTestBuilder);
+            return DerivesFromInterface(compilation, @this, NUnitFrameworkConstants.FullNameOfTypeISimpleTestBuilder);
         }
 
         public static bool DerivesFromITestBuilder(this AttributeData @this, Compilation compilation)
         {
-            return DerivesFromInterface(compilation, @this, NunitFrameworkConstants.FullNameOfTypeITestBuilder);
+            return DerivesFromInterface(compilation, @this, NUnitFrameworkConstants.FullNameOfTypeITestBuilder);
         }
 
         public static bool DerivesFromIParameterDataSource(this AttributeData @this, Compilation compilation)
         {
-            return DerivesFromInterface(compilation, @this, NunitFrameworkConstants.FullNameOfTypeIParameterDataSource);
+            return DerivesFromInterface(compilation, @this, NUnitFrameworkConstants.FullNameOfTypeIParameterDataSource);
         }
 
         public static bool IsTestMethodAttribute(this AttributeData @this, Compilation compilation)
@@ -36,10 +36,10 @@ namespace NUnit.Analyzers.Extensions
             if (attributeType == null)
                 return false;
 
-            return attributeType.IsType(NunitFrameworkConstants.FullNameOfTypeOneTimeSetUpAttribute, compilation)
-                || attributeType.IsType(NunitFrameworkConstants.FullNameOfTypeOneTimeTearDownAttribute, compilation)
-                || attributeType.IsType(NunitFrameworkConstants.FullNameOfTypeSetUpAttribute, compilation)
-                || attributeType.IsType(NunitFrameworkConstants.FullNameOfTypeTearDownAttribute, compilation);
+            return attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeOneTimeSetUpAttribute, compilation)
+                || attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeOneTimeTearDownAttribute, compilation)
+                || attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeSetUpAttribute, compilation)
+                || attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeTearDownAttribute, compilation);
         }
 
         public static AttributeArgumentSyntax? GetConstructorArgumentSyntax(this AttributeData @this, int position,

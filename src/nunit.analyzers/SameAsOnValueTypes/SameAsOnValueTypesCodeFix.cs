@@ -58,14 +58,14 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
 
             switch (assertExpression.Name.ToString())
             {
-                case NunitFrameworkConstants.NameOfAssertAreSame:
-                    replacement = assertExpression.WithName(SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfAssertAreEqual));
+                case NUnitFrameworkConstants.NameOfAssertAreSame:
+                    replacement = assertExpression.WithName(SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfAssertAreEqual));
                     break;
-                case NunitFrameworkConstants.NameOfAssertAreNotSame:
-                    replacement = assertExpression.WithName(SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfAssertAreNotEqual));
+                case NUnitFrameworkConstants.NameOfAssertAreNotSame:
+                    replacement = assertExpression.WithName(SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfAssertAreNotEqual));
                     break;
-                case NunitFrameworkConstants.NameOfIsSameAs:
-                    replacement = assertExpression.WithName(SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsEqualTo));
+                case NUnitFrameworkConstants.NameOfIsSameAs:
+                    replacement = assertExpression.WithName(SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsEqualTo));
                     break;
                 default:
                     return;

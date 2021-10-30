@@ -38,7 +38,7 @@ namespace NUnit.Analyzers.DelegateRequired
 
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
-                if (constraintPart.HelperClass?.Name == NunitFrameworkConstants.NameOfThrows ||
+                if (constraintPart.HelperClass?.Name == NUnitFrameworkConstants.NameOfThrows ||
                     constraintPart.Suffixes.Any(IsDelayedConstraint))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
@@ -52,7 +52,7 @@ namespace NUnit.Analyzers.DelegateRequired
         private static bool IsDelayedConstraint(IOperation operation)
         {
             return operation.Type is INamedTypeSymbol namedType &&
-                namedType.GetFullMetadataName().StartsWith(NunitFrameworkConstants.FullNameOfDelayedConstraint, StringComparison.Ordinal);
+                namedType.GetFullMetadataName().StartsWith(NUnitFrameworkConstants.FullNameOfDelayedConstraint, StringComparison.Ordinal);
         }
     }
 }

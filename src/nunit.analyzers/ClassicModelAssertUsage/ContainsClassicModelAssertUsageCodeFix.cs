@@ -22,8 +22,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfDoes),
-                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfDoesContain)))
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfDoes),
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfDoesContain)))
                 .WithArgumentList(SyntaxFactory.ArgumentList(
                     SyntaxFactory.SingletonSeparatedList(arguments[0])))));
 

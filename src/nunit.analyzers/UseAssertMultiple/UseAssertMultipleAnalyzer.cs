@@ -73,7 +73,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
 
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            if (assertOperation.TargetMethod.Name == NunitFrameworkConstants.NameOfMultiple ||
+            if (assertOperation.TargetMethod.Name == NUnitFrameworkConstants.NameOfMultiple ||
                 AssertHelper.IsInsideAssertMultiple(assertOperation.Syntax))
             {
                 return;
@@ -134,7 +134,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
             return (operation is IExpressionStatementOperation expressionOperation &&
                 expressionOperation.Operation is IInvocationOperation invocationOperation &&
                 IsAssert(invocationOperation) &&
-                invocationOperation.TargetMethod.Name == NunitFrameworkConstants.NameOfAssertThat)
+                invocationOperation.TargetMethod.Name == NUnitFrameworkConstants.NameOfAssertThat)
                 ? invocationOperation : null;
         }
     }

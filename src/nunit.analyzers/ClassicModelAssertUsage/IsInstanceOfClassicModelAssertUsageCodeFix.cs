@@ -22,8 +22,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIs),
-                        SyntaxFactory.GenericName(NunitFrameworkConstants.NameOfIsInstanceOf)
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
+                        SyntaxFactory.GenericName(NUnitFrameworkConstants.NameOfIsInstanceOf)
                             .WithTypeArgumentList(typeArguments)))));
         }
 
@@ -33,8 +33,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIs),
-                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsInstanceOf)))
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsInstanceOf)))
                 .WithArgumentList(SyntaxFactory.ArgumentList(
                     SyntaxFactory.SingletonSeparatedList(arguments[0])))));
 

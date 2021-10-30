@@ -30,15 +30,15 @@ namespace NUnit.Analyzers.UseCollectionConstraint
 
             // Check if actual operation is a member access operation for either .Length or .Count
             if (actualOperation is IMemberReferenceOperation referenceOperation &&
-                (referenceOperation.Member.Name is NunitFrameworkConstants.NameOfHasLength ||
-                referenceOperation.Member.Name is NunitFrameworkConstants.NameOfHasCount))
+                (referenceOperation.Member.Name is NUnitFrameworkConstants.NameOfHasLength ||
+                referenceOperation.Member.Name is NUnitFrameworkConstants.NameOfHasCount))
             {
                 // constraint operation must be Is.
                 foreach (var constraintPart in constraintExpression.ConstraintParts)
                 {
                     if (!constraintPart.HasIncompatiblePrefixes()
                         && constraintPart.Root != null
-                        && constraintPart.HelperClass?.Name == NunitFrameworkConstants.NameOfIs)
+                        && constraintPart.HelperClass?.Name == NUnitFrameworkConstants.NameOfIs)
                     {
                         context.ReportDiagnostic(Diagnostic.Create(
                             descriptor,

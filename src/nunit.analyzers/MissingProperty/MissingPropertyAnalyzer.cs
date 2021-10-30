@@ -23,10 +23,10 @@ namespace NUnit.Analyzers.MissingProperty
 
         private static readonly string[] implicitPropertyConstraints = new[]
         {
-            NunitFrameworkConstants.NameOfHasCount,
-            NunitFrameworkConstants.NameOfHasLength,
-            NunitFrameworkConstants.NameOfHasMessage,
-            NunitFrameworkConstants.NameOfHasInnerException,
+            NUnitFrameworkConstants.NameOfHasCount,
+            NUnitFrameworkConstants.NameOfHasLength,
+            NUnitFrameworkConstants.NameOfHasMessage,
+            NUnitFrameworkConstants.NameOfHasInnerException,
         };
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(descriptor);
@@ -43,7 +43,7 @@ namespace NUnit.Analyzers.MissingProperty
             {
                 // Only 'Has' allowed (or none) - e.g. 'Throws' leads to verification on exception, which is not supported here.
                 var helperClassName = constraintPart.HelperClass?.Name;
-                if (helperClassName != null && helperClassName != NunitFrameworkConstants.NameOfHas)
+                if (helperClassName != null && helperClassName != NUnitFrameworkConstants.NameOfHas)
                 {
                     return;
                 }
@@ -95,7 +95,7 @@ namespace NUnit.Analyzers.MissingProperty
                 return prefixName;
             }
             else if (prefix is IInvocationOperation invocationOperation
-                && prefixName == NunitFrameworkConstants.NameOfHasProperty
+                && prefixName == NUnitFrameworkConstants.NameOfHasProperty
                 && invocationOperation.Arguments.Length == 1)
             {
                 // Get constant value from constraint argument (e.g. Has.Property("PropertyName"))
@@ -113,8 +113,8 @@ namespace NUnit.Analyzers.MissingProperty
             // as they might change validated type and lead to false positives (e.g. All/Some operators).
             return constraintPart.GetPrefixesNames().Any(prefix =>
                 !implicitPropertyConstraints.Contains(prefix)
-                && prefix != NunitFrameworkConstants.NameOfHasProperty
-                && prefix != NunitFrameworkConstants.NameOfIsNot);
+                && prefix != NUnitFrameworkConstants.NameOfHasProperty
+                && prefix != NUnitFrameworkConstants.NameOfIsNot);
         }
     }
 }

@@ -92,7 +92,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
             var newInvocationNode = invocationNode.ReplaceNode(
                 methodNode,
-                SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfAssertThat));
+                SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfAssertThat));
 
             // Now, replace the arguments.
             List<ArgumentSyntax> arguments = invocationNode.ArgumentList.Arguments.ToList();

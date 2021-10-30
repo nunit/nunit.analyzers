@@ -125,11 +125,11 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     // Check if this is Assert.NotNull or Assert.IsNotNull for the same symbol
                     if (AssertHelper.IsAssert(expressionStatement.Expression, out string member, out ArgumentListSyntax? argumentList))
                     {
-                        if (member == NunitFrameworkConstants.NameOfAssertNotNull ||
-                            member == NunitFrameworkConstants.NameOfAssertIsNotNull ||
-                            member == NunitFrameworkConstants.NameOfAssertThat)
+                        if (member == NUnitFrameworkConstants.NameOfAssertNotNull ||
+                            member == NUnitFrameworkConstants.NameOfAssertIsNotNull ||
+                            member == NUnitFrameworkConstants.NameOfAssertThat)
                         {
-                            if (member == NunitFrameworkConstants.NameOfAssertThat)
+                            if (member == NUnitFrameworkConstants.NameOfAssertThat)
                             {
                                 // We must check the 2nd argument for anything but "Is.Null"
                                 // E.g.: Is.Not.Null.And.Not.Empty.
@@ -174,10 +174,10 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         {
             // For now, we only know that Assert.Throws either returns not-null or throws
             return AssertHelper.IsAssert(expression,
-                NunitFrameworkConstants.NameOfAssertThrows,
-                NunitFrameworkConstants.NameOfAssertCatch,
-                NunitFrameworkConstants.NameOfAssertThrowsAsync,
-                NunitFrameworkConstants.NameOfAssertCatchAsync);
+                NUnitFrameworkConstants.NameOfAssertThrows,
+                NUnitFrameworkConstants.NameOfAssertCatch,
+                NUnitFrameworkConstants.NameOfAssertThrowsAsync,
+                NUnitFrameworkConstants.NameOfAssertCatchAsync);
         }
 
         private static bool InvalidatedBy(string assignment, string possibleNullReference)

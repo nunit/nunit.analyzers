@@ -20,17 +20,17 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
         private static readonly string[] SupportedClassicAsserts = new[]
         {
-            NunitFrameworkConstants.NameOfAssertAreEqual,
-            NunitFrameworkConstants.NameOfAssertAreNotEqual,
-            NunitFrameworkConstants.NameOfAssertAreSame,
-            NunitFrameworkConstants.NameOfAssertAreNotSame
+            NUnitFrameworkConstants.NameOfAssertAreEqual,
+            NUnitFrameworkConstants.NameOfAssertAreNotEqual,
+            NUnitFrameworkConstants.NameOfAssertAreSame,
+            NUnitFrameworkConstants.NameOfAssertAreNotSame
         };
 
         private static readonly string[] SupportedIsConstraints = new[]
         {
-            NunitFrameworkConstants.NameOfIsEqualTo,
-            NunitFrameworkConstants.NameOfIsSameAs,
-            NunitFrameworkConstants.NameOfIsSamePath
+            NUnitFrameworkConstants.NameOfIsEqualTo,
+            NUnitFrameworkConstants.NameOfIsSameAs,
+            NUnitFrameworkConstants.NameOfIsSamePath
         };
 
         public override ImmutableArray<string> FixableDiagnosticIds
@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
             // option 2: Assert with 'actual' and 'constraint' parameters
             // (e.g. Assert.That(actual, Is.EqualTo(expected)))
-            if (methodSymbol.Name == NunitFrameworkConstants.NameOfAssertThat
+            if (methodSymbol.Name == NUnitFrameworkConstants.NameOfAssertThat
                 && methodSymbol.Parameters.Length >= 2)
             {
                 actualArgument = invocationSyntax.ArgumentList.Arguments[0].Expression;
@@ -122,8 +122,8 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                     var expressionString = memberAccessExpression.Expression.ToString();
 
                     // e.g. Is.EqualTo or Is.Not.EqualTo
-                    if (expressionString == NunitFrameworkConstants.NameOfIs
-                        || expressionString == $"{NunitFrameworkConstants.NameOfIs}.{NunitFrameworkConstants.NameOfIsNot}")
+                    if (expressionString == NUnitFrameworkConstants.NameOfIs
+                        || expressionString == $"{NUnitFrameworkConstants.NameOfIs}.{NUnitFrameworkConstants.NameOfIsNot}")
                     {
                         return true;
                     }

@@ -85,8 +85,8 @@ namespace NUnit.Analyzers.TestMethodUsage
         {
             var methodSymbol = (IMethodSymbol)context.Symbol;
 
-            var testCaseType = context.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
-            var testType = context.Compilation.GetTypeByMetadataName(NunitFrameworkConstants.FullNameOfTypeTestAttribute);
+            var testCaseType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
+            var testType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestAttribute);
 
             if (testCaseType == null || testType == null)
                 return;
@@ -146,7 +146,7 @@ namespace NUnit.Analyzers.TestMethodUsage
         private static void AnalyzeExpectedResult(SymbolAnalysisContext context,
             AttributeData attribute, IMethodSymbol methodSymbol)
         {
-            if (attribute.NamedArguments.TryGetValue(NunitFrameworkConstants.NameOfExpectedResult,
+            if (attribute.NamedArguments.TryGetValue(NUnitFrameworkConstants.NameOfExpectedResult,
                 out var expectedResultNamedArgument))
             {
                 ExpectedResultSupplied(context, methodSymbol, attribute, expectedResultNamedArgument);
@@ -262,7 +262,7 @@ namespace NUnit.Analyzers.TestMethodUsage
 
         private static Location? GetExpectedArgumentLocation(AttributeData attributeData)
         {
-            return attributeData.GetNamedArgumentSyntax(NunitFrameworkConstants.NameOfExpectedResult)?.GetLocation();
+            return attributeData.GetNamedArgumentSyntax(NUnitFrameworkConstants.NameOfExpectedResult)?.GetLocation();
         }
     }
 }

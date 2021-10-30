@@ -111,17 +111,17 @@ namespace NUnit.Analyzers.Operations
             {
                 var name = propertyReference.Property.Name;
 
-                if (name == NunitFrameworkConstants.NameOfConstraintExpressionAnd
-                    || name == NunitFrameworkConstants.NameOfConstraintExpressionOr)
+                if (name == NUnitFrameworkConstants.NameOfConstraintExpressionAnd
+                    || name == NUnitFrameworkConstants.NameOfConstraintExpressionOr)
                 {
                     return true;
                 }
-                else if (name == NunitFrameworkConstants.NameOfConstraintExpressionWith)
+                else if (name == NUnitFrameworkConstants.NameOfConstraintExpressionWith)
                 {
                     // 'With' is allowed only when defined on Constraint (in this case it is 'And' equivalent).
                     // When defined in ConstraintExpression - it's NOP, and is not expression operator.
 
-                    if (propertyReference.Property.ContainingType.Name == NunitFrameworkConstants.NameOfConstraint)
+                    if (propertyReference.Property.ContainingType.Name == NUnitFrameworkConstants.NameOfConstraint)
                     {
                         return true;
                     }

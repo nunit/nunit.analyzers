@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
-using static NUnit.Analyzers.Constants.NunitFrameworkConstants;
+using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
 
 namespace NUnit.Analyzers.ConstraintUsage
 {
