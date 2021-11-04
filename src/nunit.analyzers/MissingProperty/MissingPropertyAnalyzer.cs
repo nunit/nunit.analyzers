@@ -43,7 +43,7 @@ namespace NUnit.Analyzers.MissingProperty
             {
                 // Only 'Has' allowed (or none) - e.g. 'Throws' leads to verification on exception, which is not supported here.
                 var helperClassName = constraintPart.HelperClass?.Name;
-                if (helperClassName != null && helperClassName != NUnitFrameworkConstants.NameOfHas)
+                if (helperClassName is not null && helperClassName != NUnitFrameworkConstants.NameOfHas)
                 {
                     return;
                 }
@@ -58,12 +58,12 @@ namespace NUnit.Analyzers.MissingProperty
                 var prefix = constraintPart.Prefixes.First();
                 var propertyName = TryGetRequiredPropertyName(prefix);
 
-                if (propertyName == null)
+                if (propertyName is null)
                     continue;
 
                 var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
-                if (actualType == null
+                if (actualType is null
                     || actualType.TypeKind == TypeKind.Error
                     || actualType.TypeKind == TypeKind.Dynamic
                     || actualType.SpecialType == SpecialType.System_Object)

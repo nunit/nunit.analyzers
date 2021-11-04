@@ -54,12 +54,12 @@ namespace NUnit.Analyzers.ConstraintUsage
 
         private static bool IsStaticObjectEquals(IOperation operation)
         {
-            if (!(operation is IInvocationOperation invocation))
+            if (operation is not IInvocationOperation invocation)
                 return false;
 
             var methodSymbol = invocation.TargetMethod;
 
-            return methodSymbol != null
+            return methodSymbol is not null
                 && methodSymbol.IsStatic
                 && methodSymbol.Parameters.Length == 2
                 && methodSymbol.Name == nameof(object.Equals)
@@ -68,12 +68,12 @@ namespace NUnit.Analyzers.ConstraintUsage
 
         private static bool IsInstanceObjectEquals(IOperation operation)
         {
-            if (!(operation is IInvocationOperation invocation))
+            if (operation is not IInvocationOperation invocation)
                 return false;
 
             var methodSymbol = invocation.TargetMethod;
 
-            return methodSymbol != null
+            return methodSymbol is not null
                 && !methodSymbol.IsStatic
                 && methodSymbol.Parameters.Length == 1
                 && methodSymbol.Name == nameof(object.Equals);

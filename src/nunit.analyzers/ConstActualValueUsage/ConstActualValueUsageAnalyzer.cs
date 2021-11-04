@@ -40,7 +40,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
             var actualOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfActualParameter);
 
-            if (actualOperation == null)
+            if (actualOperation is null)
                 return;
 
             if (AssertHelper.IsLiteralOperation(actualOperation))
@@ -55,7 +55,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
             // The actual expression is a constant field, check if expected is also constant
             var expectedOperation = GetExpectedOperation(assertOperation);
 
-            if (expectedOperation != null && !expectedOperation.ConstantValue.HasValue && !IsStringEmpty(expectedOperation))
+            if (expectedOperation is not null && !expectedOperation.ConstantValue.HasValue && !IsStringEmpty(expectedOperation))
             {
                 Report(actualOperation);
             }
@@ -66,12 +66,12 @@ namespace NUnit.Analyzers.ConstActualValueUsage
             var expectedOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfExpectedParameter);
 
             // Check for Assert.That IsEqualTo constraint
-            if (expectedOperation == null &&
+            if (expectedOperation is null &&
                 AssertHelper.TryGetActualAndConstraintOperations(assertOperation, out _, out var constraintExpression))
             {
                 expectedOperation = constraintExpression.ConstraintParts
                     .Select(part => part.GetExpectedArgument())
-                    .Where(e => e != null)
+                    .Where(e => e is not null)
                     .FirstOrDefault();
             }
 

@@ -19,11 +19,11 @@ namespace NUnit.Analyzers.Extensions
             // Try find named argument
             var argument = arguments.FirstOrDefault(a => a.NameColon?.Name.Identifier.Text == parameterName);
 
-            if (argument == null)
+            if (argument is null)
             {
                 var methodParameter = methodSymbol.Parameters.FirstOrDefault(p => p.Name == parameterName);
 
-                if (methodParameter == null)
+                if (methodParameter is null)
                     return null;
 
                 var parameterIndex = methodSymbol.Parameters.IndexOf(methodParameter);

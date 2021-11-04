@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
                     else if (firstAssert >= 0)
                     {
                         IInvocationOperation? currentAssertOperation = TryGetAssertThatOperation(statement);
-                        if (currentAssertOperation != null)
+                        if (currentAssertOperation is not null)
                         {
                             // Check if test is independent
                             string currentArgument = currentAssertOperation.Arguments[0].Syntax.ToString();

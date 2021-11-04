@@ -38,7 +38,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             var diagnostic = context.Diagnostics.First();
             var invocationNode = root.FindNode(diagnostic.Location.SourceSpan) as InvocationExpressionSyntax;
 
-            if (invocationNode == null)
+            if (invocationNode is null)
                 return;
 
             var invocationIdentifier = diagnostic.Properties[AnalyzerPropertyKeys.ModelName];
@@ -116,7 +116,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 arguments[1] = CastIfNecessary(arguments[1]);
 
             // Do the rule specific conversion
-            if (typeArguments == null)
+            if (typeArguments is null)
                 this.UpdateArguments(diagnostic, arguments);
             else
                 this.UpdateArguments(diagnostic, arguments, typeArguments);

@@ -50,12 +50,12 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
 
                 var ignoreCaseSuffix = constraintPart.GetSuffix(NUnitFrameworkConstants.NameOfIgnoreCase) as IPropertyReferenceOperation;
 
-                if (ignoreCaseSuffix == null)
+                if (ignoreCaseSuffix is null)
                     continue;
 
                 var expectedType = constraintPart.GetExpectedArgument()?.Type;
 
-                if (expectedType == null || expectedType.TypeKind == TypeKind.Error)
+                if (expectedType is null || expectedType.TypeKind == TypeKind.Error)
                     return;
 
                 if (!IsTypeSupported(expectedType))
@@ -86,7 +86,7 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
             if (type is IArrayTypeSymbol arrayType)
                 return IsTypeSupported(arrayType.ElementType, checkedTypes);
 
-            if (!(type is INamedTypeSymbol namedType))
+            if (type is not INamedTypeSymbol namedType)
                 return false;
 
             if (namedType.IsTupleType)
@@ -113,7 +113,7 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
 
             if (namedType.IsIEnumerable(out var elementType))
             {
-                if (elementType != null)
+                if (elementType is not null)
                 {
                     return IsTypeSupported(elementType, checkedTypes);
                 }

@@ -24,7 +24,7 @@ namespace NUnit.Analyzers.Operations
         {
             get
             {
-                if (this.constraintParts == null)
+                if (this.constraintParts is null)
                 {
                     this.constraintParts = SplitConstraintByOperators(this.expressionOperation)
                         .Select(part => new ConstraintExpressionPart(part))

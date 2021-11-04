@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Extensions
             var stack = new Stack<IOperation>();
 
             var current = @this;
-            while (current != null)
+            while (current is not null)
             {
                 stack.Push(current);
                 current = current.GetInstance();

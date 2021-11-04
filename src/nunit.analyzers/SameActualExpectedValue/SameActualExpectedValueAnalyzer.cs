@@ -33,7 +33,7 @@ namespace NUnit.Analyzers.SameActualExpectedValue
 
             var sameExpectedExpressions = constraintExpression.ConstraintParts
                 .Select(part => part.GetExpectedArgument()?.Syntax)
-                .Where(e => e != null && actualSyntax.IsEquivalentTo(e));
+                .Where(e => e is not null && actualSyntax.IsEquivalentTo(e));
 
             foreach (var expected in sameExpectedExpressions)
             {

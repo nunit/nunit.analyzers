@@ -72,7 +72,7 @@ namespace NUnit.Analyzers.ValueSourceUsage
                 NUnitFrameworkConstants.FullNameOfTypeValueSourceAttribute,
                 NUnitFrameworkConstants.NameOfValueSourceAttribute);
 
-            if (attributeInfo == null)
+            if (attributeInfo is null)
             {
                 return;
             }
@@ -80,7 +80,7 @@ namespace NUnit.Analyzers.ValueSourceUsage
             var stringConstant = attributeInfo.SourceName;
             var syntaxNode = attributeInfo.SyntaxNode;
 
-            if (syntaxNode == null || stringConstant == null)
+            if (syntaxNode is null || stringConstant is null)
             {
                 return;
             }
@@ -136,7 +136,7 @@ namespace NUnit.Analyzers.ValueSourceUsage
                 _ => null
             };
 
-            if (memberType != null && !memberType.IsIEnumerable(out var _))
+            if (memberType is not null && !memberType.IsIEnumerable(out var _))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     sourceDoesNotReturnIEnumerable,

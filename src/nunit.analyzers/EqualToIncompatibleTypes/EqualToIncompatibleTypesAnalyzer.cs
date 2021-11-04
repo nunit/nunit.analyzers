@@ -71,13 +71,13 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
 
         private static void CheckActualVsExpectedOperation(OperationAnalysisContext context, IOperation? actualOperation, IOperation? expectedOperation)
         {
-            if (actualOperation == null || expectedOperation == null)
+            if (actualOperation is null || expectedOperation is null)
                 return;
 
             var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
             var expectedType = expectedOperation.Type;
 
-            if (actualType == null || expectedType == null)
+            if (actualType is null || expectedType is null)
                 return;
 
             if (!NUnitEqualityComparerHelper.CanBeEqual(actualType, expectedType, context.Compilation))

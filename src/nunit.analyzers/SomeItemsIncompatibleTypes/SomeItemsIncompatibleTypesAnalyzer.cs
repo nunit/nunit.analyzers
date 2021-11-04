@@ -46,17 +46,17 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
                 var expectedType = constraintPart.GetExpectedArgument()?.Type;
                 var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
-                if (actualType == null || expectedType == null)
+                if (actualType is null || expectedType is null)
                     continue;
 
                 if (actualType.IsIEnumerable(out var elementType))
                 {
                     // Cannot determine element type for non-generic IEnumerable, therefore consider valid.
-                    if (elementType == null)
+                    if (elementType is null)
                         continue;
 
                     IInvocationOperation? usingInvocation = constraintPart.GetSuffix(NUnitFrameworkConstants.NameOfUsing) as IInvocationOperation;
-                    if (usingInvocation != null)
+                    if (usingInvocation is not null)
                     {
                         IMethodSymbol target = usingInvocation.TargetMethod;
                         ImmutableArray<ITypeSymbol> typeArguments = target.TypeArguments;
@@ -114,7 +114,7 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
 
         private static string ConstraintDiagnosticDescription(ConstraintExpressionPart constraintPart)
         {
-            return constraintPart.HelperClass?.Name != null
+            return constraintPart.HelperClass?.Name is not null
                 ? $"{constraintPart.HelperClass?.Name}.{constraintPart.GetConstraintName()}"
                 : (constraintPart.GetConstraintName() ?? "");
         }

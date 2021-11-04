@@ -41,7 +41,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
 
             SyntaxNode node = root.FindNode(context.Span);
 
-            if (!(node is InvocationExpressionSyntax assertExpression))
+            if (node is not InvocationExpressionSyntax assertExpression)
                 return;
 
             var assertStatement = assertExpression.Parent;

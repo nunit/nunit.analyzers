@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.Operations
                 int spanStart = syntax.SpanStart;
 
                 // If instance is null - that means we're accessing static helper class, no need to cut anything.
-                if (operation.GetInstance() != null)
+                if (operation.GetInstance() is not null)
                 {
                     if (syntax is MemberAccessExpressionSyntax memberAccess)
                         spanStart = memberAccess.Name.Span.Start;
@@ -79,7 +79,7 @@ namespace NUnit.Analyzers.Operations
         {
             return this.Prefixes
                 .Select(e => e.GetName())
-                .Where(e => e != null)
+                .Where(e => e is not null)
                 .ToArray()!;
         }
 
@@ -90,7 +90,7 @@ namespace NUnit.Analyzers.Operations
         {
             return this.Suffixes
                 .Select(e => e.GetName())
-                .Where(e => e != null)
+                .Where(e => e is not null)
                 .ToArray()!;
         }
 
@@ -230,7 +230,7 @@ namespace NUnit.Analyzers.Operations
         private static bool ReturnsConstraint(IOperation operation)
         {
             var returnType = operation.Type;
-            return returnType != null && returnType.IsConstraint();
+            return returnType is not null && returnType.IsConstraint();
         }
     }
 }

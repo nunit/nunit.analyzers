@@ -29,7 +29,7 @@ namespace NUnit.Analyzers
             DiagnosticSeverity defaultSeverity,
             bool isEnabledByDefault,
             string description) =>
-            new DiagnosticDescriptor(
+            new(
                 id: id,
                 title: title,
                 messageFormat: messageFormat,

@@ -20,7 +20,7 @@ namespace NUnit.Analyzers.MissingProperty
     {
         internal const string UsePropertyDescriptionFormat = "Use '{0}' property";
 
-        private static readonly Dictionary<string, string> supportedCodeFixes = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> supportedCodeFixes = new()
         {
             { NUnitFrameworkConstants.NameOfHasCount, NUnitFrameworkConstants.NameOfHasLength },
             { NUnitFrameworkConstants.NameOfHasLength, NUnitFrameworkConstants.NameOfHasCount }
@@ -47,7 +47,7 @@ namespace NUnit.Analyzers.MissingProperty
 
             var node = root.FindNode(context.Span);
 
-            if (!(node is ExpressionSyntax originalExpression))
+            if (node is not ExpressionSyntax originalExpression)
                 return;
 
             var prefixName = originalExpression.GetName();
@@ -55,7 +55,7 @@ namespace NUnit.Analyzers.MissingProperty
             var diagnostic = context.Diagnostics.First();
 
             if (originalExpression is MemberAccessExpressionSyntax &&
-                prefixName != null &&
+                prefixName is not null &&
                 supportedCodeFixes.TryGetValue(prefixName, out var target) &&
                 diagnostic.Properties.ContainsKey(target))
             {

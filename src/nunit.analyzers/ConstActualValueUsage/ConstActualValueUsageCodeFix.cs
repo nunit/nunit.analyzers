@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                 .OfType<InvocationExpressionSyntax>()
                 .FirstOrDefault();
 
-            if (invocationSyntax == null)
+            if (invocationSyntax is null)
                 return;
 
             if (!TryFindArguments(semanticModel, invocationSyntax,
@@ -88,7 +88,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
             var methodSymbol = semanticModel.GetSymbolInfo(invocationSyntax).Symbol as IMethodSymbol;
 
-            if (methodSymbol == null || !methodSymbol.ContainingType.IsAssert())
+            if (methodSymbol is null || !methodSymbol.ContainingType.IsAssert())
                 return false;
 
             // option 1: Classic assert (e.g. Assert.AreEqual(expected, actual) )
@@ -108,12 +108,12 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
                 var constraintExpression = invocationSyntax.ArgumentList.Arguments[1].Expression as InvocationExpressionSyntax;
 
-                if (constraintExpression == null)
+                if (constraintExpression is null)
                     return false;
 
                 expectedArgument = constraintExpression.ArgumentList.Arguments.FirstOrDefault()?.Expression;
 
-                if (expectedArgument == null)
+                if (expectedArgument is null)
                     return false;
 
                 if (constraintExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression

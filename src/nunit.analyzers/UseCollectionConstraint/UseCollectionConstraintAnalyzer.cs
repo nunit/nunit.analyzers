@@ -37,7 +37,7 @@ namespace NUnit.Analyzers.UseCollectionConstraint
                 foreach (var constraintPart in constraintExpression.ConstraintParts)
                 {
                     if (!constraintPart.HasIncompatiblePrefixes()
-                        && constraintPart.Root != null
+                        && constraintPart.Root is not null
                         && constraintPart.HelperClass?.Name == NUnitFrameworkConstants.NameOfIs)
                     {
                         context.ReportDiagnostic(Diagnostic.Create(

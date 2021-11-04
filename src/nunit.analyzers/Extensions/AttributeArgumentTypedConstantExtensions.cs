@@ -26,7 +26,7 @@ namespace NUnit.Analyzers.Extensions
         // For converters that exist in .NET Standard 1.6 we use the converter.
         // Otherwise, we assume that the converter exists and it can convert the value.
         private static readonly List<(Type type, Lazy<TypeConverter>? typeConverter)> IntrinsicTypeConverters =
-            new List<(Type type, Lazy<TypeConverter>? typeConverter)>
+            new()
             {
                 (typeof(bool), new Lazy<TypeConverter>(() => new BooleanConverter())),
                 (typeof(byte), new Lazy<TypeConverter>(() => new ByteConverter())),
@@ -66,10 +66,10 @@ namespace NUnit.Analyzers.Extensions
             if (allowEnumToUnderlyingTypeConversion && targetType?.TypeKind == TypeKind.Enum)
                 targetType = (targetType as INamedTypeSymbol)?.EnumUnderlyingType;
 
-            if (targetType == null)
+            if (targetType is null)
                 return false;
 
-            if (argumentValue == null)
+            if (argumentValue is null)
             {
                 if (target.IsReferenceType ||
                     target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
@@ -82,7 +82,7 @@ namespace NUnit.Analyzers.Extensions
                 if (allowEnumToUnderlyingTypeConversion && argumentType?.TypeKind == TypeKind.Enum)
                     argumentType = (argumentType as INamedTypeSymbol)?.EnumUnderlyingType;
 
-                if (argumentType == null)
+                if (argumentType is null)
                     return false;
 
                 if (targetType.IsAssignableFrom(argumentType)
@@ -147,7 +147,7 @@ namespace NUnit.Analyzers.Extensions
             var typeName = targetTypeSymbol.GetFullMetadataName();
             var targetType = ConvertibleTypes.FirstOrDefault(t => t.FullName == typeName);
 
-            if (targetType == null)
+            if (targetType is null)
             {
                 return false;
             }
@@ -189,7 +189,7 @@ namespace NUnit.Analyzers.Extensions
             {
                 if (argumentValue is object)
                 {
-                    if (targetType.typeConverter == null)
+                    if (targetType.typeConverter is null)
                     {
                         return argumentValue.GetType() == typeof(string);
                     }

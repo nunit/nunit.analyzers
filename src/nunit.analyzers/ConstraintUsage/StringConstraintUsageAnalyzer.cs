@@ -39,7 +39,7 @@ namespace NUnit.Analyzers.ConstraintUsage
         #endregion Descriptors
 
         private static readonly Dictionary<string, (string doesMethod, DiagnosticDescriptor descriptor)> SupportedMethods
-            = new Dictionary<string, (string, DiagnosticDescriptor)>
+            = new()
             {
                 [nameof(string.Contains)] = (NUnitFrameworkConstants.NameOfDoesContain, containsDescriptor),
                 [nameof(string.StartsWith)] = (NUnitFrameworkConstants.NameOfDoesStartWith, startsWithDescriptor),

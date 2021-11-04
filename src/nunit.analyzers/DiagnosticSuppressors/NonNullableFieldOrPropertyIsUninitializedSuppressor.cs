@@ -15,7 +15,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class NonNullableFieldOrPropertyIsUninitializedSuppressor : DiagnosticSuppressor
     {
-        internal static readonly SuppressionDescriptor NullableFieldOrPropertyInitializedInSetUp = new SuppressionDescriptor(
+        internal static readonly SuppressionDescriptor NullableFieldOrPropertyInitializedInSetUp = new(
             id: AnalyzerIdentifiers.NonNullableFieldOrPropertyIsUninitialized,
             suppressedDiagnosticId: "CS8618",
             justification: "Field/Property is initialized in SetUp or OneTimeSetUp method");
@@ -55,7 +55,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     IReadOnlyList<object?>? arguments = (IReadOnlyList<object?>?)diagnostic.GetType()
                         .GetProperty("Arguments", BindingFlags.NonPublic | BindingFlags.Instance)?
                         .GetValue(diagnostic);
-                    if (arguments != null && arguments.Count == 2 && arguments[1] is string possibleFieldName)
+                    if (arguments is not null && arguments.Count == 2 && arguments[1] is string possibleFieldName)
                     {
                         fieldOrPropertyName = possibleFieldName;
                     }
@@ -106,7 +106,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             MethodDeclarationSyntax method,
             string fieldOrPropertyName)
         {
-            if (method.ExpressionBody != null)
+            if (method.ExpressionBody is not null)
             {
                 return IsAssignedIn(model, classDeclaration, method.ExpressionBody.Expression, fieldOrPropertyName);
             }

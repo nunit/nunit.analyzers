@@ -33,7 +33,7 @@ namespace NUnit.Analyzers.Extensions
         {
             var attributeType = @this.AttributeClass;
 
-            if (attributeType == null)
+            if (attributeType is null)
                 return false;
 
             return attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeOneTimeSetUpAttribute, compilation)
@@ -45,18 +45,18 @@ namespace NUnit.Analyzers.Extensions
         public static AttributeArgumentSyntax? GetConstructorArgumentSyntax(this AttributeData @this, int position,
             CancellationToken cancellationToken = default)
         {
-            if (!(@this.ApplicationSyntaxReference?.GetSyntax(cancellationToken) is AttributeSyntax attributeSyntax))
+            if (@this.ApplicationSyntaxReference?.GetSyntax(cancellationToken) is not AttributeSyntax attributeSyntax)
                 return null;
 
             return attributeSyntax.ArgumentList?.Arguments
-                .Where(a => a.NameEquals == null)
+                .Where(a => a.NameEquals is null)
                 .ElementAtOrDefault(position);
         }
 
         public static AttributeArgumentSyntax? GetNamedArgumentSyntax(this AttributeData @this, string name,
             CancellationToken cancellationToken = default)
         {
-            if (!(@this.ApplicationSyntaxReference?.GetSyntax(cancellationToken) is AttributeSyntax attributeSyntax))
+            if (@this.ApplicationSyntaxReference?.GetSyntax(cancellationToken) is not AttributeSyntax attributeSyntax)
                 return null;
 
             return attributeSyntax.ArgumentList?.Arguments

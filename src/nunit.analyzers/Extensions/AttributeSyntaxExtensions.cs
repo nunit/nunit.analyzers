@@ -21,7 +21,7 @@ namespace NUnit.Analyzers.Extensions
             var positionalArguments = new List<AttributeArgumentSyntax>();
             var namedArguments = new List<AttributeArgumentSyntax>();
 
-            if (@this.ArgumentList != null)
+            if (@this.ArgumentList is not null)
             {
                 var arguments = @this.ArgumentList.Arguments;
 

@@ -21,9 +21,9 @@ namespace NUnit.Analyzers.Helpers
             Compilation compilation,
             ImmutableHashSet<(ITypeSymbol, ITypeSymbol)>? checkedTypes = null)
         {
-            if (actualType == null
+            if (actualType is null
                 || actualType.TypeKind == TypeKind.Error
-                || expectedType == null
+                || expectedType is null
                 || expectedType.TypeKind == TypeKind.Error)
             {
                 // Can't tell anything specific if type is wrong.
@@ -105,7 +105,7 @@ namespace NUnit.Analyzers.Helpers
             // IEnumerables
             if (actualType.IsIEnumerable(out var actualElementType) && expectedType.IsIEnumerable(out var expectedElementType))
             {
-                if (actualElementType == null || expectedElementType == null)
+                if (actualElementType is null || expectedElementType is null)
                 {
                     // If actual or expected values implement only non-generic IEnumerable, we cannot determine
                     // whether types are suitable
