@@ -23,14 +23,14 @@ namespace NUnit.Analyzers.StringConstraintWrongActualType
 
         private static readonly HashSet<string> SupportedConstraints = new HashSet<string>
         {
-            NunitFrameworkConstants.FullNameOfEndsWithConstraint,
-            NunitFrameworkConstants.FullNameOfRegexConstraint,
-            NunitFrameworkConstants.FullNameOfEmptyStringConstraint,
-            NunitFrameworkConstants.FullNameOfSamePathConstraint,
-            NunitFrameworkConstants.FullNameOfSamePathOrUnderConstraint,
-            NunitFrameworkConstants.FullNameOfStartsWithConstraint,
-            NunitFrameworkConstants.FullNameOfSubPathConstraint,
-            NunitFrameworkConstants.FullNameOfSubstringConstraint
+            NUnitFrameworkConstants.FullNameOfEndsWithConstraint,
+            NUnitFrameworkConstants.FullNameOfRegexConstraint,
+            NUnitFrameworkConstants.FullNameOfEmptyStringConstraint,
+            NUnitFrameworkConstants.FullNameOfSamePathConstraint,
+            NUnitFrameworkConstants.FullNameOfSamePathOrUnderConstraint,
+            NUnitFrameworkConstants.FullNameOfStartsWithConstraint,
+            NUnitFrameworkConstants.FullNameOfSubPathConstraint,
+            NUnitFrameworkConstants.FullNameOfSubstringConstraint
         };
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(descriptor);

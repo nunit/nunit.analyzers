@@ -22,8 +22,8 @@ namespace NUnit.Analyzers.MissingProperty
 
         private static readonly Dictionary<string, string> supportedCodeFixes = new Dictionary<string, string>
         {
-            { NunitFrameworkConstants.NameOfHasCount, NunitFrameworkConstants.NameOfHasLength },
-            { NunitFrameworkConstants.NameOfHasLength, NunitFrameworkConstants.NameOfHasCount }
+            { NUnitFrameworkConstants.NameOfHasCount, NUnitFrameworkConstants.NameOfHasLength },
+            { NUnitFrameworkConstants.NameOfHasLength, NUnitFrameworkConstants.NameOfHasCount }
         };
 
         public override ImmutableArray<string> FixableDiagnosticIds
@@ -61,7 +61,7 @@ namespace NUnit.Analyzers.MissingProperty
             {
                 var memberAccess = SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfHas),
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfHas),
                         SyntaxFactory.IdentifierName(target));
 
                 var newRoot = root.ReplaceNode(originalExpression, memberAccess);

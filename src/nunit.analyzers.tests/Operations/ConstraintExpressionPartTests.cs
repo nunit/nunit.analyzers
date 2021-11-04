@@ -201,7 +201,7 @@ namespace NUnit.Analyzers.Tests.Operations
 
             Assert.That(methodSymbol, Is.Not.Null);
             Assert.That(methodSymbol.Name, Is.EqualTo("EqualTo"));
-            Assert.That(methodSymbol.ContainingAssembly.Name, Is.EqualTo(NunitFrameworkConstants.NUnitFrameworkAssemblyName));
+            Assert.That(methodSymbol.ContainingAssembly.Name, Is.EqualTo(NUnitFrameworkConstants.NUnitFrameworkAssemblyName));
         }
 
         [Test]

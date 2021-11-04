@@ -16,10 +16,10 @@ namespace NUnit.Analyzers.ComparableTypes
     public class ComparableTypesAnalyzer : BaseAssertionAnalyzer
     {
         private static readonly ImmutableHashSet<string> SupportedConstraints = ImmutableHashSet.Create(
-            NunitFrameworkConstants.NameOfIsLessThan,
-            NunitFrameworkConstants.NameOfIsLessThanOrEqualTo,
-            NunitFrameworkConstants.NameOfIsGreaterThan,
-            NunitFrameworkConstants.NameOfIsGreaterThanOrEqualTo);
+            NUnitFrameworkConstants.NameOfIsLessThan,
+            NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo,
+            NUnitFrameworkConstants.NameOfIsGreaterThan,
+            NUnitFrameworkConstants.NameOfIsGreaterThanOrEqualTo);
 
         private static readonly DiagnosticDescriptor comparableTypesDescriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.ComparableTypes,
@@ -173,7 +173,7 @@ namespace NUnit.Analyzers.ComparableTypes
 
         private static bool HasCustomComparer(ConstraintExpressionPart constraintPartExpression)
         {
-            return constraintPartExpression.GetSuffixesNames().Any(s => s == NunitFrameworkConstants.NameOfUsing);
+            return constraintPartExpression.GetSuffixesNames().Any(s => s == NUnitFrameworkConstants.NameOfUsing);
         }
     }
 }

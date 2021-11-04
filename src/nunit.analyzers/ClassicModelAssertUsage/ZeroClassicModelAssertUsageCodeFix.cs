@@ -22,8 +22,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             arguments.Insert(1, SyntaxFactory.Argument(
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIs),
-                    SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsZero))));
+                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
+                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsZero))));
         }
     }
 }

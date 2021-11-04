@@ -29,11 +29,11 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
             IOperation? actualOperation;
             IOperation? expectedOperation;
 
-            if (assertOperation.TargetMethod.Name.Equals(NunitFrameworkConstants.NameOfAssertAreEqual, StringComparison.Ordinal) ||
-                assertOperation.TargetMethod.Name.Equals(NunitFrameworkConstants.NameOfAssertAreNotEqual, StringComparison.Ordinal))
+            if (assertOperation.TargetMethod.Name.Equals(NUnitFrameworkConstants.NameOfAssertAreEqual, StringComparison.Ordinal) ||
+                assertOperation.TargetMethod.Name.Equals(NUnitFrameworkConstants.NameOfAssertAreNotEqual, StringComparison.Ordinal))
             {
-                actualOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfActualParameter);
-                expectedOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfExpectedParameter);
+                actualOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfActualParameter);
+                expectedOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfExpectedParameter);
 
                 CheckActualVsExpectedOperation(context, actualOperation, expectedOperation);
             }
@@ -56,8 +56,8 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
 
                     var constraintMethod = constraintPartExpression.GetConstraintMethod();
 
-                    if (constraintMethod?.Name != NunitFrameworkConstants.NameOfIsEqualTo
-                        || constraintMethod.ReturnType?.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfEqualToConstraint)
+                    if (constraintMethod?.Name != NUnitFrameworkConstants.NameOfIsEqualTo
+                        || constraintMethod.ReturnType?.GetFullMetadataName() != NUnitFrameworkConstants.FullNameOfEqualToConstraint)
                     {
                         continue;
                     }
@@ -90,7 +90,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
 
         private static bool HasCustomEqualityComparer(ConstraintExpressionPart constraintPartExpression)
         {
-            return constraintPartExpression.GetSuffixesNames().Any(s => s == NunitFrameworkConstants.NameOfUsing);
+            return constraintPartExpression.GetSuffixesNames().Any(s => s == NUnitFrameworkConstants.NameOfUsing);
         }
     }
 }

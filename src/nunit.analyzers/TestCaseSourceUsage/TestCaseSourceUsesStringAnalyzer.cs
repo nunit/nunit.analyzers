@@ -98,8 +98,8 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
         {
             var attributeInfo = SourceHelpers.GetSourceAttributeInformation(
                 context,
-                NunitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute,
-                NunitFrameworkConstants.NameOfTestCaseSourceAttribute);
+                NUnitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute,
+                NUnitFrameworkConstants.NameOfTestCaseSourceAttribute);
 
             if (attributeInfo == null)
             {

@@ -22,8 +22,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIs),
-                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfIsLessThan)))
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsLessThan)))
                 .WithArgumentList(SyntaxFactory.ArgumentList(
                     SyntaxFactory.SingletonSeparatedList(arguments[1])))));
 

@@ -41,9 +41,9 @@ namespace NUnit.Analyzers.ConstraintUsage
         private static readonly Dictionary<string, (string doesMethod, DiagnosticDescriptor descriptor)> SupportedMethods
             = new Dictionary<string, (string, DiagnosticDescriptor)>
             {
-                [nameof(string.Contains)] = (NunitFrameworkConstants.NameOfDoesContain, containsDescriptor),
-                [nameof(string.StartsWith)] = (NunitFrameworkConstants.NameOfDoesStartWith, startsWithDescriptor),
-                [nameof(string.EndsWith)] = (NunitFrameworkConstants.NameOfDoesEndWith, endsWithDescriptor)
+                [nameof(string.Contains)] = (NUnitFrameworkConstants.NameOfDoesContain, containsDescriptor),
+                [nameof(string.StartsWith)] = (NUnitFrameworkConstants.NameOfDoesStartWith, startsWithDescriptor),
+                [nameof(string.EndsWith)] = (NUnitFrameworkConstants.NameOfDoesEndWith, endsWithDescriptor)
             };
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
@@ -69,8 +69,8 @@ namespace NUnit.Analyzers.ConstraintUsage
             var (doesMethod, descriptor) = SupportedMethods[stringMethod];
 
             var suggestedContstraint = negated
-                ? $"{NunitFrameworkConstants.NameOfDoes}.{NunitFrameworkConstants.NameOfDoesNot}.{doesMethod}"
-                : $"{NunitFrameworkConstants.NameOfDoes}.{doesMethod}";
+                ? $"{NUnitFrameworkConstants.NameOfDoes}.{NUnitFrameworkConstants.NameOfDoesNot}.{doesMethod}"
+                : $"{NUnitFrameworkConstants.NameOfDoes}.{doesMethod}";
 
             return (descriptor, suggestedContstraint);
         }

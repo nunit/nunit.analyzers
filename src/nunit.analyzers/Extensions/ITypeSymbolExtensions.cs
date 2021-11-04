@@ -22,15 +22,15 @@ namespace NUnit.Analyzers.Extensions
         internal static bool IsAssert(this ITypeSymbol @this)
         {
             return @this != null &&
-                @this.ContainingAssembly.Name == NunitFrameworkConstants.NUnitFrameworkAssemblyName &&
-                @this.Name == NunitFrameworkConstants.NameOfAssert;
+                @this.ContainingAssembly.Name == NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
+                @this.Name == NUnitFrameworkConstants.NameOfAssert;
         }
 
         internal static bool IsConstraint(this ITypeSymbol @this)
         {
             return @this != null && @this.GetAllBaseTypes()
-                .Any(t => t.Name == NunitFrameworkConstants.NameOfConstraint
-                    && @this.ContainingAssembly.Name == NunitFrameworkConstants.NUnitFrameworkAssemblyName);
+                .Any(t => t.Name == NUnitFrameworkConstants.NameOfConstraint
+                    && @this.ContainingAssembly.Name == NUnitFrameworkConstants.NUnitFrameworkAssemblyName);
         }
 
         internal static bool IsType([NotNullWhen(true)] this ITypeSymbol? @this, string fullMetadataName, Compilation compilation)

@@ -69,8 +69,8 @@ namespace NUnit.Analyzers.ValueSourceUsage
         {
             var attributeInfo = SourceHelpers.GetSourceAttributeInformation(
                 context,
-                NunitFrameworkConstants.FullNameOfTypeValueSourceAttribute,
-                NunitFrameworkConstants.NameOfValueSourceAttribute);
+                NUnitFrameworkConstants.FullNameOfTypeValueSourceAttribute,
+                NUnitFrameworkConstants.NameOfValueSourceAttribute);
 
             if (attributeInfo == null)
             {

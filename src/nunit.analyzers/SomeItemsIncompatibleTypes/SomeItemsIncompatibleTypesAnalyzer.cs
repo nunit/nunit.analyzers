@@ -35,7 +35,7 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
                 if ((!IsDoesContain(constraintPart) && !IsContainsItem(constraintPart))
-                    || constraintPart.Root?.Type.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfSomeItemsConstraint)
+                    || constraintPart.Root?.Type.GetFullMetadataName() != NUnitFrameworkConstants.FullNameOfSomeItemsConstraint)
                 {
                     continue;
                 }
@@ -55,7 +55,7 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
                     if (elementType == null)
                         continue;
 
-                    IInvocationOperation? usingInvocation = constraintPart.GetSuffix(NunitFrameworkConstants.NameOfUsing) as IInvocationOperation;
+                    IInvocationOperation? usingInvocation = constraintPart.GetSuffix(NUnitFrameworkConstants.NameOfUsing) as IInvocationOperation;
                     if (usingInvocation != null)
                     {
                         IMethodSymbol target = usingInvocation.TargetMethod;
@@ -103,13 +103,13 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
 
         private static bool IsDoesContain(ConstraintExpressionPart constraintPart)
         {
-            return constraintPart.GetConstraintName() == NunitFrameworkConstants.NameOfDoesContain;
+            return constraintPart.GetConstraintName() == NUnitFrameworkConstants.NameOfDoesContain;
         }
 
         private static bool IsContainsItem(ConstraintExpressionPart constraintPart)
         {
-            return constraintPart.HelperClass?.Name == NunitFrameworkConstants.NameOfContains
-                && constraintPart.GetConstraintName() == NunitFrameworkConstants.NameOfContainsItem;
+            return constraintPart.HelperClass?.Name == NUnitFrameworkConstants.NameOfContains
+                && constraintPart.GetConstraintName() == NUnitFrameworkConstants.NameOfContainsItem;
         }
 
         private static string ConstraintDiagnosticDescription(ConstraintExpressionPart constraintPart)

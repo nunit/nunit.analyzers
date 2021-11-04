@@ -4,7 +4,7 @@ namespace NUnit.Analyzers.Constants
     /// String constants for relevant NUnit concepts (classes, fields, properties etc.)
     /// so that we do not need have a dependency on NUnit from the analyzer project.
     /// </summary>
-    public static class NunitFrameworkConstants
+    public static class NUnitFrameworkConstants
     {
         public const string NameOfEqualConstraintWithin = "Within";
 

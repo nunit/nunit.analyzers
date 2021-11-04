@@ -102,7 +102,7 @@ namespace NUnit.Analyzers.ParallelizableUsage
             attributeData = null;
 
             var parallelizableAttributeType = compilation.GetTypeByMetadataName(
-                NunitFrameworkConstants.FullNameOfTypeParallelizableAttribute);
+                NUnitFrameworkConstants.FullNameOfTypeParallelizableAttribute);
             if (parallelizableAttributeType == null)
                 return false;
 

@@ -17,10 +17,10 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
     {
         private static readonly string[] SupportedIsMethods = new[]
         {
-            NunitFrameworkConstants.NameOfIsEqualTo,
-            NunitFrameworkConstants.NameOfIsEquivalentTo,
-            NunitFrameworkConstants.NameOfIsSupersetOf,
-            NunitFrameworkConstants.NameOfIsSubsetOf
+            NUnitFrameworkConstants.NameOfIsEqualTo,
+            NUnitFrameworkConstants.NameOfIsEquivalentTo,
+            NUnitFrameworkConstants.NameOfIsSupersetOf,
+            NUnitFrameworkConstants.NameOfIsSubsetOf
         };
 
         private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
@@ -48,7 +48,7 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
                 // e.g. Is.EqualTo(expected).IgnoreCase
                 // Need to check type of expected
 
-                var ignoreCaseSuffix = constraintPart.GetSuffix(NunitFrameworkConstants.NameOfIgnoreCase) as IPropertyReferenceOperation;
+                var ignoreCaseSuffix = constraintPart.GetSuffix(NUnitFrameworkConstants.NameOfIgnoreCase) as IPropertyReferenceOperation;
 
                 if (ignoreCaseSuffix == null)
                     continue;

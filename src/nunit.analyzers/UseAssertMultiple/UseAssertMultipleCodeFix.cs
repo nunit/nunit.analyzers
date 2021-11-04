@@ -72,7 +72,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
                 {
                     if (statement is ExpressionStatementSyntax expressionStatement &&
                         AssertHelper.IsAssert(expressionStatement.Expression, out string member, out ArgumentListSyntax? argumentList) &&
-                        member == NunitFrameworkConstants.NameOfAssertThat &&
+                        member == NUnitFrameworkConstants.NameOfAssertThat &&
                         UseAssertMultipleAnalyzer.IsIndependent(previousArguments, argumentList.Arguments[0].ToString()))
                     {
                         // Can be merged
@@ -90,8 +90,8 @@ namespace NUnit.Analyzers.UseAssertMultiple
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfAssert),
-                        SyntaxFactory.IdentifierName(NunitFrameworkConstants.NameOfMultiple)),
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfAssert),
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfMultiple)),
                     SyntaxFactory.ArgumentList(
                         SyntaxFactory.SeparatedList(new[]
                         {

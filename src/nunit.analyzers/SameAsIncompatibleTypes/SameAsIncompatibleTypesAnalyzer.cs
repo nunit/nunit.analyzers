@@ -30,11 +30,11 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
             IOperation? actualOperation;
             IOperation? expectedOperation;
 
-            if (assertOperation.TargetMethod.Name.Equals(NunitFrameworkConstants.NameOfAssertAreSame, StringComparison.Ordinal) ||
-                assertOperation.TargetMethod.Name.Equals(NunitFrameworkConstants.NameOfAssertAreNotSame, StringComparison.Ordinal))
+            if (assertOperation.TargetMethod.Name.Equals(NUnitFrameworkConstants.NameOfAssertAreSame, StringComparison.Ordinal) ||
+                assertOperation.TargetMethod.Name.Equals(NUnitFrameworkConstants.NameOfAssertAreNotSame, StringComparison.Ordinal))
             {
-                actualOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfActualParameter);
-                expectedOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfExpectedParameter);
+                actualOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfActualParameter);
+                expectedOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfExpectedParameter);
 
                 CheckActualVsExpectedOperation(context, actualOperation, expectedOperation);
             }
@@ -56,8 +56,8 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
 
                     var constraintMethod = constraintPartExpression.GetConstraintMethod();
 
-                    if (constraintMethod?.Name != NunitFrameworkConstants.NameOfIsSameAs
-                        || constraintMethod.ReturnType?.GetFullMetadataName() != NunitFrameworkConstants.FullNameOfSameAsConstraint)
+                    if (constraintMethod?.Name != NUnitFrameworkConstants.NameOfIsSameAs
+                        || constraintMethod.ReturnType?.GetFullMetadataName() != NUnitFrameworkConstants.FullNameOfSameAsConstraint)
                     {
                         continue;
                     }

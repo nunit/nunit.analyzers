@@ -22,7 +22,7 @@ namespace NUnit.Analyzers.Helpers
             [NotNullWhen(true)] out IOperation? actualOperation,
             [NotNullWhen(true)] out ConstraintExpression? constraintExpression)
         {
-            if (assertOperation.TargetMethod.Name == NunitFrameworkConstants.NameOfAssertThat
+            if (assertOperation.TargetMethod.Name == NUnitFrameworkConstants.NameOfAssertThat
                 && assertOperation.Arguments.Length >= 2)
             {
                 actualOperation = assertOperation.Arguments[0].Value;
@@ -44,8 +44,8 @@ namespace NUnit.Analyzers.Helpers
             if (actualType is INamedTypeSymbol namedType)
             {
                 var fullTypeName = namedType.GetFullMetadataName();
-                if (fullTypeName == NunitFrameworkConstants.FullNameOfActualValueDelegate ||
-                    fullTypeName == NunitFrameworkConstants.FullNameOfTestDelegate)
+                if (fullTypeName == NUnitFrameworkConstants.FullNameOfActualValueDelegate ||
+                    fullTypeName == NUnitFrameworkConstants.FullNameOfTestDelegate)
                 {
                     ITypeSymbol returnType = namedType.DelegateInvokeMethod!.ReturnType;
 
@@ -99,7 +99,7 @@ namespace NUnit.Analyzers.Helpers
             while ((possibleAssertMultiple = node.Ancestors().OfType<InvocationExpressionSyntax>().FirstOrDefault()) != null)
             {
                 // Is the statement inside a Block which is part of an Assert.Multiple.
-                if (IsAssert(possibleAssertMultiple, NunitFrameworkConstants.NameOfMultiple))
+                if (IsAssert(possibleAssertMultiple, NUnitFrameworkConstants.NameOfMultiple))
                 {
                     return true;
                 }
@@ -126,7 +126,7 @@ namespace NUnit.Analyzers.Helpers
             if (expression is InvocationExpressionSyntax invocationExpression &&
                 invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
                 memberAccessExpression.Expression is IdentifierNameSyntax identifierName &&
-                identifierName.Identifier.Text == NunitFrameworkConstants.NameOfAssert)
+                identifierName.Identifier.Text == NUnitFrameworkConstants.NameOfAssert)
             {
                 member = memberAccessExpression.Name.Identifier.Text;
                 argumentList = invocationExpression.ArgumentList;

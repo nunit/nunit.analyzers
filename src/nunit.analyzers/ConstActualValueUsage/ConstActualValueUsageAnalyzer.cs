@@ -38,7 +38,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                     operation.Syntax.GetLocation()));
             }
 
-            var actualOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfActualParameter);
+            var actualOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfActualParameter);
 
             if (actualOperation == null)
                 return;
@@ -63,7 +63,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
         private static IOperation? GetExpectedOperation(IInvocationOperation assertOperation)
         {
-            var expectedOperation = assertOperation.GetArgumentOperation(NunitFrameworkConstants.NameOfExpectedParameter);
+            var expectedOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfExpectedParameter);
 
             // Check for Assert.That IsEqualTo constraint
             if (expectedOperation == null &&
