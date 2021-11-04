@@ -74,11 +74,7 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
         private static bool IsTypeSupported(ITypeSymbol type, HashSet<ITypeSymbol>? checkedTypes = null)
         {
             // Protection against possible infinite recursion
-            // TODO Remove suppression when the below is released:
-            // https://github.com/dotnet/roslyn-analyzers/issues/4568
-#pragma warning disable RS1024 // Compare symbols correctly
             checkedTypes ??= new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
-#pragma warning restore RS1024 // Compare symbols correctly
 
             if (!checkedTypes.Add(type))
                 return false;
