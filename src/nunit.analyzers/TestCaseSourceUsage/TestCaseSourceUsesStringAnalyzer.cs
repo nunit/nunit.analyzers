@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 NUnitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute,
                 NUnitFrameworkConstants.NameOfTestCaseSourceAttribute);
 
-            if (attributeInfo == null)
+            if (attributeInfo is null)
             {
                 return;
             }
@@ -136,7 +136,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
             var syntaxNode = attributeInfo.SyntaxNode;
 
-            if (syntaxNode == null || stringConstant == null)
+            if (syntaxNode is null || stringConstant is null)
             {
                 return;
             }

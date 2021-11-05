@@ -55,11 +55,11 @@ namespace NUnit.Analyzers.TestCaseUsage
                 return;
 
             var testCaseType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
-            if (testCaseType == null)
+            if (testCaseType is null)
                 return;
 
             var testCaseAttributes = methodSymbol.GetAttributes()
-                .Where(a => a.ApplicationSyntaxReference != null
+                .Where(a => a.ApplicationSyntaxReference is not null
                     && SymbolEqualityComparer.Default.Equals(a.AttributeClass, testCaseType));
 
             foreach (var attribute in testCaseAttributes)
@@ -148,7 +148,7 @@ namespace NUnit.Analyzers.TestCaseUsage
 
         private static bool IsTypeAnObjectArray(ITypeSymbol? typeSymbol)
         {
-            return typeSymbol != null && typeSymbol.TypeKind == TypeKind.Array &&
+            return typeSymbol is not null && typeSymbol.TypeKind == TypeKind.Array &&
                 ((IArrayTypeSymbol)typeSymbol).ElementType.SpecialType == SpecialType.System_Object;
         }
 
@@ -193,10 +193,10 @@ namespace NUnit.Analyzers.TestCaseUsage
                     allowImplicitConversion: true,
                     allowEnumToUnderlyingTypeConversion: true);
 
-                if (methodParameterParamsType == null && argumentTypeMatchesParameterType)
+                if (methodParameterParamsType is null && argumentTypeMatchesParameterType)
                     continue;
 
-                if (methodParameterParamsType != null)
+                if (methodParameterParamsType is not null)
                 {
                     var argumentTypeMatchesElementType = attributeArgument.CanAssignTo(
                         methodParameterParamsType,
@@ -205,7 +205,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                         allowEnumToUnderlyingTypeConversion: true);
 
                     if (argumentTypeMatchesElementType ||
-                        (argumentTypeMatchesParameterType && (argumentType != null || !methodParameterParamsType.IsValueType)))
+                        (argumentTypeMatchesParameterType && (argumentType is not null || !methodParameterParamsType.IsValueType)))
                     {
                         continue;
                     }

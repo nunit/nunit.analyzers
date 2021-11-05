@@ -88,7 +88,7 @@ namespace NUnit.Analyzers.TestMethodUsage
             var testCaseType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
             var testType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestAttribute);
 
-            if (testCaseType == null || testType == null)
+            if (testCaseType is null || testType is null)
                 return;
 
             var methodAttributes = methodSymbol.GetAttributes();
@@ -186,7 +186,7 @@ namespace NUnit.Analyzers.TestMethodUsage
                 {
                     var expectedResultLocation = GetExpectedArgumentLocation(attributeData);
 
-                    if (expectedResultLocation != null)
+                    if (expectedResultLocation is not null)
                     {
                         context.ReportDiagnostic(Diagnostic.Create(
                             specifiedExpectedResultForVoid,
@@ -214,7 +214,7 @@ namespace NUnit.Analyzers.TestMethodUsage
             {
                 var location = GetExpectedArgumentLocation(attributeData);
 
-                if (location != null)
+                if (location is not null)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         expectedResultTypeMismatch,

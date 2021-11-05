@@ -103,7 +103,7 @@ namespace NUnit.Analyzers.ParallelizableUsage
 
             var parallelizableAttributeType = compilation.GetTypeByMetadataName(
                 NUnitFrameworkConstants.FullNameOfTypeParallelizableAttribute);
-            if (parallelizableAttributeType == null)
+            if (parallelizableAttributeType is null)
                 return false;
 
             attributeData = symbol.GetAttributes()
@@ -113,7 +113,7 @@ namespace NUnit.Analyzers.ParallelizableUsage
                 return false;
 
             var optionalEnumValue = GetOptionalEnumValue(attributeData);
-            if (optionalEnumValue == null)
+            if (optionalEnumValue is null)
                 return false;
 
             enumValue = optionalEnumValue.Value;

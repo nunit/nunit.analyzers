@@ -31,13 +31,13 @@ namespace NUnit.Analyzers.NullConstraintUsage
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
                 if (!constraintPart.HasIncompatiblePrefixes()
-                    && constraintPart.Root != null
+                    && constraintPart.Root is not null
                     && constraintPart.HelperClass?.Name == NUnitFrameworkConstants.NameOfIs
                     && constraintPart.GetConstraintName() == NUnitFrameworkConstants.NameOfNull)
                 {
                     var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
-                    if (actualType == null)
+                    if (actualType is null)
                         return;
 
                     if (actualType.IsValueType && actualType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T)

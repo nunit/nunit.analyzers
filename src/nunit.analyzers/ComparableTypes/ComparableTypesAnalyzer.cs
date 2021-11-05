@@ -48,12 +48,12 @@ namespace NUnit.Analyzers.ComparableTypes
                 return;
             }
 
-            if (actualOperation == null)
+            if (actualOperation is null)
                 return;
 
             var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
-            if (actualType == null)
+            if (actualType is null)
                 return;
 
             foreach (var constraintPartExpression in constraintExpression.ConstraintParts)
@@ -66,18 +66,18 @@ namespace NUnit.Analyzers.ComparableTypes
                 }
 
                 var constraintMethod = constraintPartExpression.GetConstraintMethod();
-                if (constraintMethod == null)
+                if (constraintMethod is null)
                     continue;
 
                 if (!SupportedConstraints.Contains(constraintMethod.Name))
                     continue;
 
                 var expectedOperation = constraintPartExpression.GetExpectedArgument();
-                if (expectedOperation == null)
+                if (expectedOperation is null)
                     continue;
 
                 var expectedType = expectedOperation.Type;
-                if (expectedType == null)
+                if (expectedType is null)
                     continue;
 
                 if (actualType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)

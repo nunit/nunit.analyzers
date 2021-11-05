@@ -45,7 +45,7 @@ namespace NUnit.Analyzers.ContainsConstraintWrongActualType
                 var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
                 // Valid if actualType is String
-                if (actualType == null
+                if (actualType is null
                     || actualType.TypeKind == TypeKind.Error
                     || actualType.TypeKind == TypeKind.Dynamic
                     || actualType.SpecialType == SpecialType.System_String)
@@ -55,7 +55,7 @@ namespace NUnit.Analyzers.ContainsConstraintWrongActualType
 
                 // Valid if actualType is collection of Strings
                 if (actualType.IsIEnumerable(out var elementType)
-                     && (elementType == null || elementType.SpecialType == SpecialType.System_String))
+                     && (elementType is null || elementType.SpecialType == SpecialType.System_String))
                 {
                     continue;
                 }

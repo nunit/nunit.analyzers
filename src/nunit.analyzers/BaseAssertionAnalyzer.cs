@@ -30,7 +30,7 @@ namespace NUnit.Analyzers
 
         private void AnalyzeInvocation(OperationAnalysisContext context)
         {
-            if (!(context.Operation is IInvocationOperation invocationOperation))
+            if (context.Operation is not IInvocationOperation invocationOperation)
                 return;
 
             if (!IsAssert(invocationOperation))

@@ -21,7 +21,7 @@ namespace NUnit.Analyzers.StringConstraintWrongActualType
             defaultSeverity: DiagnosticSeverity.Error,
             description: StringConstraintWrongActualTypeConstants.Description);
 
-        private static readonly HashSet<string> SupportedConstraints = new HashSet<string>
+        private static readonly HashSet<string> SupportedConstraints = new()
         {
             NUnitFrameworkConstants.FullNameOfEndsWithConstraint,
             NUnitFrameworkConstants.FullNameOfRegexConstraint,
@@ -46,7 +46,7 @@ namespace NUnit.Analyzers.StringConstraintWrongActualType
             var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
             // Allow 'object' and 'dynamic' to avoid lots of false positives
-            if (actualType == null
+            if (actualType is null
                 || actualType.TypeKind == TypeKind.Error
                 || actualType.TypeKind == TypeKind.Dynamic
                 || actualType.SpecialType == SpecialType.System_Object
@@ -63,7 +63,7 @@ namespace NUnit.Analyzers.StringConstraintWrongActualType
 
                 var constraintType = constraintPart.Root?.Type;
 
-                if (constraintType != null && SupportedConstraints.Contains(constraintType.GetFullMetadataName()))
+                if (constraintType is not null && SupportedConstraints.Contains(constraintType.GetFullMetadataName()))
                 {
                     var actualTypeDisplay = actualType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
 

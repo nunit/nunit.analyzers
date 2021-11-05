@@ -64,7 +64,7 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
         private static bool IsTestRelatedMethod(Compilation compilation, IMethodSymbol methodSymbol)
         {
             return HasTestRelatedAttributes(compilation, methodSymbol) ||
-                (methodSymbol.OverriddenMethod != null && IsTestRelatedMethod(compilation, methodSymbol.OverriddenMethod));
+                (methodSymbol.OverriddenMethod is not null && IsTestRelatedMethod(compilation, methodSymbol.OverriddenMethod));
         }
 
         private static bool HasTestRelatedAttributes(Compilation compilation, IMethodSymbol methodSymbol)
@@ -89,7 +89,7 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
 
         private static bool IsDisposeMethod(IMethodSymbol method)
         {
-            if (method.OverriddenMethod != null)
+            if (method.OverriddenMethod is not null)
             {
                 return IsDisposeMethod(method.OverriddenMethod);
             }

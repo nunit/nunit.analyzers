@@ -57,7 +57,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             var constraintExpression = assertOperation.GetArgumentOperation(NameOfExpressionParameter);
 
             // Constraint should be either absent, or Is.True, or Is.False
-            if (constraintExpression != null)
+            if (constraintExpression is not null)
             {
                 if (!(constraintExpression is IPropertyReferenceOperation propertyReference
                     && propertyReference.Property.ContainingType.Name == NameOfIs
@@ -76,7 +76,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             var actual = assertOperation.GetArgumentOperation(NameOfActualParameter)
                 ?? assertOperation.GetArgumentOperation(NameOfConditionParameter);
 
-            if (actual == null)
+            if (actual is null)
                 return;
 
             if (IsPrefixNotOperation(actual, out var unwrappedActual))
@@ -86,7 +86,7 @@ namespace NUnit.Analyzers.ConstraintUsage
 
             var (descriptor, suggestedConstraint, swapOperands) = this.GetDiagnosticDataWithPossibleSwapOperands(context, unwrappedActual ?? actual, negated);
 
-            if (descriptor != null && suggestedConstraint != null)
+            if (descriptor is not null && suggestedConstraint is not null)
             {
                 var properties = ImmutableDictionary.CreateBuilder<string, string?>();
                 properties.Add(SuggestedConstraintString, suggestedConstraint);

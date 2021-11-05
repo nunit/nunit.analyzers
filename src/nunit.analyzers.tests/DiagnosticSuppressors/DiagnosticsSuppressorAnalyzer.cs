@@ -20,7 +20,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
         public static async Task EnsureSuppressed(DiagnosticSuppressor suppressor, SuppressionDescriptor? suppressionDescriptor, string testCode)
         {
-            if (suppressionDescriptor != null)
+            if (suppressionDescriptor is not null)
             {
                 Assert.That(suppressor.SupportedSuppressions, Does.Contain(suppressionDescriptor), "Supported Suppression");
             }
@@ -82,7 +82,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             var programmaticSuppressionInfoProperty = errorType.GetProperty("ProgrammaticSuppressionInfo",
                                                                             BindingFlags.Instance | BindingFlags.NonPublic);
-            if (programmaticSuppressionInfoProperty == null)
+            if (programmaticSuppressionInfoProperty is null)
             {
                 Assert.Fail("Expected a property with the name 'ProgrammaticSuppressionInfo'");
                 return;
@@ -90,13 +90,13 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             var programmaticSuppressionInfo = programmaticSuppressionInfoProperty.GetValue(error);
 
-            if (programmaticSuppressionInfo != null)
+            if (programmaticSuppressionInfo is not null)
             {
                 Type programmaticSuppressionInfoType = programmaticSuppressionInfo.GetType();
                 Assert.That(programmaticSuppressionInfoType.Name, Is.EqualTo("ProgrammaticSuppressionInfo"));
 
                 var suppressionsProperty = programmaticSuppressionInfoType.GetProperty("Suppressions");
-                if (suppressionsProperty != null)
+                if (suppressionsProperty is not null)
                 {
                     var suppressions = suppressionsProperty.GetValue(programmaticSuppressionInfo);
 

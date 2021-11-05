@@ -50,12 +50,12 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
 
                 var ignoreCaseSuffix = constraintPart.GetSuffix(NUnitFrameworkConstants.NameOfIgnoreCase) as IPropertyReferenceOperation;
 
-                if (ignoreCaseSuffix == null)
+                if (ignoreCaseSuffix is null)
                     continue;
 
                 var expectedType = constraintPart.GetExpectedArgument()?.Type;
 
-                if (expectedType == null || expectedType.TypeKind == TypeKind.Error)
+                if (expectedType is null || expectedType.TypeKind == TypeKind.Error)
                     return;
 
                 if (!IsTypeSupported(expectedType))
@@ -74,11 +74,7 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
         private static bool IsTypeSupported(ITypeSymbol type, HashSet<ITypeSymbol>? checkedTypes = null)
         {
             // Protection against possible infinite recursion
-            // TODO Remove suppression when the below is released:
-            // https://github.com/dotnet/roslyn-analyzers/issues/4568
-#pragma warning disable RS1024 // Compare symbols correctly
             checkedTypes ??= new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
-#pragma warning restore RS1024 // Compare symbols correctly
 
             if (!checkedTypes.Add(type))
                 return false;
@@ -90,7 +86,7 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
             if (type is IArrayTypeSymbol arrayType)
                 return IsTypeSupported(arrayType.ElementType, checkedTypes);
 
-            if (!(type is INamedTypeSymbol namedType))
+            if (type is not INamedTypeSymbol namedType)
                 return false;
 
             if (namedType.IsTupleType)
@@ -117,7 +113,7 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
 
             if (namedType.IsIEnumerable(out var elementType))
             {
-                if (elementType != null)
+                if (elementType is not null)
                 {
                     return IsTypeSupported(elementType, checkedTypes);
                 }

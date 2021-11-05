@@ -66,7 +66,7 @@ namespace NUnit.Analyzers.Helpers
         {
             var actualType = actualOperation.Type;
 
-            if (actualType == null || actualType.Kind == SymbolKind.ErrorType)
+            if (actualType is null || actualType.Kind == SymbolKind.ErrorType)
                 return null;
 
             return UnwrapActualType(actualType);
@@ -96,7 +96,7 @@ namespace NUnit.Analyzers.Helpers
         {
             InvocationExpressionSyntax? possibleAssertMultiple;
 
-            while ((possibleAssertMultiple = node.Ancestors().OfType<InvocationExpressionSyntax>().FirstOrDefault()) != null)
+            while ((possibleAssertMultiple = node.Ancestors().OfType<InvocationExpressionSyntax>().FirstOrDefault()) is not null)
             {
                 // Is the statement inside a Block which is part of an Assert.Multiple.
                 if (IsAssert(possibleAssertMultiple, NUnitFrameworkConstants.NameOfMultiple))

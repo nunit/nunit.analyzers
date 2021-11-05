@@ -53,7 +53,7 @@ namespace NUnit.Analyzers.SourceCommon
             string typeName)
         {
             var valueSourceType = context.SemanticModel.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName);
-            if (valueSourceType == null)
+            if (valueSourceType is null)
             {
                 return null;
             }
@@ -90,7 +90,7 @@ namespace NUnit.Analyzers.SourceCommon
                     || m.Kind == SymbolKind.Property
                     || m.Kind == SymbolKind.Method);
 
-            if (symbol is null && typeSymbol.BaseType != null)
+            if (symbol is null && typeSymbol.BaseType is not null)
             {
                 ISymbol? baseSymbol = GetMember(typeSymbol.BaseType, name);
 
@@ -115,7 +115,7 @@ namespace NUnit.Analyzers.SourceCommon
             }
 
             var firstArgumentExpression = positionalArguments[0]?.Expression;
-            if (firstArgumentExpression == null)
+            if (firstArgumentExpression is null)
             {
                 return null;
             }
@@ -159,7 +159,7 @@ namespace NUnit.Analyzers.SourceCommon
             {
                 var syntaxNameAndType = GetSyntaxStringConstantAndType(context, positionalArguments, sourceNameIndex);
 
-                if (syntaxNameAndType == null)
+                if (syntaxNameAndType is null)
                 {
                     return null;
                 }
@@ -188,7 +188,7 @@ namespace NUnit.Analyzers.SourceCommon
 
             var argumentSyntax = arguments[index];
 
-            if (argumentSyntax == null)
+            if (argumentSyntax is null)
             {
                 return null;
             }

@@ -12,8 +12,8 @@ namespace NUnit.Analyzers.Extensions
     {
         internal static bool IsAssignableFrom(this ITypeSymbol @this, ITypeSymbol? other)
         {
-            return @this != null &&
-                other != null &&
+            return @this is not null &&
+                other is not null &&
                 (SymbolEqualityComparer.Default.Equals(@this, other) ||
                 @this.IsAssignableFrom(other.BaseType) ||
                 other.Interfaces.Any(@this.IsAssignableFrom));
@@ -21,14 +21,14 @@ namespace NUnit.Analyzers.Extensions
 
         internal static bool IsAssert(this ITypeSymbol @this)
         {
-            return @this != null &&
+            return @this is not null &&
                 @this.ContainingAssembly.Name == NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
                 @this.Name == NUnitFrameworkConstants.NameOfAssert;
         }
 
         internal static bool IsConstraint(this ITypeSymbol @this)
         {
-            return @this != null && @this.GetAllBaseTypes()
+            return @this is not null && @this.GetAllBaseTypes()
                 .Any(t => t.Name == NUnitFrameworkConstants.NameOfConstraint
                     && @this.ContainingAssembly.Name == NUnitFrameworkConstants.NUnitFrameworkAssemblyName);
         }
@@ -47,14 +47,14 @@ namespace NUnit.Analyzers.Extensions
             var names = new Stack<string>();
             var type = @this.ContainingType;
 
-            while (type != null)
+            while (type is not null)
             {
                 names.Push(type.Name);
                 type = type.ContainingType;
             }
 
             var @namespace = @this.ContainingNamespace;
-            if (@namespace != null)
+            if (@namespace is not null)
             {
                 while (!@namespace.IsGlobalNamespace)
                 {
@@ -70,7 +70,7 @@ namespace NUnit.Analyzers.Extensions
         {
             var current = @this;
 
-            while (current.BaseType != null)
+            while (current.BaseType is not null)
             {
                 yield return current.BaseType;
                 current = current.BaseType;
@@ -99,14 +99,14 @@ namespace NUnit.Analyzers.Extensions
 
         internal static bool IsTypeParameterAndDeclaredOnMethod(this ITypeSymbol typeSymbol)
             => typeSymbol.TypeKind == TypeKind.TypeParameter &&
-               (typeSymbol as ITypeParameterSymbol)?.DeclaringMethod != null;
+               (typeSymbol as ITypeParameterSymbol)?.DeclaringMethod is not null;
 
         internal static bool IsAwaitable(this ITypeSymbol @this,
             [NotNullWhen(true)] out ITypeSymbol? returnType)
         {
             returnType = null;
 
-            if (@this == null)
+            if (@this is null)
                 return false;
 
             // Type should have GetAwaiter method with no parameters
@@ -115,9 +115,9 @@ namespace NUnit.Analyzers.Extensions
                 .OfType<IMethodSymbol>()
                 .FirstOrDefault(m => m.Parameters.Length == 0
                     && m.TypeParameters.Length == 0
-                    && m.ReturnType != null);
+                    && m.ReturnType is not null);
 
-            if (getAwaiterMethod == null)
+            if (getAwaiterMethod is null)
                 return false;
 
             var awaiterType = getAwaiterMethod.ReturnType;
@@ -144,7 +144,7 @@ namespace NUnit.Analyzers.Extensions
                 .FirstOrDefault(m => m.TypeParameters.Length == 0
                     && m.Parameters.Length == 0);
 
-            if (getResultMethod == null)
+            if (getResultMethod is null)
                 return false;
 
             returnType = getResultMethod.ReturnType;
@@ -168,7 +168,7 @@ namespace NUnit.Analyzers.Extensions
             var genericIEnumerableInterface = allInterfaces.FirstOrDefault(i =>
                 i.GetFullMetadataName() == "System.Collections.Generic.IEnumerable`1");
 
-            if (genericIEnumerableInterface != null)
+            if (genericIEnumerableInterface is not null)
             {
                 elementType = genericIEnumerableInterface.TypeArguments.FirstOrDefault();
                 return true;
@@ -177,7 +177,7 @@ namespace NUnit.Analyzers.Extensions
             var nonGenericIEnumerableInterface = allInterfaces.FirstOrDefault(i =>
                 i.GetFullMetadataName() == "System.Collections.IEnumerable");
 
-            if (nonGenericIEnumerableInterface != null)
+            if (nonGenericIEnumerableInterface is not null)
             {
                 return true;
             }

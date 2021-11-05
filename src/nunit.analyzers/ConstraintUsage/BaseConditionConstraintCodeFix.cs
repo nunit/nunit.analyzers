@@ -64,12 +64,12 @@ namespace NUnit.Analyzers.ConstraintUsage
                 .OfType<InvocationExpressionSyntax>()
                 .FirstOrDefault();
 
-            if (actual == null || constraintExpression == null || assertNode == null)
+            if (actual is null || constraintExpression is null || assertNode is null)
                 return;
 
             var assertMethod = semanticModel.GetSymbolInfo(assertNode).Symbol as IMethodSymbol;
 
-            if (assertMethod == null)
+            if (assertMethod is null)
                 return;
 
             var newAssertNode = UpdateAssertNode(assertNode, assertMethod, actual, constraintExpression);
@@ -97,7 +97,7 @@ namespace NUnit.Analyzers.ConstraintUsage
 
         protected static InvocationExpressionSyntax? GetConstraintExpression(string constraintString, ExpressionSyntax? expected)
         {
-            if (expected == null)
+            if (expected is null)
                 return null;
 
             return SyntaxFactory.InvocationExpression(
@@ -113,7 +113,7 @@ namespace NUnit.Analyzers.ConstraintUsage
                 .WithName(SyntaxFactory.IdentifierName(NameOfAssertThat));
 
             // Replace arguments
-            var hasConstraint = assertNode.GetArgumentExpression(assertMethod, NameOfExpressionParameter) != null;
+            var hasConstraint = assertNode.GetArgumentExpression(assertMethod, NameOfExpressionParameter) is not null;
 
             var remainingArguments = hasConstraint
                 ? assertNode.ArgumentList.Arguments.Skip(2)

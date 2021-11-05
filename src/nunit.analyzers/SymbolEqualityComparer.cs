@@ -5,8 +5,8 @@ namespace Microsoft.CodeAnalysis
 {
     public sealed class SymbolEqualityComparer : IEqualityComparer<ISymbol?>
     {
-        public static readonly SymbolEqualityComparer Default = new SymbolEqualityComparer();
-        public static readonly SymbolEqualityComparer IncludeNullabilty = new SymbolEqualityComparer();
+        public static readonly SymbolEqualityComparer Default = new();
+        public static readonly SymbolEqualityComparer IncludeNullabilty = new();
 
         public bool Equals(ISymbol? x, ISymbol? y)
         {

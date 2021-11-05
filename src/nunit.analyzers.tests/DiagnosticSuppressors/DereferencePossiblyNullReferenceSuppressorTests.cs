@@ -557,7 +557,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                         Assert.DoesNotThrow(() =>
                         {
                             var e = Assert.Throws<Exception>(() => new Exception(""Test""));
-                            if (e.InnerException != null)
+                            if (e.InnerException is not null)
                             {
                                 Assert.That(e.InnerException.Message, Is.EqualTo(""Test""));
                             }

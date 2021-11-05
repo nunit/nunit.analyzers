@@ -39,7 +39,7 @@ namespace NUnit.Analyzers.TestMethodAccessibilityLevel
 
             var node = root.FindNode(context.Span);
 
-            if (!(node is MethodDeclarationSyntax originalExpression))
+            if (node is not MethodDeclarationSyntax originalExpression)
                 return;
 
             MethodDeclarationSyntax newExpression;

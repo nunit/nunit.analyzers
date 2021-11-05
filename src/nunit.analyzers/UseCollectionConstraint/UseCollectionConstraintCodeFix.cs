@@ -37,10 +37,11 @@ namespace NUnit.Analyzers.UseCollectionConstraint
 
             var node = root.FindNode(context.Span);
 
-            if (!(node is ArgumentSyntax actualArgument) ||
-                !(actualArgument.Expression is MemberAccessExpressionSyntax actualExpression) ||
-                !(actualArgument.Parent is ArgumentListSyntax argumentList) ||
-                !(argumentList.Arguments.Count > 1 && argumentList.Arguments[1] is ArgumentSyntax constraintArgument))
+            if (node is not ArgumentSyntax actualArgument ||
+                actualArgument.Expression is not MemberAccessExpressionSyntax actualExpression ||
+                actualArgument.Parent is not ArgumentListSyntax argumentList ||
+                argumentList.Arguments.Count <= 1 ||
+                argumentList.Arguments[1] is not ArgumentSyntax constraintArgument)
             {
                 return;
             }
@@ -48,7 +49,7 @@ namespace NUnit.Analyzers.UseCollectionConstraint
             // We have either a MemberAccessExpression (Is.Zero) or an InvocationExpression (Is.EqualTo(0))
             var constraintMemberExpression = constraintArgument.Expression as MemberAccessExpressionSyntax;
             var constraintExpression = constraintArgument.Expression as InvocationExpressionSyntax;
-            if (!(constraintExpression is null))
+            if (constraintExpression is not null)
             {
                 constraintMemberExpression = constraintExpression.Expression as MemberAccessExpressionSyntax;
             }
@@ -58,7 +59,7 @@ namespace NUnit.Analyzers.UseCollectionConstraint
 
             ExpressionSyntax innerConstraintExpression = FindLeftMostTerm(constraintMemberExpression);
 
-            if (!(innerConstraintExpression is SimpleNameSyntax simple && simple.Identifier.ValueText == NUnitFrameworkConstants.NameOfIs))
+            if (innerConstraintExpression is not SimpleNameSyntax simple || simple.Identifier.ValueText != NUnitFrameworkConstants.NameOfIs)
                 return;
 
             var nodesToReplace = new Dictionary<SyntaxNode, SyntaxNode>()
@@ -71,7 +72,7 @@ namespace NUnit.Analyzers.UseCollectionConstraint
 
             MemberAccessExpressionSyntax? emptyOrNotEmptyExpression = MatchWithEmpty(constraintMemberExpression,
                 constraintExpression, innerConstraintExpression);
-            if (!(emptyOrNotEmptyExpression is null))
+            if (emptyOrNotEmptyExpression is not null)
             {
                 nodesToReplace.Add(constraintArgument.Expression, emptyOrNotEmptyExpression);
 
@@ -152,7 +153,7 @@ namespace NUnit.Analyzers.UseCollectionConstraint
         private static ExpressionSyntax FindLeftMostTerm(MemberAccessExpressionSyntax constraintMemberExpression)
         {
             ExpressionSyntax innerConstraintExpression = constraintMemberExpression.Expression;
-            while (!(innerConstraintExpression is SimpleNameSyntax))
+            while (innerConstraintExpression is not SimpleNameSyntax)
             {
                 if (innerConstraintExpression is InvocationExpressionSyntax invocationExpression)
                 {
@@ -176,7 +177,7 @@ namespace NUnit.Analyzers.UseCollectionConstraint
             if (invocationExpression is null)
                 return false;
 
-            if (!(invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression))
+            if (invocationExpression.Expression is not MemberAccessExpressionSyntax memberAccessExpression)
                 return false;
 
             var arguments = invocationExpression.ArgumentList.Arguments;

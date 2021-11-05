@@ -70,7 +70,7 @@ namespace NUnit.Analyzers.Tests
         private static DirectoryInfo DocumentsDirectory =>
             RepositoryDirectory.EnumerateDirectories("documentation", SearchOption.TopDirectoryOnly).Single();
 
-        private static Dictionary<DiagnosticSeverity, string> SeverityEmoji => new Dictionary<DiagnosticSeverity, string>
+        private static Dictionary<DiagnosticSeverity, string> SeverityEmoji => new()
         {
             { DiagnosticSeverity.Hidden, ":thought_balloon:" },
             { DiagnosticSeverity.Info, ":information_source:" },
@@ -569,8 +569,7 @@ dotnet_diagnostic.{descriptor.Id}.severity = none
         {
             private const string RepoOnMaster = "https://github.com/nunit/nunit.analyzers/blob/master";
 
-            private static readonly ConcurrentDictionary<Type, CodeFile> cache =
-                new ConcurrentDictionary<Type, CodeFile>();
+            private static readonly ConcurrentDictionary<Type, CodeFile> cache = new();
 
             public CodeFile(string name)
             {
