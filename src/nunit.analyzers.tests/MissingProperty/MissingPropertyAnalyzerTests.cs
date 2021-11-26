@@ -97,6 +97,35 @@ namespace NUnit.Analyzers.Tests.MissingProperty
         }
 
         [Test]
+        public void ValidWhenHasCountIsUsedForIDictionary()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = new Dictionary<int, int>() { [1] = 1, [2] = 2 };
+                Assert.That(actual, Has.Count.EqualTo(2));",
+                additionalUsings: "using System.Collections.Generic;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenHasCountIsUsedForGenericConstraintOnICollection()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = new [] { 1, 2 };
+
+                AssertCollectionOfIntCount(actual);
+
+                static void AssertCollectionOfIntCount<T>(T instance)
+                    where T : ICollection<int>
+                {
+                    Assert.That(instance, Has.Count.EqualTo(2));
+                }",
+                additionalUsings: "using System.Collections.Generic;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void ValidWhenHasLengthIsUsedForArray()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
