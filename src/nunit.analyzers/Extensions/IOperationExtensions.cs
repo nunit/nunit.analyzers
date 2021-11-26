@@ -43,7 +43,7 @@ namespace NUnit.Analyzers.Extensions
 
         public static IOperation? GetArgumentOperation(this IInvocationOperation @this, string parameterName)
         {
-            var argument = @this.Arguments.FirstOrDefault(a => a.Parameter.Name == parameterName)?.Value;
+            var argument = @this.Arguments.FirstOrDefault(a => a.Parameter?.Name == parameterName)?.Value;
 
             if (argument is IConversionOperation { IsImplicit: true, Conversion: { IsUserDefined: false } } conversionOperation)
                 argument = conversionOperation.Operand;

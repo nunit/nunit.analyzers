@@ -88,7 +88,7 @@ namespace NUnit.Analyzers.Extensions
 
         internal static IEnumerable<AttributeData> GetAllAttributes(this ITypeSymbol? @this)
         {
-            for (var current = @this; current is object; current = current.BaseType)
+            for (var current = @this; current is not null; current = current.BaseType)
             {
                 foreach (var data in current.GetAttributes())
                 {

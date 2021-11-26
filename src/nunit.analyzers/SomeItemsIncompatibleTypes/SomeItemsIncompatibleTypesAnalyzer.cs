@@ -35,7 +35,7 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
                 if ((!IsDoesContain(constraintPart) && !IsContainsItem(constraintPart))
-                    || constraintPart.Root?.Type.GetFullMetadataName() != NUnitFrameworkConstants.FullNameOfSomeItemsConstraint)
+                    || constraintPart.Root?.Type?.GetFullMetadataName() != NUnitFrameworkConstants.FullNameOfSomeItemsConstraint)
                 {
                     continue;
                 }

@@ -37,7 +37,7 @@ namespace NUnit.Analyzers.ContainsConstraintWrongActualType
                     return;
 
                 if (constraintPart.GetConstraintName() != NUnitFrameworkConstants.NameOfDoesContain
-                    || constraintPart.Root?.Type.GetFullMetadataName() != NUnitFrameworkConstants.FullNameOfContainsConstraint)
+                    || constraintPart.Root?.Type?.GetFullMetadataName() != NUnitFrameworkConstants.FullNameOfContainsConstraint)
                 {
                     continue;
                 }
