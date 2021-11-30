@@ -79,7 +79,10 @@ namespace NUnit.Analyzers.Extensions
 
         internal static IEnumerable<ISymbol> GetAllMembers(this ITypeSymbol @this)
         {
-            var inheritedMembers = @this.TypeKind == TypeKind.Interface
+            var inheritedMembers =
+                (@this is ITypeParameterSymbol typeParameter)
+                ? typeParameter.ConstraintTypes.SelectMany(t => t.GetAllMembers())
+                : @this.TypeKind == TypeKind.Interface
                 ? @this.AllInterfaces.SelectMany(i => i.GetMembers())
                 : @this.GetAllBaseTypes().SelectMany(t => t.GetMembers());
 
