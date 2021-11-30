@@ -31,7 +31,7 @@ namespace NUnit.Analyzers.DelegateRequired
                 return;
             }
 
-            if (actualOperation is IDelegateCreationOperation)
+            if (actualOperation.Type.TypeKind == TypeKind.Delegate)
             {
                 return;
             }

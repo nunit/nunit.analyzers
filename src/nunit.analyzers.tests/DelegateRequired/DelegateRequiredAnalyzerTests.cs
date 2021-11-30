@@ -47,6 +47,32 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         }
 
         [Test]
+        public void AnalyzeWhenDelegateLocalProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                TestDelegate action = MyOperation;
+                Assert.That(action, Throws.InvalidOperationException);
+
+                static void MyOperation() => throw new InvalidOperationException();
+            ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenDelegateParameterProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                AssertSupported(MyOperation);
+
+                static void AssertSupported(Action test) => Assert.That(test, Throws.InvalidOperationException);
+                static void MyOperation() => throw new InvalidOperationException();
+            ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenAsyncDelegateProvided()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
