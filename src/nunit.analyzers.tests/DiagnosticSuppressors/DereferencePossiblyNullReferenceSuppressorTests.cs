@@ -286,6 +286,50 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                                                .ConfigureAwait(false);
         }
 
+        [TestCase("Assert.True(nullable.HasValue)")]
+        [TestCase("Assert.IsTrue(nullable.HasValue)")]
+        [TestCase("Assert.That(nullable.HasValue, \"Ensure Value is set\")")]
+        [TestCase("Assert.That(nullable.HasValue)")]
+        [TestCase("Assert.That(nullable.HasValue, Is.True)")]
+        [TestCase("Assert.That(nullable, Is.Not.Null)")]
+        public async Task NullableWithValidAssert(string assert)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                #nullable enable
+                [TestCase(42)]
+                public void Test(int? nullable)
+                {{
+                    {assert};
+                    Assert.That(nullable.Value, Is.EqualTo(42));
+                }}
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8629"], testCode)
+                .ConfigureAwait(false);
+        }
+
+        [TestCase("Assert.False(nullable.HasValue)")]
+        [TestCase("Assert.IsFalse(nullable.HasValue)")]
+        [TestCase("Assert.That(!nullable.HasValue)")]
+        [TestCase("Assert.That(nullable.HasValue, Is.False)")]
+        [TestCase("Assert.That(nullable, Is.Null)")]
+        public async Task NullableWithInvalidAssert(string assert)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                #nullable enable
+                [TestCase(42)]
+                public void Test(int? nullable)
+                {{
+                    {assert};
+                    Assert.That(nullable.Value, Is.EqualTo(42));
+                }}
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
+                .ConfigureAwait(false);
+        }
+
         [Test]
         public async Task WithIndexer()
         {

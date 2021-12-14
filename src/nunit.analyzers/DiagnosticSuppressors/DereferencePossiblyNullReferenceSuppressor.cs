@@ -122,26 +122,53 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                         }
                     }
 
-                    // Check if this is Assert.NotNull or Assert.IsNotNull for the same symbol
+                    // Check if this is an Assert for the same symbol
                     if (AssertHelper.IsAssert(expressionStatement.Expression, out string member, out ArgumentListSyntax? argumentList))
                     {
-                        if (member == NUnitFrameworkConstants.NameOfAssertNotNull ||
-                            member == NUnitFrameworkConstants.NameOfAssertIsNotNull ||
-                            member == NUnitFrameworkConstants.NameOfAssertThat)
+                        string firstArgument = argumentList.Arguments.First().Expression.ToString();
+
+                        if (member == NUnitFrameworkConstants.NameOfAssertThat)
                         {
-                            if (member == NUnitFrameworkConstants.NameOfAssertThat)
+                            string? secondArgument =
+                                argumentList.Arguments.ElementAtOrDefault(1)?.Expression.ToString();
+
+                            // If test is on <nullable>.HasValue
+                            if (IsHasValue(firstArgument, possibleNullReference))
                             {
-                                // We must check the 2nd argument for anything but "Is.Null"
-                                // E.g.: Is.Not.Null.And.Not.Empty.
-                                ArgumentSyntax? secondArgument = argumentList.Arguments.ElementAtOrDefault(1);
-                                if (secondArgument?.ToString() == "Is.Null")
+                                // Could be:
+                                // Assert.That(<nullable>.HasValue)
+                                // Assert.That(<nullable>.HasValue, "Ensure Value Set")
+                                // Assert.That(<nullable>.HasValue, Is.True)
+                                if (secondArgument != "Is.False")
                                 {
-                                    continue;
+                                    return true;
                                 }
                             }
-
-                            ArgumentSyntax firstArgument = argumentList.Arguments.First();
-                            if (CoveredBy(firstArgument.Expression.ToString(), possibleNullReference))
+                            else
+                            {
+                                // Null check, could be Is.Not.Null or more complex
+                                // like Is.Not.Null.And.Not.Empty.
+                                if (secondArgument != "Is.Null")
+                                {
+                                    if (CoveredBy(firstArgument, possibleNullReference))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                        else if (member == NUnitFrameworkConstants.NameOfAssertNotNull ||
+                                member == NUnitFrameworkConstants.NameOfAssertIsNotNull)
+                        {
+                            if (CoveredBy(firstArgument, possibleNullReference))
+                            {
+                                return true;
+                            }
+                        }
+                        else if (member == NUnitFrameworkConstants.NameOfAssertIsTrue ||
+                                member == NUnitFrameworkConstants.NameOfAssertTrue)
+                        {
+                            if (IsHasValue(firstArgument, possibleNullReference))
                             {
                                 return true;
                             }
@@ -222,6 +249,11 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             }
 
             return false;
+        }
+
+        private static bool IsHasValue(string argument, string possibleNullReference)
+        {
+            return argument == possibleNullReference + ".HasValue";
         }
 
         private static ImmutableDictionary<string, SuppressionDescriptor> CreateSuppressionDescriptors(params string[] suppressionDiagnosticsIds)
