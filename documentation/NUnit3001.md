@@ -24,6 +24,14 @@ It then checks the previous statements for one of:
 For the same expression as the one that raised the original compiler error.
 If found, the compiler error is suppressed.
 
+The rule also covers `CS8629: Nullable value type may be null`
+
+In this case, the previous statement is allowed to be one of:
+* `Assert.That(...HasValue)`
+* `Assert.That(...HasValue, Is.True)`
+* `Assert.True(...HasValue)`
+* `Assert.IsTrue(...HasValue)`
+
 The exception is that if the statement is part of an `Assert.Multiple`
 it is not suppressed, as in this case the statement containing the compiler error will be executed.
 
