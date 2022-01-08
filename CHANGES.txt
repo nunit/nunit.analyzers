@@ -1,4 +1,40 @@
-﻿NUnit Analyzers 3.2 (and 2.2) - August 28, 2021
+﻿NUnit Analyzers 3.3 (and 2.3) - January 8, 2022
+
+This release of the NUnit Analyzers adds a DiagnosticSuppressor for Nullable<T>, an analyzer and a code fix 
+for rewriting independent asserts into Assert.Multiple, and an analyzer and a code fix for replacing calls to
+.Length or .Count() in the actual expression with inbuilt assertion functionality. The release also contains 
+some bug fixes to existing analyzers.
+
+Moreover, several dependencies have been bumped in this release.
+
+The release contains contributions from the following users (in alphabetical order):
+* manfred-brands
+* mikkelbu
+* rprouse
+
+Issues Resolved
+
+Features and Enhancements
+* #414 Add DiagnosticSuppressor for Nullable<T>
+* #389 Idea: Suggest Assert.Multiple in tests where Assert statements are called back to back
+* #330 Analyzer to warn against calling .Length or .Count() in the actual expression
+
+Bugs
+* #410 NUnit2044 false-positive on explicit delegate type
+* #407 NUnit2022 false-positive on generic Dictionary type bug
+
+Tooling, Process, and Documentation
+* #401 chore(deps): Bump NUnit3TestAdapter from 4.0.0 to 4.1.0 in /src
+* #398 Ensure all NunitFrameworkConstants are tested
+* #397 Allow using C# 9
+* #396 chore(deps): Bump Microsoft.NET.Test.Sdk from 16.11.0 to 17.0.0 in /src
+* #394 chore(deps): Bump Microsoft.CodeAnalysis.Analyzers from 3.3.2 to 3.3.3 in /src
+* #392 Replace netcoreapp2.1 for test with netcoreapp3.1
+* #388 chore: Bump version to 3.3 (2.3)
+* #381 Update Code of Conduct
+
+
+NUnit Analyzers 3.2 (and 2.2) - August 28, 2021
 
 This release of the NUnit Analyzers contains an improvement to the supression of 
 'Non-nullable field must contain a non-null value when exiting constructor (CS8618)'
