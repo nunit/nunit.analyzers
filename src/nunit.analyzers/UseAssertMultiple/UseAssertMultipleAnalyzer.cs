@@ -73,7 +73,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
 
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            if (assertOperation.TargetMethod.Name == NUnitFrameworkConstants.NameOfMultiple ||
+            if (assertOperation.TargetMethod.Name != NUnitFrameworkConstants.NameOfAssertThat ||
                 AssertHelper.IsInsideAssertMultiple(assertOperation.Syntax))
             {
                 return;
@@ -84,6 +84,8 @@ namespace NUnit.Analyzers.UseAssertMultiple
             {
                 // Check if the next operation is also an Assert invocation.
                 var previousArguments = new HashSet<string>(StringComparer.Ordinal);
+
+                // No need to check argument count as Assert.That needs at least one argument.
                 Add(previousArguments, assertOperation.Arguments[0].Syntax.ToString());
 
                 int firstAssert = -1;
@@ -103,9 +105,10 @@ namespace NUnit.Analyzers.UseAssertMultiple
                         IInvocationOperation? currentAssertOperation = TryGetAssertThatOperation(statement);
                         if (currentAssertOperation is not null)
                         {
-                            // Check if test is independent
+                            // No need to check argument count as Assert.That needs at least one argument.
                             string currentArgument = currentAssertOperation.Arguments[0].Syntax.ToString();
 
+                            // Check if test is independent
                             if (IsIndependent(previousArguments, currentArgument))
                             {
                                 lastAssert = i;

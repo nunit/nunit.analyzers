@@ -75,5 +75,29 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
         }");
             RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenNoParameterIsUsedInFirstCall()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void Test()
+        {
+            Assert.Fail();
+            Assert.That(string.Empty, Has.Count.EqualTo(1));
+        }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNoParameterIsUsedInSecondCall()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void Test()
+        {
+            Assert.That(string.Empty, Has.Count.EqualTo(1));
+            Assert.Fail();
+        }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
     }
 }
