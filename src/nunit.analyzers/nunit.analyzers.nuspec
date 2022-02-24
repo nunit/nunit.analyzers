@@ -12,6 +12,7 @@
     <repository type="git" url="https://github.com/nunit/nunit.analyzers"/>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>Code analyzers and fixes for NUnit 3</summary>
+    <readme>docs/readme.md</readme>
     <description>
 This package includes analyzers and code fixes for test projects using NUnit 3. The analyzers will mark wrong usages when writing tests, and the code fixes can be used to used to correct these usages.
 
@@ -27,5 +28,6 @@ Version 3.0 and upwards works in Visual Studio 2019 and also enables supression 
     <file src="tools\*.ps1" target="tools\" />
     <file src="..\..\license.txt" target="" />
     <file src="..\..\nunit_256.png" target="images" />
+    <file src="..\..\README.md" target="docs" />
   </files>
 </package>
