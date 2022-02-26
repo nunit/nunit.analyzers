@@ -14,7 +14,7 @@ Prerelease nuget packages can be found on [MyGet](https://www.myget.org/feed/nun
 
 ## Analyzers ##
 
-The full list of analyzers can be found in the [documentation](documentation/index.md).
+The full list of analyzers can be found in the [documentation](https://github.com/nunit/nunit.analyzers/blob/master/documentation/index.md).
 
 Below we give two examples of analyzers. One will look for methods with the `[TestCase]` attribute and makes sure the argument values are correct for the types of the method parameters along with the `ExpectedResult` value if it is provided.
 
