@@ -50,7 +50,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\nunit.analyzers\nunit.analyzers.csproj">
+    <ProjectReference Include="..\nunit.analyzers.common\nunit.analyzers.common.csproj">
       <Project>{74151914-3C12-4EAC-8FD5-5766EBEA35A3}</Project>
       <Name>nunit.analyzers</Name>
     </ProjectReference>

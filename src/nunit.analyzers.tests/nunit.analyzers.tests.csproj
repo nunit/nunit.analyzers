@@ -14,8 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\nunit.analyzers\nunit.analyzers.csproj"
-                      OutputItemType="Analyzer" />
+    <ProjectReference Include="..\nunit.analyzers.roslyn2x\nunit.analyzers.roslyn2x.csproj" />
+    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+    <ProjectReference Include="..\nunit.analyzers.roslyn4x\nunit.analyzers.roslyn4x.csproj" />
   </ItemGroup>
 
 </Project>
