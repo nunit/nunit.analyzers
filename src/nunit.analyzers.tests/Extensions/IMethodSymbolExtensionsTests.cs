@@ -25,18 +25,26 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
             var method = await GetMethodSymbolAsync(testCode).ConfigureAwait(false);
             var (requiredParameters, optionalParameters, paramsCount) = method.GetParameterCounts();
 
-            Assert.That(requiredParameters, Is.EqualTo(3), nameof(requiredParameters));
-            Assert.That(optionalParameters, Is.EqualTo(2), nameof(optionalParameters));
-            Assert.That(paramsCount, Is.EqualTo(1), nameof(paramsCount));
+            Assert.Multiple(() =>
+            {
+                Assert.That(requiredParameters, Is.EqualTo(3), nameof(requiredParameters));
+                Assert.That(optionalParameters, Is.EqualTo(2), nameof(optionalParameters));
+                Assert.That(paramsCount, Is.EqualTo(1), nameof(paramsCount));
+            });
         }
 
         private static async Task<IMethodSymbol> GetMethodSymbolAsync(string code)
         {
             var rootAndModel = await TestHelpers.GetRootAndModel(code).ConfigureAwait(false);
 
-            return rootAndModel.Model.GetDeclaredSymbol(rootAndModel.Node
+            MethodDeclarationSyntax methodDeclaration = rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>().Single()
-                .DescendantNodes().OfType<MethodDeclarationSyntax>().Single()) as IMethodSymbol;
+                .DescendantNodes().OfType<MethodDeclarationSyntax>().Single();
+            IMethodSymbol? methodSymbol = rootAndModel.Model.GetDeclaredSymbol(methodDeclaration);
+
+            Assert.That(methodSymbol, Is.Not.Null, $"Cannot find symbol for {methodDeclaration.Identifier}");
+
+            return methodSymbol;
         }
     }
 }

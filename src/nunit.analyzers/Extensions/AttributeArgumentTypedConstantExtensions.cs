@@ -187,7 +187,7 @@ namespace NUnit.Analyzers.Extensions
 
             if (targetType != default)
             {
-                if (argumentValue is object)
+                if (argumentValue is not null)
                 {
                     if (targetType.typeConverter is null)
                     {

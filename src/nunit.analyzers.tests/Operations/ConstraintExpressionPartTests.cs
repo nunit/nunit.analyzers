@@ -16,12 +16,15 @@ namespace NUnit.Analyzers.Tests.Operations
         {
             var constraintPart = await CreateConstraintPart("Does.Contain(1)").ConfigureAwait(false);
 
-            Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Does"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(constraintPart.HelperClass?.Name, Is.EqualTo("Does"));
 
-            Assert.That(constraintPart.Suffixes, Is.Empty);
-            Assert.That(constraintPart.Prefixes, Is.Empty);
+                Assert.That(constraintPart.Suffixes, Is.Empty);
+                Assert.That(constraintPart.Prefixes, Is.Empty);
 
-            Assert.That(constraintPart.Root, IsInvocation("Contain(1)"));
+                Assert.That(constraintPart.Root, IsInvocation("Contain(1)"));
+            });
         }
 
         [Test]
@@ -29,12 +32,15 @@ namespace NUnit.Analyzers.Tests.Operations
         {
             var constraintPart = await CreateConstraintPart("Is.Null").ConfigureAwait(false);
 
-            Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Is"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(constraintPart.HelperClass?.Name, Is.EqualTo("Is"));
 
-            Assert.That(constraintPart.Suffixes, Is.Empty);
-            Assert.That(constraintPart.Prefixes, Is.Empty);
+                Assert.That(constraintPart.Suffixes, Is.Empty);
+                Assert.That(constraintPart.Prefixes, Is.Empty);
 
-            Assert.That(constraintPart.Root, IsMemberAccess("Null"));
+                Assert.That(constraintPart.Root, IsMemberAccess("Null"));
+            });
         }
 
         [Test]
@@ -42,12 +48,15 @@ namespace NUnit.Analyzers.Tests.Operations
         {
             var constraintPart = await CreateConstraintPart("Has.Some.EqualTo(1)").ConfigureAwait(false);
 
-            Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Has"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(constraintPart.HelperClass?.Name, Is.EqualTo("Has"));
 
-            Assert.That(constraintPart.Suffixes, Is.Empty);
-            Assert.That(constraintPart.Root, IsInvocation("EqualTo(1)"));
+                Assert.That(constraintPart.Suffixes, Is.Empty);
+                Assert.That(constraintPart.Root, IsInvocation("EqualTo(1)"));
 
-            Assert.That(constraintPart.Prefixes.Single(), IsMemberAccess("Some"));
+                Assert.That(constraintPart.Prefixes.Single(), IsMemberAccess("Some"));
+            });
         }
 
         [Test]
@@ -55,11 +64,15 @@ namespace NUnit.Analyzers.Tests.Operations
         {
             var constraintPart = await CreateConstraintPart("Has.Property(\"Prop\").EqualTo(2)").ConfigureAwait(false);
 
-            Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Has"));
-            Assert.That(constraintPart.Suffixes, Is.Empty);
-            Assert.That(constraintPart.Root, IsInvocation("EqualTo(2)"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(constraintPart.HelperClass?.Name, Is.EqualTo("Has"));
 
-            Assert.That(constraintPart.Prefixes.Single(), IsInvocation("Property(\"Prop\")"));
+                Assert.That(constraintPart.Suffixes, Is.Empty);
+                Assert.That(constraintPart.Root, IsInvocation("EqualTo(2)"));
+
+                Assert.That(constraintPart.Prefixes.Single(), IsInvocation("Property(\"Prop\")"));
+            });
         }
 
         [Test]
@@ -67,11 +80,15 @@ namespace NUnit.Analyzers.Tests.Operations
         {
             var constraintPart = await CreateConstraintPart("Is.EqualTo(\"A\").IgnoreCase").ConfigureAwait(false);
 
-            Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Is"));
-            Assert.That(constraintPart.Prefixes, Is.Empty);
-            Assert.That(constraintPart.Root, IsInvocation("EqualTo(\"A\")"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(constraintPart.HelperClass?.Name, Is.EqualTo("Is"));
 
-            Assert.That(constraintPart.Suffixes.Single(), IsMemberAccess("IgnoreCase"));
+                Assert.That(constraintPart.Prefixes, Is.Empty);
+                Assert.That(constraintPart.Root, IsInvocation("EqualTo(\"A\")"));
+
+                Assert.That(constraintPart.Suffixes.Single(), IsMemberAccess("IgnoreCase"));
+            });
         }
 
         [Test]
@@ -79,11 +96,14 @@ namespace NUnit.Analyzers.Tests.Operations
         {
             var constraintPart = await CreateConstraintPart("Is.EqualTo(1).After(10)").ConfigureAwait(false);
 
-            Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Is"));
-            Assert.That(constraintPart.Prefixes, Is.Empty);
-            Assert.That(constraintPart.Root, IsInvocation("EqualTo(1)"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(constraintPart.HelperClass?.Name, Is.EqualTo("Is"));
+                Assert.That(constraintPart.Prefixes, Is.Empty);
+                Assert.That(constraintPart.Root, IsInvocation("EqualTo(1)"));
 
-            Assert.That(constraintPart.Suffixes.Single(), IsInvocation("After(10)"));
+                Assert.That(constraintPart.Suffixes.Single(), IsInvocation("After(10)"));
+            });
         }
 
         [Test]
@@ -91,17 +111,21 @@ namespace NUnit.Analyzers.Tests.Operations
         {
             var constraintParts = await CreateConstraintParts("Is.Empty.Or.Some.EqualTo(\"A\").IgnoreCase").ConfigureAwait(false);
 
-            var firstPart = constraintParts[0];
-            Assert.That(firstPart.HelperClass.Name, Is.EqualTo("Is"));
-            Assert.That(firstPart.Prefixes, Is.Empty);
-            Assert.That(firstPart.Root, IsMemberAccess("Empty"));
-            Assert.That(firstPart.Suffixes, Is.Empty);
+            Assert.Multiple(() =>
+            {
+                var firstPart = constraintParts[0];
 
-            var secondPart = constraintParts[1];
-            Assert.That(secondPart.HelperClass, Is.Null);
-            Assert.That(secondPart.Prefixes.Single(), IsMemberAccess("Some"));
-            Assert.That(secondPart.Root, IsInvocation("EqualTo(\"A\")"));
-            Assert.That(secondPart.Suffixes.Single(), IsMemberAccess("IgnoreCase"));
+                Assert.That(firstPart.HelperClass?.Name, Is.EqualTo("Is"));
+                Assert.That(firstPart.Prefixes, Is.Empty);
+                Assert.That(firstPart.Root, IsMemberAccess("Empty"));
+                Assert.That(firstPart.Suffixes, Is.Empty);
+
+                var secondPart = constraintParts[1];
+                Assert.That(secondPart.HelperClass, Is.Null);
+                Assert.That(secondPart.Prefixes.Single(), IsMemberAccess("Some"));
+                Assert.That(secondPart.Root, IsInvocation("EqualTo(\"A\")"));
+                Assert.That(secondPart.Suffixes.Single(), IsMemberAccess("IgnoreCase"));
+            });
         }
 
         [Test]
@@ -109,11 +133,14 @@ namespace NUnit.Analyzers.Tests.Operations
         {
             var constraintPart = await CreateConstraintPart("new NUnit.Framework.Constraints.EqualConstraint(1)").ConfigureAwait(false);
 
-            Assert.That(constraintPart.HelperClass, Is.Null);
-            Assert.That(constraintPart.Prefixes, Is.Empty);
-            Assert.That(constraintPart.Suffixes, Is.Empty);
+            Assert.Multiple(() =>
+            {
+                Assert.That(constraintPart.HelperClass, Is.Null);
+                Assert.That(constraintPart.Prefixes, Is.Empty);
+                Assert.That(constraintPart.Suffixes, Is.Empty);
 
-            Assert.That(constraintPart.Root?.Syntax.ToString(), Is.EqualTo("new NUnit.Framework.Constraints.EqualConstraint(1)"));
+                Assert.That(constraintPart.Root?.Syntax.ToString(), Is.EqualTo("new NUnit.Framework.Constraints.EqualConstraint(1)"));
+            });
         }
 
         [Test]
@@ -169,7 +196,7 @@ namespace NUnit.Analyzers.Tests.Operations
         {
             var constraintPart = await CreateConstraintPart("Is.EqualTo(1).IgnoreCase").ConfigureAwait(false);
 
-            Assert.That(constraintPart.HelperClass.Name, Is.EqualTo("Is"));
+            Assert.That(constraintPart.HelperClass?.Name, Is.EqualTo("Is"));
         }
 
         [Test]
@@ -200,8 +227,11 @@ namespace NUnit.Analyzers.Tests.Operations
             var methodSymbol = constraintPart.GetConstraintMethod();
 
             Assert.That(methodSymbol, Is.Not.Null);
-            Assert.That(methodSymbol.Name, Is.EqualTo("EqualTo"));
-            Assert.That(methodSymbol.ContainingAssembly.Name, Is.EqualTo(NUnitFrameworkConstants.NUnitFrameworkAssemblyName));
+            Assert.Multiple(() =>
+            {
+                Assert.That(methodSymbol.Name, Is.EqualTo("EqualTo"));
+                Assert.That(methodSymbol.ContainingAssembly.Name, Is.EqualTo(NUnitFrameworkConstants.NUnitFrameworkAssemblyName));
+            });
         }
 
         [Test]
@@ -217,9 +247,9 @@ namespace NUnit.Analyzers.Tests.Operations
         {
             var constraintPart = await CreateConstraintPart("Has.Exactly(2).Items.EqualTo(new[] {1, 2, 3}).After(1)").ConfigureAwait(false);
 
-            var expectedExpression = constraintPart.GetExpectedArgument()?.Syntax;
+            var expectedExpression = constraintPart.GetExpectedArgument();
 
-            Assert.That(expectedExpression.ToString(), Is.EqualTo("new[] {1, 2, 3}"));
+            Assert.That(expectedExpression?.Syntax.ToString(), Is.EqualTo("new[] {1, 2, 3}"));
         }
 
         [Test]
@@ -305,7 +335,7 @@ namespace NUnit.Analyzers.Tests.Operations
                 .First(e => e.ToString() == expressionString);
 
             var operation = model.GetOperation(expression);
-
+            Assert.That(operation, Is.Not.Null, "GetOperation");
             return new ConstraintExpression(operation).ConstraintParts;
         }
     }

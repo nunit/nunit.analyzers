@@ -26,7 +26,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
                 new[] { "IsAssignableFromWhenThisIsNull" }).ConfigureAwait(false);
             var other = types[0];
 
-            Assert.That((null as ITypeSymbol).IsAssignableFrom(other), Is.False);
+            Assert.That(default(ITypeSymbol).IsAssignableFrom(other), Is.False);
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
                 new[] { "IsAssignableFromWhenOtherIsNull" }).ConfigureAwait(false);
             var instance = types[0];
 
-            Assert.That(instance.IsAssignableFrom(null as ITypeSymbol), Is.False);
+            Assert.That(instance.IsAssignableFrom(default(ITypeSymbol)), Is.False);
         }
 
         [Test]
@@ -208,9 +208,12 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
             foreach (var typeName in typeNames)
             {
-                types.Add(rootAndModel.Model.GetDeclaredSymbol(rootAndModel.Node
-                    .DescendantNodes().OfType<TypeDeclarationSyntax>()
-                    .Where(_ => _.Identifier.ValueText == typeName).Single()));
+                INamedTypeSymbol? item = rootAndModel.Model.GetDeclaredSymbol(
+                    rootAndModel.Node
+                                .DescendantNodes().OfType<TypeDeclarationSyntax>()
+                                .Where(_ => _.Identifier.ValueText == typeName).Single());
+                if (item is not null)
+                    types.Add(item);
             }
 
             return types.ToImmutableArray();
@@ -225,7 +228,11 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
                 .Where(_ => _.Identifier.ValueText == typeName).Single()
                 .DescendantNodes().OfType<FieldDeclarationSyntax>().Single();
 
-            return (rootAndModel.Model.GetDeclaredSymbol(fieldNode.Declaration.Variables[0]) as IFieldSymbol).Type;
+            VariableDeclaratorSyntax variableDeclaration = fieldNode.Declaration.Variables[0];
+            ISymbol? symbol = rootAndModel.Model.GetDeclaredSymbol(variableDeclaration);
+            Assert.That(symbol, Is.Not.Null, $"Cannot find symbol for {variableDeclaration.Identifier}");
+
+            return ((IFieldSymbol)symbol).Type;
         }
     }
 }

@@ -108,10 +108,12 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
             // It's assumed the code will have one attribute with one argument,
             // along with one method with one parameter
-            var methodSymbol = semanticModel.GetDeclaredSymbol(root.DescendantNodes().OfType<MethodDeclarationSyntax>().Single());
+            MethodDeclarationSyntax methodDeclatation = root.DescendantNodes().OfType<MethodDeclarationSyntax>().Single();
+            var methodSymbol = semanticModel.GetDeclaredSymbol(methodDeclatation);
 
+            Assert.That(methodSymbol, Is.Not.Null, $"Cannot find symbol for {methodDeclatation.Identifier} method");
             var attributeArgumentTypedConstant = methodSymbol.GetAttributes()
-                .First(a => a.AttributeClass.Name == "ArgumentsAttribute")
+                .First(a => a.AttributeClass?.Name == "ArgumentsAttribute")
                 .ConstructorArguments[0];
 
             var typeSymbol = methodSymbol.Parameters[0].Type;

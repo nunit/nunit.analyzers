@@ -36,8 +36,11 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
             var attribute = await GetAttributeSyntaxAsync(testCode, "GetArguments").ConfigureAwait(false);
             var (positionalArguments, namedArguments) = attribute.GetArguments();
 
-            Assert.That(positionalArguments.Length, Is.EqualTo(1), nameof(positionalArguments));
-            Assert.That(namedArguments.Length, Is.EqualTo(2), nameof(namedArguments));
+            Assert.Multiple(() =>
+            {
+                Assert.That(positionalArguments, Has.Length.EqualTo(1), nameof(positionalArguments));
+                Assert.That(namedArguments, Has.Length.EqualTo(2), nameof(namedArguments));
+            });
         }
 
         [Test]
@@ -61,8 +64,11 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
             var attribute = await GetAttributeSyntaxAsync(testCode, "GetArgumentsWhenNoneExist").ConfigureAwait(false);
             var (positionalArguments, namedArguments) = attribute.GetArguments();
 
-            Assert.That(positionalArguments.Length, Is.EqualTo(0), nameof(positionalArguments));
-            Assert.That(namedArguments.Length, Is.EqualTo(0), nameof(namedArguments));
+            Assert.Multiple(() =>
+            {
+                Assert.That(positionalArguments, Is.Empty, nameof(positionalArguments));
+                Assert.That(namedArguments, Is.Empty, nameof(namedArguments));
+            });
         }
 
         private static async Task<AttributeSyntax> GetAttributeSyntaxAsync(string code, string typeName)

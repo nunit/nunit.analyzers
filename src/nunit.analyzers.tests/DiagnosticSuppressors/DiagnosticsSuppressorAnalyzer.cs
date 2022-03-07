@@ -37,8 +37,11 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 nonHiddenErrors.Where(d => suppressor.SupportedSuppressions.Any(s => s.SuppressedDiagnosticId == d.Id))
                                .ToImmutableArray();
 
-            Assert.That(nonHiddenErrors, Is.EquivalentTo(suppressibleErrors), "Non suppressible errors");
-            Assert.That(suppressibleErrors, Is.Not.Empty, "No errors to suppress");
+            Assert.Multiple(() =>
+            {
+                Assert.That(nonHiddenErrors, Is.EquivalentTo(suppressibleErrors), "Non suppressible errors");
+                Assert.That(suppressibleErrors, Is.Not.Empty, "No errors to suppress");
+            });
 
             var withAnalyzer = compilation.WithAnalyzers(ImmutableArray.Create<DiagnosticAnalyzer>(suppressor));
 

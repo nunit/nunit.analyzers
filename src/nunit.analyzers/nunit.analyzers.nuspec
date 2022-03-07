@@ -11,6 +11,7 @@
     <projectUrl>https://github.com/nunit/nunit.analyzers</projectUrl>
     <repository type="git" url="https://github.com/nunit/nunit.analyzers"/>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <developmentDependency>true</developmentDependency>
     <summary>Code analyzers and fixes for NUnit 3</summary>
     <readme>docs/readme.md</readme>
     <description>

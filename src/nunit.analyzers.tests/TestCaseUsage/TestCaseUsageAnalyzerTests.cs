@@ -45,11 +45,14 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 
             foreach (var diagnostic in diagnostics)
             {
-                Assert.That(diagnostic.Title.ToString(CultureInfo.InvariantCulture), Is.Not.Empty);
-                Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
-                Assert.That(diagnostic.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Error),
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.DefaultSeverity)}");
+                Assert.Multiple(() =>
+                {
+                    Assert.That(diagnostic.Title.ToString(CultureInfo.InvariantCulture), Is.Not.Empty);
+                    Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
+                        $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
+                    Assert.That(diagnostic.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Error),
+                        $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.DefaultSeverity)}");
+                });
             }
 
             var diagnosticMessage = diagnostics.Select(_ => _.MessageFormat.ToString(CultureInfo.InvariantCulture)).ToImmutableArray();
