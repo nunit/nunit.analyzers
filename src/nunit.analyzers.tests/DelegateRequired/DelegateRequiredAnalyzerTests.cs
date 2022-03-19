@@ -131,5 +131,29 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
+
+        // https://github.com/nunit/nunit.analyzers/issues/431
+        [Test]
+        public void AnalyzeWhenDelayedConstraintOnNonValueType()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var list = new List<int>();
+                Task.Run(async () => {
+                    await Task.Delay(100);
+                    list.Add(1);
+                });
+                
+                // The below are re-evaluated every time.
+                Assert.That(list, Is.Not.Empty.After(200, 10));
+                Assert.That(list, Has.Count.EqualTo(1).After(200, 10));
+                Assert.That(list, Does.Contain(1).After(200, 10));
+                Assert.That(list, Contains.Item(1).After(200, 10));
+
+                // The below is a one off.
+                Assert.That(↓list.Count, Is.EqualTo(1).After(200, 10));
+            ", "using System.Collections.Generic;");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
     }
 }

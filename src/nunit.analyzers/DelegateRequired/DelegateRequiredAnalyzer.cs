@@ -38,8 +38,12 @@ namespace NUnit.Analyzers.DelegateRequired
 
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
+                // https://github.com/nunit/nunit.analyzers/issues/431
+                // There are too many exceptions for the DelayedConstraint
+                // Items like Has.Count, Is.Empty, Does.Contain etc will re-evaluate when called again.
+                // For now only raise when the value is a value type.
                 if (constraintPart.HelperClass?.Name == NUnitFrameworkConstants.NameOfThrows ||
-                    constraintPart.Suffixes.Any(IsDelayedConstraint))
+                    (constraintPart.Suffixes.Any(IsDelayedConstraint) && actualOperation.Type.TypeKind != TypeKind.Class))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         Descriptor,
