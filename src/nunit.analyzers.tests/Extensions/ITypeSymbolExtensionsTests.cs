@@ -208,10 +208,13 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
             foreach (var typeName in typeNames)
             {
-                INamedTypeSymbol? item = rootAndModel.Model.GetDeclaredSymbol(
-                    rootAndModel.Node
-                                .DescendantNodes().OfType<TypeDeclarationSyntax>()
-                                .Where(_ => _.Identifier.ValueText == typeName).Single());
+                TypeDeclarationSyntax typeDeclaration = rootAndModel.Node
+                    .DescendantNodes()
+                    .OfType<TypeDeclarationSyntax>()
+                    .Where(t => t.Identifier.ValueText == typeName)
+                    .Single();
+
+                INamedTypeSymbol? item = rootAndModel.Model.GetDeclaredSymbol(typeDeclaration);
                 if (item is not null)
                     types.Add(item);
             }

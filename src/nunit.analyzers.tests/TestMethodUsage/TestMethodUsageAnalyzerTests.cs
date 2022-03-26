@@ -51,7 +51,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                 foreach (var diagnostic in diagnostics)
                 {
                     Assert.That(diagnostic.Title.ToString(CultureInfo.InvariantCulture), Is.Not.Empty,
-  $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
+                        $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
                     Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
                         $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
                     Assert.That(diagnostic.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Error),
@@ -64,7 +64,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
             Assert.Multiple(() =>
             {
                 Assert.That(diagnosticMessage, Contains.Item(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage),
-                $"{TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage} is missing.");
+                    $"{TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage} is missing.");
                 Assert.That(diagnosticMessage, Contains.Item(TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
                     $"{TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage} is missing.");
             });
