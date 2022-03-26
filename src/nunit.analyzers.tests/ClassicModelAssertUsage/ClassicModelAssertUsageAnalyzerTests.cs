@@ -21,70 +21,76 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var analyzer = new ClassicModelAssertUsageAnalyzer();
             var diagnostics = analyzer.SupportedDiagnostics;
 
-            Assert.That(diagnostics.Length, Is.EqualTo(24), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
+            Assert.That(diagnostics, Has.Length.EqualTo(24), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
 
             foreach (var diagnostic in diagnostics)
             {
-                Assert.That(diagnostic.Title.ToString(CultureInfo.InvariantCulture), Is.Not.Empty,
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
-                Assert.That(diagnostic.MessageFormat.ToString(CultureInfo.InvariantCulture), Is.Not.Empty,
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.MessageFormat)}");
-                Assert.That(diagnostic.Category, Is.EqualTo(Categories.Assertion),
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
-                Assert.That(diagnostic.DefaultSeverity, Is.AnyOf(DiagnosticSeverity.Warning, DiagnosticSeverity.Info),
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.DefaultSeverity)}");
+                Assert.Multiple(() =>
+                {
+                    Assert.That(diagnostic.Title.ToString(CultureInfo.InvariantCulture), Is.Not.Empty,
+                        $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
+                    Assert.That(diagnostic.MessageFormat.ToString(CultureInfo.InvariantCulture), Is.Not.Empty,
+                        $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.MessageFormat)}");
+                    Assert.That(diagnostic.Category, Is.EqualTo(Categories.Assertion),
+                        $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
+                    Assert.That(diagnostic.DefaultSeverity, Is.AnyOf(DiagnosticSeverity.Warning, DiagnosticSeverity.Info),
+                        $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.DefaultSeverity)}");
+                });
             }
 
             var diagnosticIds = diagnostics.Select(_ => _.Id).ToImmutableArray();
 
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreEqualUsage),
-                $"{AnalyzerIdentifiers.AreEqualUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreNotEqualUsage),
-                $"{AnalyzerIdentifiers.AreNotEqualUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.FalseUsage),
-                $"{AnalyzerIdentifiers.FalseUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsFalseUsage),
-                $"{AnalyzerIdentifiers.IsFalseUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsTrueUsage),
-                $"{AnalyzerIdentifiers.IsTrueUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.TrueUsage),
-                $"{AnalyzerIdentifiers.TrueUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreSameUsage),
-                $"{AnalyzerIdentifiers.AreSameUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.NullUsage),
-                $"{AnalyzerIdentifiers.NullUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNullUsage),
-                $"{AnalyzerIdentifiers.IsNullUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.NotNullUsage),
-                $"{AnalyzerIdentifiers.NotNullUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotNullUsage),
-                $"{AnalyzerIdentifiers.IsNotNullUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.GreaterUsage),
-                $"{AnalyzerIdentifiers.GreaterUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.GreaterOrEqualUsage),
-                $"{AnalyzerIdentifiers.GreaterOrEqualUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.LessUsage),
-                $"{AnalyzerIdentifiers.LessUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.LessOrEqualUsage),
-                $"{AnalyzerIdentifiers.LessOrEqualUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreNotSameUsage),
-                $"{AnalyzerIdentifiers.AreNotSameUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.ZeroUsage),
-                $"{AnalyzerIdentifiers.ZeroUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.NotZeroUsage),
-                $"{AnalyzerIdentifiers.NotZeroUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNaNUsage),
-                $"{AnalyzerIdentifiers.IsNaNUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsEmptyUsage),
-                $"{AnalyzerIdentifiers.IsEmptyUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotEmptyUsage),
-                $"{AnalyzerIdentifiers.IsNotEmptyUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.ContainsUsage),
-                $"{AnalyzerIdentifiers.ContainsUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsInstanceOfUsage),
-                $"{AnalyzerIdentifiers.IsInstanceOfUsage} is missing.");
-            Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotInstanceOfUsage),
-                $"{AnalyzerIdentifiers.IsNotInstanceOfUsage} is missing.");
+            Assert.Multiple(() =>
+            {
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreEqualUsage),
+                    $"{AnalyzerIdentifiers.AreEqualUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreNotEqualUsage),
+                    $"{AnalyzerIdentifiers.AreNotEqualUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.FalseUsage),
+                    $"{AnalyzerIdentifiers.FalseUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsFalseUsage),
+                    $"{AnalyzerIdentifiers.IsFalseUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsTrueUsage),
+                    $"{AnalyzerIdentifiers.IsTrueUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.TrueUsage),
+                    $"{AnalyzerIdentifiers.TrueUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreSameUsage),
+                    $"{AnalyzerIdentifiers.AreSameUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.NullUsage),
+                    $"{AnalyzerIdentifiers.NullUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNullUsage),
+                    $"{AnalyzerIdentifiers.IsNullUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.NotNullUsage),
+                    $"{AnalyzerIdentifiers.NotNullUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotNullUsage),
+                    $"{AnalyzerIdentifiers.IsNotNullUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.GreaterUsage),
+                    $"{AnalyzerIdentifiers.GreaterUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.GreaterOrEqualUsage),
+                    $"{AnalyzerIdentifiers.GreaterOrEqualUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.LessUsage),
+                    $"{AnalyzerIdentifiers.LessUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.LessOrEqualUsage),
+                    $"{AnalyzerIdentifiers.LessOrEqualUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.AreNotSameUsage),
+                    $"{AnalyzerIdentifiers.AreNotSameUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.ZeroUsage),
+                    $"{AnalyzerIdentifiers.ZeroUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.NotZeroUsage),
+                    $"{AnalyzerIdentifiers.NotZeroUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNaNUsage),
+                    $"{AnalyzerIdentifiers.IsNaNUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsEmptyUsage),
+                    $"{AnalyzerIdentifiers.IsEmptyUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotEmptyUsage),
+                    $"{AnalyzerIdentifiers.IsNotEmptyUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.ContainsUsage),
+                    $"{AnalyzerIdentifiers.ContainsUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsInstanceOfUsage),
+                    $"{AnalyzerIdentifiers.IsInstanceOfUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotInstanceOfUsage),
+                    $"{AnalyzerIdentifiers.IsNotInstanceOfUsage} is missing.");
+            });
         }
 
         [Test]

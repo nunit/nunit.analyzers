@@ -154,14 +154,19 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
             };
 #pragma warning restore IDE0039 // Use local function
 
-            Assert.That(function, Is.Not.Null);
-            Assert.That(functionCalled, Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(function, Is.Not.Null);
+                Assert.That(functionCalled, Is.False);
 
-            Assert.That(() => function, Is.Not.Null);
-            Assert.That(functionCalled, Is.False);
+                Assert.That(() => function, Is.Not.Null);
+                Assert.That(functionCalled, Is.False);
 
-            Assert.That(() => function(), Is.Not.Null);
-            Assert.That(functionCalled, Is.True);
+#pragma warning disable NUnit2023 // Invalid NullConstraint usage
+                Assert.That(() => function(), Is.Not.Null);
+#pragma warning restore NUnit2023 // Invalid NullConstraint usage
+                Assert.That(functionCalled, Is.True);
+            });
         }
 
         [Test]
@@ -177,14 +182,19 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
             };
 #pragma warning restore IDE0039 // Use local function
 
-            Assert.That(asyncFunction, Is.Not.Null);
-            Assert.That(functionCalled, Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(asyncFunction, Is.Not.Null);
+                Assert.That(functionCalled, Is.False);
 
-            Assert.That(() => asyncFunction, Is.Not.Null);
-            Assert.That(functionCalled, Is.False);
+                Assert.That(() => asyncFunction, Is.Not.Null);
+                Assert.That(functionCalled, Is.False);
 
-            Assert.That(() => asyncFunction(), Is.Not.Null);
-            Assert.That(functionCalled, Is.True);
+#pragma warning disable NUnit2023 // Invalid NullConstraint usage
+                Assert.That(() => asyncFunction(), Is.Not.Null);
+#pragma warning restore NUnit2023 // Invalid NullConstraint usage
+                Assert.That(functionCalled, Is.True);
+            });
         }
 
         [Test]
@@ -196,18 +206,23 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
             Action action = () => actionCalled = true;
 #pragma warning restore IDE0039 // Use local function
 
-            Assert.That(action, Is.Not.Null);
-            Assert.That(actionCalled, Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(action, Is.Not.Null);
+                Assert.That(actionCalled, Is.False);
 
-            Assert.That(() => action, Is.Not.Null);
-            Assert.That(actionCalled, Is.False);
+                Assert.That(() => action, Is.Not.Null);
+                Assert.That(actionCalled, Is.False);
 
-            Assert.That(() => action(), Is.Not.Null);
+#pragma warning disable NUnit2023 // Invalid NullConstraint usage
+                Assert.That(() => action(), Is.Not.Null);
+#pragma warning restore NUnit2023 // Invalid NullConstraint usage
 
 #if EXPECT_TEST_DELEGATE_TO_BE_CALLED
             // The above test succeeds, but does not call the action!
             Assert.That(actionCalled, Is.True);
 #endif
+            });
         }
     }
 }

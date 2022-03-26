@@ -8,7 +8,7 @@ namespace NUnit.Analyzers.Tests
 {
     internal static class TestHelpers
     {
-        internal static Compilation CreateCompilation(string code = null)
+        internal static Compilation CreateCompilation(string? code = null)
         {
             var syntaxTrees = code is null
                 ? null

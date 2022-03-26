@@ -8,7 +8,7 @@ namespace NUnit.Analyzers.Tests
     internal static class TestUtility
     {
         internal static string WrapClassInNamespaceAndAddUsing(string code,
-            string additionalUsings = null)
+            string? additionalUsings = null)
         {
             return $@"
 using System;
@@ -22,7 +22,7 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
         }
 
         internal static string WrapMethodInClassNamespaceAndAddUsings(string method,
-            string additionalUsings = null)
+            string? additionalUsings = null)
         {
             return WrapClassInNamespaceAndAddUsing($@"
     [TestFixture]
@@ -31,7 +31,7 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
     }}", additionalUsings);
         }
 
-        internal static string WrapInTestMethod(string code, string additionalUsings = null)
+        internal static string WrapInTestMethod(string code, string? additionalUsings = null)
         {
             return WrapMethodInClassNamespaceAndAddUsings($@"
         [Test]
@@ -40,7 +40,7 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
         }}", additionalUsings);
         }
 
-        internal static string WrapInAsyncTestMethod(string code, string additionalUsings = null)
+        internal static string WrapInAsyncTestMethod(string code, string? additionalUsings = null)
         {
             return WrapMethodInClassNamespaceAndAddUsings($@"
         [Test]

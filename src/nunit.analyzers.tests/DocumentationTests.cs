@@ -24,7 +24,7 @@ namespace NUnit.Analyzers.Tests
                 .GetTypes()
                 .Where(t => typeof(DiagnosticAnalyzer).IsAssignableFrom(t) && !t.IsAbstract)
                 .OrderBy(x => x.Name)
-                .Select(t => (DiagnosticAnalyzer)Activator.CreateInstance(t))
+                .Select(t => (DiagnosticAnalyzer)Activator.CreateInstance(t)!)
                 .ToArray();
 
         private static readonly IReadOnlyList<string> diagnosticsWithCodeFixes =
@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Tests
                 .Assembly
                 .GetTypes()
                 .Where(t => typeof(CodeFixProvider).IsAssignableFrom(t) && !t.IsAbstract)
-                .Select(t => (CodeFixProvider)Activator.CreateInstance(t))
+                .Select(t => (CodeFixProvider)Activator.CreateInstance(t)!)
                 .SelectMany(c => c.FixableDiagnosticIds)
                 .ToArray();
 
@@ -47,7 +47,7 @@ namespace NUnit.Analyzers.Tests
                 .GetTypes()
                 .Where(t => typeof(DiagnosticSuppressor).IsAssignableFrom(t) && !t.IsAbstract)
                 .OrderBy(x => x.Name)
-                .Select(t => (DiagnosticSuppressor)Activator.CreateInstance(t))
+                .Select(t => (DiagnosticSuppressor)Activator.CreateInstance(t)!)
                 .ToArray();
 
         private static readonly IReadOnlyList<SuppressorInfo> suppressorInfos =
@@ -65,7 +65,7 @@ namespace NUnit.Analyzers.Tests
             ((IEnumerable<BaseInfo>)DescriptorsWithDocs).Concat(SuppressorsWithDocs).ToArray();
 
         private static DirectoryInfo RepositoryDirectory =>
-            SolutionFile.Find("nunit.analyzers.sln").Directory.Parent;
+            SolutionFile.Find("nunit.analyzers.sln").Directory!.Parent!;
 
         private static DirectoryInfo DocumentsDirectory =>
             RepositoryDirectory.EnumerateDirectories("documentation", SearchOption.TopDirectoryOnly).Single();
@@ -107,9 +107,9 @@ namespace NUnit.Analyzers.Tests
         [TestCaseSource(nameof(descriptorInfos))]
         public void EnsureThatAllIdsAreUnique(DescriptorInfo descriptorInfo)
         {
-            Assert.AreEqual(1, descriptorInfos.Select(x => x.Descriptor)
-                                              .Distinct()
-                                              .Count(d => d.Id == descriptorInfo.Descriptor.Id));
+            Assert.That(descriptorInfos.Select(x => x.Descriptor)
+                                       .Distinct()
+                                       .Count(d => d.Id == descriptorInfo.Descriptor.Id), Is.EqualTo(1));
         }
 
         [TestCaseSource(nameof(descriptorInfos))]
@@ -137,7 +137,7 @@ namespace NUnit.Analyzers.Tests
                 .Select(l => Replace(l, @"\<", "<"))
                 .Take(2);
 
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         [TestCaseSource(nameof(DescriptorsWithDocs))]
@@ -153,12 +153,12 @@ namespace NUnit.Analyzers.Tests
                 descriptorInfo.DocumentationFile.AllLines
                               .SkipWhile(l => !l.StartsWith("## Description", StringComparison.OrdinalIgnoreCase))
                               .Skip(1)
-                              .FirstOrDefault(l => !string.IsNullOrWhiteSpace(l));
+                              .First(l => !string.IsNullOrWhiteSpace(l));
             var actual = Replace(actualRaw, "`", string.Empty);
 
             DumpIfDebug(expected);
             DumpIfDebug(actual);
-            Assert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         [TestCaseSource(nameof(RulesWithDocs))]
@@ -303,10 +303,10 @@ namespace NUnit.Analyzers.Tests
 
         private static string Replace(string originalString, string oldValue, string newValue)
         {
-#if NET461
-            return originalString?.Replace(oldValue, newValue);
+#if NETFRAMEWORK
+            return originalString.Replace(oldValue, newValue);
 #else
-            return originalString?.Replace(oldValue, newValue, StringComparison.Ordinal);
+            return originalString.Replace(oldValue, newValue, StringComparison.Ordinal);
 #endif
         }
 
@@ -325,7 +325,7 @@ namespace NUnit.Analyzers.Tests
 
             public CodeFile AnalyzerFile { get; }
 
-            public string Stub { get; protected set; }
+            public abstract string Stub { get; }
 
             public abstract string Title { get; }
         }
@@ -344,7 +344,9 @@ namespace NUnit.Analyzers.Tests
 
             public DiagnosticDescriptor Descriptor { get; }
 
-            public override string Title => (string)this.Descriptor.Title;
+            public override string Stub { get; }
+
+            public override string Title => this.Descriptor.Title.ToString(null);
 
             public static IEnumerable<DescriptorInfo> Create(DiagnosticAnalyzer analyzer)
             {
@@ -448,7 +450,9 @@ Or put this at the top of the file to disable all instances.
 
             public SuppressionDescriptor Descriptor { get; }
 
-            public override string Title => (string)this.Descriptor.Justification;
+            public override string Stub { get; }
+
+            public override string Title => this.Descriptor.Justification.ToString(null);
 
             public string HelpLinkUri { get; }
 
@@ -539,7 +543,7 @@ dotnet_diagnostic.{descriptor.Id}.severity = none
 
         public sealed class SuppressionDescriptorComparer : IEqualityComparer<SuppressionDescriptor>
         {
-            public bool Equals(SuppressionDescriptor x, SuppressionDescriptor y) => x?.Id == y?.Id;
+            public bool Equals(SuppressionDescriptor? x, SuppressionDescriptor? y) => x?.Id == y?.Id;
 
             public int GetHashCode(SuppressionDescriptor obj) => obj?.Id.GetHashCode() ?? 0;
         }
@@ -553,6 +557,11 @@ dotnet_diagnostic.{descriptor.Id}.severity = none
                 {
                     this.AllText = File.ReadAllText(name);
                     this.AllLines = File.ReadAllLines(name);
+                }
+                else
+                {
+                    this.AllText = string.Empty;
+                    this.AllLines = Array.Empty<string>();
                 }
             }
 
@@ -588,7 +597,7 @@ dotnet_diagnostic.{descriptor.Id}.severity = none
             private static CodeFile FindCore(string name)
             {
                 var fileName = cache.Values
-                                    .Select(x => Path.GetDirectoryName(x.Name))
+                                    .Select(x => Path.GetDirectoryName(x.Name)!)
                                     .Distinct()
                                     .SelectMany(d => Directory.EnumerateFiles(d, name, SearchOption.TopDirectoryOnly))
                                     .FirstOrDefault() ??

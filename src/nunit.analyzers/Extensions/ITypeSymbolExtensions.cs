@@ -10,7 +10,7 @@ namespace NUnit.Analyzers.Extensions
 {
     internal static class ITypeSymbolExtensions
     {
-        internal static bool IsAssignableFrom(this ITypeSymbol @this, ITypeSymbol? other)
+        internal static bool IsAssignableFrom(this ITypeSymbol? @this, ITypeSymbol? other)
         {
             return @this is not null &&
                 other is not null &&
@@ -19,14 +19,14 @@ namespace NUnit.Analyzers.Extensions
                 other.Interfaces.Any(@this.IsAssignableFrom));
         }
 
-        internal static bool IsAssert(this ITypeSymbol @this)
+        internal static bool IsAssert(this ITypeSymbol? @this)
         {
             return @this is not null &&
                 @this.ContainingAssembly.Name == NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
                 @this.Name == NUnitFrameworkConstants.NameOfAssert;
         }
 
-        internal static bool IsConstraint(this ITypeSymbol @this)
+        internal static bool IsConstraint(this ITypeSymbol? @this)
         {
             return @this is not null && @this.GetAllBaseTypes()
                 .Any(t => t.Name == NUnitFrameworkConstants.NameOfConstraint
@@ -91,7 +91,7 @@ namespace NUnit.Analyzers.Extensions
 
         internal static IEnumerable<AttributeData> GetAllAttributes(this ITypeSymbol? @this)
         {
-            for (var current = @this; current is object; current = current.BaseType)
+            for (var current = @this; current is not null; current = current.BaseType)
             {
                 foreach (var data in current.GetAttributes())
                 {

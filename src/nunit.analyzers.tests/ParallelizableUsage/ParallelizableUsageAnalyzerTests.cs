@@ -34,20 +34,26 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
 
             foreach (var diagnostic in diagnostics)
             {
-                Assert.That(diagnostic.Title.ToString(CultureInfo.InvariantCulture), Is.Not.Empty,
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
-                Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
+                Assert.Multiple(() =>
+                {
+                    Assert.That(diagnostic.Title.ToString(CultureInfo.InvariantCulture), Is.Not.Empty,
+                        $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
+                    Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
+                        $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
+                });
             }
 
             var diagnosticMessage = diagnostics.Select(_ => _.MessageFormat.ToString(CultureInfo.InvariantCulture)).ToImmutableArray();
 
-            Assert.That(diagnosticMessage, Contains.Item(ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage),
-                $"{ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage} is missing.");
-            Assert.That(diagnosticMessage, Contains.Item(ParallelizableUsageAnalyzerConstants.ParallelScopeChildrenOnNonParameterizedTestMethodMessage),
-                $"{ParallelizableUsageAnalyzerConstants.ParallelScopeChildrenOnNonParameterizedTestMethodMessage} is missing.");
-            Assert.That(diagnosticMessage, Contains.Item(ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage),
-                $"{ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage} is missing.");
+            Assert.Multiple(() =>
+            {
+                Assert.That(diagnosticMessage, Contains.Item(ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage),
+                    $"{ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage} is missing.");
+                Assert.That(diagnosticMessage, Contains.Item(ParallelizableUsageAnalyzerConstants.ParallelScopeChildrenOnNonParameterizedTestMethodMessage),
+                    $"{ParallelizableUsageAnalyzerConstants.ParallelScopeChildrenOnNonParameterizedTestMethodMessage} is missing.");
+                Assert.That(diagnosticMessage, Contains.Item(ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage),
+                    $"{ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage} is missing.");
+            });
         }
 
         [TestCase(ParallelizableUsageAnalyzerConstants.ParallelScope.Self, ParallelScope.Self)]

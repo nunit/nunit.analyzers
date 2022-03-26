@@ -202,9 +202,12 @@ namespace NUnit.Analyzers.Tests.Constants
         [Test]
         public void NUnitAssemblyNameTest()
         {
+            // We are testing that the value of the constant is correct
+#pragma warning disable NUnit2007 // The actual value should not be a constant
             Assert.That(
                 NUnitFrameworkConstants.NUnitFrameworkAssemblyName,
                 Is.EqualTo(typeof(Assert).Assembly.GetName().Name));
+#pragma warning restore NUnit2007 // The actual value should not be a constant
         }
 
         [Test]
@@ -231,7 +234,7 @@ namespace NUnit.Analyzers.Tests.Constants
             Assert.That(testedNames, Is.EquivalentTo(allNames));
         }
 
-        private static string GetValue(string fieldName) =>
-            (string)typeof(NUnitFrameworkConstants).GetField(fieldName).GetRawConstantValue()!;
+        private static string? GetValue(string fieldName) =>
+            typeof(NUnitFrameworkConstants).GetField(fieldName)?.GetRawConstantValue() as string;
     }
 }

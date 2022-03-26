@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using NUnit.Analyzers.Helpers;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 namespace NUnit.Analyzers.Tests.Helpers
 {
@@ -32,8 +33,7 @@ namespace NUnit.Analyzers.Tests.Helpers
             var leftTypeSymbol = GetTypeSymbol(compilation, leftType);
             var rightTypeSymbol = GetTypeSymbol(compilation, rightType);
 
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), Is.False);
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), Is.False);
+            AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.False);
         }
 
         [Test]
@@ -46,8 +46,7 @@ namespace NUnit.Analyzers.Tests.Helpers
             var leftTypeSymbol = compilation.CreateTupleTypeSymbol(ImmutableArray.Create<ITypeSymbol>(intTypeSymbol, intTypeSymbol));
             var rightTypeSymbol = compilation.CreateTupleTypeSymbol(ImmutableArray.Create<ITypeSymbol>(intTypeSymbol, stringTypeSymbol));
 
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), Is.False);
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), Is.False);
+            AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.False);
         }
 
         [Test]
@@ -59,8 +58,7 @@ namespace NUnit.Analyzers.Tests.Helpers
             var leftTypeSymbol = compilation.GetTypeByMetadataName("EnumOne");
             var rightTypeSymbol = compilation.GetTypeByMetadataName("EnumTwo");
 
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), Is.False);
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), Is.False);
+            AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.False);
         }
 
         [Test]
@@ -70,11 +68,12 @@ namespace NUnit.Analyzers.Tests.Helpers
                 enum EnumOne { A, B, C }
                 enum EnumTwo { A, B, C }");
             var nullableTypeSymbol = compilation.GetSpecialType(SpecialType.System_Nullable_T);
-            var leftTypeSymbol = nullableTypeSymbol.Construct(compilation.GetTypeByMetadataName("EnumOne"));
+            var enumOneSymbol = compilation.GetTypeByMetadataName("EnumOne");
+            Assert.That(enumOneSymbol, Is.Not.Null, "Cannot find type 'EnumOne'");
+            var leftTypeSymbol = nullableTypeSymbol.Construct(enumOneSymbol);
             var rightTypeSymbol = compilation.GetTypeByMetadataName("EnumTwo");
 
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), Is.False);
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), Is.False);
+            AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.False);
         }
 
         [Test]
@@ -95,8 +94,7 @@ namespace NUnit.Analyzers.Tests.Helpers
             var leftTypeSymbol = compilation.GetTypeByMetadataName("A");
             var rightTypeSymbol = compilation.GetTypeByMetadataName("B");
 
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), Is.False);
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), Is.False);
+            AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.False);
         }
 
         [TestCase(typeof(FileStream), typeof(MemoryStream), TestName = "TrueForStreams")]
@@ -112,8 +110,7 @@ namespace NUnit.Analyzers.Tests.Helpers
             var leftTypeSymbol = GetTypeSymbol(compilation, leftType);
             var rightTypeSymbol = GetTypeSymbol(compilation, rightType);
 
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), Is.True);
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), Is.True);
+            AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.True);
         }
 
         [TestCase(typeof(string))]
@@ -136,8 +133,7 @@ namespace NUnit.Analyzers.Tests.Helpers
             var leftTypeSymbol = compilation.GetTypeByMetadataName("A");
             var rightTypeSymbol = compilation.GetTypeByMetadataName("B");
 
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), Is.True);
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), Is.True);
+            AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.True);
         }
 
         [Test]
@@ -149,8 +145,7 @@ namespace NUnit.Analyzers.Tests.Helpers
             var leftTypeSymbol = GetTypeSymbol(compilation, leftType);
             var rightTypeSymbol = GetTypeSymbol(compilation, rightType);
 
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), Is.True);
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), Is.True);
+            AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.True);
         }
 
         [Test]
@@ -160,10 +155,10 @@ namespace NUnit.Analyzers.Tests.Helpers
                 enum EnumOne { A, B, C }");
             var nullableTypeSymbol = compilation.GetSpecialType(SpecialType.System_Nullable_T);
             var leftTypeSymbol = compilation.GetTypeByMetadataName("EnumOne");
+            Assert.That(leftTypeSymbol, Is.Not.Null, "Cannot find type 'EnumOne'");
             var rightTypeSymbol = nullableTypeSymbol.Construct(leftTypeSymbol);
 
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), Is.True);
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), Is.True);
+            AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.True);
         }
 
         [Test]
@@ -176,8 +171,7 @@ namespace NUnit.Analyzers.Tests.Helpers
             var leftTypeSymbol = compilation.CreateTupleTypeSymbol(ImmutableArray.Create<ITypeSymbol>(intTypeSymbol, intTypeSymbol));
             var rightTypeSymbol = compilation.CreateTupleTypeSymbol(ImmutableArray.Create<ITypeSymbol>(intTypeSymbol, doubleTypeSymbol));
 
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), Is.True);
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), Is.True);
+            AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.True);
         }
 
         [Test]
@@ -193,8 +187,7 @@ namespace NUnit.Analyzers.Tests.Helpers
             var leftTypeSymbol = compilation.GetTypeByMetadataName("A");
             var rightTypeSymbol = compilation.GetTypeByMetadataName("B");
 
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), Is.True);
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), Is.True);
+            AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.True);
         }
 
         [Test]
@@ -205,8 +198,7 @@ namespace NUnit.Analyzers.Tests.Helpers
             var leftTypeSymbol = compilation.GetSpecialType(SpecialType.System_Int32);
             var rightTypeSymbol = compilation.CreateErrorTypeSymbol(null, "ErrorType", 0);
 
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), Is.True);
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), Is.True);
+            AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.True);
         }
 
         [Test]
@@ -218,27 +210,40 @@ namespace NUnit.Analyzers.Tests.Helpers
             var leftTypeSymbol = GetTypeSymbol(compilation, typeof(IEnumerable<int>));
             var rightTypeSymbol = compilation.CreateArrayTypeSymbol(errorType);
 
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), Is.True);
-            Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), Is.True);
+            AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.True);
+        }
+
+        private static void AssertThatCommutativeEqual(ITypeSymbol? leftTypeSymbol, ITypeSymbol? rightTypeSymbol, Compilation compilation, Constraint constraint)
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(NUnitEqualityComparerHelper.CanBeEqual(leftTypeSymbol, rightTypeSymbol, compilation), constraint);
+                Assert.That(NUnitEqualityComparerHelper.CanBeEqual(rightTypeSymbol, leftTypeSymbol, compilation), constraint);
+            });
         }
 
         private static ITypeSymbol GetTypeSymbol(Compilation compilation, Type type)
         {
             if (type.IsArray)
             {
-                var elementType = GetTypeSymbol(compilation, type.GetElementType());
+                // Unfortunately there is no way nullable knows that IsArray:true -> GetElementType:notnull
+                var elementType = GetTypeSymbol(compilation, type.GetElementType()!);
                 return compilation.CreateArrayTypeSymbol(elementType);
             }
 
             if (type.IsConstructedGenericType)
             {
-                var genericTypeDefinitionSymbol = compilation.GetTypeByMetadataName(type.GetGenericTypeDefinition().FullName);
+                var fullyQualifiedGenericTypeDefinition = type.GetGenericTypeDefinition().FullName!;
+                var genericTypeDefinitionSymbol = compilation.GetTypeByMetadataName(fullyQualifiedGenericTypeDefinition);
+                Assert.That(genericTypeDefinitionSymbol, Is.Not.Null, $"Cannot find type '{fullyQualifiedGenericTypeDefinition}'");
                 var genericArgumentsSymbols = type.GetGenericArguments().Select(t => GetTypeSymbol(compilation, t)).ToArray();
 
                 return genericTypeDefinitionSymbol.Construct(genericArgumentsSymbols);
             }
 
-            return compilation.GetTypeByMetadataName(type.FullName);
+            INamedTypeSymbol? namedTypeSymbol = compilation.GetTypeByMetadataName(type.FullName!);
+            Assert.That(namedTypeSymbol, Is.Not.Null, $"Cannot find type '{type.FullName}'");
+            return namedTypeSymbol;
         }
     }
 }

@@ -69,8 +69,8 @@ dotnet_style_qualification_for_property = true:warning
 dotnet_style_qualification_for_method = true:warning
 dotnet_style_qualification_for_event = true:warning
 
-dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
-dotnet_style_predefined_type_for_member_access = true:suggestion
+dotnet_style_predefined_type_for_locals_parameters_members = true:warning
+dotnet_style_predefined_type_for_member_access = true:warning
 dotnet_style_readonly_field = true:warning
 
 # https://docs.nunit.org/articles/developer-info/Coding-Standards.html#use-of-the-var-keyword
@@ -85,27 +85,27 @@ csharp_style_var_elsewhere = false:none
 csharp_prefer_braces = when_multiline:warning
 
 # Rules to match the actual code style used
-csharp_prefer_simple_default_expression = false:suggestion
-csharp_style_deconstructed_variable_declaration = false:suggestion
-csharp_style_prefer_switch_expression = false:suggestion
-csharp_style_expression_bodied_local_functions = false:suggestion
-csharp_style_pattern_matching_over_as_with_null_check = false:suggestion
+csharp_prefer_simple_default_expression = false:warning
+csharp_style_deconstructed_variable_declaration = false:warning
+csharp_style_prefer_switch_expression = false:warning
+csharp_style_expression_bodied_local_functions = false:warning
+csharp_style_pattern_matching_over_as_with_null_check = false:warning
 
 # Suggest more modern language features when available
 dotnet_style_object_initializer = true:none
 dotnet_style_collection_initializer = true:none
-dotnet_style_coalesce_expression = true:suggestion
-dotnet_style_null_propagation = true:suggestion
-dotnet_style_explicit_tuple_names = true:suggestion
+dotnet_style_coalesce_expression = true:warning
+dotnet_style_null_propagation = true:warning
+dotnet_style_explicit_tuple_names = true:warning
 
 # Expression-bodied members
-csharp_style_expression_bodied_accessors = when_on_single_line:suggestion
+csharp_style_expression_bodied_accessors = when_on_single_line:warning
 csharp_style_expression_bodied_constructors = false:none
-csharp_style_expression_bodied_indexers = when_on_single_line:suggestion
-csharp_style_expression_bodied_lambdas = when_on_single_line:suggestion
+csharp_style_expression_bodied_indexers = when_on_single_line:warning
+csharp_style_expression_bodied_lambdas = when_on_single_line:warning
 csharp_style_expression_bodied_local_functions = when_on_single_line:silent
 csharp_style_expression_bodied_methods = false:none
-csharp_style_expression_bodied_operators = when_on_single_line:suggestion
+csharp_style_expression_bodied_operators = when_on_single_line:warning
 csharp_style_expression_bodied_properties = when_on_single_line:warning
 
 # The first matching rule wins, more specific rules at the top
@@ -121,15 +121,23 @@ dotnet_naming_symbols.public_fields.applicable_kinds = field
 dotnet_naming_symbols.public_fields.applicable_accessibilities = public
 dotnet_naming_symbols.parameters_and_locals.applicable_kinds = parameter, local
 
-dotnet_naming_rule.namespaces_types_and_non_field_members.severity = suggestion
+dotnet_naming_rule.namespaces_types_and_non_field_members.severity = warning
 dotnet_naming_rule.namespaces_types_and_non_field_members.symbols = namespaces_types_and_non_field_members
 dotnet_naming_rule.namespaces_types_and_non_field_members.style = pascal_case
-dotnet_naming_rule.public_fields.severity = suggestion
+dotnet_naming_rule.public_fields.severity = warning
 dotnet_naming_rule.public_fields.symbols = public_fields
 dotnet_naming_rule.public_fields.style = pascal_case
-dotnet_naming_rule.parameters_and_locals.severity = suggestion
+dotnet_naming_rule.parameters_and_locals.severity = warning
 dotnet_naming_rule.parameters_and_locals.symbols = parameters_and_locals
 dotnet_naming_rule.parameters_and_locals.style = camel_case
+
+# IDE0046: Convert to conditional expression
+# Complex Conditional expressions are not easier to read
+dotnet_diagnostic.IDE0046.severity = none
+
+# IDE0057: Use range operator
+# Requires runtime support not available on .NET Framework
+csharp_style_prefer_range_operator = false
 
 # SA0001: Xml comment analysis disabled
 dotnet_diagnostic.SA0001.severity = none
@@ -212,10 +220,6 @@ dotnet_diagnostic.CA1307.severity = none
 
 # CA1310: Specify StringComparison for correctness
 dotnet_diagnostic.CA1310.severity = error
-
-# CA1802: Use literals where appropriate
-# TEMPORARY because of: https://github.com/dotnet/roslyn-analyzers/issues/4732
-dotnet_diagnostic.CA1802.severity = silent
 
 ##################################################################################
 # Roslyn Analyzers

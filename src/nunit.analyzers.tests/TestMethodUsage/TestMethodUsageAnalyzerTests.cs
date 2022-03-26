@@ -46,22 +46,28 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
             };
             CollectionAssert.AreEquivalent(expectedIdentifiers, diagnostics.Select(d => d.Id));
 
-            foreach (var diagnostic in diagnostics)
+            Assert.Multiple(() =>
             {
-                Assert.That(diagnostic.Title.ToString(CultureInfo.InvariantCulture), Is.Not.Empty,
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
-                Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
-                Assert.That(diagnostic.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Error),
-                    $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.DefaultSeverity)}");
-            }
+                foreach (var diagnostic in diagnostics)
+                {
+                    Assert.That(diagnostic.Title.ToString(CultureInfo.InvariantCulture), Is.Not.Empty,
+                        $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Title)}");
+                    Assert.That(diagnostic.Category, Is.EqualTo(Categories.Structure),
+                        $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.Category)}");
+                    Assert.That(diagnostic.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Error),
+                        $"{diagnostic.Id} : {nameof(DiagnosticDescriptor.DefaultSeverity)}");
+                }
+            });
 
             var diagnosticMessage = diagnostics.Select(_ => _.MessageFormat.ToString(CultureInfo.InvariantCulture)).ToImmutableArray();
 
-            Assert.That(diagnosticMessage, Contains.Item(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage),
-                $"{TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage} is missing.");
-            Assert.That(diagnosticMessage, Contains.Item(TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
-                $"{TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage} is missing.");
+            Assert.Multiple(() =>
+            {
+                Assert.That(diagnosticMessage, Contains.Item(TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage),
+                    $"{TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage} is missing.");
+                Assert.That(diagnosticMessage, Contains.Item(TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage),
+                    $"{TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage} is missing.");
+            });
         }
 
         [TestCaseSource(nameof(SpecialConversions))]
@@ -354,7 +360,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
-#if !NET461
+#if !NETFRAMEWORK
         [Test]
         public void AnalyzeWhenTestMethodHasValueTaskReturnTypeAndExpectedResult()
         {

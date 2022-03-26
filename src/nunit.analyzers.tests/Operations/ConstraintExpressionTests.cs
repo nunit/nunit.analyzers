@@ -89,6 +89,7 @@ namespace NUnit.Analyzers.Tests.Operations
                 .First(e => e.ToString() == expressionString);
 
             var operation = model.GetOperation(expression);
+            Assert.That(operation, Is.Not.Null, $"Cannot get operation for {expressionString}");
 
             return new ConstraintExpression(operation);
         }
