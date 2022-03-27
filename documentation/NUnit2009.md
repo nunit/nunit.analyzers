@@ -8,7 +8,7 @@
 | Severity | Warning
 | Enabled  | True
 | Category | Assertion
-| Code     | [SameActualExpectedValueAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/SameActualExpectedValue/SameActualExpectedValueAnalyzer.cs)
+| Code     | [SameActualExpectedValueAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers.common/SameActualExpectedValue/SameActualExpectedValueAnalyzer.cs)
 
 ## Description
 

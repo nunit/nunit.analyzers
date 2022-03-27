@@ -1,22 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>NUnit.Analyzers.Tests</RootNamespace>
-    <TargetFrameworks>net6.0;net462</TargetFrameworks>
+    <TargetFrameworks>net6.0;net48</TargetFrameworks>
+    <RunAnalyzers>true</RunAnalyzers>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
-    <PackageReference Include="Gu.Roslyn.Asserts" Version="3.3.2" />
-    <PackageReference Include="Gu.Roslyn.Asserts.Analyzers" Version="3.3.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="Gu.Roslyn.Asserts" Version="4.0.4" />
+    <PackageReference Include="Gu.Roslyn.Asserts.Analyzers" Version="4.0.0" />
     <PackageReference Include="Microsoft.Composition" Version="1.0.31" />
-    <PackageReference Include="NUnit" Version="3.13.2" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.1.0" />
   </ItemGroup>
 
+  <!-- We would prefer it to work with OutputItemType="Analyzer" from the ProjectReference -->
   <ItemGroup>
-    <ProjectReference Include="..\nunit.analyzers.roslyn2x\nunit.analyzers.roslyn2x.csproj" />
-    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+    <PackageReference Include="NUnit.Analyzers" Version="3.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\nunit.analyzers.roslyn4x\nunit.analyzers.roslyn4x.csproj" />
+    <!--
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="true"
+                      SetTargetFramework="TargetFramework=netstandard2.0" />
+      -->
   </ItemGroup>
 
 </Project>

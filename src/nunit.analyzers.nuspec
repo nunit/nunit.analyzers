@@ -25,8 +25,12 @@ Version 3.0 and upwards works in Visual Studio 2019 and also enables supression 
   </metadata>
   <!-- The convention for analyzers is to put language agnostic dlls in analyzers\portable50 and language specific analyzers in either analyzers\portable50\cs or analyzers\portable50\vb -->
   <files>
-    <file src="bin\$Configuration$\$TargetFramework$\nunit.analyzers.dll" target="analyzers\dotnet\cs\" />
+    <file src="bin\$Configuration$\$TargetFramework$\nunit.analyzers.common.dll" target="analyzers\dotnet\cs\" />
+    <file src="bin\$Configuration$\$TargetFramework$\nunit.analyzers.roslyn2x.dll" target="analyzers\dotnet\cs\" />
+    <file src="bin\$Configuration$\$TargetFramework$\nunit.analyzers.roslyn3x.dll" target="analyzers\dotnet\cs\" />
+    <file src="bin\$Configuration$\$TargetFramework$\nunit.analyzers.roslyn4x.dll" target="analyzers\dotnet\cs\" />
     <file src="tools\*.ps1" target="tools\" />
+    <file src="buildTransitive\**\*" target="buildTransitive" />
     <file src="..\..\license.txt" target="" />
     <file src="..\..\nunit_256.png" target="images" />
     <file src="..\..\README.md" target="docs" />

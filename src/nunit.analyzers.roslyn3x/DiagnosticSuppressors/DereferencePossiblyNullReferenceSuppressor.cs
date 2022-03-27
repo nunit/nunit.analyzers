@@ -1,8 +1,7 @@
-#if !NETSTANDARD1_6
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -14,7 +13,7 @@ using NUnit.Analyzers.Helpers;
 namespace NUnit.Analyzers.DiagnosticSuppressors
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class DereferencePossiblyNullReferenceSuppressor : DiagnosticSuppressor
+    public sealed class DereferencePossiblyNullReferenceSuppressor : BaseNUnitDiagnosticSuppressor
     {
         private const string Justification = "Expression was checked in an Assert.NotNull, Assert.IsNotNull or Assert.That call";
 
@@ -276,5 +275,3 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         }
     }
 }
-
-#endif

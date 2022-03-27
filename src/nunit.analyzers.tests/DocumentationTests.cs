@@ -12,6 +12,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.ConstraintUsage;
+using NUnit.Analyzers.DiagnosticSuppressors;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests
@@ -42,7 +43,7 @@ namespace NUnit.Analyzers.Tests
             .ToArray();
 
         private static readonly IReadOnlyList<DiagnosticSuppressor> suppressors =
-            typeof(BaseAssertionAnalyzer)
+            typeof(BaseNUnitDiagnosticSuppressor)
                 .Assembly
                 .GetTypes()
                 .Where(t => typeof(DiagnosticSuppressor).IsAssignableFrom(t) && !t.IsAbstract)

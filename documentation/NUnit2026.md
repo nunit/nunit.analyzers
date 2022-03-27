@@ -8,7 +8,7 @@
 | Severity | Error
 | Enabled  | True
 | Category | Assertion
-| Code     | [SomeItemsIncompatibleTypesAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/SomeItemsIncompatibleTypes/SomeItemsIncompatibleTypesAnalyzer.cs)
+| Code     | [SomeItemsIncompatibleTypesAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers.common/SomeItemsIncompatibleTypes/SomeItemsIncompatibleTypesAnalyzer.cs)
 
 ## Description
 

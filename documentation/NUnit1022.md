@@ -8,7 +8,7 @@
 | Severity | Error
 | Enabled  | True
 | Category | Structure
-| Code     | [ValueSourceUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/ValueSourceUsage/ValueSourceUsageAnalyzer.cs)
+| Code     | [ValueSourceUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers.common/ValueSourceUsage/ValueSourceUsageAnalyzer.cs)
 
 ## Description
 

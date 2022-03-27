@@ -1,19 +1,26 @@
+using System;
 using Gu.Roslyn.Asserts;
 using NUnit.Framework;
-
-[assembly: TransitiveMetadataReferences(typeof(Assert))]
 
 namespace NUnit.Analyzers.Tests
 {
     internal static class TestUtility
     {
+        static TestUtility()
+        {
+            Settings.Default = Settings.Default.WithMetadataReferences(
+                MetadataReferences.Transitive(typeof(Assert)));
+        }
+
         internal static string WrapClassInNamespaceAndAddUsing(string code,
             string? additionalUsings = null)
         {
             return $@"
+#pragma warning disable CS8019
 using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
+#pragma warning restore CS8019
 {additionalUsings}
 
 namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage

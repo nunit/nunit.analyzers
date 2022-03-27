@@ -40,7 +40,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task NoValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [TestCase("""")]
                 public void Test(string? s)
                 {{
@@ -59,7 +58,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task WithLocalValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [TestCase("""")]
                 public void Test(string? s)
                 {{
@@ -79,7 +77,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task WithFieldValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 private string? s;
                 [Test]
                 public void Test()
@@ -100,7 +97,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task ReturnValue()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 [TestCase("""")]
                 public void Test(string? s)
                 {
@@ -123,7 +119,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task Parameter()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 [TestCase("""")]
                 public void Test(string? s)
                 {
@@ -146,7 +141,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task NullableCast()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 [Test]
                 public void Test()
                 {
@@ -168,7 +162,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task WithReassignedAfterAssert()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 [TestCase("""")]
                 public void Test(string? s)
                 {
@@ -186,7 +179,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task WithReassignedFieldAfterAssert()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 private string? s;
                 [Test]
                 public void Test()
@@ -205,7 +197,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task WithPropertyExpression()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test([Values] bool create)
                 {{
@@ -228,7 +219,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task WithComplexExpression()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test([Values] bool create)
                 {{
@@ -249,7 +239,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task WithComplexReassignAfterAssert()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test([Values] bool create)
                 {{
@@ -270,7 +259,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task InsideAssertMultiple()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 [TestCase("""")]
                 public void Test(string? s)
                 {
@@ -295,7 +283,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task NullableWithValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [TestCase(42)]
                 public void Test(int? nullable)
                 {{
@@ -317,7 +304,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task NullableWithInvalidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [TestCase(42)]
                 public void Test(int? nullable)
                 {{
@@ -334,7 +320,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task WithIndexer()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test()
                 {{
@@ -358,7 +343,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task ThrowsLocalDeclaration(string type, string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test()
                 {{
@@ -377,7 +361,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task ThrowsAsyncLocalDeclaration(string type, string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test()
                 {{
@@ -396,7 +379,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task ThrowsLocalDeclarationInsideAssertMultiple(string type)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test()
                 {{
@@ -416,7 +398,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task ThrowsLocalAssignment()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 [Test]
                 public void Test()
                 {
@@ -434,8 +415,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task ThrowsPropertyAssignment()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 private Exception Ex { get; set; } = new NotImplementedException();
 
                 [Test]
@@ -454,8 +433,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task ThrowsPassedAsArgument()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 private void ShowException(Exception ex) => Console.WriteLine(ex.Message);
 
                 [Test]
@@ -474,8 +451,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task ThrowAssignedOutsideAssertMultipleUsedInside()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 [Test]
                 public void Test()
                 {
@@ -497,8 +472,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task VariableAssertedOutsideAssertMultipleUsedInside()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 [Test]
                 public void Test()
                 {
@@ -524,8 +497,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task VariableAssignedOutsideAssertMultipleUsedInside()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 [Test]
                 public void Test()
                 {
@@ -549,8 +520,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task VariableAssignedUsedInsideLambda()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 [Test]
                 public void Test()
                 {
@@ -569,8 +538,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task VariableAssertedUsedInsideLambda()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 [Test]
                 public void Test()
                 {
@@ -591,8 +558,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task NestedStatements()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 [Test]
                 public void Test()
                 {

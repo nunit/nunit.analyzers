@@ -8,7 +8,7 @@
 | Severity | Error
 | Enabled  | True
 | Category | Assertion
-| Code     | [SameAsOnValueTypesAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/SameAsOnValueTypes/SameAsOnValueTypesAnalyzer.cs)
+| Code     | [SameAsOnValueTypesAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers.common/SameAsOnValueTypes/SameAsOnValueTypesAnalyzer.cs)
 
 ## Description
 

@@ -8,7 +8,7 @@
 | Severity | Info
 | Enabled  | True
 | Category | Assertion
-| Code     | [ComparisonConstraintUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/ConstraintUsage/ComparisonConstraintUsageAnalyzer.cs)
+| Code     | [ComparisonConstraintUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers.common/ConstraintUsage/ComparisonConstraintUsageAnalyzer.cs)
 
 ## Description
 

@@ -8,7 +8,7 @@
 | Severity | Error
 | Enabled  | True
 | Category | Structure
-| Code     | [TestCaseUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/TestCaseUsage/TestCaseUsageAnalyzer.cs)
+| Code     | [TestCaseUsageAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers.common/TestCaseUsage/TestCaseUsageAnalyzer.cs)
 
 ## Description
 

@@ -8,7 +8,7 @@
 | Severity | Error
 | Enabled  | True
 | Category | Assertion
-| Code     | [EqualToIncompatibleTypesAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/EqualToIncompatibleTypes/EqualToIncompatibleTypesAnalyzer.cs)
+| Code     | [EqualToIncompatibleTypesAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers.common/EqualToIncompatibleTypes/EqualToIncompatibleTypesAnalyzer.cs)
 
 ## Description
 

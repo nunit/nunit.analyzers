@@ -204,7 +204,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
                 class A : IComparable<B>
                 {
-                    public int CompareTo(B other) => 0;
+                    public int CompareTo(B? other) => 0;
                 }
 
                 class B { }
@@ -231,7 +231,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
 
                 class B : IComparable<A>
                 {
-                    public int CompareTo(A other) => 0;
+                    public int CompareTo(A? other) => 0;
                 }
 
                 class Tests
@@ -294,7 +294,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
     class B { }
     class ABComparer : IComparer
     {
-        public int Compare(object x, object y) => 0;
+        public int Compare(object? x, object? y) => 0;
     }
 
     public class Tests
@@ -359,7 +359,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
                 class AsInt32Comparer : IComparer
                 {
-                    public int Compare(object x, object y) => Convert.ToInt32(x).CompareTo(Convert.ToInt32(y));
+                    public int Compare(object? x, object? y) => Convert.ToInt32(x).CompareTo(Convert.ToInt32(y));
                 }
 
                 [Test]
@@ -377,11 +377,11 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
                 class A : IComparable<A>
                 {
-                    public int CompareTo(A other) => 0;
+                    public int CompareTo(A? other) => 0;
                 }
                 class B : IComparable<B>
                 {
-                    public int CompareTo(B other) => 0;
+                    public int CompareTo(B? other) => 0;
                 }
 
                 class TestClass
@@ -404,7 +404,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
                 class A : IComparable<A>, IComparable<double>
                 {
-                    public int CompareTo(A other) => 0;
+                    public int CompareTo(A? other) => 0;
                     public int CompareTo(double other) => 0;
                 }
 
@@ -431,11 +431,11 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
                 class A : IComparable
                 {
-                    public int CompareTo(object other) => 0;
+                    public int CompareTo(object? other) => 0;
                 }
                 class B : IComparable
                 {
-                    public int CompareTo(object other) => 0;
+                    public int CompareTo(object? other) => 0;
                 }
 
                 class TestClass
@@ -458,7 +458,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
                 class A : IComparable
                 {
-                    public int CompareTo(object other) => 0;
+                    public int CompareTo(object? other) => 0;
                 }
 
                 class TestClass
@@ -484,7 +484,7 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                 }
                 class B
                 {
-                    public int CompareTo(A other) => 0;
+                    public int CompareTo(A? other) => 0;
                 }
 
                 class TestClass

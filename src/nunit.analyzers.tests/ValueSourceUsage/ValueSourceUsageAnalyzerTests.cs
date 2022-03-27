@@ -214,9 +214,9 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
             RoslynAssert.Valid(analyzer, testCode);
         }
 
-        [TestCase("private static readonly object TestCases = null;", "object")]
-        [TestCase("private static object TestCases => null;", "object")]
-        [TestCase("private static object TestCases() => null;", "object")]
+        [TestCase("private static readonly object? TestCases = null;", "object?")]
+        [TestCase("private static object? TestCases => null;", "object?")]
+        [TestCase("private static object? TestCases() => null;", "object?")]
         [TestCase("private static readonly int TestCases = 1;", "int")]
         [TestCase("private static int TestCases => 1;", "int")]
         [TestCase("private static int TestCases() => 1;", "int")]
@@ -228,7 +228,9 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public class AnalyzeWhenSourceDoesProvideIEnumerable
     {{
+#pragma warning disable CS0414 // Consider changing the field to a 'const'
         {testCaseMember}
+#pragma warning restore CS0414
 
         [Test]
         public void Test([ValueSource(nameof(TestCases))] int number)

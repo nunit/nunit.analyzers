@@ -8,7 +8,7 @@
 | Severity | Error
 | Enabled  | True
 | Category | Structure
-| Code     | [TestMethodAccessibilityLevelAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/TestMethodAccessibilityLevel/TestMethodAccessibilityLevelAnalyzer.cs)
+| Code     | [TestMethodAccessibilityLevelAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers.common/TestMethodAccessibilityLevel/TestMethodAccessibilityLevelAnalyzer.cs)
 
 ## Description
 

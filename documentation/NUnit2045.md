@@ -8,7 +8,7 @@
 | Severity | Info
 | Enabled  | True
 | Category | Assertion
-| Code     | [UseAssertMultipleAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/UseAssertMultiple/UseAssertMultipleAnalyzer.cs)
+| Code     | [UseAssertMultipleAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers.common/UseAssertMultiple/UseAssertMultipleAnalyzer.cs)
 
 ## Description
 

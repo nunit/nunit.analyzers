@@ -8,7 +8,7 @@
 | Severity | Info
 | Enabled  | True
 | Category | Suppressor
-| Code     | [NonNullableFieldOrPropertyIsUninitializedSuppressor](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/DiagnosticSuppressors/NonNullableFieldOrPropertyIsUninitializedSuppressor.cs)
+| Code     | [NonNullableFieldOrPropertyIsUninitializedSuppressor](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers.roslyn3x/DiagnosticSuppressors/NonNullableFieldOrPropertyIsUninitializedSuppressor.cs)
 
 ## Description
 

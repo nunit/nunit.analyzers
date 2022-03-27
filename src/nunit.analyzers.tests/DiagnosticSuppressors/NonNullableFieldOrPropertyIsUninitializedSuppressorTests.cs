@@ -13,8 +13,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task FieldNotAssigned()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 private string field;
 
                 [Test]
@@ -34,8 +32,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task FieldAssigned(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
                 private string field;
 
                 [{attribute}]
@@ -61,8 +57,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task FieldAssignedUsingExpressionBody(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
                 private string field;
 
                 [{attribute}]
@@ -82,8 +76,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task FieldNotAssignedInConstructor(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
                 private string testName;
                 private string nunitField;
 
@@ -114,8 +106,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task PropertyNotAssigned()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
                 protected string Property {{ get; private set; }}
 
                 [Test]
@@ -134,8 +124,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task PropertyAssigned(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
                 protected string Property {{ get; private set; }}
 
                 [{attribute}]
@@ -161,8 +149,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task FieldAssignedInCalledMethod(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
                 private string field;
 
                 [{attribute}]
@@ -193,8 +179,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task FieldAssignedInCalledMethods(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
                 private double numericField;
                 private string textField;
 
@@ -241,8 +225,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         public async Task FieldIndirectAssignedThroughBaseClassSetupMethod(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@$"
-            #nullable enable
-
             public class BaseClass
             {{
                 [{attribute}]

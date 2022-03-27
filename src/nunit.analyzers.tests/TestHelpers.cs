@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests
 {
@@ -16,8 +19,9 @@ namespace NUnit.Analyzers.Tests
 
             return CSharpCompilation.Create(Guid.NewGuid().ToString("N"),
                 syntaxTrees,
-                references: MetadataReferences.FromAttributes(),
+                references: Settings.Default.MetadataReferences,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
+                    nullableContextOptions: NullableContextOptions.Enable,
                     reportSuppressedDiagnostics: true));
         }
 
@@ -27,7 +31,7 @@ namespace NUnit.Analyzers.Tests
 
             var compilation = CSharpCompilation.Create(Guid.NewGuid().ToString("N"),
                 syntaxTrees: new[] { tree },
-                references: MetadataReferences.FromAttributes(),
+                references: Settings.Default.MetadataReferences,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
             var model = compilation.GetSemanticModel(tree);

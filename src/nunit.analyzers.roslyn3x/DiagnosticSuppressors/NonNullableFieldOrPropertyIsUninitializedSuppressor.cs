@@ -1,5 +1,3 @@
-#if !NETSTANDARD1_6
-
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -13,7 +11,7 @@ using BindingFlags = System.Reflection.BindingFlags;
 namespace NUnit.Analyzers.DiagnosticSuppressors
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class NonNullableFieldOrPropertyIsUninitializedSuppressor : DiagnosticSuppressor
+    public sealed class NonNullableFieldOrPropertyIsUninitializedSuppressor : BaseNUnitDiagnosticSuppressor
     {
         internal static readonly SuppressionDescriptor NullableFieldOrPropertyInitializedInSetUp = new(
             id: AnalyzerIdentifiers.NonNullableFieldOrPropertyIsUninitialized,
@@ -193,5 +191,3 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         }
     }
 }
-
-#endif

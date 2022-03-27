@@ -8,7 +8,7 @@
 | Severity | Info
 | Enabled  | True
 | Category | Suppressor
-| Code     | [DereferencePossiblyNullReferenceSuppressor](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/DiagnosticSuppressors/DereferencePossiblyNullReferenceSuppressor.cs)
+| Code     | [DereferencePossiblyNullReferenceSuppressor](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers.roslyn3x/DiagnosticSuppressors/DereferencePossiblyNullReferenceSuppressor.cs)
 
 ## Description
 

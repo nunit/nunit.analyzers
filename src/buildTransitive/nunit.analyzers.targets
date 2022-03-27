@@ -1,0 +1,25 @@
+﻿<Project>
+
+  <!-- Required for supporting .NET SDK < 6 (and VS < 2022) which would otherwise also reference the v4 assembly -->
+  <Target Name="_NUnitAnalyzersRemoveAnalyzersNotMatchingRoslynVersion4"
+          Condition="'$(SupportsRoslynComponentVersioning)' != 'true'"
+          AfterTargets="ResolvePackageDependenciesForBuild;ResolveNuGetPackageAssets">
+    <ItemGroup>
+      <Analyzer Remove="@(Analyzer)" Condition="
+        '%(Analyzer.NuGetPackageId)' == 'NUnit.Analyzers'
+        and $([System.String]::Copy('%(Analyzer.Identity)').Contains('roslyn4'))"/>
+    </ItemGroup>
+  </Target>
+
+  <!-- Required for supporting .NET SDK < 5 (and VS < 2017) which would otherwise also reference the v3 assembly -->
+  <Target Name="_NUnitAnalyzersRemoveAnalyzersNotMatchingRoslynVersion3"
+          Condition="$(MSBuildVersion.StartsWith('15'))"
+          AfterTargets="ResolvePackageDependenciesForBuild;ResolveNuGetPackageAssets">
+    <ItemGroup>
+      <Analyzer Remove="@(Analyzer)" Condition="
+        '%(Analyzer.NuGetPackageId)' == 'NUnit.Analyzers'
+        and $([System.String]::Copy('%(Analyzer.Identity)').Contains('roslyn3'))"/>
+    </ItemGroup>
+  </Target>
+
+</Project>

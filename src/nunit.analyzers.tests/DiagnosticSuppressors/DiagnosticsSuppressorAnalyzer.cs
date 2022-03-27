@@ -7,8 +7,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Framework;
 
-#nullable enable
-
 namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 {
     public static class DiagnosticsSuppressorAnalyzer
