@@ -14,7 +14,7 @@
   <!-- Required for supporting .NET SDK < 5 (and VS < 2017) which would otherwise also reference the v3 assembly -->
   <Target Name="_NUnitAnalyzersRemoveAnalyzersNotMatchingRoslynVersion3"
           Condition="$(MSBuildVersion.StartsWith('15'))"
-          AfterTargets="ResolvePackageDependenciesForBuild;ResolveNuGetPackageAssets">
+          AfterTargets="_NUnitAnalyzersRemoveAnalyzersNotMatchingRoslynVersion4">
     <ItemGroup>
       <Analyzer Remove="@(Analyzer)" Condition="
         '%(Analyzer.NuGetPackageId)' == 'NUnit.Analyzers'

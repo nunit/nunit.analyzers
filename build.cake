@@ -4,18 +4,12 @@
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Debug");
-var targetFramework = Argument("targetFramework", "netstandard2.0");
 
 //////////////////////////////////////////////////////////////////////
 // SET PACKAGE VERSION
 //////////////////////////////////////////////////////////////////////
 
-var isNetstandard16Build = targetFramework == "netstandard1.6";
-var isNetstandard20Build = targetFramework == "netstandard2.0";
-
-var version = isNetstandard20Build
-    ? "3.4.0"
-    : "2.4.0";
+var version = "4.0.0";
 
 var isAppveyor = BuildSystem.IsRunningOnAppVeyor;
 var dbgSuffix = configuration == "Debug" ? "-dbg" : "";
@@ -44,7 +38,7 @@ var TEST_PROJECT = SRC_DIR + "nunit.analyzers.tests/nunit.analyzers.tests.csproj
 // Package sources for nuget restore
 var PACKAGE_SOURCE = new string[]
 {
-    "https://www.nuget.org/api/v2",
+    "https://api.nuget.org/v3/index.json"
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -59,10 +53,6 @@ Setup(context =>
         if (tag.IsTag)
         {
             var tagName = tag.Name;
-            if (isNetstandard16Build && tagName.StartsWith("3"))
-            {
-                tagName = '2' + tagName.Substring(1);
-            }
 
             packageVersion = tagName;
             packageVersionString = tagName;
@@ -103,17 +93,6 @@ Setup(context =>
 
     // Executed BEFORE the first task.
     Information("Building {0} version \"{1}\" / {2} of NUnit.Analyzers", configuration, packageVersion, packageVersionString);
-
-    foreach(var assemblyInfo in GetFiles("./src/**/AssemblyInfo.cs"))
-    {
-        CreateAssemblyInfo(
-            assemblyInfo.ChangeExtension(".Generated.cs"),
-            new AssemblyInfoSettings
-            {
-                Version = packageVersion,
-                FileVersion = packageVersion
-            });
-    }
 });
 
 //////////////////////////////////////////////////////////////////////
@@ -145,15 +124,18 @@ Task("RestorePackages")
 // BUILD
 //////////////////////////////////////////////////////////////////////
 
+using Cake.Common.Tools.DotNetCore.MSBuild;
+
 Task("Build")
     .IsDependentOn("RestorePackages")
     .Does(() =>
     {
-        DotNetCoreBuild(ANALYZER_PROJECT, new DotNetCoreBuildSettings
+        DotNetCoreBuild(SOLUTION_FILE, new DotNetCoreBuildSettings
         {
             Configuration = configuration,
             Verbosity = DotNetCoreVerbosity.Minimal,
-            NoRestore = true
+            NoRestore = true,
+            MSBuildSettings = new DotNetCoreMSBuildSettings().WithProperty("Version", packageVersion),
         });
     });
 
@@ -167,6 +149,7 @@ Task("Test")
     {
         DotNetCoreTest(TEST_PROJECT, new DotNetCoreTestSettings
         {
+            NoBuild = true,
             Configuration = configuration,
             Loggers = new string[] { "trx" },
             VSTestReportPath = "TestResult.xml",
@@ -189,14 +172,13 @@ Task("Pack")
     .IsDependentOn("Build")
     .Does(() =>
     {
-        NuGetPack("./src/nunit.analyzers/nunit.analyzers.nuspec", new NuGetPackSettings()
+        NuGetPack("./nunit.analyzers.nuspec", new NuGetPackSettings()
         {
             Version = packageVersionString,
-            OutputDirectory = PACKAGE_DIR + "/" + targetFramework,
+            OutputDirectory = PACKAGE_DIR,
             Properties = new Dictionary<string, string>()
             {
                 {"Configuration", configuration},
-                {"TargetFramework", targetFramework }
             }
         });
     });

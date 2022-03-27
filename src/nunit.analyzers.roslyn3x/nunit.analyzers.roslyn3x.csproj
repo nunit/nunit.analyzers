@@ -10,8 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\nunit.analyzers.common\nunit.analyzers.common.csproj"
-                      SetTargetFramework="TargetFramework=netstandard2.0" />
+    <ProjectReference Include="..\nunit.analyzers.common\nunit.analyzers.common.csproj" />
   </ItemGroup>
 
 </Project>
