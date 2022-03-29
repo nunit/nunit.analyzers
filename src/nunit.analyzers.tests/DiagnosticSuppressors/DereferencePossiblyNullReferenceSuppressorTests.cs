@@ -616,5 +616,31 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
                                                .ConfigureAwait(false);
         }
+
+        [Test]
+        public async Task TestIssue436()
+        {
+            // Test is changed from actual issue by replacing the .Select with an [1].
+            // The original code would not give null reference issues on the .Select for the .NET Framework
+            // because System.Linq is not annotated and therefore the compiler doesn't know null is not allowed.
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                #nullable enable
+
+                [TestCase(null)]
+                public void HasCountShouldNotAffectNullabilitySuppression(List<int>? maybeNull)
+                {
+                    Assert.That(maybeNull, Is.Not.Null);
+                    Assert.Multiple(() =>
+                    {
+                        Assert.That(maybeNull, Has.Count.EqualTo(2));
+                        Assert.That(maybeNull[1], Is.EqualTo(1));
+                    });
+                }
+            ", @"using System.Collections.Generic;");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8604"], testCode)
+                .ConfigureAwait(false);
+        }
     }
 }
