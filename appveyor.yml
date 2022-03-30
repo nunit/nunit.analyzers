@@ -1,8 +1,8 @@
 image: Visual Studio 2022
 
 build_script:
-  - ps: .\build.ps1 -Target "Appveyor" -Configuration "Release" -TargetFramework "netstandard1.6"
-  - ps: .\build.ps1 -Target "Appveyor" -Configuration "Release" -TargetFramework "netstandard2.0"
+  - ps: .\build.ps1 --target="Appveyor" --configuration="Release" --targetFramework="netstandard1.6"
+  - ps: .\build.ps1 --target="Appveyor" --configuration="Release" --targetFramework="netstandard2.0"
 
 # disable built-in tests.
 test: off
