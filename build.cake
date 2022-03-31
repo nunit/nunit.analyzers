@@ -103,17 +103,6 @@ Setup(context =>
 
     // Executed BEFORE the first task.
     Information("Building {0} version \"{1}\" / {2} of NUnit.Analyzers", configuration, packageVersion, packageVersionString);
-
-    foreach(var assemblyInfo in GetFiles("./src/**/AssemblyInfo.cs"))
-    {
-        CreateAssemblyInfo(
-            assemblyInfo.ChangeExtension(".Generated.cs"),
-            new AssemblyInfoSettings
-            {
-                Version = packageVersion,
-                FileVersion = packageVersion
-            });
-    }
 });
 
 //////////////////////////////////////////////////////////////////////
@@ -135,7 +124,7 @@ Task("Clean")
 Task("RestorePackages")
     .Does(() =>
     {
-        DotNetCoreRestore(SOLUTION_FILE, new DotNetCoreRestoreSettings 
+        DotNetRestore(SOLUTION_FILE, new DotNetRestoreSettings 
         {
             Sources = PACKAGE_SOURCE,
         });
@@ -149,11 +138,15 @@ Task("Build")
     .IsDependentOn("RestorePackages")
     .Does(() =>
     {
-        DotNetCoreBuild(ANALYZER_PROJECT, new DotNetCoreBuildSettings
+        DotNetBuild(ANALYZER_PROJECT, new DotNetBuildSettings
         {
             Configuration = configuration,
-            Verbosity = DotNetCoreVerbosity.Minimal,
-            NoRestore = true
+            Verbosity = DotNetVerbosity.Minimal,
+            NoRestore = true,
+            MSBuildSettings = new DotNetMSBuildSettings
+            {
+                Version = packageVersion
+            }
         });
     });
 
@@ -165,7 +158,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
     {
-        DotNetCoreTest(TEST_PROJECT, new DotNetCoreTestSettings
+        DotNetTest(TEST_PROJECT, new DotNetTestSettings
         {
             Configuration = configuration,
             Loggers = new string[] { "trx" },
