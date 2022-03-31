@@ -46,26 +46,15 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     continue;
                 }
 
-                // Was the offending variable assigned or verified to be not null inside an Assert.Multiple?
-                // NUnit doesn't throw on failures and therefore the compiler is correct.
-                if (ShouldBeSuppressed(node, out SyntaxNode? suppressionCause) && !AssertHelper.IsInsideAssertMultiple(suppressionCause))
+                if (ShouldBeSuppressed(node))
                 {
                     context.ReportSuppression(Suppression.Create(SuppressionDescriptors[diagnostic.Id], diagnostic));
                 }
             }
         }
 
-        private static bool ShouldBeSuppressed(SyntaxNode node, [NotNullWhen(true)] out SyntaxNode? suppressionCause)
+        private static bool ShouldBeSuppressed(SyntaxNode node)
         {
-            suppressionCause = default(SyntaxNode);
-
-            if (IsKnownToBeNotNull(node))
-            {
-                // Known to be not null value assigned or passed to non-nullable type.
-                suppressionCause = node;
-                return true;
-            }
-
             string possibleNullReference = node.ToString();
             if (node is CastExpressionSyntax castExpression)
             {
@@ -73,36 +62,36 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 possibleNullReference = castExpression.Expression.ToString();
             }
 
-            bool validatedNotNull;
-
-            do
+            for (SyntaxNode? currentNode = node; currentNode is not null;)
             {
-                BlockSyntax? parent = node.Ancestors().OfType<BlockSyntax>().FirstOrDefault();
+                StatementSyntax? statement = currentNode.Ancestors().OfType<StatementSyntax>().FirstOrDefault();
 
-                if (parent is null)
+                if (statement is null)
                 {
-                    return false;
+                    break;
                 }
 
-                validatedNotNull = IsValidatedNotNull(possibleNullReference, parent, node, out suppressionCause);
-                if (parent.Parent is null)
+                BlockSyntax? parent = statement.Ancestors().OfType<BlockSyntax>().FirstOrDefault();
+
+                // If the statement is inside an Assert.Multiple NUnit doesn't throw
+                // flow continues with actual null values and therefore these shouldn't be suppressed.
+                if (!AssertHelper.IsInsideAssertMultiple(statement))
                 {
-                    return false;
+                    if (IsKnownToBeNotNull(currentNode) ||
+                        (parent is not null && IsValidatedNotNullByPreviousStatementInSameBlock(possibleNullReference, parent, statement)))
+                    {
+                        return true;
+                    }
                 }
 
-                node = parent.Parent;
+                currentNode = parent;
             }
-            while (!validatedNotNull);
 
-            return validatedNotNull;
+            return false;
         }
 
-        private static bool IsValidatedNotNull(string possibleNullReference, BlockSyntax parent, SyntaxNode node,
-                                               [NotNullWhen(true)] out SyntaxNode? suppressionCause)
+        private static bool IsValidatedNotNullByPreviousStatementInSameBlock(string possibleNullReference, BlockSyntax parent, StatementSyntax statement)
         {
-            suppressionCause = default(SyntaxNode);
-
-            StatementSyntax? statement = node?.AncestorsAndSelf().OfType<StatementSyntax>().FirstOrDefault();
             var siblings = parent.ChildNodes().ToList();
 
             // Look in earlier statements to see if the variable was previously checked for null.
@@ -110,7 +99,6 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             {
                 SyntaxNode previous = siblings[nodeIndex];
 
-                suppressionCause = previous;
                 if (previous is ExpressionStatementSyntax expressionStatement)
                 {
                     if (expressionStatement.Expression is AssignmentExpressionSyntax assignmentExpression)
