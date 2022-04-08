@@ -107,7 +107,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {{
                     var expected = 5;
-                    Assert.That(↓4, Is.Not.EqualTo(3).And.Not.EqualTo(5));
+                    Assert.That(↓4, Is.Not.EqualTo(3).And.Not.EqualTo(expected));
                 }}");
 
             RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, code);

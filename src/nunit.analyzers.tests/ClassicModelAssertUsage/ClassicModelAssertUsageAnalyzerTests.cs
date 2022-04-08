@@ -264,7 +264,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            object obj = null;
+            object? obj = null;
             ↓Assert.IsNull(obj);
         }
     }");
@@ -281,7 +281,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            object obj = null;
+            object? obj = null;
             ↓Assert.Null(obj);
         }
     }");
@@ -298,7 +298,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            object obj = null;
+            object? obj = null;
             ↓Assert.IsNotNull(obj);
         }
     }");
@@ -315,7 +315,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            object obj = null;
+            object? obj = null;
             ↓Assert.NotNull(obj);
         }
     }");
@@ -328,7 +328,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenInvocationIsNotWithinAMethod
     {
-        private static readonly string fullTypeName = typeof(string).GetType().FullName;
+        private static readonly string fullTypeName = typeof(string).GetType().FullName!;
     }");
             RoslynAssert.Valid(this.analyzer, testCode);
         }

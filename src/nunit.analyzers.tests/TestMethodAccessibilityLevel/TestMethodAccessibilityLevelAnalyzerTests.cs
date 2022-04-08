@@ -137,7 +137,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [Test]
-        {modifiers} async Task ↓TestMethod() {{ }}");
+        {modifiers} async Task ↓TestMethod() {{ await Task.CompletedTask; }}");
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
@@ -146,7 +146,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [TestCase(1)]
-        {modifiers} async Task ↓TestMethod(int i) {{ }}");
+        {modifiers} async Task ↓TestMethod(int i) {{ await Task.CompletedTask; }}");
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
     }

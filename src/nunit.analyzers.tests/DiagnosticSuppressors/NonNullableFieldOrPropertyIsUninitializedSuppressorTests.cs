@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.DiagnosticSuppressors;
 using NUnit.Framework;
@@ -10,12 +11,10 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         private static readonly DiagnosticSuppressor suppressor = new NonNullableFieldOrPropertyIsUninitializedSuppressor();
 
         [Test]
-        public async Task FieldNotAssigned()
+        public void FieldNotAssigned()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
-                private string field;
+                private string ↓field;
 
                 [Test]
                 public void Test()
@@ -25,18 +24,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 }
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
-                                               .ConfigureAwait(false);
+            RoslynAssert.NotSuppressed(suppressor, testCode);
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public async Task FieldAssigned(string attribute, string prefix)
+        public void FieldAssigned(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
-                private string field;
+                private string ↓field;
 
                 [{attribute}]
                 public void Initialize()
@@ -51,19 +47,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor, testCode);
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public async Task FieldAssignedUsingExpressionBody(string attribute, string prefix)
+        public void FieldAssignedUsingExpressionBody(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
-                private string field;
+                private string ↓field;
 
                 [{attribute}]
                 public void Initialize() => {prefix}field = string.Empty;
@@ -72,22 +64,18 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 public void Test() => Assert.That({prefix}field, Is.Not.Null);
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor, testCode);
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public async Task FieldNotAssignedInConstructor(string attribute, string prefix)
+        public void FieldNotAssignedInConstructor(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
                 private string testName;
                 private string nunitField;
 
-                public TestClass(string name)
+                public ↓TestClass(string name)
                 {{
                     {prefix}testName = name;
                 }}
@@ -105,18 +93,14 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor, testCode);
         }
 
         [Test]
-        public async Task PropertyNotAssigned()
+        public void PropertyNotAssigned()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
-                protected string Property {{ get; private set; }}
+                protected string ↓Property {{ get; private set; }}
 
                 [Test]
                 public void Test()
@@ -125,18 +109,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
-                                               .ConfigureAwait(false);
+            RoslynAssert.NotSuppressed(suppressor, testCode);
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public async Task PropertyAssigned(string attribute, string prefix)
+        public void PropertyAssigned(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
-                protected string Property {{ get; private set; }}
+                protected string ↓Property {{ get; private set; }}
 
                 [{attribute}]
                 public void Initialize()
@@ -151,19 +132,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor, testCode);
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public async Task FieldAssignedInCalledMethod(string attribute, string prefix)
+        public void FieldAssignedInCalledMethod(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
-                private string field;
+                private string ↓field;
 
                 [{attribute}]
                 public void Initialize()
@@ -183,20 +160,16 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor, testCode);
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public async Task FieldAssignedInCalledMethods(string attribute, string prefix)
+        public void FieldAssignedInCalledMethods(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
-
                 private double numericField;
-                private string textField;
+                private string ↓textField;
 
                 [{attribute}]
                 public void Initialize()
@@ -231,18 +204,14 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor, testCode);
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public async Task FieldIndirectAssignedThroughBaseClassSetupMethod(string attribute, string prefix)
+        public void FieldIndirectAssignedThroughBaseClassSetupMethod(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@$"
-            #nullable enable
-
             public class BaseClass
             {{
                 [{attribute}]
@@ -259,7 +228,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             [TestFixture]
             public class TestClass : BaseClass
             {{
-                private string field;
+                private string ↓field;
 
                 [Test]
                 public void Test()
@@ -276,13 +245,12 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             // This is not supported as the BaseClass could be in an external library.
             // We therefore cannot validate that its SetUp method calls into our overridden method.
-            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
-                                               .ConfigureAwait(false);
+            RoslynAssert.NotSuppressed(suppressor, testCode);
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public async Task FieldAssignedThroughOverriddenBaseClassSetupMethod(string attribute, string prefix)
+        public void FieldAssignedThroughOverriddenBaseClassSetupMethod(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@$"
             #nullable enable
@@ -300,7 +268,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             {{
                 private const string Default = ""Default"";
 
-                private string field;
+                private string ↓field;
 
                 public override void Initialize()
                 {{
@@ -315,9 +283,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor, testCode);
         }
     }
 }

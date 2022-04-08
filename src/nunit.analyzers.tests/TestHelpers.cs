@@ -16,8 +16,9 @@ namespace NUnit.Analyzers.Tests
 
             return CSharpCompilation.Create(Guid.NewGuid().ToString("N"),
                 syntaxTrees,
-                references: MetadataReferences.FromAttributes(),
+                references: Settings.Default.MetadataReferences,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
+                    nullableContextOptions: NullableContextOptions.Enable,
                     reportSuppressedDiagnostics: true));
         }
 
@@ -27,7 +28,7 @@ namespace NUnit.Analyzers.Tests
 
             var compilation = CSharpCompilation.Create(Guid.NewGuid().ToString("N"),
                 syntaxTrees: new[] { tree },
-                references: MetadataReferences.FromAttributes(),
+                references: Settings.Default.MetadataReferences,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
             var model = compilation.GetSemanticModel(tree);

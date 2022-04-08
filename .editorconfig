@@ -139,6 +139,10 @@ dotnet_diagnostic.IDE0046.severity = none
 # Requires runtime support not available on .NET Framework
 csharp_style_prefer_range_operator = false
 
+# Rule is buggy, it says suppression can be removed when they cannot.
+# IDE0079: Remove unnecessary suppression
+dotnet_diagnostic.IDE0079.severity = none
+
 ##################################################################################
 # StyleCop Analyzers
 

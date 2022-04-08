@@ -141,14 +141,14 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
                 class A : IEnumerable<A>
                 {
-                    public IEnumerator<A> GetEnumerator() => null;
-                    IEnumerator IEnumerable.GetEnumerator() => null;
+                    public IEnumerator<A> GetEnumerator() => null!;
+                    IEnumerator IEnumerable.GetEnumerator() => null!;
                 }
 
                 class B : IEnumerable<B>
                 {
-                    public IEnumerator<B> GetEnumerator() => null;
-                    IEnumerator IEnumerable.GetEnumerator() => null;
+                    public IEnumerator<B> GetEnumerator() => null!;
+                    IEnumerator IEnumerable.GetEnumerator() => null!;
                 }
 
                 public class Tests
@@ -604,7 +604,7 @@ using System.Collections.Generic;");
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
                 class A : IEquatable<B>
                 {
-                    public bool Equals(B other) => true;
+                    public bool Equals(B? other) => true;
                 }
 
                 class B { }
@@ -631,7 +631,7 @@ using System.Collections.Generic;");
 
                 class B : IEquatable<A>
                 {
-                    public bool Equals(A other) => true;
+                    public bool Equals(A? other) => true;
                 }
 
                 public class Tests
@@ -654,7 +654,7 @@ using System.Collections.Generic;");
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
                 class B : IEquatable<string>, IEnumerable<string>
                 {
-                    public bool Equals(string other) => true;
+                    public bool Equals(string? other) => true;
 
                     public IEnumerator<string> GetEnumerator() => new List<string>().GetEnumerator();
                     IEnumerator IEnumerable.GetEnumerator() => new List<string>().GetEnumerator();
@@ -756,7 +756,7 @@ using System.Collections.Generic;");
             var testCode = TestUtility.WrapInTestMethod(@"
             int? actual = 5;
             int expected = 5;
-            Assert.That(actual, Is.EqualTo(5));");
+            Assert.That(actual, Is.EqualTo(expected));");
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -871,7 +871,7 @@ using System.Collections.Generic;");
         [Test]
         public void NoDiagnosticWhenComparingDelegate()
         {
-            var testCode = TestUtility.WrapInAsyncTestMethod(@"
+            var testCode = TestUtility.WrapInTestMethod(@"
                 Action x = () => {};
                 var y = x;
                 Assert.That(y, Is.EqualTo(x));");
