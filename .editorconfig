@@ -139,6 +139,12 @@ dotnet_diagnostic.IDE0046.severity = none
 # Requires runtime support not available on .NET Framework
 csharp_style_prefer_range_operator = false
 
+##################################################################################
+# StyleCop Analyzers
+
+stylecop.documentation.xmlHeader = false
+stylecop.naming.tupleElementNameCasing = camelCase
+
 # SA0001: Xml comment analysis disabled
 dotnet_diagnostic.SA0001.severity = none
 
