@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -72,7 +74,8 @@ namespace NUnit.Analyzers.UseCollectionConstraint
 
             MemberAccessExpressionSyntax? emptyOrNotEmptyExpression = MatchWithEmpty(constraintMemberExpression,
                 constraintExpression, innerConstraintExpression);
-            if (emptyOrNotEmptyExpression is not null)
+            if (emptyOrNotEmptyExpression is not null &&
+                await IsCollectionType(context, actualExpression.Expression).ConfigureAwait(false))
             {
                 nodesToReplace.Add(constraintArgument.Expression, emptyOrNotEmptyExpression);
 
@@ -100,6 +103,30 @@ namespace NUnit.Analyzers.UseCollectionConstraint
                 description);
 
             context.RegisterCodeFix(codeAction, context.Diagnostics);
+        }
+
+        private static async Task<bool> IsCollectionType(CodeFixContext context, ExpressionSyntax expression)
+        {
+            var model = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+            if (model is null)
+            {
+                return false;
+            }
+
+            TypeInfo typeInfo = model.GetTypeInfo(expression, context.CancellationToken);
+            ITypeSymbol? typeSymbol = typeInfo.Type;
+            if (typeSymbol is null)
+            {
+                return false;
+            }
+
+            var enumerable = model.Compilation.GetTypeByMetadataName("System.Collections.IEnumerable");
+            if (enumerable is null)
+            {
+                return false;
+            }
+
+            return typeSymbol.AllInterfaces.Contains(enumerable);
         }
 
         private static MemberAccessExpressionSyntax? MatchWithEmpty(

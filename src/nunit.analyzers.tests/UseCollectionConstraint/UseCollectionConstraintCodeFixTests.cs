@@ -112,5 +112,48 @@ namespace NUnit.Analyzers.Tests.UseCollectionConstraint
         }", "using System.Collections.Generic;");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
+
+        [Test]
+        public void VerifyNotUsingEmptyOnNonEnumerable()
+        {
+            var code = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        [TestFixture]
+        public class TestClass
+        {
+            public void TestMethod()
+            {
+                var counter = new Counter();
+                Assert.That(↓counter.Count, Is.EqualTo(0), ""Should start at 0"");
+                counter.Increment();
+                Assert.That(↓counter.Count, Is.EqualTo(1), ""Should increment by 1"");
+            }
+
+            private sealed class Counter
+            {
+                public int Count { get; private set; }
+                public void Increment() => Count++;
+            }
+        }");
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        [TestFixture]
+        public class TestClass
+        {
+            public void TestMethod()
+            {
+                var counter = new Counter();
+                Assert.That(counter, Has.Count.EqualTo(0), ""Should start at 0"");
+                counter.Increment();
+                Assert.That(counter, Has.Count.EqualTo(1), ""Should increment by 1"");
+            }
+
+            private sealed class Counter
+            {
+                public int Count { get; private set; }
+                public void Increment() => Count++;
+            }
+        }");
+
+            RoslynAssert.FixAll(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
     }
 }
