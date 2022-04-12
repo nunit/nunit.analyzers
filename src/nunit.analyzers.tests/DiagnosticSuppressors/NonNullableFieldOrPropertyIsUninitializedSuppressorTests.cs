@@ -279,5 +279,45 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
                                                .ConfigureAwait(false);
         }
+
+        [TestCase("SetUp", "")]
+        [TestCase("OneTimeSetUp", "this.")]
+        public async Task FieldAssignedThroughOverriddenBaseClassSetupMethod(string attribute, string prefix)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@$"
+            #nullable enable
+
+            public abstract class BaseClass
+            {{
+                [{attribute}]
+                public virtual void Initialize()
+                {{
+                }}
+            }}
+
+            [TestFixture]
+            public sealed class TestClass : BaseClass
+            {{
+                private const string Default = ""Default"";
+
+                private string field;
+
+                public override void Initialize()
+                {{
+                    {prefix}field = Default;
+                }}
+
+                [Test]
+                public void Test()
+                {{
+                    Assert.That({prefix}field, Is.EqualTo(Default));
+                }}
+            }}
+            ");
+
+            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
+                NonNullableFieldOrPropertyIsUninitializedSuppressor.NullableFieldOrPropertyInitializedInSetUp, testCode)
+                .ConfigureAwait(false);
+        }
     }
 }

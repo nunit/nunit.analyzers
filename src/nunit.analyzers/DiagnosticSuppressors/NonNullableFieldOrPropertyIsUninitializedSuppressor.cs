@@ -86,8 +86,24 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 var methods = classDeclaration.Members.OfType<MethodDeclarationSyntax>();
                 foreach (var method in methods)
                 {
-                    var isSetup = method.AttributeLists.SelectMany(list => list.Attributes.Select(a => a.Name.ToString()))
-                                                       .Any(name => name == "SetUp" || name == "OneTimeSetUp");
+                    var declaredMethod = model.GetDeclaredSymbol(method) as IMethodSymbol;
+                    if (declaredMethod is null)
+                    {
+                        continue;
+                    }
+
+                    // Look for attribute not only on the method itself but
+                    // also on the base method in case this is an override.
+                    IEnumerable<AttributeData> attributes = Enumerable.Empty<AttributeData>();
+                    do
+                    {
+                        attributes = attributes.Concat(declaredMethod.GetAttributes());
+                        declaredMethod = declaredMethod.OverriddenMethod;
+                    }
+                    while (declaredMethod is not null);
+
+                    var isSetup = attributes.Any(x => x.AttributeClass?.Name is "SetUpAttribute" or "OneTimeSetUpAttribute");
+
                     if (isSetup)
                     {
                         // Find (OneTime)SetUps method and check for assignment to this field.
