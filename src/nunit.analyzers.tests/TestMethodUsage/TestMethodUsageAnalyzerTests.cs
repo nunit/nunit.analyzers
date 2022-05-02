@@ -272,6 +272,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [TestCase(0, 0)]
         public async Task ValidAsyncTest(int low, int high)
         {
+            await Task.CompletedTask;
         }
     }");
             RoslynAssert.Valid(analyzer, testCode);
@@ -286,7 +287,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         [TestCase(ExpectedResult = 1)]
         public async Task<int> AsyncGenericTaskTestCaseWithExpectedResult()
         {
-          return await Task.Run(() => 1);
+            return await Task.Run(() => 1);
         }
     }");
             RoslynAssert.Valid(analyzer, testCode);
@@ -368,6 +369,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                 [TestCase(ExpectedResult = 1)]
                 public async ValueTask<int> GenericTaskTestCaseWithExpectedResult()
                 {
+                    await Task.CompletedTask;
                     return 1;
                 }");
 
@@ -386,6 +388,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                 [TestCase(ExpectedResult = '1')]
                 public async ValueTask<int> GenericTaskTestCaseWithExpectedResult()
                 {
+                    await Task.CompletedTask;
                     return 1;
                 }");
 
@@ -505,7 +508,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class SomeTestBuilderAttribute : NUnitAttribute, ITestBuilder
     {
-        public IEnumerable<TestMethod> BuildFrom(IMethodInfo method, Test suite)
+        public IEnumerable<TestMethod> BuildFrom(IMethodInfo method, Test? suite)
         {
             return Array.Empty<TestMethod>();
         }

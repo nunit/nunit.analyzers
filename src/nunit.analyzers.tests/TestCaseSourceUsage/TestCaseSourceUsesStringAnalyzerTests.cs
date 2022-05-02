@@ -293,9 +293,9 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             RoslynAssert.Valid(analyzer, testCode);
         }
 
-        [TestCase("private static readonly object TestCases = null;", "object")]
-        [TestCase("private static object TestCases => null;", "object")]
-        [TestCase("private static object TestCases() => null;", "object")]
+        [TestCase("private static readonly object? TestCases = null;", "object?")]
+        [TestCase("private static object? TestCases => null;", "object?")]
+        [TestCase("private static object? TestCases() => null;", "object?")]
         [TestCase("private static readonly int TestCases = 1;", "int")]
         [TestCase("private static int TestCases => 1;", "int")]
         [TestCase("private static int TestCases() => 1;", "int")]
@@ -307,7 +307,9 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public class AnalyzeWhenSourceDoesProvideIEnumerable
     {{
+#pragma warning disable CS0414 // Consider changing the field to a 'const'
         {testCaseMember}
+#pragma warning restore CS0414
 
         [TestCaseSource(nameof(TestCases))]
         public void Test()
@@ -421,12 +423,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [Test]
         public void AnalyzeWhenAllInformationIsProvidedByAttributeWhenDataClassIsInSeparateAssembly()
         {
-            var testCode = @"
-    using NUnit.Framework;
-    using Project2;
-
-    namespace Project1
-    {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
         public class Tests
         {
             [Test]
@@ -435,14 +432,9 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             {
                 Assert.That(a + b, Is.EqualTo(c));
             }
-        }
-    }";
+        }");
 
-            var testDataCode = @"
-    using System.Collections;
-
-    namespace Project2
-    {
+            var testDataCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
         public static class TestData
         {
             public static IEnumerable TestCaseDataProvider()
@@ -450,15 +442,9 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 yield return new object[] { 1, 2, 3 };
                 yield return new object[] { 2, 3, 5 };
             }
-        }
-    }";
+        }", "using System.Collections;");
 
-            var testDataReference = MetadataReferences.CreateBinary(testDataCode);
-            var references = MetadataReferences.FromAttributes().Concat(new[] { testDataReference });
-
-            var solution = CodeFactory.CreateSolution(testCode,
-                CodeFactory.DefaultCompilationOptions(analyzer),
-                references);
+            var solution = CodeFactory.CreateSolution(new[] { testCode, testDataCode });
 
             RoslynAssert.Valid(analyzer, solution);
         }

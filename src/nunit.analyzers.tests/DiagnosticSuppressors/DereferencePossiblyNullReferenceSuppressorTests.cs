@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.DiagnosticSuppressors;
 using NUnit.Framework;
@@ -37,70 +38,67 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase("Assert.IsNull(s)")]
         [TestCase("Assert.Null(s)")]
         [TestCase("Assert.That(s, Is.Null)")]
-        public async Task NoValidAssert(string assert)
+        public void NoValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [TestCase("""")]
                 public void Test(string? s)
                 {{
                     {assert};
-                    Assert.That(s.Length, Is.GreaterThan(0));
+                    Assert.That(↓s.Length, Is.GreaterThan(0));
                 }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
-                                               .ConfigureAwait(false);
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [TestCase("Assert.NotNull(s)")]
         [TestCase("Assert.IsNotNull(s)")]
         [TestCase("Assert.That(s, Is.Not.Null)")]
-        public async Task WithLocalValidAssert(string assert)
+        public void WithLocalValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [TestCase("""")]
                 public void Test(string? s)
                 {{
                     {assert};
-                    Assert.That(s.Length, Is.GreaterThan(0));
+                    Assert.That(↓s.Length, Is.GreaterThan(0));
                 }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [TestCase("Assert.NotNull(s)")]
         [TestCase("Assert.IsNotNull(s)")]
         [TestCase("Assert.That(s, Is.Not.Null)")]
-        public async Task WithFieldValidAssert(string assert)
+        public void WithFieldValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 private string? s;
                 [Test]
                 public void Test()
                 {{
                     {assert};
-                    Assert.That(s.Length, Is.GreaterThan(0));
+                    Assert.That(↓s.Length, Is.GreaterThan(0));
                 }}
 
                 public void SetS(string? v) => s = v;
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [Test]
-        public async Task ReturnValue()
+        public void ReturnValue()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 [TestCase("""")]
                 public void Test(string? s)
                 {
@@ -110,25 +108,24 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 private static string DoSomething(string? s)
                 {
                     Assert.NotNull(s);
-                    return s;
+                    return ↓s;
                 }
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8603"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8603"]),
+                testCode);
         }
 
         [Test]
-        public async Task Parameter()
+        public void Parameter()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 [TestCase("""")]
                 public void Test(string? s)
                 {
                     Assert.NotNull(s);
-                    DoSomething(s);
+                    DoSomething(↓s);
                 }
 
                 private static void DoSomething(string s)
@@ -137,153 +134,150 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 }
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8604"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8604"]),
+                testCode);
         }
 
         [Test]
-        public async Task NullableCast()
+        public void NullableCast()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 [Test]
                 public void Test()
                 {
                     int? possibleNull = GetNext();
                     Assert.NotNull(possibleNull);
-                    int i = (int)possibleNull;
+                    int i = ↓(int)possibleNull;
                     Assert.That(i, Is.EqualTo(1));
                 }
 
                 private static int? GetNext() => 1;
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8629"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8629"]),
+                testCode);
         }
 
         [Test]
-        public async Task WithReassignedAfterAssert()
+        public void WithReassignedAfterAssert()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 [TestCase("""")]
                 public void Test(string? s)
                 {
                     Assert.NotNull(s);
                     s = null;
-                    Assert.That(s.Length, Is.GreaterThan(0));
+                    Assert.That(↓s.Length, Is.GreaterThan(0));
                 }
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
-                                               .ConfigureAwait(false);
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [Test]
-        public async Task WithReassignedFieldAfterAssert()
+        public void WithReassignedFieldAfterAssert()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 private string? s;
                 [Test]
                 public void Test()
                 {
                     Assert.NotNull(this.s);
                     this.s = null;
-                    Assert.That(this.s.Length, Is.GreaterThan(0));
+                    Assert.That(↓this.s.Length, Is.GreaterThan(0));
                 }
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
-                                               .ConfigureAwait(false);
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [Test]
-        public async Task WithPropertyExpression()
+        public void WithPropertyExpression()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test([Values] bool create)
                 {{
                     A? a = GetA(true);
                     Assert.That(a, Is.Not.Null);
-                    a.B = GetB(create);
+                    ↓a.B = GetB(create);
                     Assert.That(a.B, Is.Not.Null);
-                    a.B.Text = ""?"";
+                    ↓a.B.Text = ""?"";
                 }}
 
                 {ABDefinition}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [Test]
-        public async Task WithComplexExpression()
+        public void WithComplexExpression()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test([Values] bool create)
                 {{
                     A? a = GetA(create);
                     Assert.That(a?.B?.Text, Is.Not.Null);
-                    Assert.That(a.B.Text.Length, Is.GreaterThan(0));
+                    Assert.That(↓a.B.Text.Length, Is.GreaterThan(0));
                 }}
 
                 {ABDefinition}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [Test]
-        public async Task WithComplexReassignAfterAssert()
+        public void WithComplexReassignAfterAssert()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test([Values] bool create)
                 {{
                     A a = new A {{ B = new B {{ Text = ""."" }} }};
                     Assert.That(a.B.Text, Is.Not.Null);
                     a.B = new B();
-                    Assert.That(a.B.Text.Length, Is.GreaterThan(0));
+                    Assert.That(↓a.B.Text.Length, Is.GreaterThan(0));
                 }}
 
                 {ABDefinition}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
-                                               .ConfigureAwait(false);
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [Test]
-        public async Task InsideAssertMultiple()
+        public void InsideAssertMultiple()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 [TestCase("""")]
                 public void Test(string? s)
                 {
                     Assert.Multiple(() =>
                     {
                         Assert.NotNull(s);
-                        Assert.That(s.Length, Is.GreaterThan(0));
+                        Assert.That(↓s.Length, Is.GreaterThan(0));
                     });
                 }
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
-                                               .ConfigureAwait(false);
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [TestCase("Assert.True(nullable.HasValue)")]
@@ -292,21 +286,20 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase("Assert.That(nullable.HasValue)")]
         [TestCase("Assert.That(nullable.HasValue, Is.True)")]
         [TestCase("Assert.That(nullable, Is.Not.Null)")]
-        public async Task NullableWithValidAssert(string assert)
+        public void NullableWithValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [TestCase(42)]
                 public void Test(int? nullable)
                 {{
                     {assert};
-                    Assert.That(nullable.Value, Is.EqualTo(42));
+                    Assert.That(↓nullable.Value, Is.EqualTo(42));
                 }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8629"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8629"]),
+                testCode);
         }
 
         [TestCase("Assert.False(nullable.HasValue)")]
@@ -314,191 +307,179 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase("Assert.That(!nullable.HasValue)")]
         [TestCase("Assert.That(nullable.HasValue, Is.False)")]
         [TestCase("Assert.That(nullable, Is.Null)")]
-        public async Task NullableWithInvalidAssert(string assert)
+        public void NullableWithInvalidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [TestCase(42)]
                 public void Test(int? nullable)
                 {{
                     {assert};
-                    Assert.That(nullable.Value, Is.EqualTo(42));
+                    Assert.That(↓nullable.Value, Is.EqualTo(42));
                 }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8629"]),
+                testCode);
         }
 
         [Test]
-        public async Task WithIndexer()
+        public void WithIndexer()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test()
                 {{
                     string? directory = GetDirectoryName(""C:/Temp"");
 
                     Assert.That(directory, Is.Not.Null);
-                    Assert.That(directory[0], Is.EqualTo('T'));
+                    Assert.That(↓directory[0], Is.EqualTo('T'));
                 }}
 
                 // System.IO.Path.GetDirectoryName is not annotated in the libraries we are referencing.
                 private static string? GetDirectoryName(string path) => System.IO.Path.GetDirectoryName(path);
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [TestCase("var", "Throws")]
-        [TestCase("Exception", "Catch")]
-        public async Task ThrowsLocalDeclaration(string type, string assert)
+        [TestCase("Exception?", "Catch")]
+        public void ThrowsLocalDeclaration(string type, string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test()
                 {{
                     {type} ex = Assert.{assert}<Exception>(() => throw new InvalidOperationException());
-                    string m = ex.Message;
+                    string m = ↓ex.Message;
                 }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [TestCase("var", "CatchAsync")]
-        [TestCase("Exception", "ThrowsAsync")]
-        public async Task ThrowsAsyncLocalDeclaration(string type, string assert)
+        [TestCase("Exception?", "ThrowsAsync")]
+        public void ThrowsAsyncLocalDeclaration(string type, string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test()
                 {{
                     {type} ex = Assert.{assert}<Exception>(() => Task.Delay(0));
-                    string m = ex.Message;
+                    string m = ↓ex.Message;
                 }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [TestCase("var")]
-        [TestCase("Exception")]
-        public async Task ThrowsLocalDeclarationInsideAssertMultiple(string type)
+        [TestCase("Exception?")]
+        public void ThrowsLocalDeclarationInsideAssertMultiple(string type)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                #nullable enable
                 [Test]
                 public void Test()
                 {{
                     Assert.Multiple(() =>
                     {{
                         {type} ex = Assert.Throws<Exception>(() => throw new InvalidOperationException());
-                        string m = ex.Message;
+                        string m = ↓ex.Message;
                     }});
                 }}
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
-                                               .ConfigureAwait(false);
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [Test]
-        public async Task ThrowsLocalAssignment()
+        public void ThrowsLocalAssignment()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
                 [Test]
                 public void Test()
                 {
                     Exception ex;
-                    ex = Assert.Throws<Exception>(() => throw new InvalidOperationException());
+                    ex = ↓Assert.Throws<Exception>(() => throw new InvalidOperationException());
                 }
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8600"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8600"]),
+                testCode);
         }
 
         [Test]
-        public async Task ThrowsPropertyAssignment()
+        public void ThrowsPropertyAssignment()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 private Exception Ex { get; set; } = new NotImplementedException();
 
                 [Test]
                 public void Test()
                 {
-                    Ex = Assert.Throws<Exception>(() => throw new InvalidOperationException());
+                    Ex = ↓Assert.Throws<Exception>(() => throw new InvalidOperationException());
                 }
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8601"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8601"]),
+                testCode);
         }
 
         [Test]
-        public async Task ThrowsPassedAsArgument()
+        public void ThrowsPassedAsArgument()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 private void ShowException(Exception ex) => Console.WriteLine(ex.Message);
 
                 [Test]
                 public void Test()
                 {
-                    ShowException(Assert.Throws<Exception>(() => throw new InvalidOperationException()));
+                    ShowException(↓Assert.Throws<Exception>(() => throw new InvalidOperationException()));
                 }
             ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8604"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8604"]),
+                testCode);
         }
 
         [Test]
-        public async Task ThrowAssignedOutsideAssertMultipleUsedInside()
+        public void ThrowAssignedOutsideAssertMultipleUsedInside()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 [Test]
                 public void Test()
                 {
                     var e = Assert.Throws<Exception>(() => throw new Exception(""Test""));
                     Assert.Multiple(() =>
                     {
-                        Assert.That(e.Message, Is.EqualTo(""Test""));
+                        Assert.That(↓e.Message, Is.EqualTo(""Test""));
                         Assert.That(e.InnerException, Is.Null);
                         Assert.That(e.StackTrace, Is.Not.Empty);
                     });
                 }");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [Test]
-        public async Task VariableAssertedOutsideAssertMultipleUsedInside()
+        public void VariableAssertedOutsideAssertMultipleUsedInside()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 [Test]
                 public void Test()
                 {
@@ -506,7 +487,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     Assert.That(e, Is.Not.Null);
                     Assert.Multiple(() =>
                     {
-                        Assert.That(e.Message, Is.EqualTo(""Test""));
+                        Assert.That(↓e.Message, Is.EqualTo(""Test""));
                         Assert.That(e.InnerException, Is.Null);
                         Assert.That(e.StackTrace, Is.Not.Empty);
                     });
@@ -515,24 +496,22 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 private Exception? GetPossibleException() => new Exception();
                 ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [Test]
-        public async Task VariableAssignedOutsideAssertMultipleUsedInside()
+        public void VariableAssignedOutsideAssertMultipleUsedInside()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 [Test]
                 public void Test()
                 {
                     var e = GetPossibleException();
                     Assert.Multiple(() =>
                     {
-                        Assert.That(e.Message, Is.EqualTo(""Test""));
+                        Assert.That(↓e.Message, Is.EqualTo(""Test""));
                         Assert.That(e.InnerException, Is.Null);
                         Assert.That(e.StackTrace, Is.Not.Empty);
                     });
@@ -541,58 +520,54 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 private Exception? GetPossibleException() => new Exception();
                 ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
-                                               .ConfigureAwait(false);
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [Test]
-        public async Task VariableAssignedUsedInsideLambda()
+        public void VariableAssignedUsedInsideLambda()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 [Test]
                 public void Test()
                 {
                     var e = GetPossibleException();
-                    Assert.That(() => e.Message, Is.EqualTo(""Test""));
+                    Assert.That(() => ↓e.Message, Is.EqualTo(""Test""));
                 }
 
                 private Exception? GetPossibleException() => new Exception();
                 ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
-                                               .ConfigureAwait(false);
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [Test]
-        public async Task VariableAssertedUsedInsideLambda()
+        public void VariableAssertedUsedInsideLambda()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 [Test]
                 public void Test()
                 {
                     var e = GetPossibleException();
                     Assert.That(e, Is.Not.Null);
-                    Assert.That(() => e.Message, Is.EqualTo(""Test""));
+                    Assert.That(() => ↓e.Message, Is.EqualTo(""Test""));
                 }
 
                 private Exception? GetPossibleException() => new Exception();
                 ");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [Test]
-        public async Task NestedStatements()
+        public void NestedStatements()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 [Test]
                 public void Test()
                 {
@@ -601,7 +576,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                         Assert.DoesNotThrow(() =>
                         {
                             var e = Assert.Throws<Exception>(() => new Exception(""Test""));
-                            if (e.InnerException is not null)
+                            if (↓e.InnerException is not null)
                             {
                                 Assert.That(e.InnerException.Message, Is.EqualTo(""Test""));
                             }
@@ -613,19 +588,18 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     });
                 }");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureNotSuppressed(suppressor, testCode)
-                                               .ConfigureAwait(false);
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
 
         [Test]
-        public async Task TestIssue436()
+        public void TestIssue436()
         {
             // Test is changed from actual issue by replacing the .Select with an [1].
             // The original code would not give null reference issues on the .Select for the .NET Framework
             // because System.Linq is not annotated and therefore the compiler doesn't know null is not allowed.
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                #nullable enable
-
                 [TestCase(null)]
                 public void HasCountShouldNotAffectNullabilitySuppression(List<int>? maybeNull)
                 {
@@ -633,14 +607,14 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     Assert.Multiple(() =>
                     {
                         Assert.That(maybeNull, Has.Count.EqualTo(2));
-                        Assert.That(maybeNull[1], Is.EqualTo(1));
+                        Assert.That(↓maybeNull[1], Is.EqualTo(1));
                     });
                 }
             ", @"using System.Collections.Generic;");
 
-            await DiagnosticsSuppressorAnalyzer.EnsureSuppressed(suppressor,
-                DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8604"], testCode)
-                .ConfigureAwait(false);
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
         }
     }
 }

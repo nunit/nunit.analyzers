@@ -1,8 +1,3 @@
-using Gu.Roslyn.Asserts;
-using NUnit.Framework;
-
-[assembly: TransitiveMetadataReferences(typeof(Assert))]
-
 namespace NUnit.Analyzers.Tests
 {
     internal static class TestUtility
@@ -11,9 +6,11 @@ namespace NUnit.Analyzers.Tests
             string? additionalUsings = null)
         {
             return $@"
+#pragma warning disable CS8019
 using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
+#pragma warning restore CS8019
 {additionalUsings}
 
 namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage

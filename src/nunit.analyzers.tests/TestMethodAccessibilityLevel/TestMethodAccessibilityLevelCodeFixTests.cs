@@ -86,11 +86,11 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [TestCase(1)]
-        async Task ↓TestMethod(int i) {{ }}");
+        async Task ↓TestMethod(int i) {{ await Task.CompletedTask; }}");
 
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [TestCase(1)]
-        public async Task TestMethod(int i) {{ }}");
+        public async Task TestMethod(int i) {{ await Task.CompletedTask; }}");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }

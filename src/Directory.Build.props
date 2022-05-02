@@ -26,10 +26,6 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="3.11.0" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)\stylecop.json" Link="stylecop.json" />
-  </ItemGroup>
-
   <PropertyGroup>
     <GenerateNullableAttributes>false</GenerateNullableAttributes>
   </PropertyGroup>
