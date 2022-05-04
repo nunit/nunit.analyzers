@@ -93,6 +93,11 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfAssertThrows), nameof(Assert.Throws)),
             (nameof(NUnitFrameworkConstants.NameOfAssertThrowsAsync), nameof(Assert.ThrowsAsync)),
 
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssert), nameof(CollectionAssert)),
+            (nameof(NUnitFrameworkConstants.NameOfDirectoryAssert), nameof(DirectoryAssert)),
+            (nameof(NUnitFrameworkConstants.NameOfFileAssert), nameof(FileAssert)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssert), nameof(StringAssert)),
+
             (nameof(NUnitFrameworkConstants.NameOfConstraint), nameof(Constraint)),
 
             (nameof(NUnitFrameworkConstants.NameOfTestCaseAttribute), nameof(TestCaseAttribute)),

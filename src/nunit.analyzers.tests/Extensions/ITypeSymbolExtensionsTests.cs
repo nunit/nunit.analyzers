@@ -200,6 +200,27 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
             Assert.That(typeSymbol.IsAssert(), Is.True);
         }
 
+        [TestCase("Assert")]
+        [TestCase("CollectionAssert")]
+        [TestCase("DirectoryAssert")]
+        [TestCase("FileAssert")]
+        [TestCase("StringAssert")]
+        public async Task IsAnyAssertWhenSymbolIsAnyAssertType(string assertType)
+        {
+            var testCode = $@"
+using NUnit.Framework;
+
+namespace NUnit.Analyzers.Tests.Targets.Extensions
+{{
+    public sealed class IsAnyAssertWhenSymbolIsAnyAssertType
+    {{
+        public {assertType} x;
+    }}
+}}";
+            var typeSymbol = await GetTypeSymbolFromFieldAsync(testCode, "IsAnyAssertWhenSymbolIsAnyAssertType").ConfigureAwait(false);
+            Assert.That(typeSymbol.IsAnyAssert(), Is.True);
+        }
+
         private static async Task<ImmutableArray<ITypeSymbol>> GetTypeSymbolAsync(string code, string[] typeNames)
         {
             var rootAndModel = await TestHelpers.GetRootAndModel(code).ConfigureAwait(false);
