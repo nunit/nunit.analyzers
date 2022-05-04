@@ -82,9 +82,6 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfAssertThrows = "Throws";
         public const string NameOfAssertThrowsAsync = "ThrowsAsync";
 
-        public const string NameOfCollectionAssert = "CollectionAssert";
-        public const string NameOfDirectoryAssert = "DirectoryAssert";
-        public const string NameOfFileAssert = "FileAssert";
         public const string NameOfStringAssert = "StringAssert";
 
         public const string FullNameOfTypeIs = "NUnit.Framework.Is";
@@ -144,7 +141,7 @@ namespace NUnit.Analyzers.Constants
 
         public static readonly string[] AllAsserts =
         {
-            NameOfAssert, NameOfCollectionAssert, NameOfDirectoryAssert, NameOfFileAssert, NameOfStringAssert
+            NameOfAssert, NameOfStringAssert
         };
     }
 }

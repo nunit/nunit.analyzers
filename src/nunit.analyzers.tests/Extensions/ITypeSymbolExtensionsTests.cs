@@ -201,9 +201,6 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         }
 
         [TestCase("Assert")]
-        [TestCase("CollectionAssert")]
-        [TestCase("DirectoryAssert")]
-        [TestCase("FileAssert")]
         [TestCase("StringAssert")]
         public async Task IsAnyAssertWhenSymbolIsAnyAssertType(string assertType)
         {

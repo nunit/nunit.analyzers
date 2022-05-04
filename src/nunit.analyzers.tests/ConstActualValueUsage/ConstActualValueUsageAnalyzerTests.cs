@@ -311,5 +311,162 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenLiteralArgumentIsProvidedForStringAssertContains()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public void Test()
+                {
+                    string expected = ""exp"";
+                    StringAssert.Contains(expected, ↓""act"");
+                }");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenLiteralNamedArgumentIsProvidedForStringAssertContains()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public void Test()
+                {
+                    string expected = ""exp"";
+                    StringAssert.Contains(actual: ↓""act"", expected: expected);
+                }");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenLocalConstArgumentIsProvidedForStringAssertContains()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public void Test()
+                {
+                    const string actual = ""act"";
+                    string expected = ""exp"";
+                    StringAssert.Contains(expected, ↓actual);
+                }");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenLocalConstNamedArgumentIsProvidedForStringAssertContains()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public void Test()
+                {
+                    const string actual = ""act"";
+                    string expected = ""exp"";
+                    StringAssert.Contains(actual: ↓actual, expected: expected);
+                }");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenConstFieldArgumentIsProvidedForStringAssertContains()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixture
+            {
+                private const string actual = ""act"";
+
+                public void Test()
+                {
+                    string expected = ""exp"";
+                    StringAssert.Contains(expected, ↓actual);
+                }
+            }");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenStringEmptyArgumentIsProvidedForStringAssertContains()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public void Test()
+                {
+                    string actual = ""act"";
+                    StringAssert.Contains(actual, string.Empty);
+                }");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void ValidWhenNonConstValueIsProvidedAsActualArgumentForStringAssertContains()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixture
+            {
+                private const string expected = ""exp"";
+
+                public void Test()
+                {
+                    string actual = ""act"";
+                    StringAssert.Contains(expected, actual);
+                }
+            }");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenConstValueIsProvidedAsActualAndExpectedArgumentForStringAssertContains()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixture
+            {
+                private const string expected = ""exp"";
+
+                public void Test()
+                {
+                    const string actual = ""act"";
+                    StringAssert.Contains(expected, actual);
+                }
+            }");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenNonConstValueIsProvidedAsActualNamedArgumentForStringAssertContains()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixture
+            {
+                private const string expected = ""exp"";
+
+                public void Test()
+                {
+                    string actual = ""act"";
+                    StringAssert.Contains(actual: actual, expected: expected);
+                }
+            }");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ValidWhenConstValueIsProvidedAsActualAndExpectedNamedArgumentForStringAssertContains()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public class TestFixture
+            {
+                private const string expected = ""exp"";
+
+                public void Test()
+                {
+                    const string actual = ""act"";
+                    StringAssert.Contains(actual: actual, expected: expected);
+                }
+            }");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
     }
 }

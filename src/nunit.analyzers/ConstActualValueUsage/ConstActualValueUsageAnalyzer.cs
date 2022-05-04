@@ -22,6 +22,11 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
+        protected override bool IsAssert(IInvocationOperation invocationOperation)
+        {
+            return invocationOperation.TargetMethod.ContainingType.IsAnyAssert();
+        }
+
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
             static bool IsStringEmpty(IOperation operation)
