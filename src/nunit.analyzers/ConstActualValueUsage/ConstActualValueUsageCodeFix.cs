@@ -23,7 +23,21 @@ namespace NUnit.Analyzers.ConstActualValueUsage
             NUnitFrameworkConstants.NameOfAssertAreEqual,
             NUnitFrameworkConstants.NameOfAssertAreNotEqual,
             NUnitFrameworkConstants.NameOfAssertAreSame,
-            NUnitFrameworkConstants.NameOfAssertAreNotSame
+            NUnitFrameworkConstants.NameOfAssertAreNotSame,
+        };
+
+        private static readonly string[] SupportedStringAsserts = new[]
+        {
+            NUnitFrameworkConstants.NameOfStringAssertAreEqualIgnoringCase,
+            NUnitFrameworkConstants.NameOfStringAssertAreNotEqualIgnoringCase,
+            NUnitFrameworkConstants.NameOfStringAssertContains,
+            NUnitFrameworkConstants.NameOfStringAssertDoesNotContain,
+            NUnitFrameworkConstants.NameOfStringAssertDoesNotEndWith,
+            NUnitFrameworkConstants.NameOfStringAssertDoesNotMatch,
+            NUnitFrameworkConstants.NameOfStringAssertDoesNotStartWith,
+            NUnitFrameworkConstants.NameOfStringAssertEndsWith,
+            NUnitFrameworkConstants.NameOfStringAssertIsMatch,
+            NUnitFrameworkConstants.NameOfStringAssertStartsWith,
         };
 
         private static readonly string[] SupportedIsConstraints = new[]
@@ -88,11 +102,12 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
             var methodSymbol = semanticModel.GetSymbolInfo(invocationSyntax).Symbol as IMethodSymbol;
 
-            if (methodSymbol is null || !methodSymbol.ContainingType.IsAssert())
+            if (methodSymbol is null || !methodSymbol.ContainingType.IsAnyAssert())
                 return false;
 
             // option 1: Classic assert (e.g. Assert.AreEqual(expected, actual) )
-            if (SupportedClassicAsserts.Contains(methodSymbol.Name) && methodSymbol.Parameters.Length >= 2)
+            if ((IsSupportedAssert(methodSymbol) || IsSupportedStringAssert(methodSymbol))
+                && methodSymbol.Parameters.Length >= 2)
             {
                 expectedArgument = invocationSyntax.ArgumentList.Arguments[0].Expression;
                 actualArgument = invocationSyntax.ArgumentList.Arguments[1].Expression;
@@ -134,6 +149,16 @@ namespace NUnit.Analyzers.ConstActualValueUsage
             }
 
             return false;
+        }
+
+        private static bool IsSupportedAssert(IMethodSymbol methodSymbol)
+        {
+            return methodSymbol.ContainingType.Name == NUnitFrameworkConstants.NameOfAssert && SupportedClassicAsserts.Contains(methodSymbol.Name);
+        }
+
+        private static bool IsSupportedStringAssert(IMethodSymbol methodSymbol)
+        {
+            return methodSymbol.ContainingType.Name == NUnitFrameworkConstants.NameOfStringAssert && SupportedStringAsserts.Contains(methodSymbol.Name);
         }
     }
 }

@@ -94,6 +94,16 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfAssertThrowsAsync), nameof(Assert.ThrowsAsync)),
 
             (nameof(NUnitFrameworkConstants.NameOfStringAssert), nameof(StringAssert)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertAreEqualIgnoringCase), nameof(StringAssert.AreEqualIgnoringCase)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertAreNotEqualIgnoringCase), nameof(StringAssert.AreNotEqualIgnoringCase)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertContains), nameof(StringAssert.Contains)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertDoesNotContain), nameof(StringAssert.DoesNotContain)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertDoesNotEndWith), nameof(StringAssert.DoesNotEndWith)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertDoesNotMatch), nameof(StringAssert.DoesNotMatch)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertDoesNotStartWith), nameof(StringAssert.DoesNotStartWith)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertEndsWith), nameof(StringAssert.EndsWith)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertIsMatch), nameof(StringAssert.IsMatch)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertStartsWith), nameof(StringAssert.StartsWith)),
 
             (nameof(NUnitFrameworkConstants.NameOfConstraint), nameof(Constraint)),
 
