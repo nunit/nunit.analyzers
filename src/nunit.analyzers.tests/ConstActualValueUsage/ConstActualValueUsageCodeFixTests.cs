@@ -112,5 +112,56 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
 
             RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, code);
         }
+
+        [TestCase(nameof(StringAssert.AreEqualIgnoringCase))]
+        [TestCase(nameof(StringAssert.AreNotEqualIgnoringCase))]
+        [TestCase(nameof(StringAssert.Contains))]
+        [TestCase(nameof(StringAssert.EndsWith))]
+        [TestCase(nameof(StringAssert.IsMatch))]
+        [TestCase(nameof(StringAssert.StartsWith))]
+        [TestCase(nameof(StringAssert.DoesNotContain))]
+        [TestCase(nameof(StringAssert.DoesNotMatch))]
+        [TestCase(nameof(StringAssert.DoesNotEndWith))]
+        [TestCase(nameof(StringAssert.DoesNotStartWith))]
+        public void LiteralArgumentIsProvidedForClassicStringAssertCodeFix(string classicAssertMethod)
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                public void Test()
+                {{
+                    string actual = ""act"";
+                    StringAssert.{classicAssertMethod}(actual, ↓""exp"");
+                }}");
+
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                public void Test()
+                {{
+                    string actual = ""act"";
+                    StringAssert.{classicAssertMethod}(""exp"", actual);
+                }}");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+                fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
+        }
+
+        [Test]
+        public void LiteralNamedArgumentIsProvidedForStringAssertContainsCodeFix()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public void Test()
+                {
+                    string actual = ""act"";
+                    StringAssert.Contains(actual: ↓""exp"", expected: actual);
+                }");
+
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public void Test()
+                {
+                    string actual = ""act"";
+                    StringAssert.Contains(actual: actual, expected: ""exp"");
+                }");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+                fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
+        }
     }
 }

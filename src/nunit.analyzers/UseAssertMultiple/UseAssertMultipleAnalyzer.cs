@@ -136,7 +136,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
         {
             return (operation is IExpressionStatementOperation expressionOperation &&
                 expressionOperation.Operation is IInvocationOperation invocationOperation &&
-                IsAssert(invocationOperation) &&
+                invocationOperation.TargetMethod.ContainingType.IsAssert() &&
                 invocationOperation.TargetMethod.Name == NUnitFrameworkConstants.NameOfAssertThat)
                 ? invocationOperation : null;
         }

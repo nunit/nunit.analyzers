@@ -82,6 +82,18 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfAssertThrows = "Throws";
         public const string NameOfAssertThrowsAsync = "ThrowsAsync";
 
+        public const string NameOfStringAssert = "StringAssert";
+        public const string NameOfStringAssertAreEqualIgnoringCase = "AreEqualIgnoringCase";
+        public const string NameOfStringAssertAreNotEqualIgnoringCase = "AreNotEqualIgnoringCase";
+        public const string NameOfStringAssertContains = "Contains";
+        public const string NameOfStringAssertDoesNotContain = "DoesNotContain";
+        public const string NameOfStringAssertDoesNotEndWith = "DoesNotEndWith";
+        public const string NameOfStringAssertDoesNotMatch = "DoesNotMatch";
+        public const string NameOfStringAssertDoesNotStartWith = "DoesNotStartWith";
+        public const string NameOfStringAssertEndsWith = "EndsWith";
+        public const string NameOfStringAssertIsMatch = "IsMatch";
+        public const string NameOfStringAssertStartsWith = "StartsWith";
+
         public const string FullNameOfTypeIs = "NUnit.Framework.Is";
         public const string FullNameOfTypeTestCaseAttribute = "NUnit.Framework.TestCaseAttribute";
         public const string FullNameOfTypeTestCaseSourceAttribute = "NUnit.Framework.TestCaseSourceAttribute";
@@ -136,5 +148,10 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfUsing = "Using";
 
         public const string NUnitFrameworkAssemblyName = "nunit.framework";
+
+        public static readonly string[] AllAsserts =
+        {
+            NameOfAssert, NameOfStringAssert
+        };
     }
 }
