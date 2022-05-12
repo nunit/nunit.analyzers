@@ -391,7 +391,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     string actual = ""act"";
-                    StringAssert.Contains(actual, string.Empty);
+                    StringAssert.Contains(actual, ↓string.Empty);
                 }");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
