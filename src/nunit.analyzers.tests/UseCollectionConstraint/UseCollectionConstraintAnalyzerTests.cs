@@ -71,5 +71,33 @@ namespace NUnit.Analyzers.Tests.UseCollectionConstraint
         }");
             RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }
+
+        [Test]
+        public void AnalyzeOnNonEnumerable()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        [TestFixture]
+        public class TestClass
+        {
+            public void TestMethod()
+            {
+                var pipe = new Pipe
+                {
+                    Diameter = 2.54,
+                    Length = 10,
+                };
+                Assert.That(pipe.Diameter, Is.EqualTo(2.54));
+                Assert.That(pipe.Length, Is.EqualTo(10));
+            }
+
+            private sealed class Pipe
+            {
+                public double Diameter { get; set; }
+                public int Length { get; set; }
+            }
+        }");
+
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
     }
 }

@@ -114,44 +114,64 @@ namespace NUnit.Analyzers.Tests.UseCollectionConstraint
         }
 
         [Test]
-        public void VerifyNotUsingEmptyOnNonEnumerable()
+        public void VerifyNotSuggestingHasPropertyOnNonIntegralTypes()
         {
-            var code = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            const string pipeClassCode = @"
+
+        internal sealed class PipeSegment
+        {
+            public PipeSegment(double length) => Length = length;
+            public double Length { get; }
+        }
+
+        internal sealed class Pipe : IEnumerable<PipeSegment>
+        {
+            PipeSegment[] _segments;
+
+            public Pipe(double diameter, PipeSegment[] segments)
+            {
+                Diameter = diameter;
+                _segments = segments;
+            }
+
+            public double Diameter { get; }
+
+            public double Length => Enumerable.Sum(_segments, x => x.Length);
+
+            public int Count => _segments.Length;
+
+            public IEnumerator<PipeSegment> GetEnumerator() => ((IEnumerable<PipeSegment>)_segments).GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+";
+            var code = TestUtility.WrapClassInNamespaceAndAddUsing(pipeClassCode + @"
         [TestFixture]
         public class TestClass
         {
             public void TestMethod()
             {
-                var counter = new Counter();
-                Assert.That(↓counter.Count, Is.EqualTo(0), ""Should start at 0"");
-                counter.Increment();
-                Assert.That(↓counter.Count, Is.EqualTo(1), ""Should increment by 1"");
+                PipeSegment[] segments = { new PipeSegment(10.0), new PipeSegment(5.0) };
+                var pipe = new Pipe(2.54, segments);
+                Assert.That(pipe.Diameter, Is.EqualTo(2.54));
+                Assert.That(↓pipe.Count, Is.EqualTo(2));
+                Assert.That(pipe.Length, Is.EqualTo(15.0));
             }
+        }", "using System.Collections; using System.Collections.Generic; using System.Linq;");
 
-            private sealed class Counter
-            {
-                public int Count { get; private set; }
-                public void Increment() => Count++;
-            }
-        }");
-            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(pipeClassCode + @"
         [TestFixture]
         public class TestClass
         {
             public void TestMethod()
             {
-                var counter = new Counter();
-                Assert.That(counter, Has.Count.EqualTo(0), ""Should start at 0"");
-                counter.Increment();
-                Assert.That(counter, Has.Count.EqualTo(1), ""Should increment by 1"");
+                PipeSegment[] segments = { new PipeSegment(10.0), new PipeSegment(5.0) };
+                var pipe = new Pipe(2.54, segments);
+                Assert.That(pipe.Diameter, Is.EqualTo(2.54));
+                Assert.That(pipe, Has.Count.EqualTo(2));
+                Assert.That(pipe.Length, Is.EqualTo(15.0));
             }
-
-            private sealed class Counter
-            {
-                public int Count { get; private set; }
-                public void Increment() => Count++;
-            }
-        }");
+        }", "using System.Collections; using System.Collections.Generic; using System.Linq;");
 
             RoslynAssert.FixAll(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }

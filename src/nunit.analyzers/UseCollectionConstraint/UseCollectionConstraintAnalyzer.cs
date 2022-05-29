@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -30,6 +31,8 @@ namespace NUnit.Analyzers.UseCollectionConstraint
 
             // Check if actual operation is a member access operation for either .Length or .Count
             if (actualOperation is IMemberReferenceOperation referenceOperation &&
+                IsInteger(referenceOperation.Type) &&
+                referenceOperation.Instance is IOperation instance &&
                 (referenceOperation.Member.Name is NUnitFrameworkConstants.NameOfHasLength ||
                 referenceOperation.Member.Name is NUnitFrameworkConstants.NameOfHasCount))
             {
@@ -40,12 +43,29 @@ namespace NUnit.Analyzers.UseCollectionConstraint
                         && constraintPart.Root is not null
                         && constraintPart.HelperClass?.Name == NUnitFrameworkConstants.NameOfIs)
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(
-                            descriptor,
-                            referenceOperation.Syntax.GetLocation(),
-                            referenceOperation.Member.Name));
+                        // Only raise to use Has.Property if the type at hand is IEnumerable.
+                        INamedTypeSymbol enumerable = context.Compilation.GetTypeByMetadataName("System.Collections.IEnumerable")!;
+
+                        if (instance.Type?.AllInterfaces.Any(x => SymbolEqualityComparer.Default.Equals(x, enumerable)) == true)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(
+                                descriptor,
+                                referenceOperation.Syntax.GetLocation(),
+                                referenceOperation.Member.Name));
+                        }
                     }
                 }
+            }
+
+            static bool IsInteger(ITypeSymbol? type)
+            {
+                if (type is null)
+                {
+                    return false;
+                }
+
+                SpecialType specialType = type.SpecialType;
+                return specialType is >= SpecialType.System_Byte and <= SpecialType.System_UInt64;
             }
         }
     }
