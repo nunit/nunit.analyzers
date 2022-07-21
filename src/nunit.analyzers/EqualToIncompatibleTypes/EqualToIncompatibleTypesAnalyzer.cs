@@ -45,6 +45,8 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                     return;
                 }
 
+                var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
+
                 foreach (var constraintPartExpression in constraintExpression.ConstraintParts)
                 {
                     if (constraintPartExpression.HasIncompatiblePrefixes()
@@ -52,6 +54,48 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                         || constraintPartExpression.HasUnknownExpressions())
                     {
                         return;
+                    }
+
+                    // Check for Assert.That(..., Throws)
+                    // Here the actualType has nothing to do with the delegate.
+                    if (constraintPartExpression.HelperClass?.GetFullMetadataName() == NUnitFrameworkConstants.FullNameOfThrows)
+                    {
+                        if (constraintPartExpression.Root is IInvocationOperation invocationOperation)
+                        {
+                            if (invocationOperation.Arguments.Length == 1)
+                            {
+                                var argument = invocationOperation.Arguments[0].Value;
+                                if (argument is ITypeOfOperation typeOfOperation)
+                                {
+                                    actualType = typeOfOperation.TypeOperand;
+                                }
+                                else
+                                {
+                                    // The actualType is the result of a runtime operation not know at analyzer time.
+                                    // But at least it must be an exception.
+                                    actualType = context.Compilation.GetTypeByMetadataName("System.Exception");
+                                }
+                            }
+                            else if (invocationOperation.TargetMethod.TypeArguments.Length == 1)
+                            {
+                                actualType = invocationOperation.TargetMethod.TypeArguments[0];
+                            }
+                        }
+                        else if (constraintPartExpression.Root is IPropertyReferenceOperation propertyReferenceOperation)
+                        {
+                            string typeName = propertyReferenceOperation.Property.Name switch
+                            {
+                                NUnitFrameworkConstants.NameOfThrowsArgumentException => "System.ArgumentException",
+                                NUnitFrameworkConstants.NameOfThrowsArgumentNullException => "System.ArgumentNullException",
+                                NUnitFrameworkConstants.NameOfThrowsInvalidOperationException => "System.InvalidOperationException",
+                                NUnitFrameworkConstants.NameOfThrowsTargetInvocationException => "System.Reflection.TargetInvocationException",
+                                _ => "System.Exception",
+                            };
+
+                            actualType = context.Compilation.GetTypeByMetadataName(typeName);
+                        }
+
+                        continue;
                     }
 
                     var constraintMethod = constraintPartExpression.GetConstraintMethod();
@@ -64,7 +108,10 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
 
                     expectedOperation = constraintPartExpression.GetExpectedArgument();
 
-                    CheckActualVsExpectedOperation(context, actualOperation, expectedOperation);
+                    if (expectedOperation is not null)
+                    {
+                        CheckActualVsExpectedOperation(context, actualType, expectedOperation);
+                    }
                 }
             }
         }
@@ -74,8 +121,14 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
             if (actualOperation is null || expectedOperation is null)
                 return;
 
-            var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
-            var expectedType = expectedOperation.Type;
+            ITypeSymbol? actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
+
+            CheckActualVsExpectedOperation(context, actualType, expectedOperation);
+        }
+
+        private static void CheckActualVsExpectedOperation(OperationAnalysisContext context, ITypeSymbol? actualType, IOperation expectedOperation)
+        {
+            ITypeSymbol? expectedType = expectedOperation.Type;
 
             if (actualType is null || expectedType is null)
                 return;

@@ -1,3 +1,4 @@
+using System.Globalization;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -907,6 +908,48 @@ using System.Collections.Generic;");
                 Assert.That(5, Is.Not.EqualTo(4) & Is.Not.EqualTo(↓""6""));");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [TestCase("InstanceOf<{0}>()")]
+        [TestCase("InstanceOf(typeof({0}))")]
+        [TestCase("InstanceOf(exception.GetType())")]
+        [TestCase("TypeOf<{0}>()")]
+        [TestCase("TypeOf(typeof({0}))")]
+        [TestCase("{0}")]
+        [TestCase("Exception")]
+        public void AnalyzeWhenThrowsWithTypeConstraintIsUsed(string constraintSpecification)
+        {
+            const string exceptionType = "InvalidOperationException";
+            string constraint = string.Format(CultureInfo.InvariantCulture, constraintSpecification, exceptionType);
+
+            var testCode = TestUtility.WrapInTestMethod($@"
+                var exception = new {exceptionType}();
+                void ThrowingMethod() => throw exception;
+
+                Assert.That(() => ThrowingMethod(), Throws.{constraint}.And.EqualTo(exception));
+            ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("InstanceOf<ArgumentException>()")]
+        [TestCase("InstanceOf(typeof(ArgumentNullException))")]
+        [TestCase("TargetInvocationException")]
+        [TestCase("ArgumentNullException")]
+        [TestCase("ArgumentException")]
+        public void AnalyzeWhenThrowsWithTypeConstraintIsUsedWithDifferentType(string constraintSpecification)
+        {
+            const string exceptionType = "InvalidOperationException";
+            string constraint = string.Format(CultureInfo.InvariantCulture, constraintSpecification, exceptionType);
+
+            var testCode = TestUtility.WrapInTestMethod($@"
+                var exception = new {exceptionType}();
+                void ThrowingMethod() => throw exception;
+
+                Assert.That(() => ThrowingMethod(), Throws.{constraint}.And.EqualTo(↓exception));
+            ");
+
+            RoslynAssert.Diagnostics(analyzer, testCode);
         }
     }
 }

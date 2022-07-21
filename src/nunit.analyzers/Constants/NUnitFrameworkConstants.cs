@@ -49,6 +49,10 @@ namespace NUnit.Analyzers.Constants
 
         public const string NameOfMultiple = "Multiple";
         public const string NameOfThrows = "Throws";
+        public const string NameOfThrowsArgumentException = "ArgumentException";
+        public const string NameOfThrowsArgumentNullException = "ArgumentNullException";
+        public const string NameOfThrowsInvalidOperationException = "InvalidOperationException";
+        public const string NameOfThrowsTargetInvocationException = "TargetInvocationException";
 
         public const string NameOfAssert = "Assert";
         public const string NameOfAssertIsTrue = "IsTrue";
@@ -126,6 +130,7 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfActualValueDelegate = "NUnit.Framework.Constraints.ActualValueDelegate`1";
         public const string FullNameOfDelayedConstraint = "NUnit.Framework.Constraints.DelayedConstraint";
         public const string FullNameOfTestDelegate = "NUnit.Framework.TestDelegate";
+        public const string FullNameOfThrows = "NUnit.Framework.Throws";
 
         public const string NameOfTestCaseAttribute = "TestCaseAttribute";
         public const string NameOfTestCaseSourceAttribute = "TestCaseSourceAttribute";
