@@ -1,5 +1,18 @@
 image: Visual Studio 2022
 
+environment:
+  CLI_CHANNEL: 6.0.1xx
+
+install:
+  - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
+  - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
+  - ps: Invoke-WebRequest -Uri " https://dot.net/v1/dotnet-install.ps1" -OutFile "$($env:DOTNET_INSTALL_DIR)/dotnet-install.ps1"
+  - ps: '& "$($env:DOTNET_INSTALL_DIR)/dotnet-install.ps1" -Channel $env:CLI_CHANNEL -InstallDir $env:DOTNET_INSTALL_DIR'
+  - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
+
+before_build:
+  - cmd: dotnet --version
+
 build_script:
   - ps: .\build.ps1 --target="Appveyor" --configuration="Release" --targetFramework="netstandard1.6"
   - ps: .\build.ps1 --target="Appveyor" --configuration="Release" --targetFramework="netstandard2.0"
