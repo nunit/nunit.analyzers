@@ -23,7 +23,7 @@
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers.Unstable" Version="1.2.0.435" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="3.11.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.2.0" PrivateAssets="all" />
   </ItemGroup>
 
   <PropertyGroup>
