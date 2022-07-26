@@ -59,7 +59,12 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfHasNo), nameof(Has.No)),
 
             (nameof(NUnitFrameworkConstants.NameOfMultiple), nameof(Assert.Multiple)),
-            (nameof(NUnitFrameworkConstants.NameOfThrows), nameof(Assert.Throws)),
+
+            (nameof(NUnitFrameworkConstants.NameOfThrows), nameof(Throws)),
+            (nameof(NUnitFrameworkConstants.NameOfThrowsArgumentException), nameof(Throws.ArgumentException)),
+            (nameof(NUnitFrameworkConstants.NameOfThrowsArgumentNullException), nameof(Throws.ArgumentNullException)),
+            (nameof(NUnitFrameworkConstants.NameOfThrowsInvalidOperationException), nameof(Throws.InvalidOperationException)),
+            (nameof(NUnitFrameworkConstants.NameOfThrowsTargetInvocationException), nameof(Throws.TargetInvocationException)),
 
             (nameof(NUnitFrameworkConstants.NameOfAssert), nameof(Assert)),
             (nameof(NUnitFrameworkConstants.NameOfAssertIsTrue), nameof(Assert.IsTrue)),
@@ -155,6 +160,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.FullNameOfActualValueDelegate), typeof(ActualValueDelegate<>)),
             (nameof(NUnitFrameworkConstants.FullNameOfDelayedConstraint), typeof(DelayedConstraint)),
             (nameof(NUnitFrameworkConstants.FullNameOfTestDelegate), typeof(TestDelegate)),
+            (nameof(NUnitFrameworkConstants.FullNameOfThrows), typeof(Throws)),
         };
 
         [TestCaseSource(nameof(NameOfSource))]
