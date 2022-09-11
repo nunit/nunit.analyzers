@@ -29,7 +29,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             var shouldReport = false;
 
             // 'actual == expected', 'Equals(actual, expected)' or 'actual.Equals(expected)'
-            if (actual is IBinaryOperation { OperatorKind: BinaryOperatorKind.Equals }
+            if (IsBinaryOperationNotUsingRefStructOperands(actual, BinaryOperatorKind.Equals)
                 || IsStaticObjectEquals(actual)
                 || IsInstanceObjectEquals(actual))
             {
@@ -37,7 +37,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             }
 
             // 'actual != expected'
-            else if (actual is IBinaryOperation { OperatorKind: BinaryOperatorKind.NotEquals })
+            else if (IsBinaryOperationNotUsingRefStructOperands(actual, BinaryOperatorKind.NotEquals))
             {
                 shouldReport = true;
                 negated = !negated;
@@ -76,7 +76,9 @@ namespace NUnit.Analyzers.ConstraintUsage
             return methodSymbol is not null
                 && !methodSymbol.IsStatic
                 && methodSymbol.Parameters.Length == 1
-                && methodSymbol.Name == nameof(object.Equals);
+                && methodSymbol.Name == nameof(object.Equals)
+                && invocation.Arguments.Length == 1
+                && !IsRefStruct(invocation.Arguments[0]);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -213,6 +214,42 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";
                 Assert.That(actual.Contains(""bc""));");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("==")]
+        [TestCase("!=")]
+        public void UseEqualsOperatorOnRefStruct(string operatorToken)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var span1 = new[] {{ 1 }}.AsSpan();
+                var span2 = new[] {{ 1 }}.AsSpan();
+                Assert.That(span1 {operatorToken} span2, Is.True);");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void UseEqualsMethodOnRefStruct()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class TestClass
+    {
+        [Test]
+        public void TestMethod()
+        {
+            var span1 = new[] { 1 }.AsSpan();
+            var span2 = new[] { 1 }.AsSpan();
+            Assert.That(span1.Equals(span2), Is.True, ""Span comparison"");
+        }
+    }
+
+    internal static class SpanExtension
+    {
+        public static bool Equals<T>(this Span<T> left, Span<T> right) => left == right;
+    }");
 
             RoslynAssert.Valid(analyzer, testCode);
         }

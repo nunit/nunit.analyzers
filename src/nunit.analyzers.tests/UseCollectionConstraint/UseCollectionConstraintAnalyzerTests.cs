@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -95,6 +97,20 @@ namespace NUnit.Analyzers.Tests.UseCollectionConstraint
                 public double Diameter { get; set; }
                 public int Length { get; set; }
             }
+        }");
+
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenRefStructIsUsed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void Test()
+        {
+            const int Length = 8;
+            var span = new byte[Length].AsSpan();
+            Assert.That(span.Length, Is.EqualTo(Length));
         }");
 
             RoslynAssert.Valid(this.analyzer, testCode);

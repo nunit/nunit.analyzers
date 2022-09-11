@@ -26,7 +26,8 @@ namespace NUnit.Analyzers.ConstraintUsage
         {
             // 'actual >= expected', 'actual > expected'
             // 'actual <= expected', 'actual < expected'
-            if (actual is IBinaryOperation binaryOperation)
+            if (actual is IBinaryOperation binaryOperation &&
+                !IsRefStruct(binaryOperation.LeftOperand) && !IsRefStruct(binaryOperation.RightOperand))
             {
                 bool swapOperands = false;
 
