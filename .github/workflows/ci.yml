@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@main
+      - name: Setup .NET
+        uses: actions/setup-dotnet@main
+        with:
+          global-json-file: ./global.json
+      - name: dotnet test
+        run: dotnet test ./src/nunit.analyzers.tests/
