@@ -1,4 +1,18 @@
-﻿NUnit Analyzers 3.4 (and 2.4) - October 23, 2022
+﻿NUnit Analyzers 3.5 (and 2.5) - October 23, 2022
+
+This release of the NUnit Analyzers only fixes the casing in a file name in the nuget file as nuget upload validation failed.
+
+The release contains contributions from the following users (in alphabetical order):
+* mikkelbu
+
+Issues Resolved
+
+Tooling, Process, and Documentation
+* #484 chore: Bump version to 3.5 (2.5)
+* #483 chore: NuGet.org validation is case sensitive
+
+
+NUnit Analyzers 3.4 (and 2.4) - October 23, 2022
 
 This release of the NUnit Analyzers improves on false positives in the existing analyzers for:
 * NUnit2021 - "Incompatible types for EqualTo constraint"
