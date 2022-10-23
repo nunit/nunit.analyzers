@@ -1,4 +1,56 @@
-﻿NUnit Analyzers 3.3 (and 2.3) - January 8, 2022
+﻿NUnit Analyzers 3.4 (and 2.4) - October 23, 2022
+
+This release of the NUnit Analyzers improves on false positives in the existing analyzers for:
+* NUnit2021 - "Incompatible types for EqualTo constraint"
+* NUnit2046 - "Use CollectionConstraint for better assertion messages in case of failure"
+
+The release also improves on NUnit3002 - "Field/Property is initialized in SetUp or OneTimeSetUp method" to
+also consider initialization in overridden SetUp methods, and adds support for classic StringAssert constraints
+in NUnit2007 - "The actual value should not be a constant" -  analyzer and code fix.
+
+In addition, the release also contains some bug fixes to existing analyzers.
+Moreover, several dependencies have been bumped in this release and the build process has been improved.
+
+The release contains contributions from the following users (in alphabetical order):
+* eatdrinksleepcode
+* manfred-brands
+* mikkelbu
+
+Issues Resolved
+
+Features and Enhancements
+* #465 False positive for NUnit2021 with Throws/EqualTo contraint
+* #459 False positives for NUnit2046 on non-array-like types
+* #453 Support classic StringAssert in ConstActualValueUsage analyzer and code fix
+* #448 Analyzer doesn't detect non-nullable field set in overridden SetUp method
+
+Bugs
+* #440 Analyzer conversion for class with Count property can be incorrect
+* #436 Using Has.Count in Assert.Multiple re-raises nullable reference warning
+* #420 NUnit2045 raises IndexOutOfRangeException on CodeAnalysis
+
+Tooling, Process, and Documentation
+* #479 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.3.1 to 17.3.2 in /src
+* #470 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.2.0 to 17.3.1 in /src
+* #467 Build Issues
+* #463 chore(deps): Bump Nullable from 1.3.0 to 1.3.1 in /src
+* #461 chore(deps): Bump Gu.Roslyn.Asserts from 4.2.1 to 4.3.0 in /src
+* #456 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.1.0 to 17.2.0 in /src
+* #455 chore(deps): Bump Gu.Roslyn.Asserts from 4.2.0 to 4.2.1 in /src
+* #454 Ignore Rider IDE files
+* #452 chore(deps): Bump StyleCop.Analyzers.Unstable from 1.2.0.406 to 1.2.0.435 in /src
+* #451 Mark build.sh as executable
+* #446 Move to latest Gu.Roslyn.Assert nuget packages
+* #441 chore(deps): Bump NUnit from 3.13.2 to 3.13.3 in /src
+* #440 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.0.0 to 17.1.0 in /src 
+* #437 chore(deps): Bump NUnit3TestAdapter from 4.1.0 to 4.2.1 in /src
+* #428 Move to use cake as a dotnet tool
+* #419 chore: Bump version to 3.4 (2.4)
+* #418 Add README.md to nuget file
+* #272 Enforce coding standard more strictly
+
+
+NUnit Analyzers 3.3 (and 2.3) - January 8, 2022
 
 This release of the NUnit Analyzers adds a DiagnosticSuppressor for Nullable<T>, an analyzer and a code fix 
 for rewriting independent asserts into Assert.Multiple, and an analyzer and a code fix for replacing calls to
