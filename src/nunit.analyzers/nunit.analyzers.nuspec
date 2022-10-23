@@ -13,7 +13,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <developmentDependency>true</developmentDependency>
     <summary>Code analyzers and fixes for NUnit 3</summary>
-    <readme>docs/readme.md</readme>
+    <readme>docs/README.md</readme>
     <description>
 This package includes analyzers and code fixes for test projects using NUnit 3. The analyzers will mark wrong usages when writing tests, and the code fixes can be used to used to correct these usages.
 
