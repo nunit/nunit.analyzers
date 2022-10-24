@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.ConstraintUsage;
@@ -227,7 +230,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 var span2 = new[] {{ 1 }}.AsSpan();
                 Assert.That(span1 {operatorToken} span2, Is.True);");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(Span<>));
+            IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);
+
+            RoslynAssert.Valid(analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
         }
 
         [Test]
@@ -251,7 +257,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         public static bool Equals<T>(this Span<T> left, Span<T> right) => left == right;
     }");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(Span<>));
+            IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);
+
+            RoslynAssert.Valid(analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
         }
     }
 }

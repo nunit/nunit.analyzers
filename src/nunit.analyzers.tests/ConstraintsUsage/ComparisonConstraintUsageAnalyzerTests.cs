@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.ConstraintUsage;
@@ -106,7 +109,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         }}
     }}");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(Span<>));
+            IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);
+
+            RoslynAssert.Valid(analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
         }
     }
 }
