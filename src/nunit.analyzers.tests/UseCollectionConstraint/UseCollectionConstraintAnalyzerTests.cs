@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.UseCollectionConstraint;
@@ -98,6 +102,23 @@ namespace NUnit.Analyzers.Tests.UseCollectionConstraint
         }");
 
             RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenRefStructIsUsed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void Test()
+        {
+            const int Length = 8;
+            var span = new byte[Length].AsSpan();
+            Assert.That(span.Length, Is.EqualTo(Length));
+        }");
+
+            IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(Span<>));
+            IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);
+
+            RoslynAssert.Valid(this.analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
         }
     }
 }

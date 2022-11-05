@@ -1,5 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.ConstraintUsage;
@@ -215,6 +219,48 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(actual.Contains(""bc""));");
 
             RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("==")]
+        [TestCase("!=")]
+        public void UseEqualsOperatorOnRefStruct(string operatorToken)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var span1 = new[] {{ 1 }}.AsSpan();
+                var span2 = new[] {{ 1 }}.AsSpan();
+                Assert.That(span1 {operatorToken} span2, Is.True);");
+
+            IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(Span<>));
+            IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);
+
+            RoslynAssert.Valid(analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
+        }
+
+        [Test]
+        public void UseEqualsMethodOnRefStruct()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class TestClass
+    {
+        [Test]
+        public void TestMethod()
+        {
+            var span1 = new[] { 1 }.AsSpan();
+            var span2 = new[] { 1 }.AsSpan();
+            Assert.That(span1.Equals(span2), Is.True, ""Span comparison"");
+        }
+    }
+
+    internal static class SpanExtension
+    {
+        public static bool Equals<T>(this Span<T> left, Span<T> right) => left == right;
+    }");
+
+            IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(Span<>));
+            IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);
+
+            RoslynAssert.Valid(analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
         }
     }
 }
