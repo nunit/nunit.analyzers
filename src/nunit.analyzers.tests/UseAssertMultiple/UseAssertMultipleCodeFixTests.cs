@@ -89,5 +89,50 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
         }");
             RoslynAssert.FixAll(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
+
+        [Test]
+        public void AddsAsyncWhenAwaitIsUsed()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void Test()
+        {
+            var configuration = new Configuration();
+            Assert.That(configuration, Is.Not.Null);
+            ↓Assert.That(configuration.Value1, Is.EqualTo(0));
+            ↓Assert.That(configuration.Value2, Is.EqualTo(0.0));
+            Assert.That(await configuration.AsStringAsync(), Is.EqualTo(string.Empty));
+            configuration = null;
+        }
+
+        private sealed class Configuration
+        {
+            public int Value1 { get; set; }
+            public double Value2 { get; set; }
+            public string Value11 { get; set; } = string.Empty;
+            public Task<string> AsStringAsync() => Task.FromResult(Value11);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void Test()
+        {
+            var configuration = new Configuration();
+            Assert.That(configuration, Is.Not.Null);
+            Assert.Multiple(async () =>
+            {
+                Assert.That(configuration.Value1, Is.EqualTo(0));
+                Assert.That(configuration.Value2, Is.EqualTo(0.0));
+                Assert.That(await configuration.AsStringAsync(), Is.EqualTo(string.Empty));
+            });
+            configuration = null;
+        }
+
+        private sealed class Configuration
+        {
+            public int Value1 { get; set; }
+            public double Value2 { get; set; }
+            public string Value11 { get; set; } = string.Empty;
+            public Task<string> AsStringAsync() => Task.FromResult(Value11);
+        }");
+            RoslynAssert.FixAll(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
     }
 }

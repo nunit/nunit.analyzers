@@ -61,6 +61,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
                 return;
 
             // Move all statements based upon their location.
+            bool needsAsync = false;
             int when = 0;
             foreach (var statement in block.Statements)
             {
@@ -76,6 +77,10 @@ namespace NUnit.Analyzers.UseAssertMultiple
                         UseAssertMultipleAnalyzer.IsIndependent(previousArguments, argumentList.Arguments[0].ToString()))
                     {
                         // Can be merged
+                        // Check if this expression uses 'await'.
+                        needsAsync |= statement.DescendantNodesAndSelf(x => true, false)
+                                               .OfType<AwaitExpressionSyntax>()
+                                               .Any();
                     }
                     else
                     {
@@ -84,6 +89,16 @@ namespace NUnit.Analyzers.UseAssertMultiple
                 }
 
                 statements[when].Add(statement);
+            }
+
+            ParenthesizedLambdaExpressionSyntax parenthesizedLambdaExpression =
+                SyntaxFactory.ParenthesizedLambdaExpression(
+                    SyntaxFactory.Block(statementsInsideAssertMultiple));
+
+            if (needsAsync)
+            {
+                parenthesizedLambdaExpression = parenthesizedLambdaExpression
+                    .WithAsyncKeyword(SyntaxFactory.Token(SyntaxKind.AsyncKeyword));
             }
 
             var assertMultiple = SyntaxFactory.ExpressionStatement(
@@ -95,9 +110,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
                     SyntaxFactory.ArgumentList(
                         SyntaxFactory.SeparatedList(new[]
                         {
-                            SyntaxFactory.Argument(
-                                SyntaxFactory.ParenthesizedLambdaExpression(
-                                    SyntaxFactory.Block(statementsInsideAssertMultiple)))
+                            SyntaxFactory.Argument(parenthesizedLambdaExpression)
                         })))).WithAdditionalAnnotations(Formatter.Annotation);
 
             var updatedBlock = SyntaxFactory.Block(
