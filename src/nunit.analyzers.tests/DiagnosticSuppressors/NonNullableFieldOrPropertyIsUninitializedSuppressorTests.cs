@@ -96,6 +96,33 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             RoslynAssert.Suppressed(suppressor, testCode);
         }
 
+        [TestCase("SetUp", "")]
+        [TestCase("OneTimeSetUp", "this.")]
+        public void FieldAssignedUsingTupleDeconstruction(string attribute, string prefix)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                private string ↓name;
+                private string ↓description;
+
+                [{attribute}]
+                public void Initialize()
+                {{
+                    ({prefix}name, {prefix}description) = GetNameAndDescription();
+                }}
+
+                [Test]
+                public void Test()
+                {{
+                    Assert.That({prefix}name, Is.Not.Null);
+                    Assert.That({prefix}description, Is.Not.Null);
+                }}
+
+                private (string Name, string Description) GetNameAndDescription() => (""SomeName"", ""Some Description"");
+            ");
+
+            RoslynAssert.Suppressed(suppressor, testCode);
+        }
+
         [Test]
         public void PropertyNotAssigned()
         {
@@ -129,6 +156,31 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 public void Test()
                 {{
                     Assert.That({prefix}Property, Is.Not.Null);
+                }}
+            ");
+
+            RoslynAssert.Suppressed(suppressor, testCode);
+        }
+
+        [TestCase("SetUp", "")]
+        [TestCase("OneTimeSetUp", "this.")]
+        public void PropertyAssignedUsingTupleDeconstruction(string attribute, string prefix)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                protected string ↓Name {{ get; private set; }}
+                protected string ↓Description {{ get; private set; }}
+
+                [{attribute}]
+                public void Initialize()
+                {{
+                    ({prefix}Name, {prefix}Description) = (""ThatName"", ""The Matching Description"");
+                }}
+
+                [Test]
+                public void Test()
+                {{
+                    Assert.That({prefix}Name, Is.Not.Null);
+                    Assert.That({prefix}Description, Is.Not.Null);
                 }}
             ");
 
