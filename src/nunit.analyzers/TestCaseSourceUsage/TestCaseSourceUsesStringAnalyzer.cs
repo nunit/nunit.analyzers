@@ -77,6 +77,14 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             defaultSeverity: DiagnosticSeverity.Error,
             description: TestCaseSourceUsageConstants.TestCaseSourceSuppliesParametersDescription);
 
+        private static readonly DiagnosticDescriptor mismatchInNumberOfTestMethodParameters = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters,
+            title: TestCaseSourceUsageConstants.MismatchInNumberOfTestMethodParametersTitle,
+            messageFormat: TestCaseSourceUsageConstants.MismatchInNumberOfTestMethodParametersMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseSourceUsageConstants.MismatchInNumberOfTestMethodParametersDescription);
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             considerNameOfDescriptor,
             missingSourceDescriptor,
@@ -85,7 +93,8 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             sourceNotStaticDescriptor,
             mismatchInNumberOfParameters,
             sourceDoesNotReturnIEnumerable,
-            parametersSuppliedToFieldOrProperty);
+            parametersSuppliedToFieldOrProperty,
+            mismatchInNumberOfTestMethodParameters);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -167,18 +176,20 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                         stringConstant));
                 }
 
+                ITypeSymbol? elementType = null;
+
                 switch (symbol)
                 {
                     case IPropertySymbol property:
-                        ReportIfSymbolNotIEnumerable(context, syntaxNode, property.Type);
+                        elementType = ReportIfSymbolNotIEnumerable(context, syntaxNode, property.Type);
                         ReportIfParametersSupplied(context, syntaxNode, attributeInfo.NumberOfMethodParameters, "properties");
                         break;
                     case IFieldSymbol field:
-                        ReportIfSymbolNotIEnumerable(context, syntaxNode, field.Type);
+                        elementType = ReportIfSymbolNotIEnumerable(context, syntaxNode, field.Type);
                         ReportIfParametersSupplied(context, syntaxNode, attributeInfo.NumberOfMethodParameters, "fields");
                         break;
                     case IMethodSymbol method:
-                        ReportIfSymbolNotIEnumerable(context, syntaxNode, method.ReturnType);
+                        elementType = ReportIfSymbolNotIEnumerable(context, syntaxNode, method.ReturnType);
 
                         var methodParametersFromAttribute = attributeInfo.NumberOfMethodParameters ?? 0;
                         if (method.Parameters.Length != methodParametersFromAttribute)
@@ -192,20 +203,66 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
 
                         break;
                 }
+
+                if (elementType is not null)
+                {
+                    MethodDeclarationSyntax? testMethodDeclaration = attributeNode.FirstAncestorOrSelf<MethodDeclarationSyntax>();
+                    if (testMethodDeclaration is not null)
+                    {
+                        IMethodSymbol? testMethod = context.SemanticModel.GetDeclaredSymbol(testMethodDeclaration);
+                        if (testMethod is not null)
+                        {
+                            var (methodRequiredParameters, methodOptionalParameters, methodParamsParameters) = testMethod.GetParameterCounts();
+
+                            if (elementType.SpecialType != SpecialType.System_String && (elementType.SpecialType == SpecialType.System_Object || elementType.IsIEnumerable(out _) ||
+                                SymbolEqualityComparer.Default.Equals(elementType, context.SemanticModel.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseData))))
+                            {
+                                // We only know that there is 1 or (likely) more parameters.
+                                // The object could hide an array, possibly with a variable number of elements: TestCaseData.Argument.
+                                // Potentially we could examine the body of the TestCaseSource to see if we can determine the exact amount.
+                                // For complex method that is certainly beyond the scope of this.
+                                if (methodRequiredParameters + methodOptionalParameters < 1)
+                                {
+                                    context.ReportDiagnostic(Diagnostic.Create(
+                                            mismatchInNumberOfTestMethodParameters,
+                                            syntaxNode.GetLocation(),
+                                            ">0",
+                                            methodRequiredParameters + methodOptionalParameters));
+                                }
+                            }
+                            else
+                            {
+                                if (methodRequiredParameters + methodOptionalParameters != 1)
+                                {
+                                    context.ReportDiagnostic(Diagnostic.Create(
+                                            mismatchInNumberOfTestMethodParameters,
+                                            syntaxNode.GetLocation(),
+                                            1,
+                                            methodRequiredParameters + methodOptionalParameters));
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        private static void ReportIfSymbolNotIEnumerable(
+        private static ITypeSymbol? ReportIfSymbolNotIEnumerable(
             SyntaxNodeAnalysisContext context,
             SyntaxNode syntaxNode,
             ITypeSymbol typeSymbol)
         {
-            if (!typeSymbol.IsIEnumerable(out var _))
+            if (!typeSymbol.IsIEnumerable(out ITypeSymbol? elementType))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     sourceDoesNotReturnIEnumerable,
                     syntaxNode.GetLocation(),
                     typeSymbol));
+                return null;
+            }
+            else
+            {
+                return elementType ?? context.Compilation.GetSpecialType(SpecialType.System_Object);
             }
         }
 

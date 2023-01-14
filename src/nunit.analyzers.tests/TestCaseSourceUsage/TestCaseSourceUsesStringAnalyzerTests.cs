@@ -26,7 +26,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         static string[] Tests = new[] { ""Data"" };
 
         [TestCaseSource(nameof(Tests))]
-        public void Test()
+        public void Test(string data)
         {
         }
     }");
@@ -285,7 +285,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         {testCaseMember}
 
         [TestCaseSource(nameof(TestCases))]
-        public void Test()
+        public void Test(object data)
         {{
         }}
     }}");
@@ -546,6 +546,88 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             var message = "Consider using nameof(AnotherClass.InnerClass.TestCases) instead of \"TestCases\"";
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNumberOfParametersOfTestIsLessThanEvidentFromTestSource()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected
+    {
+        [TestCaseSource(↓nameof(TestData), new object[] { 3 })]
+        public void ShortName()
+        {
+            Assert.That(3, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData(int maximum)
+        {
+            for (int i = 1; i <= maximum; i++)
+            {
+                yield return i;
+            }
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters)
+                .WithMessage("The TestCaseSource provides '1' parameter(s), but the Test method expects '0' parameter(s)");
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNumberOfParametersOfTestIsMoreThanEvidentFromTestSource()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected
+    {
+        [TestCaseSource(↓nameof(TestData))]
+        public void ShortName(int x, int y)
+        {
+            Assert.That(x + y, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData()
+        {
+            yield return 1;
+            yield return 2;
+            yield return 3;
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters)
+                .WithMessage("The TestCaseSource provides '1' parameter(s), but the Test method expects '2' parameter(s)");
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        [Explicit("The code is wrong, but it is too complext for the analyzer to detect this.")]
+        public void AnalyzeWhenNumberOfParametersOfTestIsNotEvidentFromTestSource()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected
+    {
+        [TestCaseSource(↓nameof(TestData))]
+        public void ShortName(int n)
+        {
+            Assert.That(n, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<object> TestData()
+        {
+            yield return new object[] { 1, 2 };
+            yield return new object[] { 2, 3 };
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters)
+                .WithMessage("The TestCaseSource provides '>0' parameter(s), but the Test method expects '1' parameter(s)");
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
     }
 }

@@ -29,5 +29,9 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
         internal const string TestCaseSourceSuppliesParametersTitle = "The TestCaseSource provides parameters to a source - field or property - that expects no parameters";
         internal const string TestCaseSourceSuppliesParametersMessage = "The TestCaseSource provides '{0}' parameter(s), but {1} cannot take parameters";
         internal const string TestCaseSourceSuppliesParametersDescription = "The TestCaseSource must not provide any parameters when the source is a field or a property.";
+
+        internal const string MismatchInNumberOfTestMethodParametersTitle = "The number of parameters provided by the TestCaseSource does not match the number of parameters in the Test method";
+        internal const string MismatchInNumberOfTestMethodParametersMessage = "The TestCaseSource provides '{0}' parameter(s), but the Test method expects '{1}' parameter(s)";
+        internal const string MismatchInNumberOfTestMethodParametersDescription = "The number of parameters provided by the TestCaseSource must match the number of parameters in the Test method.";
     }
 }

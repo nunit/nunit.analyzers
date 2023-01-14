@@ -32,6 +32,7 @@ namespace NUnit.Analyzers.Constants
         internal const string TestMethodIsNotPublic = "NUnit1026";
         internal const string SimpleTestMethodHasParameters = "NUnit1027";
         internal const string NonTestMethodIsPublic = "NUnit1028";
+        internal const string TestCaseSourceMismatchInNumberOfTestMethodParameters = "NUnit1029";
 
         #endregion Structure
 
