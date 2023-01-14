@@ -1,11 +1,13 @@
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection.Metadata;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
+using NUnit.Analyzers.Helpers;
 using NUnit.Analyzers.SourceCommon;
 
 namespace NUnit.Analyzers.TestCaseSourceUsage
@@ -85,6 +87,14 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             defaultSeverity: DiagnosticSeverity.Error,
             description: TestCaseSourceUsageConstants.MismatchInNumberOfTestMethodParametersDescription);
 
+        private static readonly DiagnosticDescriptor mismatchWithTestMethodParameterType = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.TestCaseSourceMismatchWithTestMethodParameterType,
+            title: TestCaseSourceUsageConstants.MismatchWithTestMethodParameterTypeTitle,
+            messageFormat: TestCaseSourceUsageConstants.MismatchWithTestMethodParameterTypeMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: TestCaseSourceUsageConstants.MismatchWithTestMethodParameterTypeDescription);
+
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             considerNameOfDescriptor,
             missingSourceDescriptor,
@@ -94,7 +104,8 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             mismatchInNumberOfParameters,
             sourceDoesNotReturnIEnumerable,
             parametersSuppliedToFieldOrProperty,
-            mismatchInNumberOfTestMethodParameters);
+            mismatchInNumberOfTestMethodParameters,
+            mismatchWithTestMethodParameterType);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -239,6 +250,20 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                                             syntaxNode.GetLocation(),
                                             1,
                                             methodRequiredParameters + methodOptionalParameters));
+                                }
+                                else
+                                {
+                                    IParameterSymbol testMethodParameter = testMethod.Parameters.First();
+
+                                    if (!NUnitEqualityComparerHelper.CanBeEqual(elementType, testMethodParameter.Type, context.Compilation))
+                                    {
+                                        context.ReportDiagnostic(Diagnostic.Create(
+                                                mismatchWithTestMethodParameterType,
+                                                syntaxNode.GetLocation(),
+                                                elementType,
+                                                testMethodParameter.Type,
+                                                testMethodParameter.Name));
+                                    }
                                 }
                             }
                         }

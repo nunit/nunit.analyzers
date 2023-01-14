@@ -604,6 +604,33 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
+        public void AnalyzeWhenParameterTypeOfTestDiffersFromTestSource()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected
+    {
+        [TestCaseSource(↓nameof(TestData))]
+        public void ShortName(string message)
+        {
+            Assert.That(message.Length, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData()
+        {
+            yield return 1;
+            yield return 2;
+            yield return 3;
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchWithTestMethodParameterType)
+                .WithMessage("The TestCaseSource provides type 'int', but the Test method expects type 'string' for parameter 'message'");
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         [Explicit("The code is wrong, but it is too complext for the analyzer to detect this.")]
         public void AnalyzeWhenNumberOfParametersOfTestIsNotEvidentFromTestSource()
         {
