@@ -173,30 +173,27 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         {
             if (expressionStatement is AssignmentExpressionSyntax assignmentExpression)
             {
-                if (assignmentExpression.Left.ToString() == fieldOrPropertyName)
+                if (assignmentExpression.Left is TupleExpressionSyntax tupleExpression)
                 {
-                    return true;
+                    foreach (var argument in tupleExpression.Arguments)
+                    {
+                        if (GetIdentifier(argument.Expression) == fieldOrPropertyName)
+                        {
+                            return true;
+                        }
+                    }
                 }
-                else if (assignmentExpression.Left is MemberAccessExpressionSyntax memberAccessExpression &&
-                    memberAccessExpression.Expression is ThisExpressionSyntax &&
-                    memberAccessExpression.Name.Identifier.Text == fieldOrPropertyName)
+                else
                 {
-                    return true;
+                    if (GetIdentifier(assignmentExpression.Left) == fieldOrPropertyName)
+                    {
+                        return true;
+                    }
                 }
             }
             else if (expressionStatement is InvocationExpressionSyntax invocationExpression)
             {
-                string? identifier = null;
-
-                if (invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
-                   memberAccessExpression.Expression is ThisExpressionSyntax)
-                {
-                    identifier = memberAccessExpression.Name.Identifier.Text;
-                }
-                else if (invocationExpression.Expression is IdentifierNameSyntax identifierName)
-                {
-                    identifier = identifierName.Identifier.Text;
-                }
+                string? identifier = GetIdentifier(invocationExpression.Expression);
 
                 if (!string.IsNullOrEmpty(identifier) &&
                     IsAssignedIn(model, classDeclaration, invocationExpression, fieldOrPropertyName))
@@ -206,6 +203,21 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             }
 
             return false;
+        }
+
+        private static string? GetIdentifier(ExpressionSyntax expression)
+        {
+            if (expression is IdentifierNameSyntax identifierName)
+            {
+                return identifierName.Identifier.Text;
+            }
+            else if (expression is MemberAccessExpressionSyntax memberAccessExpression &&
+                memberAccessExpression.Expression is ThisExpressionSyntax)
+            {
+                return memberAccessExpression.Name.Identifier.Text;
+            }
+
+            return null;
         }
     }
 }
