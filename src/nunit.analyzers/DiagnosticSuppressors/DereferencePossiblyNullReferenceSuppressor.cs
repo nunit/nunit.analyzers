@@ -3,9 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -61,38 +61,116 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 // Drop the cast.
                 possibleNullReference = castExpression.Expression.ToString();
             }
+            else if (node.IsKind(SyntaxKind.CoalesceExpression) && node is BinaryExpressionSyntax binaryExpression)
+            {
+                // The compiler complains about the whole expression instead of just the right operand.
+                possibleNullReference = binaryExpression.Right.ToString();
+            }
+            else if (node is ConditionalExpressionSyntax conditionalExpression)
+            {
+                // The compiler complains about the whole expression instead of just one of the operands.
+                // Try to determine which one.
+                ExpressionSyntax? conditionalExpressionPath = DetermineConditionalExpressionPath(conditionalExpression);
+
+                if (conditionalExpressionPath is null)
+                {
+                    // We don't know.
+                    return false;
+                }
+
+                possibleNullReference = conditionalExpressionPath.ToString();
+            }
 
             for (SyntaxNode? currentNode = node; currentNode is not null;)
             {
-                StatementSyntax? statement = currentNode.Ancestors().OfType<StatementSyntax>().FirstOrDefault();
+                StatementSyntax? statement = currentNode.AncestorsAndSelf().OfType<StatementSyntax>().FirstOrDefault();
 
                 if (statement is null)
                 {
                     break;
                 }
 
-                BlockSyntax? parent = statement.Ancestors().OfType<BlockSyntax>().FirstOrDefault();
+                BlockSyntax? block = statement.Parent as BlockSyntax;
 
                 // If the statement is inside an Assert.Multiple NUnit doesn't throw
                 // flow continues with actual null values and therefore these shouldn't be suppressed.
                 if (!AssertHelper.IsInsideAssertMultiple(statement))
                 {
                     if (IsKnownToBeNotNull(currentNode) ||
-                        (parent is not null && IsValidatedNotNullByPreviousStatementInSameBlock(possibleNullReference, parent, statement)))
+                        (block is not null && IsValidatedNotNullByPreviousStatementInSameBlock(possibleNullReference, block, statement)))
                     {
                         return true;
                     }
                 }
 
-                currentNode = parent;
+                currentNode = statement.Parent;
             }
 
             return false;
         }
 
-        private static bool IsValidatedNotNullByPreviousStatementInSameBlock(string possibleNullReference, BlockSyntax parent, StatementSyntax statement)
+        /// <summary>
+        /// Determine which side of the conditional expression if failing nullability.
+        /// </summary>
+        /// <remarks>
+        /// We only try to detect simple cases where the operands being tested for <see langword="null"/> is one of the operands being returned:
+        /// <code>variable is not null ? variable : otherExpression</code>
+        /// </para>
+        /// We recognize the 'is' pattern operations and normal equality.
+        /// </remarks>
+        /// <param name="conditionalExpression">Conditional expression to investigate.</param>
+        /// <returns>Either the 'WhenTrue' or the 'WhenFalse' part of the <paramref name="conditionalExpression"/>.</returns>
+        private static ExpressionSyntax? DetermineConditionalExpressionPath(ConditionalExpressionSyntax conditionalExpression)
         {
-            var siblings = parent.ChildNodes().ToList();
+            string? testedAgainstNullExpression;
+            bool isNot = false;
+
+            if (conditionalExpression.Condition is IsPatternExpressionSyntax patternExpression &&
+                patternExpression.Expression is IdentifierNameSyntax or MemberAccessExpressionSyntax)
+            {
+                // identifier is
+                testedAgainstNullExpression = patternExpression.Expression.ToString();
+                PatternSyntax pattern = patternExpression.Pattern;
+                if (pattern is UnaryPatternSyntax unaryPattern && unaryPattern.IsKind(SyntaxKind.NotPattern))
+                {
+                    // 'expression' is not
+                    isNot = true;
+                    pattern = unaryPattern.Pattern;
+                }
+
+                if (pattern is not ConstantPatternSyntax constantPattern || !constantPattern.Expression.IsKind(SyntaxKind.NullLiteralExpression))
+                {
+                    return null;
+                }
+
+                // identifier is (not) null
+            }
+            else if (conditionalExpression.Condition is BinaryExpressionSyntax binaryExpression &&
+                binaryExpression.Right.IsKind(SyntaxKind.NullLiteralExpression) &&
+                binaryExpression.Left is IdentifierNameSyntax or MemberAccessExpressionSyntax)
+            {
+                testedAgainstNullExpression = binaryExpression.Left.ToString();
+                isNot = binaryExpression.IsKind(SyntaxKind.NotEqualsExpression);
+            }
+            else
+            {
+                // Too complex an expression for us to handle.
+                return null;
+            }
+
+            // Verify that the not null path is the identifier being tested.
+            ExpressionSyntax notNullPath = isNot ? conditionalExpression.WhenTrue : conditionalExpression.WhenFalse;
+            if (notNullPath.ToString().Equals(testedAgainstNullExpression, StringComparison.Ordinal))
+            {
+                return isNot ? conditionalExpression.WhenFalse : conditionalExpression.WhenTrue;
+            }
+
+            return null;
+        }
+
+        private static bool IsValidatedNotNullByPreviousStatementInSameBlock(string possibleNullReference, BlockSyntax block, StatementSyntax statement)
+        {
+            var siblings = block.ChildNodes().ToList();
 
             // Look in earlier statements to see if the variable was previously checked for null.
             for (int nodeIndex = siblings.FindIndex(x => x == statement); --nodeIndex >= 0;)

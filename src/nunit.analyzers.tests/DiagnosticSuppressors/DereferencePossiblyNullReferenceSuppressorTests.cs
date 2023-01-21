@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -614,6 +615,75 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             RoslynAssert.Suppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
+        [TestCase("string fatal = line2 ?? line1;")]
+        [TestCase("string fatal = line2 is not null ? line2 : line1;")]
+        [TestCase("string fatal = line2 is null ? line1 : line2;")]
+        [TestCase("string fatal = line2 != null ? line2 : line1;")]
+        [TestCase("string fatal = line2 == null ? line1 : line2;")]
+        [TestCase("string fatal; if (line2 is not null) fatal = line2; else fatal = line1;")]
+        [TestCase("string fatal; if (line2 is not null) { fatal = line2; } else { fatal = line1; }")]
+        [TestCase("string fatal; if (line2 != null) fatal = line2; else fatal = line1;")]
+        [TestCase("string fatal; if (line2 != null) { fatal = line2; } else { fatal = line1; }")]
+        [TestCase("string fatal; if (line2 is null) fatal = line1; else fatal = line2;")]
+        [TestCase("string fatal; if (line2 is null) { fatal = line1; } else { fatal = line2; }")]
+        [TestCase("string fatal; if (line2 == null) fatal = line1; else fatal = line2;")]
+        [TestCase("string fatal; if (line2 == null) { fatal = line1; } else { fatal = line2; }")]
+        public void TestIssue503SimpleIdentifier(string expression)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                [Test]
+                public void ConditionalExpressionDetectsNotNull()
+                {{
+                    string? line1 = ReadLine();
+                    string? line2 = ReadLine();
+                    Assert.That(line1, Is.Not.Null);
+                    {expression}
+                }}
+
+                private string? ReadLine() => null;
+            ");
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8600"]),
+                testCode);
+        }
+
+        [TestCase("string fatal = lines.Line2 ?? lines.Line1;")]
+        [TestCase("string fatal = lines.Line2 is not null ? lines.Line2 : lines.Line1;")]
+        [TestCase("string fatal = lines.Line2 is null ? lines.Line1 : lines.Line2;")]
+        [TestCase("string fatal = lines.Line2 != null ? lines.Line2 : lines.Line1;")]
+        [TestCase("string fatal = lines.Line2 == null ? lines.Line1 : lines.Line2;")]
+        public void TestIssue503Properties(string expression)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                [Test]
+                public void ConditionalExpressionDetectsNotNull()
+                {{
+                    var lines = new Lines(ReadLine(), ReadLine());
+                    Assert.That(lines.Line1, Is.Not.Null);
+                    {expression}
+                }}
+
+                private string? ReadLine() => null;
+
+                private sealed class Lines
+                {{
+                    public Lines(string? line1, string? line2)
+                    {{
+                        Line1 = line1;
+                        Line2 = line2;
+                    }}
+
+                    public string? Line1 {{ get; }}
+                    public string? Line2 {{ get; }}
+                }}
+            ");
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8600"]),
                 testCode);
         }
     }
