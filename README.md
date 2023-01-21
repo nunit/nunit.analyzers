@@ -24,6 +24,14 @@ The other analyzer looks for classic model assertions (e.g. `Assert.AreEqual()`,
 
 <img src="https://user-images.githubusercontent.com/1007631/44311791-213d2780-a3ee-11e8-90b8-6d144c0e3dbd.gif" alt="classic model assertions analyzers" width="1000"/>
 
+## Which version works with Unity Test Framework ##
+
+If your Unity project is made by Unity under 2021.2, then use NUnit.Analyzers v2.x.
+
+If your Unity project is made by Unity 2021.2 or later, then use NUnit.Analyzers v3.3 (v3.4 or later of the analyzers does not work with Unity).
+
+You should use an analyzer built with the same version of Microsoft.CodeAnalysis.CSharp as the one embedded in the Unity Editor.
+
 ## License ##
 
 NUnit analyzers are Open Source software and released under the [MIT license](http://www.nunit.org/nuget/nunit3-license.txt), which allow the use of the analyzers in free and commercial applications and libraries without restrictions.
