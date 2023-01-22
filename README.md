@@ -1,6 +1,7 @@
 # NUnit Analyzers #
 
 [![Build status](https://ci.appveyor.com/api/projects/status/rlx18p32vkh80p2f/branch/master?svg=true)](https://ci.appveyor.com/project/mikkelbu/nunit-analyzers/branch/master)
+[![GitHub Actions build status](https://github.com/nunit/nunit.analyzers/actions/workflows/ci.yml/badge.svg)](https://github.com/nunit/nunit.analyzers/actions/workflows/ci.yml)
 [![NuGet Version and Downloads count](https://buildstats.info/nuget/NUnit.Analyzers)](https://www.nuget.org/packages/NUnit.Analyzers)
 [![MyGet Feed](https://img.shields.io/myget/nunit-analyzers/v/NUnit.Analyzers.svg)](https://www.myget.org/feed/nunit-analyzers/package/nuget/NUnit.Analyzers)
 
