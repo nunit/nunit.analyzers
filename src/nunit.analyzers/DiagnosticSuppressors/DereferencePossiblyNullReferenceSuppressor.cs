@@ -128,29 +128,43 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             if (conditionalExpression.Condition is IsPatternExpressionSyntax patternExpression &&
                 patternExpression.Expression is IdentifierNameSyntax or MemberAccessExpressionSyntax)
             {
-                // identifier is
+                // 'expression' is (not) null
                 testedAgainstNullExpression = patternExpression.Expression.ToString();
                 PatternSyntax pattern = patternExpression.Pattern;
                 if (pattern is UnaryPatternSyntax unaryPattern && unaryPattern.IsKind(SyntaxKind.NotPattern))
                 {
-                    // 'expression' is not
                     isNot = true;
                     pattern = unaryPattern.Pattern;
                 }
 
                 if (pattern is not ConstantPatternSyntax constantPattern || !constantPattern.Expression.IsKind(SyntaxKind.NullLiteralExpression))
                 {
+                    // Comparison with anything but 'null' is not supported
                     return null;
                 }
-
-                // identifier is (not) null
             }
             else if (conditionalExpression.Condition is BinaryExpressionSyntax binaryExpression &&
-                binaryExpression.Right.IsKind(SyntaxKind.NullLiteralExpression) &&
-                binaryExpression.Left is IdentifierNameSyntax or MemberAccessExpressionSyntax)
+                (binaryExpression.IsKind(SyntaxKind.EqualsExpression) || binaryExpression.IsKind(SyntaxKind.NotEqualsExpression)))
             {
-                testedAgainstNullExpression = binaryExpression.Left.ToString();
                 isNot = binaryExpression.IsKind(SyntaxKind.NotEqualsExpression);
+
+                if (binaryExpression.Right.IsKind(SyntaxKind.NullLiteralExpression) &&
+                    binaryExpression.Left is IdentifierNameSyntax or MemberAccessExpressionSyntax)
+                {
+                    // 'expression' !=/== null
+                    testedAgainstNullExpression = binaryExpression.Left.ToString();
+                }
+                else if (binaryExpression.Left.IsKind(SyntaxKind.NullLiteralExpression) &&
+                    binaryExpression.Right is IdentifierNameSyntax or MemberAccessExpressionSyntax)
+                {
+                    // null !=/== 'expression'
+                    testedAgainstNullExpression = binaryExpression.Right.ToString();
+                }
+                else
+                {
+                    // Not suppported comparison
+                    return null;
+                }
             }
             else
             {

@@ -626,10 +626,10 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase("string fatal; if (line2 is not null) fatal = line2; else fatal = line1;")]
         [TestCase("string fatal; if (line2 is not null) { fatal = line2; } else { fatal = line1; }")]
         [TestCase("string fatal; if (line2 != null) fatal = line2; else fatal = line1;")]
-        [TestCase("string fatal; if (line2 != null) { fatal = line2; } else { fatal = line1; }")]
+        [TestCase("string fatal; if (null != line2) { fatal = line2; } else { fatal = line1; }")]
         [TestCase("string fatal; if (line2 is null) fatal = line1; else fatal = line2;")]
         [TestCase("string fatal; if (line2 is null) { fatal = line1; } else { fatal = line2; }")]
-        [TestCase("string fatal; if (line2 == null) fatal = line1; else fatal = line2;")]
+        [TestCase("string fatal; if (null == line2) fatal = line1; else fatal = line2;")]
         [TestCase("string fatal; if (line2 == null) { fatal = line1; } else { fatal = line2; }")]
         public void TestIssue503SimpleIdentifier(string expression)
         {
@@ -656,6 +656,8 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase("string fatal = lines.Line2 is null ? lines.Line1 : lines.Line2;")]
         [TestCase("string fatal = lines.Line2 != null ? lines.Line2 : lines.Line1;")]
         [TestCase("string fatal = lines.Line2 == null ? lines.Line1 : lines.Line2;")]
+        [TestCase("string fatal = null != lines.Line2 ? lines.Line2 : lines.Line1;")]
+        [TestCase("string fatal = null == lines.Line2 ? lines.Line1 : lines.Line2;")]
         public void TestIssue503Properties(string expression)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
