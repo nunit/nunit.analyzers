@@ -356,6 +356,18 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeArgumentHasTypeNotAllowedInAttributes()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeArgumentHasTypeNotAllowedInAttributes
+    {
+        [TestCase(1.0m)]
+        public void Test(decimal d) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode, Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors));
+        }
+
+        [Test]
         public void AnalyzeWhenArgumentPassesNullToValueType()
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(

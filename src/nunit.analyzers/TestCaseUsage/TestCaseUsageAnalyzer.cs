@@ -179,6 +179,12 @@ namespace NUnit.Analyzers.TestCaseUsage
             for (var i = 0; i < attributePositionalArguments.Length; i++)
             {
                 var attributeArgument = attributePositionalArguments[i];
+
+                // If the compiler detects an illegal constant, we shouldn't check it.
+                // Unfortunately the constant 'null' is marked as Error with a null type.
+                if (attributeArgument.Kind == TypedConstantKind.Error && attributeArgument.Type is not null)
+                    continue;
+
                 var (methodParameterType, methodParameterName, methodParameterParamsType) =
                     TestCaseUsageAnalyzer.GetParameterType(methodParameters, i);
 
