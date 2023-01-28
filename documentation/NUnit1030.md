@@ -18,7 +18,7 @@ Note that the current implementation only works for single parameters.
 
 ## Motivation
 
-A `TestCaseSourceAttribute` is used to pass parameters to a test method, but the test method does expect different type of parameter.
+A `TestCaseSourceAttribute` is used to pass parameters to a test method, but the test method expects a different type of parameter.
 
 ```charp
 private static readonly IEnumerable<string> NUnitNameSpaces = new[] { ".NUnit", ".NUnitExtensions" };

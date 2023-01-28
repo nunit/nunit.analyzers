@@ -549,7 +549,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
-        public void AnalyzeWhenNumberOfParametersOfTestIsLessThanEvidentFromTestSource()
+        public void AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     [TestFixture]
@@ -577,7 +577,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
-        public void AnalyzeWhenNumberOfParametersOfTestIsMoreThanEvidentFromTestSource()
+        public void AnalyzeWhenNumberOfParametersOfTestIsMoreThanProvidedByTestCaseSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     [TestFixture]
@@ -604,7 +604,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
-        public void AnalyzeWhenParameterTypeOfTestDiffersFromTestSource()
+        public void AnalyzeWhenParameterTypeOfTestDiffersFromTestCaseSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     [TestFixture]
