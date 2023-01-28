@@ -1,4 +1,3 @@
-using System.Linq;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -553,7 +552,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     [TestFixture]
-    public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected
+    public class AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource
     {
         [TestCaseSource(↓nameof(TestData), new object[] { 3 })]
         public void ShortName()
@@ -581,7 +580,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     [TestFixture]
-    public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected
+    public class AnalyzeWhenNumberOfParametersOfTestIsMoreThanProvidedByTestCaseSource
     {
         [TestCaseSource(↓nameof(TestData))]
         public void ShortName(int x, int y)
@@ -608,7 +607,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     [TestFixture]
-    public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected
+    public class AnalyzeWhenParameterTypeOfTestDiffersFromTestCaseSource
     {
         [TestCaseSource(↓nameof(TestData))]
         public void ShortName(string message)
@@ -631,14 +630,14 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
-        [Explicit("The code is wrong, but it is too complext for the analyzer to detect this.")]
         public void AnalyzeWhenNumberOfParametersOfTestIsNotEvidentFromTestSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     [TestFixture]
-    public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected
+    public class AnalyzeWhenNumberOfParametersOfTestIsNotEvidentFromTestSource
     {
-        [TestCaseSource(↓nameof(TestData))]
+        [Explicit(""The code is wrong, but it is too complext for the analyzer to detect this."")]
+        [TestCaseSource(nameof(TestData))]
         public void ShortName(int n)
         {
             Assert.That(n, Is.GreaterThanOrEqualTo(0));
@@ -651,10 +650,54 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }", additionalUsings: "using System.Collections.Generic;");
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters)
-                .WithMessage("The TestCaseSource provides '>0' parameter(s), but the Test method expects '1' parameter(s)");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            // The TestCaseSource provides '>0' parameter(s), but the Test method expects '1' parameter(s)
+            // Analyzing the actual code inside the TestCaseSource method is beyond the scope of the analyzer.
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("IEnumerable", "object", "System.Collections")]
+        [TestCase("IEnumerable<object>", "object", "System.Collections.Generic")]
+        [TestCase("IEnumerable<TestCaseData>", "TestCaseData", "System.Collections.Generic")]
+        [TestCase("IEnumerable<int>", "int", "System.Collections.Generic")]
+        public void NoIssueIsRaisedWhenOneParameterIsExpectedAndTypeCannotBeDetermined(string enumerableType, string testCaseType, string collections)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+        using {collections};
+
+        public class NoIssueIsRaisedWhenOneParameterIsExpectedAndTypeCannotBeDetermined
+        {{
+            [TestCaseSource(nameof(TestData))]
+            public void ShortName(int n)
+            {{
+                Assert.That(n, Is.GreaterThanOrEqualTo(0));
+            }}
+
+            public static {enumerableType} TestData() => Array.Empty<{testCaseType}>();
+        }}");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("IEnumerable", "object", "System.Collections")]
+        [TestCase("IEnumerable<object>", "object", "System.Collections.Generic")]
+        [TestCase("IEnumerable<TestCaseData>", "TestCaseData", "System.Collections.Generic")]
+        public void NoIssueIsRaisedWhenMultipleParameterAreExpectedAndTypeCannotBeDetermined(string enumerableType, string testCaseType, string collections)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+        using {collections};
+
+        public class NoIssueIsRaisedWhenMultipleParameterAreExpectedAndTypeCannotBeDetermined
+        {{
+            [TestCaseSource(nameof(TestData))]
+            public void ShortName(int first, int second)
+            {{
+                Assert.That(first, Is.LessThan(second));
+            }}
+
+            public static {enumerableType} TestData() => Array.Empty<{testCaseType}>();
+        }}");
+
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }
