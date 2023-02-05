@@ -18,5 +18,10 @@ jobs:
         uses: actions/setup-dotnet@main
         with:
           global-json-file: ./global.json
-      - name: dotnet test
-        run: dotnet test ./src/nunit.analyzers.tests/
+      - name: Run Test
+        run: |
+          if [ "$RUNNER_OS"  == "Windows"]: then
+            dotnet test ./src/nunit.analyzers.tests/
+          else
+            dotnet test -f net6.0 ./src/nunit.analyzers.tests/
+          fi
