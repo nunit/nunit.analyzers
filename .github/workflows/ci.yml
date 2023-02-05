@@ -20,8 +20,9 @@ jobs:
           global-json-file: ./global.json
       - name: Run Test
         run: |
-          if [ "$RUNNER_OS"  == "Windows"]: then
+          if [ "$RUNNER_OS"  == "Windows"]; then
             dotnet test ./src/nunit.analyzers.tests/
           else
             dotnet test -f net6.0 ./src/nunit.analyzers.tests/
           fi
+        shell: bash
