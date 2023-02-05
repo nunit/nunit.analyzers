@@ -25,4 +25,4 @@ jobs:
       - name: .NET Framework Test
         if: runner.os == 'Windows'
         run: |
-            dotnet test -f net462 ./src/nunit.analyzers.test
+            dotnet test -f net462 ./src/nunit.analyzers.tests/
