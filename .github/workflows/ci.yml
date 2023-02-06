@@ -26,7 +26,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
             dotnet tool restore
-            dotnet test --collect:"" -f net462 ./src/nunit.analyzers.tests/
+            dotnet test --collect:"XPlat Code Coverage" -f net462 ./src/nunit.analyzers.tests/
             dotnet dotnet-coverage merge -o merged.cobertura.xml -f cobertura -r coverage.cobertura.xml
 
       - name: Post Coverage
