@@ -1,0 +1,21 @@
+coverage:
+  paths:
+  - merged.covertura.xml
+
+codeToTestRatio:
+  code:                  # files to count as "Code"
+    - 'src/nunit.analyzers/**/*.cs'
+  test:                  # files to count as "Test"
+    - 'src/nunit.analyzers.tests/**/*.cs'
+
+comment:
+  if: is_pull_request
+
+report:
+  if: is_default_branch
+  datastores:
+    - artifact://${GITHUB_REPOSITORY}
+
+diff:
+  datastores:
+    - artifact://${GITHUB_REPOSITORY}

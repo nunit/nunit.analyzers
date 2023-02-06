@@ -25,4 +25,10 @@ jobs:
       - name: .NET Framework Test
         if: runner.os == 'Windows'
         run: |
-            dotnet test -f net462 ./src/nunit.analyzers.tests/
+            dotnet tool restore
+            dotnet test --collect:"" -f net462 ./src/nunit.analyzers.tests/
+            dotnet dotnet-coverage merge -o merged.cobertura.xml -f cobertura -r coverage.cobertura.xml
+
+      - name: Post Coverage
+        uses: k1LoW/octocov-action@v0
+        if: runner.os == 'Windows'
