@@ -25,9 +25,9 @@ jobs:
       - name: .NET Framework Test
         if: runner.os == 'Windows'
         run: |
-            dotnet tool restore
+            dotnet tool install --global dotnet-coverage
             dotnet test --collect:"XPlat Code Coverage" -f net462 ./src/nunit.analyzers.tests/
-            dotnet dotnet-coverage merge -o merged.cobertura.xml -f cobertura -r coverage.cobertura.xml
+            dotnet-coverage merge -o merged.cobertura.xml -f cobertura -r coverage.cobertura.xml
 
       - name: Post Coverage
         uses: k1LoW/octocov-action@v0
