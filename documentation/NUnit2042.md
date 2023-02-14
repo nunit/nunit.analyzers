@@ -50,7 +50,7 @@ public static void ShouldBeGreaterThan<T>(this T actual, T expected, string? mes
 
 ### Via ruleset file
 
-Configure the severity per project, for more info see [MSDN](https://msdn.microsoft.com/en-us/library/dd264949.aspx).
+Configure the severity per project, for more info see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
 ### Via .editorconfig file
 
