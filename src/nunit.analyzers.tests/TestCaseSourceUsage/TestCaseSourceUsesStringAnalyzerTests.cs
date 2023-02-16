@@ -1,4 +1,3 @@
-using System.Linq;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -26,7 +25,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         static string[] Tests = new[] { ""Data"" };
 
         [TestCaseSource(nameof(Tests))]
-        public void Test()
+        public void Test(string data)
         {
         }
     }");
@@ -285,7 +284,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         {testCaseMember}
 
         [TestCaseSource(nameof(TestCases))]
-        public void Test()
+        public void Test(object data)
         {{
         }}
     }}");
@@ -546,6 +545,159 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             var message = "Consider using nameof(AnotherClass.InnerClass.TestCases) instead of \"TestCases\"";
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource
+    {
+        [TestCaseSource(↓nameof(TestData), new object[] { 3 })]
+        public void ShortName()
+        {
+            Assert.That(3, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData(int maximum)
+        {
+            for (int i = 1; i <= maximum; i++)
+            {
+                yield return i;
+            }
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters)
+                .WithMessage("The TestCaseSource provides '1' parameter(s), but the Test method expects '0' parameter(s)");
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNumberOfParametersOfTestIsMoreThanProvidedByTestCaseSource()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersOfTestIsMoreThanProvidedByTestCaseSource
+    {
+        [TestCaseSource(↓nameof(TestData))]
+        public void ShortName(int x, int y)
+        {
+            Assert.That(x + y, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData()
+        {
+            yield return 1;
+            yield return 2;
+            yield return 3;
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters)
+                .WithMessage("The TestCaseSource provides '1' parameter(s), but the Test method expects '2' parameter(s)");
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenParameterTypeOfTestDiffersFromTestCaseSource()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenParameterTypeOfTestDiffersFromTestCaseSource
+    {
+        [TestCaseSource(↓nameof(TestData))]
+        public void ShortName(string message)
+        {
+            Assert.That(message.Length, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData()
+        {
+            yield return 1;
+            yield return 2;
+            yield return 3;
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchWithTestMethodParameterType)
+                .WithMessage("The TestCaseSource provides type 'int', but the Test method expects type 'string' for parameter 'message'");
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNumberOfParametersOfTestIsNotEvidentFromTestSource()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersOfTestIsNotEvidentFromTestSource
+    {
+        [Explicit(""The code is wrong, but it is too complext for the analyzer to detect this."")]
+        [TestCaseSource(nameof(TestData))]
+        public void ShortName(int n)
+        {
+            Assert.That(n, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<object> TestData()
+        {
+            yield return new object[] { 1, 2 };
+            yield return new object[] { 2, 3 };
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            // The TestCaseSource provides '>0' parameter(s), but the Test method expects '1' parameter(s)
+            // Analyzing the actual code inside the TestCaseSource method is beyond the scope of the analyzer.
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("IEnumerable", "object", "System.Collections")]
+        [TestCase("IEnumerable<object>", "object", "System.Collections.Generic")]
+        [TestCase("IEnumerable<TestCaseData>", "TestCaseData", "System.Collections.Generic")]
+        [TestCase("IEnumerable<int>", "int", "System.Collections.Generic")]
+        public void NoIssueIsRaisedWhenOneParameterIsExpectedAndTypeCannotBeDetermined(string enumerableType, string testCaseType, string collections)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+        using {collections};
+
+        public class NoIssueIsRaisedWhenOneParameterIsExpectedAndTypeCannotBeDetermined
+        {{
+            [TestCaseSource(nameof(TestData))]
+            public void ShortName(int n)
+            {{
+                Assert.That(n, Is.GreaterThanOrEqualTo(0));
+            }}
+
+            public static {enumerableType} TestData() => Array.Empty<{testCaseType}>();
+        }}");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("IEnumerable", "object", "System.Collections")]
+        [TestCase("IEnumerable<object>", "object", "System.Collections.Generic")]
+        [TestCase("IEnumerable<TestCaseData>", "TestCaseData", "System.Collections.Generic")]
+        public void NoIssueIsRaisedWhenMultipleParameterAreExpectedAndTypeCannotBeDetermined(string enumerableType, string testCaseType, string collections)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+        using {collections};
+
+        public class NoIssueIsRaisedWhenMultipleParameterAreExpectedAndTypeCannotBeDetermined
+        {{
+            [TestCaseSource(nameof(TestData))]
+            public void ShortName(int first, int second)
+            {{
+                Assert.That(first, Is.LessThan(second));
+            }}
+
+            public static {enumerableType} TestData() => Array.Empty<{testCaseType}>();
+        }}");
+
+            RoslynAssert.Valid(analyzer, testCode);
         }
     }
 }

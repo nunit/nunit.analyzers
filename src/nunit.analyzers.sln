@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit.analyzers.vsix", "nun
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nunit.analyzers.tests", "nunit.analyzers.tests\nunit.analyzers.tests.csproj", "{070974CB-B483-4347-BA5A-53ED977E639C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{2F501E14-35D4-432A-9F93-810A0AAEA128}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documentation", "documentation", "{2F501E14-35D4-432A-9F93-810A0AAEA128}"
 	ProjectSection(SolutionItems) = preProject
 		..\documentation\index.md = ..\documentation\index.md
 		..\documentation\NUnit1001.md = ..\documentation\NUnit1001.md
@@ -40,6 +40,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{2F501E14-3
 		..\documentation\NUnit1026.md = ..\documentation\NUnit1026.md
 		..\documentation\NUnit1027.md = ..\documentation\NUnit1027.md
 		..\documentation\NUnit1028.md = ..\documentation\NUnit1028.md
+		..\documentation\NUnit1029.md = ..\documentation\NUnit1029.md
+		..\documentation\NUnit1030.md = ..\documentation\NUnit1030.md
 		..\documentation\NUnit2001.md = ..\documentation\NUnit2001.md
 		..\documentation\NUnit2002.md = ..\documentation\NUnit2002.md
 		..\documentation\NUnit2003.md = ..\documentation\NUnit2003.md

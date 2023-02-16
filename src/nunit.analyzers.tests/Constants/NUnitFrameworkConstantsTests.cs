@@ -139,6 +139,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.FullNameOfTypeITestBuilder), typeof(ITestBuilder)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeISimpleTestBuilder), typeof(ISimpleTestBuilder)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeIParameterDataSource), typeof(IParameterDataSource)),
+            (nameof(NUnitFrameworkConstants.FullNameOfTypeTestCaseData), typeof(TestCaseData)),
 
             (nameof(NUnitFrameworkConstants.FullNameOfTypeOneTimeSetUpAttribute), typeof(OneTimeSetUpAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeOneTimeTearDownAttribute), typeof(OneTimeTearDownAttribute)),
