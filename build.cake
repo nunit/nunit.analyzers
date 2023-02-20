@@ -145,7 +145,8 @@ Task("Build")
             NoRestore = true,
             MSBuildSettings = new DotNetMSBuildSettings
             {
-                InformationalVersion = packageVersion,
+                AssemblyVersion	= packageVersion,
+                FileVersion	= packageVersion,
                 Version = packageVersion
             }
         });
@@ -189,8 +190,9 @@ Task("Pack")
             OutputDirectory = PACKAGE_DIR + "/" + targetFramework,
             Properties = new Dictionary<string, string>()
             {
-                {"Configuration", configuration},
-                {"TargetFramework", targetFramework }
+                { "Configuration", configuration },
+                { "TargetFramework", targetFramework },
+                { "NoBuild", true }
             }
         });
     });
