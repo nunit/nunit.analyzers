@@ -192,7 +192,7 @@ Task("Pack")
             {
                 { "Configuration", configuration },
                 { "TargetFramework", targetFramework },
-                { "NoBuild", true }
+                { "NoBuild", "true" }
             }
         });
     });
