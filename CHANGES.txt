@@ -1,4 +1,55 @@
-﻿NUnit Analyzers 3.5 (and 2.5) - October 23, 2022
+﻿NUnit Analyzers 3.6 (and 2.6) - February 21, 2023
+
+This release of the NUnit Analyzers improves on the analysis of nullable reference types - in particular
+in case of null coalescing operator and tuple deconstruction assignments.
+
+The release also adds two new diagnostics for the TestCaseSource attribute. The diagnostics examines the test data returned
+from the TestCaseSource:
+* NUnit1029 - The number of parameters provided by the TestCaseSource does not match the number of parameters in the Test method
+* NUnit1030 - The type of parameter provided by the TestCaseSource does not match the type of the parameter in the Test method
+
+In addition, the release also contains some bug fixes to existing analyzers, and we have added a GitHub Actions workflow
+and status badge.
+
+The release contains contributions from the following users (in alphabetical order):
+* get-me-power
+* Hounsvad
+* JasonBock
+* manfred-brands
+* mikkelbu
+* nowsprinting
+* oskar
+* SeanKilleen
+* yaakov-h
+
+The majority of the code contributions were provided by manfred-brands.
+
+Issues Resolved
+
+Features and Enhancements
+* #503 DiagnosticsSuppressor doesn't suppress null coalescing operator
+* #499 DiagnosticSuppressor doesn't detect tuple deconstruction assignments
+* #442 Analyzer for TestCaseSource does not check Test method parameters
+
+Bugs
+* #509 Giving TestCaseAttribute an explicit decimal for a parameter that is a decimal gives a Nunit 1001 error
+* #496 NUnit2045 code-fix does not correctly lift asynchronous assertions into Assert.Multiple
+* #475 Code Fix for NUnit2010 on Ref Structs Creates CS1503
+
+Tooling, Process, and Documentation
+* #519 chore: Update year to 2023 
+* #518 fix: Correct MSDN link on new pages
+* #516 Replace link to ruleset docs 
+* #507 chore: Add Github Action build status badge 
+* #500 Fix path to global.json 
+* #497 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.3.2 to 17.4.1
+* #489 Add note about works with unity3d 
+* #487 chore(deps): Bump NUnit3TestAdapter from 4.2.1 to 4.3.0
+* #486 chore: Bump version to 3.6 (2.6)
+* #476 [add] GitHub Actions workflow for running test 
+
+
+NUnit Analyzers 3.5 (and 2.5) - October 23, 2022
 
 This release of the NUnit Analyzers only fixes the casing in a file name in the nuget file as nuget upload validation failed.
 
