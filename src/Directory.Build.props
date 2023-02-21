@@ -5,7 +5,7 @@
     <Description>NUnit Framework Analyzers</Description>
     <Company>NUnit Project</Company>
     <Product>NUnit Analyzers</Product>
-    <Copyright>Copyright © 2018-2022 NUnit project</Copyright>
+    <Copyright>Copyright © 2018-2023 NUnit project</Copyright>
   </PropertyGroup>
 
   <PropertyGroup>
