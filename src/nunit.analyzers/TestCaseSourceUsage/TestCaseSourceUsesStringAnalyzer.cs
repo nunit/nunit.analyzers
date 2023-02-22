@@ -226,7 +226,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                             var (methodRequiredParameters, methodOptionalParameters, methodParamsParameters) = testMethod.GetParameterCounts();
 
                             if (elementType.SpecialType != SpecialType.System_String && (elementType.SpecialType == SpecialType.System_Object || elementType.IsIEnumerable(out _) ||
-                                SymbolEqualityComparer.Default.Equals(elementType, context.SemanticModel.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseData))))
+                                IsOrDerivesFrom(elementType, context.SemanticModel.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseParameters))))
                             {
                                 // We only know that there is 1 or (likely) more parameters.
                                 // The object could hide an array, possibly with a variable number of elements: TestCaseData.Argument.
@@ -305,6 +305,28 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                     numberOfMethodParameters,
                     kind));
             }
+        }
+
+        private static bool IsOrDerivesFrom(ITypeSymbol type, ITypeSymbol? baseType)
+        {
+            if (baseType is null)
+            {
+                return false;
+            }
+
+            ITypeSymbol? typeAtHand = type;
+            do
+            {
+                if (SymbolEqualityComparer.Default.Equals(typeAtHand, baseType))
+                {
+                    return true;
+                }
+
+                typeAtHand = typeAtHand.BaseType;
+            }
+            while (typeAtHand is not null);
+
+            return false;
         }
     }
 }

@@ -108,6 +108,7 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfTypeValueSourceAttribute = "NUnit.Framework.ValueSourceAttribute";
         public const string FullNameOfTypeIParameterDataSource = "NUnit.Framework.Interfaces.IParameterDataSource";
         public const string FullNameOfTypeTestCaseData = "NUnit.Framework.TestCaseData";
+        public const string FullNameOfTypeTestCaseParameters = "NUnit.Framework.Internal.TestCaseParameters";
 
         public const string FullNameOfTypeOneTimeSetUpAttribute = "NUnit.Framework.OneTimeSetUpAttribute";
         public const string FullNameOfTypeOneTimeTearDownAttribute = "NUnit.Framework.OneTimeTearDownAttribute";
