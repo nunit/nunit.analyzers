@@ -6,6 +6,7 @@ using NUnit.Analyzers.Constants;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
 using NUnit.Framework.Interfaces;
+using NUnit.Framework.Internal;
 
 namespace NUnit.Analyzers.Tests.Constants
 {
@@ -140,6 +141,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.FullNameOfTypeISimpleTestBuilder), typeof(ISimpleTestBuilder)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeIParameterDataSource), typeof(IParameterDataSource)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeTestCaseData), typeof(TestCaseData)),
+            (nameof(NUnitFrameworkConstants.FullNameOfTypeTestCaseParameters), typeof(TestCaseParameters)),
 
             (nameof(NUnitFrameworkConstants.FullNameOfTypeOneTimeSetUpAttribute), typeof(OneTimeSetUpAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeOneTimeTearDownAttribute), typeof(OneTimeTearDownAttribute)),

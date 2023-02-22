@@ -658,6 +658,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCase("IEnumerable", "object", "System.Collections")]
         [TestCase("IEnumerable<object>", "object", "System.Collections.Generic")]
         [TestCase("IEnumerable<TestCaseData>", "TestCaseData", "System.Collections.Generic")]
+        [TestCase("IEnumerable<TestCaseParameters>", "TestCaseParameters", "System.Collections.Generic; using NUnit.Framework.Internal")]
         [TestCase("IEnumerable<int>", "int", "System.Collections.Generic")]
         public void NoIssueIsRaisedWhenOneParameterIsExpectedAndTypeCannotBeDetermined(string enumerableType, string testCaseType, string collections)
         {
@@ -681,6 +682,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCase("IEnumerable", "object", "System.Collections")]
         [TestCase("IEnumerable<object>", "object", "System.Collections.Generic")]
         [TestCase("IEnumerable<TestCaseData>", "TestCaseData", "System.Collections.Generic")]
+        [TestCase("IEnumerable<TestCaseParameters>", "TestCaseParameters", "System.Collections.Generic; using NUnit.Framework.Internal")]
         public void NoIssueIsRaisedWhenMultipleParameterAreExpectedAndTypeCannotBeDetermined(string enumerableType, string testCaseType, string collections)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
