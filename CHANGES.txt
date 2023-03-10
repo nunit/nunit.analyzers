@@ -1,4 +1,26 @@
-﻿NUnit Analyzers 3.6 (and 2.6) - February 21, 2023
+﻿NUnit Analyzers 3.6.1 (and 2.6.1) - March 10, 2023
+
+This release of the NUnit Analyzers contain a single bug fix and some updates of dependencies.
+The bug fix removes a false positive from NUnit1030 - "The type of parameter provided by the TestCaseSource 
+does not match the type of the parameter in the Test method" - when using TestCaseParameters.
+
+The release contains contributions from the following users (in alphabetical order):
+* ehonda
+* manfred-brands
+* mikkelbu
+
+Issues Resolved
+
+Bugs
+* #523 False positive for NUnit1030 with TestCaseParameters bug
+
+Tooling, Process, and Documentation
+* #528 chore(deps): Bump NUnit3TestAdapter from 4.4.0 to 4.4.2
+* #527 chore(deps): Bump NUnit3TestAdapter from 4.3.1 to 4.4.0
+* #522 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.4.1 to 17.5.0
+
+
+NUnit Analyzers 3.6 (and 2.6) - February 21, 2023
 
 This release of the NUnit Analyzers improves on the analysis of nullable reference types - in particular
 in case of null coalescing operator and tuple deconstruction assignments.
