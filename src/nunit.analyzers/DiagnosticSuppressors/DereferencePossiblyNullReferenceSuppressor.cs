@@ -55,6 +55,12 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
         private static bool ShouldBeSuppressed(SyntaxNode node)
         {
+            if (node is ArgumentSyntax argument)
+            {
+                // This is just a wrapper, remove it.
+                node = argument.Expression;
+            }
+
             string possibleNullReference = node.ToString();
             if (node is CastExpressionSyntax castExpression)
             {
@@ -198,7 +204,8 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                         // Is the offending symbol assigned here?
                         if (InvalidatedBy(assignmentExpression.Left.ToString(), possibleNullReference))
                         {
-                            return IsKnownToBeNotNull(assignmentExpression.Right);
+                            return IsKnownToBeNotNull(assignmentExpression.Right) ||
+                                ShouldBeSuppressed(assignmentExpression.Right);
                         }
                     }
 
@@ -262,7 +269,10 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     {
                         if (variable.Identifier.ToString() == possibleNullReference)
                         {
-                            return IsKnownToBeNotNull(variable.Initializer?.Value);
+                            ExpressionSyntax? initializer = variable.Initializer?.Value;
+                            return initializer is not null &&
+                                (IsKnownToBeNotNull(initializer) ||
+                                ShouldBeSuppressed(initializer));
                         }
                     }
                 }

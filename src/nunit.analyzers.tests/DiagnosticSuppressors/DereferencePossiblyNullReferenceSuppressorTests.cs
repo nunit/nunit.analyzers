@@ -150,14 +150,97 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     int? possibleNull = GetNext();
                     Assert.NotNull(possibleNull);
                     int i = ↓(int)possibleNull;
-                    Assert.That(i, Is.EqualTo(1));
+                    AssertOne(i);
                 }
 
                 private static int? GetNext() => 1;
+
+                private static void AssertOne(int i) => Assert.That(i, Is.EqualTo(1));
             ");
 
             RoslynAssert.Suppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8629"]),
+                testCode);
+        }
+
+        [Test]
+        public void NullableReferenceCastAssignmentInDeclarationInitializer()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [Test]
+                public void Test()
+                {
+                    string? possibleNull = GetNext();
+                    Assert.That(possibleNull, Is.Not.Null);
+                    string s = (string)possibleNull;
+                    AssertEmpty(s);
+                }
+
+                private static string? GetNext() => string.Empty;
+
+                private static void AssertEmpty(string s) => Assert.That(s, Is.EqualTo(string.Empty));
+            ");
+
+            RoslynAssert.Suppressed(suppressor,
+                new[]
+                {
+                    ExpectedDiagnostic.Create("CS8600", 18, 31),
+                    ExpectedDiagnostic.Create("CS8604", 19, 32),
+                },
+                testCode);
+        }
+
+        [Test]
+        public void NullableReferenceCastAssignmentToLocal()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [Test]
+                public void Test()
+                {
+                    string s;
+                    string? possibleNull = GetNext();
+                    Assert.That(possibleNull, Is.Not.Null);
+                    s = (string)possibleNull;
+                    AssertEmpty(s);
+                }
+
+                private static string? GetNext() => string.Empty;
+
+                private static void AssertEmpty(string s) => Assert.That(s, Is.EqualTo(string.Empty));
+            ");
+
+            RoslynAssert.Suppressed(suppressor,
+                new[]
+                {
+                    ExpectedDiagnostic.Create("CS8600", 19, 24),
+                    ExpectedDiagnostic.Create("CS8604", 20, 32),
+                },
+                testCode);
+        }
+
+        [Test]
+        public void NullableReferenceCastArgument()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [Test]
+                public void Test()
+                {
+                    string? possibleNull = GetNext();
+                    Assert.That(possibleNull, Is.Not.Null);
+                    AssertEmpty((string)possibleNull);
+                }
+
+                private static string? GetNext() => string.Empty;
+
+                private static void AssertEmpty(string s) => Assert.That(s, Is.EqualTo(string.Empty));
+            ");
+
+            RoslynAssert.Suppressed(suppressor,
+                new[]
+                {
+                    ExpectedDiagnostic.Create("CS8600", 18, 32),
+                    ExpectedDiagnostic.Create("CS8604", 18, 32),
+                },
                 testCode);
         }
 
