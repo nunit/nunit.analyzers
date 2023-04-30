@@ -76,11 +76,7 @@ namespace NUnit.Analyzers.WithinUsage
         private static bool IsTypeSupported(ITypeSymbol type, HashSet<ITypeSymbol>? checkedTypes = null)
         {
             // Protection against possible infinite recursion
-            // TODO Remove suppression when the below is released:
-            // https://github.com/dotnet/roslyn-analyzers/issues/4568
-#pragma warning disable RS1024 // Compare symbols correctly
             checkedTypes ??= new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
-#pragma warning restore RS1024 // Compare symbols correctly
             if (!checkedTypes.Add(type))
                 return false;
 
@@ -88,7 +84,7 @@ namespace NUnit.Analyzers.WithinUsage
             if (type.SpecialType == SpecialType.System_Decimal ||
                 type.SpecialType == SpecialType.System_Double ||
                 type.SpecialType == SpecialType.System_Single ||
-                type.SpecialType == SpecialType.System_Char ||
+                /* type.SpecialType == SpecialType.System_Char ||  // Exception has separate comparision */
                 type.SpecialType == SpecialType.System_Byte ||
                 type.SpecialType == SpecialType.System_SByte ||
                 type.SpecialType == SpecialType.System_Int16 ||
@@ -102,14 +98,37 @@ namespace NUnit.Analyzers.WithinUsage
                 return true;
             }
 
+            if (type.SpecialType == SpecialType.System_Object)
+                return true; // We have no idea of the underlying type.
+
+            if (type.SpecialType == SpecialType.System_String)
+                return false; // Even though it implements IEnumerable, it doesn't support Tolerance.
+
+            if (type is IArrayTypeSymbol arrayType && IsTypeSupported(arrayType.ElementType, checkedTypes))
+                return true;
+
             if (type is not INamedTypeSymbol namedType)
                 return false;
+
+            bool implementsNonGenericIEnumerable = false;
+
+            foreach (var interfaceType in type.Interfaces)
+            {
+                string interfaceTypeName = interfaceType.GetFullMetadataName();
+                if (interfaceTypeName.StartsWith("System.Collections.Generic.IEnumerable`", StringComparison.Ordinal))
+                {
+                    return IsTypeSupported(namedType.TypeArguments[0], checkedTypes);
+                }
+
+                if (interfaceTypeName.Equals("System.Collections.IEnumerable", StringComparison.Ordinal))
+                    implementsNonGenericIEnumerable = true;
+            }
 
             // Allowed - tuples having any element of any supported type
             if (namedType.IsTupleType)
                 return namedType.TupleElements.Any(e => IsTypeSupported(e.Type, checkedTypes));
 
-            var fullName = namedType.GetFullMetadataName();
+            string fullName = namedType.GetFullMetadataName();
 
             if (fullName.StartsWith("System.Tuple`", StringComparison.Ordinal) ||
                 fullName.StartsWith("System.ValueTuple", StringComparison.Ordinal))
@@ -122,6 +141,18 @@ namespace NUnit.Analyzers.WithinUsage
 
             if (fullName.Equals("System.DateTimeOffset", StringComparison.Ordinal))
                 return true;
+
+            if (fullName.StartsWith("System.Collections.Generic.KeyValuePair`", StringComparison.Ordinal))
+            {
+                // We pass tolerance to the Value Type.
+                return IsTypeSupported(namedType.TypeArguments[1], checkedTypes);
+            }
+
+            if (implementsNonGenericIEnumerable ||
+                fullName.Equals("System.Collections.DictionaryEntry", StringComparison.Ordinal))
+            {
+                return true; // Non-generic collections, we have no idea of the actual type used.
+            }
 
             return false;
         }
