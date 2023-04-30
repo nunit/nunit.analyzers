@@ -182,18 +182,6 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToImmutableArrayOfValidTypes()
-        {
-            string testCode = TestUtility.WrapInTestMethod(@"
-                double value = 5.5;
-                int value2 = 6;
-                Assert.That(ImmutableArray.Create(value), Is.EqualTo(ImmutableArray.Create(value2)).Within(2));",
-                "using System.Collections.Immutable;");
-
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
         public void AnalyzeWhenAppliedToCollectionsOfInValidTypes()
         {
             string testCode = TestUtility.WrapInTestMethod(@"
@@ -203,6 +191,19 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                 "using System.Collections.Generic;");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+#if !NETFRAMEWORK
+        [Test]
+        public void AnalyzeWhenAppliedToImmutableArrayOfValidTypes()
+        {
+            string testCode = TestUtility.WrapInTestMethod(@"
+                double value = 5.5;
+                int value2 = 6;
+                Assert.That(ImmutableArray.Create(value), Is.EqualTo(ImmutableArray.Create(value2)).Within(2));",
+                "using System.Collections.Immutable;");
+
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -216,6 +217,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
+#endif
 
         [Test]
         public void AnalyzeWhenAppliedToChar()
