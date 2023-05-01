@@ -49,7 +49,7 @@ namespace NUnit.Analyzers.Helpers
                 return true;
 
             // Protection against possible infinite recursion
-            if (checkedTypes == default)
+            if (checkedTypes is null)
                 checkedTypes = ImmutableHashSet<(ITypeSymbol, ITypeSymbol)>.Empty;
 
             if (checkedTypes.Contains((actualType, expectedType)))
