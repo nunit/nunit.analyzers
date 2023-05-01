@@ -127,16 +127,15 @@ namespace NUnit.Analyzers.UseAssertMultiple
                         SyntaxFactory.SeparatedList(new[]
                         {
                             SyntaxFactory.Argument(parenthesizedLambdaExpression)
-                        })))).WithAdditionalAnnotations(Formatter.Annotation);
+                        }))))
+                .WithTrailingTrivia(SyntaxFactory.CarriageReturnLineFeed)
+                .WithAdditionalAnnotations(Formatter.Annotation);
 
             if (endOfLineTrivia is not null)
             {
-                // Add the remembered blank line.
+                // Add the remembered blank line to go before the Assert.Multiple statement.
                 assertMultiple = assertMultiple.WithLeadingTrivia(endOfLineTrivia.Value);
             }
-
-            // Add new line after the Assert.Multiple statement.
-            assertMultiple = assertMultiple.WithTrailingTrivia(SyntaxFactory.CarriageReturnLineFeed);
 
             // Comments at the end of a block are not associated with the last statement but with the closing brace
             // Keep the exising block's open and close braces with associated trivia in our updated block.
