@@ -51,12 +51,12 @@ namespace NUnit.Analyzers.WithinUsage
 
                 var withinSuffix = constraintPart.GetSuffix(NUnitFrameworkConstants.NameOfEqualConstraintWithin) as IInvocationOperation;
 
-                if (withinSuffix == null)
+                if (withinSuffix is null)
                     continue;
 
                 var expectedType = constraintPart.GetExpectedArgument()?.Type;
 
-                if (expectedType == null || expectedType.TypeKind == TypeKind.Error)
+                if (expectedType is null || expectedType.TypeKind == TypeKind.Error)
                     return;
 
                 if (!IsTypeSupported(expectedType))
