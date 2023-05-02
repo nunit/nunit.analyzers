@@ -97,6 +97,7 @@ dotnet_style_collection_initializer = true:none
 dotnet_style_coalesce_expression = true:warning
 dotnet_style_null_propagation = true:warning
 dotnet_style_explicit_tuple_names = true:warning
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:warning
 
 # Expression-bodied members
 csharp_style_expression_bodied_accessors = when_on_single_line:warning
@@ -130,6 +131,12 @@ dotnet_naming_rule.public_fields.style = pascal_case
 dotnet_naming_rule.parameters_and_locals.severity = warning
 dotnet_naming_rule.parameters_and_locals.symbols = parameters_and_locals
 dotnet_naming_rule.parameters_and_locals.style = camel_case
+
+##################################################################################
+# IDE Code Style Analyzers
+
+# IDE0041: Use 'is null' check
+dotnet_diagnostic.IDE0041.severity = warning
 
 # IDE0046: Convert to conditional expression
 # Complex Conditional expressions are not easier to read
@@ -237,3 +244,11 @@ dotnet_diagnostic.CA1310.severity = error
 # Default severity for analyzer diagnostics with category 'MicrosoftCodeAnalysisReleaseTracking'
 dotnet_analyzer_diagnostic.category-MicrosoftCodeAnalysisReleaseTracking.severity = none
 
+##################################################################################
+# CSharpIsNull Analyzers
+
+# CSIsNull001: Use `is null` for null checks
+dotnet_diagnostic.CSIsNull001.severity = warning
+
+# CSIsNull002: Use `is object` for non-null checks
+dotnet_diagnostic.CSIsNull002.severity = warning
