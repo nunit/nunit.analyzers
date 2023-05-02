@@ -134,5 +134,62 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
         }");
             RoslynAssert.FixAll(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
+
+        [Test]
+        public void VerifyKeepsTrivia(
+            [Values("", "\r\n")] string newline,
+            [Values("", "// ")] string preComment,
+            [Values("", "// Same line Comment", "\r\n            // Final Comment on next line")] string postComment)
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+        public void TestMethod()
+        {{
+            const bool True = true;
+            const bool False = false;
+
+            // Verify that our bool constants are correct
+            ↓Assert.That(True, Is.True);
+            Assert.That(False, Is.False);{newline}
+            {preComment}Console.WriteLine(""Next Statement"");{postComment}
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+        public void TestMethod()
+        {{
+            const bool True = true;
+            const bool False = false;
+
+            Assert.Multiple(() =>
+            {{
+                // Verify that our bool constants are correct
+                Assert.That(True, Is.True);
+                Assert.That(False, Is.False);
+            }});{newline}
+            {preComment}Console.WriteLine(""Next Statement"");{postComment}
+        }}");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void VerifyKeepsTrivia()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+        public void TestMethod()
+        {{
+                // Verify that boolean work as expected
+            ↓Assert.That(true, Is.True);
+            Assert.That(false, Is.False);
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+        public void TestMethod()
+        {{
+            Assert.Multiple(() =>
+            {{
+                // Verify that boolean work as expected
+                Assert.That(true, Is.True);
+                Assert.That(false, Is.False);
+            }});
+        }}");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
     }
 }

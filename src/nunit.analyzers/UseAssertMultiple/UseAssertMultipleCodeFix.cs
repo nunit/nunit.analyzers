@@ -91,6 +91,22 @@ namespace NUnit.Analyzers.UseAssertMultiple
                 statements[when].Add(statement);
             }
 
+            // If there was an empty line between the code above the Assert, then keep it.
+            SyntaxTrivia? endOfLineTrivia = default;
+
+            var firstStatement = statementsInsideAssertMultiple[0];
+            if (firstStatement.HasLeadingTrivia)
+            {
+                SyntaxTriviaList trivia = firstStatement.GetLeadingTrivia();
+                SyntaxTrivia firstTrivia = trivia.First();
+                if (firstTrivia.IsKind(SyntaxKind.EndOfLineTrivia))
+                {
+                    // Remember the trivia and delete it from the first statement inside the Assert.Multiple
+                    endOfLineTrivia = firstTrivia;
+                    statementsInsideAssertMultiple[0] = firstStatement.ReplaceTrivia(firstTrivia, Enumerable.Empty<SyntaxTrivia>());
+                }
+            }
+
             ParenthesizedLambdaExpressionSyntax parenthesizedLambdaExpression =
                 SyntaxFactory.ParenthesizedLambdaExpression(
                     SyntaxFactory.Block(statementsInsideAssertMultiple));
@@ -111,10 +127,22 @@ namespace NUnit.Analyzers.UseAssertMultiple
                         SyntaxFactory.SeparatedList(new[]
                         {
                             SyntaxFactory.Argument(parenthesizedLambdaExpression)
-                        })))).WithAdditionalAnnotations(Formatter.Annotation);
+                        }))))
+                .WithTrailingTrivia(SyntaxFactory.CarriageReturnLineFeed)
+                .WithAdditionalAnnotations(Formatter.Annotation);
 
+            if (endOfLineTrivia is not null)
+            {
+                // Add the remembered blank line to go before the Assert.Multiple statement.
+                assertMultiple = assertMultiple.WithLeadingTrivia(endOfLineTrivia.Value);
+            }
+
+            // Comments at the end of a block are not associated with the last statement but with the closing brace
+            // Keep the exising block's open and close braces with associated trivia in our updated block.
             var updatedBlock = SyntaxFactory.Block(
-                statementsBeforeAssertMultiple.Append(assertMultiple).Concat(statementsAfterAssertMultiple));
+                block.OpenBraceToken,
+                SyntaxFactory.List(statementsBeforeAssertMultiple.Append(assertMultiple).Concat(statementsAfterAssertMultiple)),
+                block.CloseBraceToken);
 
             SyntaxNode newRoot = root.ReplaceNode(block, updatedBlock);
 
