@@ -136,12 +136,18 @@ namespace NUnit.Analyzers.ValueSourceUsage
                 _ => null
             };
 
-            if (memberType is not null && !memberType.IsIEnumerable(out var _))
+            if (memberType is not null)
             {
-                context.ReportDiagnostic(Diagnostic.Create(
-                    sourceDoesNotReturnIEnumerable,
-                    syntaxNode.GetLocation(),
-                    memberType));
+                if (symbol is IMethodSymbol && memberType.IsAwaitable(out ITypeSymbol? returnType))
+                    memberType = returnType;
+
+                if (!memberType.IsIEnumerable(out var _))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        sourceDoesNotReturnIEnumerable,
+                        syntaxNode.GetLocation(),
+                        memberType));
+                }
             }
         }
     }

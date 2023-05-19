@@ -200,7 +200,12 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                         ReportIfParametersSupplied(context, syntaxNode, attributeInfo.NumberOfMethodParameters, "fields");
                         break;
                     case IMethodSymbol method:
-                        elementType = ReportIfSymbolNotIEnumerable(context, syntaxNode, method.ReturnType);
+                        if (!method.ReturnType.IsAwaitable(out ITypeSymbol? returnType))
+                        {
+                            returnType = method.ReturnType;
+                        }
+
+                        elementType = ReportIfSymbolNotIEnumerable(context, syntaxNode, returnType);
 
                         var methodParametersFromAttribute = attributeInfo.NumberOfMethodParameters ?? 0;
                         if (method.Parameters.Length != methodParametersFromAttribute)
