@@ -44,13 +44,30 @@ namespace NUnit.Analyzers.ParallelizableUsage
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
+            context.RegisterCompilationStartAction(AnalyzeCompilationStart);
             context.RegisterCompilationAction(AnalyzeCompilation);
-            context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
+        }
+
+        private static void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
+        {
+            var parallelizableAttribute = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeParallelizableAttribute);
+            if (parallelizableAttribute is null)
+            {
+                return;
+            }
+
+            context.RegisterSymbolAction(symbolContext => AnalyzeMethod(symbolContext, parallelizableAttribute), SymbolKind.Method);
         }
 
         private static void AnalyzeCompilation(CompilationAnalysisContext context)
         {
-            if (!TryGetAttributeEnumValue(context.Compilation, context.Compilation.Assembly,
+            var parallelizableAttribute = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeParallelizableAttribute);
+            if (parallelizableAttribute is null)
+            {
+                return;
+            }
+
+            if (!TryGetAttributeEnumValue(context.Compilation, context.Compilation.Assembly, parallelizableAttribute,
                 out int enumValue,
                 out var attributeData))
             {
@@ -66,9 +83,9 @@ namespace NUnit.Analyzers.ParallelizableUsage
             }
         }
 
-        private static void AnalyzeMethod(SymbolAnalysisContext context)
+        private static void AnalyzeMethod(SymbolAnalysisContext context, INamedTypeSymbol parallelizableAttribute)
         {
-            if (!TryGetAttributeEnumValue(context.Compilation, context.Symbol,
+            if (!TryGetAttributeEnumValue(context.Compilation, context.Symbol, parallelizableAttribute,
                 out int enumValue,
                 out var attributeData))
             {
@@ -94,18 +111,11 @@ namespace NUnit.Analyzers.ParallelizableUsage
             }
         }
 
-        private static bool TryGetAttributeEnumValue(Compilation compilation, ISymbol symbol,
+        private static bool TryGetAttributeEnumValue(Compilation compilation, ISymbol symbol, INamedTypeSymbol parallelizableAttributeType,
             out int enumValue,
             [NotNullWhen(true)] out AttributeData? attributeData)
         {
             enumValue = 0;
-            attributeData = null;
-
-            var parallelizableAttributeType = compilation.GetTypeByMetadataName(
-                NUnitFrameworkConstants.FullNameOfTypeParallelizableAttribute);
-            if (parallelizableAttributeType is null)
-                return false;
-
             attributeData = symbol.GetAttributes()
                 .FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, parallelizableAttributeType));
 

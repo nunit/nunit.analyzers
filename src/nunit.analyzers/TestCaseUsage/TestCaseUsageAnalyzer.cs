@@ -43,19 +43,24 @@ namespace NUnit.Analyzers.TestCaseUsage
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSymbolAction(TestCaseUsageAnalyzer.AnalyzeMethod, SymbolKind.Method);
+            context.RegisterCompilationStartAction(AnalyzeCompilation);
         }
 
-        private static void AnalyzeMethod(SymbolAnalysisContext context)
+        private static void AnalyzeCompilation(CompilationStartAnalysisContext context)
+        {
+            var testCaseType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
+            if (testCaseType is null)
+                return;
+
+            context.RegisterSymbolAction(symbolContext => AnalyzeMethod(symbolContext, testCaseType), SymbolKind.Method);
+        }
+
+        private static void AnalyzeMethod(SymbolAnalysisContext context, INamedTypeSymbol testCaseType)
         {
             var methodSymbol = (IMethodSymbol)context.Symbol;
 
             var attributes = methodSymbol.GetAttributes();
             if (attributes.Length == 0)
-                return;
-
-            var testCaseType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
-            if (testCaseType is null)
                 return;
 
             var testCaseAttributes = methodSymbol.GetAttributes()

@@ -49,15 +49,9 @@ namespace NUnit.Analyzers.SourceCommon
 
         public static SourceAttributeInformation? GetSourceAttributeInformation(
             SyntaxNodeAnalysisContext context,
-            string fullyQualifiedMetadataName,
+            INamedTypeSymbol valueSourceType,
             string typeName)
         {
-            var valueSourceType = context.SemanticModel.Compilation.GetTypeByMetadataName(fullyQualifiedMetadataName);
-            if (valueSourceType is null)
-            {
-                return null;
-            }
-
             var attributeNode = (AttributeSyntax)context.Node;
             var attributeSymbol = context.SemanticModel.GetSymbolInfo(attributeNode).Symbol;
 
