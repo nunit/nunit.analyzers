@@ -43,10 +43,10 @@ namespace NUnit.Analyzers.TestCaseUsage
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterCompilationStartAction(AnalyzeCompilation);
+            context.RegisterCompilationStartAction(AnalyzeCompilationStart);
         }
 
-        private static void AnalyzeCompilation(CompilationStartAnalysisContext context)
+        private static void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
         {
             var testCaseType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
             if (testCaseType is null)

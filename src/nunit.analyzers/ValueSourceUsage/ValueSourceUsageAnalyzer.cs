@@ -62,10 +62,10 @@ namespace NUnit.Analyzers.ValueSourceUsage
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterCompilationStartAction(AnalyzeCompilation);
+            context.RegisterCompilationStartAction(AnalyzeCompilationStart);
         }
 
-        private static void AnalyzeCompilation(CompilationStartAnalysisContext context)
+        private static void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
         {
             var typeValueSourceAttribute = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeValueSourceAttribute);
             if (typeValueSourceAttribute is null)

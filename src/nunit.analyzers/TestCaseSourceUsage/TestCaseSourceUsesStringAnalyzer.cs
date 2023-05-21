@@ -111,10 +111,12 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterCompilationStartAction(AnalyzeCompilation);
+            context.RegisterCompilationStartAction(AnalyzeCompilationStart);
+
         }
 
-        private static void AnalyzeCompilation(CompilationStartAnalysisContext context)
+        private static void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
+
         {
             var testCaseSourceAttribute = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute);
             if (testCaseSourceAttribute is null)
