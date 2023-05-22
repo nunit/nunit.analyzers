@@ -78,18 +78,23 @@ namespace NUnit.Analyzers.TestMethodUsage
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
+            context.RegisterCompilationStartAction(AnalyzeCompilationStart);
         }
 
-        private static void AnalyzeMethod(SymbolAnalysisContext context)
+        private static void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
         {
-            var methodSymbol = (IMethodSymbol)context.Symbol;
-
-            var testCaseType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
-            var testType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestAttribute);
+            INamedTypeSymbol? testCaseType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseAttribute);
+            INamedTypeSymbol? testType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestAttribute);
 
             if (testCaseType is null || testType is null)
                 return;
+
+            context.RegisterSymbolAction(symbolContext => AnalyzeMethod(symbolContext, testCaseType, testType), SymbolKind.Method);
+        }
+
+        private static void AnalyzeMethod(SymbolAnalysisContext context, INamedTypeSymbol testCaseType, INamedTypeSymbol testType)
+        {
+            var methodSymbol = (IMethodSymbol)context.Symbol;
 
             var methodAttributes = methodSymbol.GetAttributes();
 

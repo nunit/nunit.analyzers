@@ -62,14 +62,25 @@ namespace NUnit.Analyzers.ValueSourceUsage
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(x => AnalyzeAttribute(x), SyntaxKind.Attribute);
+            context.RegisterCompilationStartAction(AnalyzeCompilationStart);
         }
 
-        private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
+        {
+            var typeValueSourceAttribute = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeValueSourceAttribute);
+            if (typeValueSourceAttribute is null)
+            {
+                return;
+            }
+
+            context.RegisterSyntaxNodeAction(syntaxContext => AnalyzeAttribute(syntaxContext, typeValueSourceAttribute), SyntaxKind.Attribute);
+        }
+
+        private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context, INamedTypeSymbol valueSourceType)
         {
             var attributeInfo = SourceHelpers.GetSourceAttributeInformation(
                 context,
-                NUnitFrameworkConstants.FullNameOfTypeValueSourceAttribute,
+                valueSourceType,
                 NUnitFrameworkConstants.NameOfValueSourceAttribute);
 
             if (attributeInfo is null)

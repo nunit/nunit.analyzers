@@ -111,14 +111,25 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterSyntaxNodeAction(x => AnalyzeAttribute(x), SyntaxKind.Attribute);
+            context.RegisterCompilationStartAction(AnalyzeCompilationStart);
         }
 
-        private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
+        {
+            var testCaseSourceAttribute = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute);
+            if (testCaseSourceAttribute is null)
+            {
+                return;
+            }
+
+            context.RegisterSyntaxNodeAction(syntaxContext => AnalyzeAttribute(syntaxContext, testCaseSourceAttribute), SyntaxKind.Attribute);
+        }
+
+        private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context, INamedTypeSymbol testCaseSourceAttribute)
         {
             var attributeInfo = SourceHelpers.GetSourceAttributeInformation(
                 context,
-                NUnitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute,
+                testCaseSourceAttribute,
                 NUnitFrameworkConstants.NameOfTestCaseSourceAttribute);
 
             if (attributeInfo is null)
