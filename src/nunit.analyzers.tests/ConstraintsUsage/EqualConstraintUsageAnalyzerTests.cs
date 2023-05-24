@@ -237,7 +237,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         }
 
         [Test]
-        public void UseEqualsMethodOnRefStruct()
+        public void UseEqualsMethodWithRefStructArgument()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     [TestFixture]
@@ -258,6 +258,29 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
     }");
 
             IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(Span<>));
+            IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);
+
+            RoslynAssert.Valid(analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
+        }
+
+        [Test]
+        public void UseEqualsMethodWithRefStructInstance()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class TestClass
+    {
+        [Test]
+        public void TestMethod()
+        {
+            ReadOnlySpan<char> actual = GetPart();
+            Assert.That(actual.Equals(""Text""), Is.True);
+        }
+
+        ReadOnlySpan<char> GetPart() => ""Some Text"".AsSpan(4);
+    }");
+
+            IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(ReadOnlySpan<>));
             IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);
 
             RoslynAssert.Valid(analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));

@@ -78,7 +78,9 @@ namespace NUnit.Analyzers.ConstraintUsage
                 && methodSymbol.Parameters.Length == 1
                 && methodSymbol.Name == nameof(object.Equals)
                 && invocation.Arguments.Length == 1
-                && !IsRefStruct(invocation.Arguments[0]);
+                && !IsRefStruct(invocation.Arguments[0])
+                && invocation.Instance is not null
+                && !IsRefStruct(invocation.Instance);
         }
     }
 }
