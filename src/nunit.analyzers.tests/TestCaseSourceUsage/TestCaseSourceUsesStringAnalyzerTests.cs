@@ -276,6 +276,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]
         [TestCase("private static TestCaseData[] TestCases => new TestCaseData[0];")]
         [TestCase("private static TestCaseData[] TestCases() => new TestCaseData[0];")]
+        [TestCase("private static Task<TestCaseData[]> TestCases() => Task.FromResult(new TestCaseData[0]);")]
         public void AnalyzeWhenSourceDoesProvideIEnumerable(string testCaseMember)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
@@ -296,8 +297,11 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCase("private static object? TestCases => null;", "object?")]
         [TestCase("private static object? TestCases() => null;", "object?")]
         [TestCase("private static readonly int TestCases = 1;", "int")]
+        [TestCase("private static readonly Task<int[]> TestCases = Task.FromResult(new int[] { 1 });", "System.Threading.Tasks.Task<int[]>")]
         [TestCase("private static int TestCases => 1;", "int")]
+        [TestCase("private static Task<int[]> TestCases => Task.FromResult(new int[] { 1 });", "System.Threading.Tasks.Task<int[]>")]
         [TestCase("private static int TestCases() => 1;", "int")]
+        [TestCase("private static Task<int> TestCases() => Task.FromResult(1);", "int")]
         [TestCase("private static readonly PlatformID TestCases = PlatformID.Unix;", "System.PlatformID")]
         [TestCase("private static PlatformID TestCases => PlatformID.Unix;", "System.PlatformID")]
         [TestCase("private static PlatformID TestCases() => PlatformID.Unix;", "System.PlatformID")]
