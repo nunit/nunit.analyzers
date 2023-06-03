@@ -1,6 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.DiagnosticSuppressors;
 using NUnit.Framework;
@@ -769,6 +770,114 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             RoslynAssert.Suppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8600"]),
+                testCode);
+        }
+
+        [TestCase("class", "CS8634")]
+        [TestCase("notnull", "CS8714")]
+        public void TestIssue462Suppressed(string constraint, string diagnostic)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                [Test]
+                public void Test()
+                {{
+                    object? possibleNull = GetNext();
+                    object? assertedNotNull = possibleNull;
+                    Assert.NotNull(assertedNotNull);
+                    ↓DoNothing(assertedNotNull);
+                }}
+
+                private static object? GetNext() => default;
+
+                private static void DoNothing<T>(T s)
+                    where T : {constraint}
+                {{ }}
+            ");
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors[diagnostic]),
+                testCode);
+        }
+
+        [TestCase("class", "CS8634")]
+        [TestCase("notnull", "CS8714")]
+        public void TestIssue462AlsoSuppressed(string constraint, string diagnostic)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                [Test]
+                public void Test()
+                {{
+                    object? possibleNull = GetNext();
+                    object? assertedNotNull = GetNext();
+                    Assert.NotNull(assertedNotNull);
+                    ↓DoNothing(assertedNotNull, possibleNull);
+                }}
+
+                private static object? GetNext() => default;
+
+                private static void DoNothing<T1, T2>(T1 p1, T2 p2)
+                    where T1 : {constraint}
+                    where T2 : class?
+                {{ }}
+            ");
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors[diagnostic]),
+                testCode);
+        }
+
+        [TestCase("class", "CS8634")]
+        [TestCase("notnull", "CS8714")]
+        public void TestIssue462SuppressesMultiple(string constraint, string diagnostic)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                [Test]
+                public void Test()
+                {{
+                    object? possibleNull = GetNext();
+                    object? assertedNotNull = GetNext();
+                    Assert.NotNull(assertedNotNull);
+                    ↓DoNothing(assertedNotNull, assertedNotNull);
+                }}
+
+                private static object? GetNext() => default;
+
+                private static void DoNothing<T1, T2>(T1 p1, T2 p2)
+                    where T1 : {constraint}
+                    where T2 : {constraint}
+                {{ }}
+            ");
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors[diagnostic]),
+                testCode);
+        }
+
+        [TestCase("class", "CS8634")]
+        [TestCase("notnull", "CS8714")]
+        public void TestIssue462NotSuppressed(string constraint, string diagnostic)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                [Test]
+                public void Test()
+                {{
+                    object? possibleNull = GetNext();
+                    object? assertedNotNull = possibleNull;
+                    Assert.NotNull(assertedNotNull);
+                    ↓DoNothing(possibleNull);
+                }}
+
+                private static object? GetNext() => default;
+
+                private static void DoNothing<T>(T s)
+                    where T : {constraint}
+                {{ }}
+            ");
+
+            // The Analyzer doesn't do flow control and therefore doesn't know that
+            // possibleNull is the same as assertedNotNull and hence also not null.
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors[diagnostic]),
                 testCode);
         }
     }
