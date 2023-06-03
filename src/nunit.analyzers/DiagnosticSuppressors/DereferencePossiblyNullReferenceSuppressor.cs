@@ -150,15 +150,34 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
         private static bool ShouldBeSuppressed(IMethodSymbol method, string nonMatchedParameterType, InvocationExpressionSyntax invocationExpression)
         {
-            // if (!Debugger.IsAttached) Debugger.Launch();
+            var actualArguments = invocationExpression.ArgumentList.Arguments;
+
             IMethodSymbol originalMethod = method.OriginalDefinition;
             for (int i = 0; i < originalMethod.Parameters.Length; i++)
             {
-                if (originalMethod.Parameters[i].Type is ITypeParameterSymbol typeParameter &&
-                    typeParameter.Name == nonMatchedParameterType)
+                IParameterSymbol parameterSymbol = originalMethod.Parameters[i];
+                if (parameterSymbol.IsParams)
                 {
-                    if (!ShouldBeSuppressed(invocationExpression.ArgumentList.Arguments[i]))
-                        return false;
+                    if (parameterSymbol.Type is IArrayTypeSymbol arrayType &&
+                        arrayType.ElementType is ITypeParameterSymbol typeParameter &&
+                        typeParameter.Name == nonMatchedParameterType)
+                    {
+                        // Verify all actual arguments match the constraint.
+                        for (int j = i; j < actualArguments.Count; j++)
+                        {
+                            if (!ShouldBeSuppressed(actualArguments[j]))
+                                return false;
+                        }
+                    }
+                }
+                else
+                {
+                    if (parameterSymbol.Type is ITypeParameterSymbol typeParameter &&
+                        typeParameter.Name == nonMatchedParameterType)
+                    {
+                        if (!ShouldBeSuppressed(invocationExpression.ArgumentList.Arguments[i]))
+                            return false;
+                    }
                 }
             }
 
