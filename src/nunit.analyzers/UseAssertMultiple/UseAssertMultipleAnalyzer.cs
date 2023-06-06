@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
-using NUnit.Analyzers.Operations;
 
 namespace NUnit.Analyzers.UseAssertMultiple
 {
@@ -51,7 +47,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
             foreach (var previousArgument in previousArguments)
             {
                 if (argument.StartsWith(previousArgument, StringComparison.Ordinal) &&
-                    !char.IsLetterOrDigit(argument[previousArgument.Length]))
+                   (argument.Length > previousArgument.Length && !char.IsLetterOrDigit(argument[previousArgument.Length])))
                 {
                     return false;
                 }
@@ -86,8 +82,9 @@ namespace NUnit.Analyzers.UseAssertMultiple
                 var previousArguments = new HashSet<string>(StringComparer.Ordinal);
 
                 // No need to check argument count as Assert.That needs at least one argument.
-                Add(previousArguments, assertOperation.Arguments[0].Syntax.ToString());
+                var assertArgument = assertOperation.Arguments[0].Syntax.ToString();
 
+                IOperation? statementBefore = null;
                 int firstAssert = -1;
                 int lastAssert = -1;
 
@@ -98,30 +95,34 @@ namespace NUnit.Analyzers.UseAssertMultiple
                     i++;
                     if (statement == assertExpression)
                     {
+                        if (statementBefore is not null)
+                        {
+                            var beforeArguments = new HashSet<string>(StringComparer.Ordinal);
+                            if (IsIndependentAssert(beforeArguments, statementBefore) &&
+                                IsIndependent(beforeArguments, assertArgument))
+                            {
+                                // This statement can be merged with the previous, hence was reported already.
+                                return;
+                            }
+                        }
+
+                        Add(previousArguments, assertArgument);
                         firstAssert = lastAssert = i;
                     }
                     else if (firstAssert >= 0)
                     {
-                        IInvocationOperation? currentAssertOperation = TryGetAssertThatOperation(statement);
-                        if (currentAssertOperation is not null)
+                        if (IsIndependentAssert(previousArguments, statement))
                         {
-                            // No need to check argument count as Assert.That needs at least one argument.
-                            string currentArgument = currentAssertOperation.Arguments[0].Syntax.ToString();
-
-                            // Check if test is independent
-                            if (IsIndependent(previousArguments, currentArgument))
-                            {
-                                lastAssert = i;
-                            }
-                            else
-                            {
-                                break;
-                            }
+                            lastAssert = i;
                         }
                         else
                         {
                             break;
                         }
+                    }
+                    else
+                    {
+                        statementBefore = statement;
                     }
                 }
 
@@ -130,6 +131,22 @@ namespace NUnit.Analyzers.UseAssertMultiple
                     context.ReportDiagnostic(Diagnostic.Create(descriptor, assertOperation.Syntax.GetLocation()));
                 }
             }
+        }
+
+        private static bool IsIndependentAssert(HashSet<string> previousArguments, IOperation statement)
+        {
+            IInvocationOperation? currentAssertOperation = TryGetAssertThatOperation(statement);
+            if (currentAssertOperation is not null)
+            {
+                // No need to check argument count as Assert.That needs at least one argument.
+                string currentArgument = currentAssertOperation.Arguments[0].Syntax.ToString();
+
+                // Check if test is independent
+                return IsIndependent(previousArguments, currentArgument);
+            }
+
+            // Not even an Assert operation.
+            return false;
         }
 
         private static IInvocationOperation? TryGetAssertThatOperation(IOperation operation)
