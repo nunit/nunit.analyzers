@@ -29,7 +29,9 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 "CS8605", // Unboxing a possibly null value.
                 "CS8606", // Possible null reference assignment to iteration variable.
                 "CS8607", // A possible null value may not be passed to a target marked with the [DisallowNull] attribute.
-                "CS8629"); // Nullable value type may be null.
+                "CS8629", // Nullable value type may be null.
+                "CS8634", // Nullability of type argument 'x' doesn't match 'class' constraint.
+                "CS8714"); // Nullability of type argument 'x' doesn't match 'notnull' constraint.
 
         public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions { get; } =
             ImmutableArray.CreateRange(SuppressionDescriptors.Values);
@@ -38,15 +40,46 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         {
             foreach (var diagnostic in context.ReportedDiagnostics)
             {
-                SyntaxNode? node = diagnostic.Location.SourceTree?.GetRoot(context.CancellationToken)
-                                                                  .FindNode(diagnostic.Location.SourceSpan);
+                SyntaxTree? root = diagnostic.Location.SourceTree;
+                if (root is null)
+                    continue;
+
+                SyntaxNode? node = root.GetRoot(context.CancellationToken)
+                                       .FindNode(diagnostic.Location.SourceSpan);
 
                 if (node is null)
                 {
                     continue;
                 }
 
-                if (ShouldBeSuppressed(node))
+                bool shouldBeSuppressed;
+                if (node is IdentifierNameSyntax && diagnostic.Id is "CS8634" or "CS8714" &&
+                    node.Parent is InvocationExpressionSyntax invocationExpression)
+                {
+                    // The compiler complains about the method, not about the operand, we need to determine which one
+                    // The Diagnostics arguments give both the method and the type parameter.
+                    // Unfortunately the types (SourceOrdinaryMethodSymbol and SourceTypeParameterSymbol) are internal
+                    // and don't implement the standard IMethodSymbol and ITypeParameterSymbol interfaces either.
+                    // This forces us to get the semantic model here and find them again.
+                    object[] arguments = diagnostic.Arguments();
+                    if (arguments.Length != 3)
+                        continue;
+
+                    SemanticModel semanticModel = context.GetSemanticModel(root);
+                    IMethodSymbol? method = semanticModel.GetSymbolInfo(invocationExpression, context.CancellationToken)
+                                                         .Symbol as IMethodSymbol;
+                    if (method is null)
+                        continue;
+
+                    string typeName = arguments[1].ToString()!;
+                    shouldBeSuppressed = ShouldBeSuppressed(method, typeName, invocationExpression);
+                }
+                else
+                {
+                    shouldBeSuppressed = ShouldBeSuppressed(node);
+                }
+
+                if (shouldBeSuppressed)
                 {
                     context.ReportSuppression(Suppression.Create(SuppressionDescriptors[diagnostic.Id], diagnostic));
                 }
@@ -113,6 +146,42 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             }
 
             return false;
+        }
+
+        private static bool ShouldBeSuppressed(IMethodSymbol method, string nonMatchedParameterType, InvocationExpressionSyntax invocationExpression)
+        {
+            var actualArguments = invocationExpression.ArgumentList.Arguments;
+
+            IMethodSymbol originalMethod = method.OriginalDefinition;
+            for (int i = 0; i < originalMethod.Parameters.Length; i++)
+            {
+                IParameterSymbol parameterSymbol = originalMethod.Parameters[i];
+                if (parameterSymbol.IsParams)
+                {
+                    if (parameterSymbol.Type is IArrayTypeSymbol arrayType &&
+                        arrayType.ElementType is ITypeParameterSymbol typeParameter &&
+                        typeParameter.Name == nonMatchedParameterType)
+                    {
+                        // Verify all actual arguments match the constraint.
+                        for (int j = i; j < actualArguments.Count; j++)
+                        {
+                            if (!ShouldBeSuppressed(actualArguments[j]))
+                                return false;
+                        }
+                    }
+                }
+                else
+                {
+                    if (parameterSymbol.Type is ITypeParameterSymbol typeParameter &&
+                        typeParameter.Name == nonMatchedParameterType)
+                    {
+                        if (!ShouldBeSuppressed(invocationExpression.ArgumentList.Arguments[i]))
+                            return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
