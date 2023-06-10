@@ -51,7 +51,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
             var configuration = new Configuration();
             Assert.That(configuration, Is.Not.Null);
             ↓Assert.That(configuration.Value1, Is.EqualTo(0));
-            ↓Assert.That(configuration.Value2, Is.EqualTo(0.0));
+            Assert.That(configuration.Value2, Is.EqualTo(0.0));
             Assert.That(configuration.Value11, Is.EqualTo(string.Empty));
         }
 
