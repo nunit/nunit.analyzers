@@ -191,7 +191,7 @@ namespace NUnit.Analyzers.Extensions
                 {
                     if (targetType.typeConverter is null)
                     {
-                        return argumentValue.GetType() == typeof(string);
+                        return argumentValue is string;
                     }
 
                     var typeConverter = targetType.typeConverter.Value;
@@ -209,6 +209,10 @@ namespace NUnit.Analyzers.Extensions
                         }
                     }
                 }
+            }
+            else if (targetTypeSymbol.GetAttributes().Any(att => att.AttributeClass?.GetFullMetadataName() == typeof(TypeConverterAttribute).FullName))
+            {
+                return true;
             }
             else if (argumentValue is null || argumentValue is string)
             {

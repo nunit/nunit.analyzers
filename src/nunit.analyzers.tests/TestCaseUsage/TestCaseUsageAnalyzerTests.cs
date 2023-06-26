@@ -279,6 +279,25 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeArgumentIsSomeConvertedToTypeWithCustomConverter()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    using System.ComponentModel;
+
+    class C
+    {
+        [TestCase(17)]
+        public void Test(CustomType p) { }
+    }
+
+    [TypeConverter(typeof(CustomTypeConverter))]
+    struct CustomType { }
+    class CustomTypeConverter : TypeConverter { }");
+
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeArgumentIsNullConvertedToTypeWithCustomConverter()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
