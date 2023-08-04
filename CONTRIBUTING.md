@@ -57,5 +57,6 @@ From Visual Studio one can debug the analyzers by setting the **nunit.analyzers.
 The command `.\build.ps1` will restore the packages necessary to build the solution, build the projects, and then run the tests. The script can also build the projects in **Release** mode using the option `--configuration=Release` or create NuGet Packages using the option `--target=Pack`. This will create a NuGet package under `package\Debug\` (for a `Debug` build) and the file will be named `NUnit.Analyzers.***.nupkg` where `***` depends upon the build type (`Debug` vs. `Release`) and the version. The NuGet package can then be referenced from another project.
 You need to use the `--targetFramework=netstandard1.6` option to build a analyzer version for `netstandard1.6` (VS 2017), this version will not include the new DiagnosticSuppressor rules (NUnit3001-) as these require `netstandard2.0`.
 
-See [NuGet package vs. extension](https://docs.microsoft.com/en-us/visualstudio/code-quality/roslyn-analyzers-overview#nuget-package-vs-extension) for more information about the difference between installing a Roslyn analyzer as a NuGet package or as a Visual Studio extension.
+See [NuGet package versus VSIX extension
+](https://learn.microsoft.com/en-us/visualstudio/code-quality/roslyn-analyzers-overview?#nuget-package-versus-vsix-extension) for more information about the difference between installing a Roslyn analyzer as a NuGet package or as a Visual Studio extension.
 
