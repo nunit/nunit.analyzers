@@ -513,6 +513,7 @@ To disable the rule for a project, you need to add a
   <Rules AnalyzerId=""DiagnosticSuppressors"" RuleNamespace=""NUnit.NUnitAnalyzers"">
     <Rule Id=""NUnit3001"" Action=""Info"" /> <!-- Possible Null Reference -->
     <Rule Id=""NUnit3002"" Action=""Info"" /> <!-- NonNullableField/Property is Uninitialized -->
+    <Rule Id=""NUnit3003"" Action=""Info"" /> <!-- Avoid Uninstantiated Internal Classes -->
   </Rules>
 </RuleSet>
 ```

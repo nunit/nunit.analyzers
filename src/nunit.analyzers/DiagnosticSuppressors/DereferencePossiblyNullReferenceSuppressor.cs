@@ -14,7 +14,7 @@ using NUnit.Analyzers.Helpers;
 namespace NUnit.Analyzers.DiagnosticSuppressors
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class DereferencePossiblyNullReferenceSuppressor : DiagnosticSuppressor
+    public sealed class DereferencePossiblyNullReferenceSuppressor : DiagnosticSuppressor
     {
         private const string Justification = "Expression was checked in an Assert.NotNull, Assert.IsNotNull or Assert.That call";
 

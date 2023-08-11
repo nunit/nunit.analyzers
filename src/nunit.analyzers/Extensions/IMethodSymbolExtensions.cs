@@ -55,5 +55,17 @@ namespace NUnit.Analyzers.Extensions
                 .Any(interfaceMethod => interfaceMethod.Name == @this.Name
                     && SymbolEqualityComparer.Default.Equals(@this.ContainingType.FindImplementationForInterfaceMember(interfaceMethod), @this));
         }
+
+        internal static bool IsTestRelatedMethod(this IMethodSymbol methodSymbol, Compilation compilation)
+        {
+            return methodSymbol.HasTestRelatedAttributes(compilation) ||
+                (methodSymbol.OverriddenMethod is not null && methodSymbol.OverriddenMethod.IsTestRelatedMethod(compilation));
+        }
+
+        internal static bool HasTestRelatedAttributes(this IMethodSymbol methodSymbol, Compilation compilation)
+        {
+            return methodSymbol.GetAttributes().Any(
+                a => a.IsTestMethodAttribute(compilation) || a.IsSetUpOrTearDownMethodAttribute(compilation));
+        }
     }
 }
