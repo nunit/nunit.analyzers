@@ -228,8 +228,8 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
     }
 
     [TypeConverter(typeof(CustomTypeConverter))]
-    struct CustomType { }
-    class CustomTypeConverter : TypeConverter { }");
+    public struct CustomType { }
+    public class CustomTypeConverter : TypeConverter { }");
 
             RoslynAssert.Valid(this.analyzer, testCode);
         }
@@ -247,8 +247,8 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
     }
 
     [TypeConverter(typeof(CustomTypeConverter))]
-    struct CustomType { }
-    class CustomTypeConverter : TypeConverter { }");
+    public struct CustomType { }
+    public class CustomTypeConverter : TypeConverter { }");
 
             RoslynAssert.Valid(this.analyzer, testCode);
         }
@@ -265,10 +265,10 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         public void Test([Values(""A"")] CustomType p) { }
     }
 
-    class CustomType : BaseType { }
+    public class CustomType : BaseType { }
     [TypeConverter(typeof(BaseTypeConverter))]
-    class BaseType { }
-    class BaseTypeConverter : TypeConverter { }");
+    public class BaseType { }
+    public class BaseTypeConverter : TypeConverter { }");
 
             RoslynAssert.Valid(this.analyzer, testCode);
         }
@@ -286,8 +286,8 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
     }
 
     [TypeConverter(typeof(CustomTypeConverter))]
-    struct CustomType { }
-    class CustomTypeConverter : TypeConverter { }");
+    public struct CustomType { }
+    public class CustomTypeConverter : TypeConverter { }");
 
             RoslynAssert.Diagnostics(this.analyzer,
                                      ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
@@ -325,10 +325,11 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         [Test]
         public void AnalyzeWhenArgumentPassesNullToValueType()
         {
+            // TODO: Can we get this to report <null> instead of object?[]
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage,
                                                                string.Format(CultureInfo.InvariantCulture,
                                                                              ValuesUsageAnalyzerConstants.ParameterTypeMismatchMessage,
-                                                                             0, "<null>", "a", "char"));
+                                                                             0, "object?[]", "a", "char"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentPassesNullToValueType

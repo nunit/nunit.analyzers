@@ -57,6 +57,14 @@ namespace NUnit.Analyzers.ValuesUsage
                 for (var index = 0; index < attribute.ConstructorArguments.Length; index++)
                 {
                     var constructorArgument = attribute.ConstructorArguments[index];
+
+                    // If the compiler detects an illegal constant, we shouldn't check it.
+                    // Unfortunately the constant 'null' is marked as Error with a null type.
+                    if (constructorArgument.Kind == TypedConstantKind.Error && constructorArgument.Type is not null)
+                    {
+                        continue;
+                    }
+
                     var argumentTypeMatchesParameterType = constructorArgument.CanAssignTo(parameterSymbol.Type,
                                                                                            symbolContext.Compilation,
                                                                                            allowImplicitConversion: true,
