@@ -61,7 +61,7 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         public void AnalyzeWhenAttributeHasNoArguments()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenAttributeIsNotInNUnit
+    public sealed class AnalyzeWhenAttributeHasNoArguments
     {
         [Test]
         public void ATest([Values] bool value) { }
@@ -73,7 +73,7 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         public void AnalyzeWhenArgumentTypeIsCorrect()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class Foo
+    public sealed class AnalyzeWhenArgumentTypeIsCorrect
     {
         [Test]
         public void ATest([Values(true, false)] bool blah) { }
