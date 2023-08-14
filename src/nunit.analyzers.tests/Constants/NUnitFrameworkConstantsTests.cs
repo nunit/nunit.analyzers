@@ -118,6 +118,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfTestAttribute), nameof(TestAttribute)),
             (nameof(NUnitFrameworkConstants.NameOfParallelizableAttribute), nameof(ParallelizableAttribute)),
             (nameof(NUnitFrameworkConstants.NameOfValueSourceAttribute), nameof(ValueSourceAttribute)),
+            (nameof(NUnitFrameworkConstants.NameOfValuesAttribute), nameof(ValuesAttribute)),
 
             (nameof(NUnitFrameworkConstants.NameOfExpectedResult), nameof(TestAttribute.ExpectedResult)),
 
@@ -137,6 +138,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.FullNameOfTypeTestAttribute), typeof(TestAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeParallelizableAttribute), typeof(ParallelizableAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeValueSourceAttribute), typeof(ValueSourceAttribute)),
+            (nameof(NUnitFrameworkConstants.FullNameOfTypeValuesAttribute), typeof(ValuesAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeITestBuilder), typeof(ITestBuilder)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeISimpleTestBuilder), typeof(ISimpleTestBuilder)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeIParameterDataSource), typeof(IParameterDataSource)),
