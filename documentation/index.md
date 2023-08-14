@@ -17,7 +17,7 @@ The severity of a diagnostic can the one of the following (in increasing severit
 
 Rules which enforce structural requirements on the test code.
 
-| Id       | Title       | :mag: | :memo: | :bulb: |
+| Id                                                                                           | Title       | :mag: | :memo: | :bulb: |
 | :--      | :--         | :--:  | :--:   | :--:   |
 | [NUnit1001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1001.md) | The individual arguments provided by a TestCaseAttribute must match the type of the corresponding parameter of the method | :white_check_mark: | :exclamation: | :x: |
 | [NUnit1002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1002.md) | The TestCaseSource should use nameof operator to specify target | :white_check_mark: | :warning: | :white_check_mark: |
@@ -49,6 +49,7 @@ Rules which enforce structural requirements on the test code.
 | [NUnit1028](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1028.md) | The non-test method is public | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit1029](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1029.md) | The number of parameters provided by the TestCaseSource does not match the number of parameters in the Test method | :white_check_mark: | :exclamation: | :x: |
 | [NUnit1030](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1030.md) | The type of parameter provided by the TestCaseSource does not match the type of the parameter in the Test method | :white_check_mark: | :exclamation: | :x: |
+| [NUnit1031](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1031.md) | The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method | :white_check_mark: | :exclamation: | :x: |
 
 ### Assertion Rules (NUnit2001 - )
 
