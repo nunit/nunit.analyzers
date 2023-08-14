@@ -1,10 +1,10 @@
-# NUnit2048
+# NUnit1031
 
 ## The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method
 
 | Topic    | Value
 | :--      | :--
-| Id       | NUnit2048
+| Id       | NUnit1031
 | Severity | Error
 | Enabled  | True
 | Category | Structure
@@ -71,8 +71,8 @@ Configure the severity per project, for more info see [MSDN](https://learn.micro
 ### Via .editorconfig file
 
 ```ini
-# NUnit2048: The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method
-dotnet_diagnostic.NUnit2048.severity = chosenSeverity
+# NUnit1031: The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method
+dotnet_diagnostic.NUnit1031.severity = chosenSeverity
 ```
 
 where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, or `error`.
@@ -80,22 +80,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit2048 // The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method
+#pragma warning disable NUnit1031 // The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method
 Code violating the rule here
-#pragma warning restore NUnit2048 // The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method
+#pragma warning restore NUnit1031 // The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit2048 // The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method
+#pragma warning disable NUnit1031 // The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure",
-    "NUnit2048:The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method",
+    "NUnit1031:The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->
