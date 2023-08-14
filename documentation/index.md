@@ -17,7 +17,7 @@ The severity of a diagnostic can the one of the following (in increasing severit
 
 Rules which enforce structural requirements on the test code.
 
-| Id                                                                                           | Title       | :mag: | :memo: | :bulb: |
+| Id       | Title       | :mag: | :memo: | :bulb: |
 | :--      | :--         | :--:  | :--:   | :--:   |
 | [NUnit1001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1001.md) | The individual arguments provided by a TestCaseAttribute must match the type of the corresponding parameter of the method | :white_check_mark: | :exclamation: | :x: |
 | [NUnit1002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1002.md) | The TestCaseSource should use nameof operator to specify target | :white_check_mark: | :warning: | :white_check_mark: |
