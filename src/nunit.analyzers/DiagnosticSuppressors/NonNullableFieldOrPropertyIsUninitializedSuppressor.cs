@@ -13,7 +13,7 @@ using BindingFlags = System.Reflection.BindingFlags;
 namespace NUnit.Analyzers.DiagnosticSuppressors
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class NonNullableFieldOrPropertyIsUninitializedSuppressor : DiagnosticSuppressor
+    public sealed class NonNullableFieldOrPropertyIsUninitializedSuppressor : DiagnosticSuppressor
     {
         internal static readonly SuppressionDescriptor NullableFieldOrPropertyInitializedInSetUp = new(
             id: AnalyzerIdentifiers.NonNullableFieldOrPropertyIsUninitialized,

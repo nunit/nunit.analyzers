@@ -44,7 +44,7 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
             var methods = typeSymbol.GetMembers().OfType<IMethodSymbol>().Where(m => m.MethodKind == MethodKind.Ordinary);
             foreach (var method in methods)
             {
-                if (IsTestRelatedMethod(context.Compilation, method))
+                if (method.IsTestRelatedMethod(context.Compilation))
                     hasTestMethods = true;
                 else if (IsPublicOrInternalMethod(method) && !IsDisposeMethod(method))
                     publicNonTestMethods.Add(method);
@@ -59,18 +59,6 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
                         method.Locations[0]));
                 }
             }
-        }
-
-        private static bool IsTestRelatedMethod(Compilation compilation, IMethodSymbol methodSymbol)
-        {
-            return HasTestRelatedAttributes(compilation, methodSymbol) ||
-                (methodSymbol.OverriddenMethod is not null && IsTestRelatedMethod(compilation, methodSymbol.OverriddenMethod));
-        }
-
-        private static bool HasTestRelatedAttributes(Compilation compilation, IMethodSymbol methodSymbol)
-        {
-            return methodSymbol.GetAttributes().Any(
-                a => a.IsSetUpOrTearDownMethodAttribute(compilation) || a.IsTestMethodAttribute(compilation));
         }
 
         private static bool IsPublicOrInternalMethod(IMethodSymbol method)

@@ -93,6 +93,7 @@ namespace NUnit.Analyzers.Constants
 
         internal const string DereferencePossibleNullReference = "NUnit3001";
         internal const string NonNullableFieldOrPropertyIsUninitialized = "NUnit3002";
+        internal const string AvoidUninstantiatedInternalClasses = "NUnit3003";
 
         #endregion
     }
