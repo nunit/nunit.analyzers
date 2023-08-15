@@ -210,15 +210,12 @@ namespace NUnit.Analyzers.Extensions
                     }
                 }
             }
-            else if (targetTypeSymbol.GetAttributes().Any(att => att.AttributeClass?.GetFullMetadataName() == typeof(TypeConverterAttribute).FullName))
-            {
-                return true;
-            }
-            else if (argumentValue is null || argumentValue is string)
+            else
             {
                 if (compilation.GetTypeByMetadataName(typeof(TypeConverterAttribute).FullName!) is { } typeConverterAttribute
                     && targetTypeSymbol.GetAllAttributes().Any(data => SymbolEqualityComparer.Default.Equals(typeConverterAttribute, data.AttributeClass)))
                 {
+                    // If there is an explicit listed TypeConverter, we assume it can convert anything.
                     return true;
                 }
             }
