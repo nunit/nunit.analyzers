@@ -19,7 +19,7 @@ Class is a NUnit TestFixture and called by reflection
 The default roslyn analyzer has rule [CA1812](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1812)
 which warns about internal classes not being used.
 That analyzer doesn't know about NUnit test classes.
-This suppressor catches the error, verifies the class is an NUNit TestFixture and if so suppresses the error.
+This suppressor catches the error, verifies the class is an NUnit TestFixture and if so suppresses the error.
 
 <!-- start generated config severity -->
 ## Configure severity

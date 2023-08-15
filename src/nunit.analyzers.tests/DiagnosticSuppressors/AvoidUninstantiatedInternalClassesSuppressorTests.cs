@@ -62,7 +62,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 "microsoft.codeanalysis.netanalyzers/7.0.3/analyzers/dotnet/cs/Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll");
             Assembly netAnalyzerAssembly = Assembly.LoadFrom(netAnalyzersPath);
             Type analyzerType = netAnalyzerAssembly.GetType("Microsoft.CodeQuality.CSharp.Analyzers.Maintainability.CSharpAvoidUninstantiatedInternalClasses", true)!;
-            this.analyzer = (DiagnosticAnalyzer)Activator.CreateInstance(analyzerType!)!;
+            this.analyzer = (DiagnosticAnalyzer)Activator.CreateInstance(analyzerType)!;
 
             this.analyzer = new DefaultEnabledAnalyzer(this.analyzer);
         }
