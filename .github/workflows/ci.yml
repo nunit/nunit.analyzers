@@ -16,4 +16,4 @@ jobs:
         with:
           global-json-file: ./global.json
       - name: dotnet test
-        run: dotnet test ./src/nunit.analyzers.tests/
+        run: dotnet test --configuration=Release ./src/nunit.analyzers.tests/
