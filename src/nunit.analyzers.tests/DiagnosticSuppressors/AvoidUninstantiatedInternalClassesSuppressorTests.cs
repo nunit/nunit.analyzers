@@ -51,7 +51,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             }
         ";
 
-        private static readonly DiagnosticSuppressor suppressor = new AvoidUninstantiatedInternalClassesSuppressor();
+        private static readonly DiagnosticSuppressor suppressor = new TestFixtureSuppressor();
         private DiagnosticAnalyzer analyzer;
 
         [OneTimeSetUp]

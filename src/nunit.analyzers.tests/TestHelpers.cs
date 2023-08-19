@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
@@ -28,7 +29,7 @@ namespace NUnit.Analyzers.Tests
         internal static async Task SuppressedOrNot(DiagnosticAnalyzer analyzer, DiagnosticSuppressor suppressor, string code, bool isSuppressed, Settings? settings = null)
         {
             string id = analyzer.SupportedDiagnostics[0].Id;
-            Assert.That(suppressor.SupportedSuppressions[0].SuppressedDiagnosticId, Is.EqualTo(id));
+            Assert.That(suppressor.SupportedSuppressions.Select(x => x.SuppressedDiagnosticId), Does.Contain(id));
 
             settings ??= Settings.Default;
             settings = settings.WithCompilationOptions(Settings.Default.CompilationOptions.WithWarningOrError(analyzer.SupportedDiagnostics));

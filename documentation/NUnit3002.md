@@ -69,6 +69,7 @@ To disable the rule for a project, you need to add a
     <Rule Id="NUnit3001" Action="Info" /> <!-- Possible Null Reference -->
     <Rule Id="NUnit3002" Action="Info" /> <!-- NonNullableField/Property is Uninitialized -->
     <Rule Id="NUnit3003" Action="Info" /> <!-- Avoid Uninstantiated Internal Classes -->
+    <Rule Id="NUnit3004" Action="Info" /> <!-- Types that own disposable fields should be disposable -->
   </Rules>
 </RuleSet>
 ```
