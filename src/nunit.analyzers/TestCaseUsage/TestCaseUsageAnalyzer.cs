@@ -74,7 +74,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                 var (methodRequiredParameters, methodOptionalParameters, methodParamsParameters) =
                     methodSymbol.GetParameterCounts();
 
-                var attributePositionalArguments = AdjustArguments(attribute.ConstructorArguments);
+                var attributePositionalArguments = attribute.ConstructorArguments.AdjustArguments();
 
                 // From NUnit.Framework.TestCaseAttribute.GetParametersForTestCase
                 // Special handling when sole method parameter is an object[].
@@ -117,29 +117,6 @@ namespace NUnit.Analyzers.TestCaseUsage
                         methodSymbol.Parameters);
                 }
             }
-        }
-
-        private static ImmutableArray<TypedConstant> AdjustArguments(ImmutableArray<TypedConstant> attributePositionalArguments)
-        {
-            if (attributePositionalArguments.Length == 1
-                && attributePositionalArguments[0] is { Kind: TypedConstantKind.Array } arrayArgument
-                && arrayArgument.Type is IArrayTypeSymbol arrayType
-                && arrayType.ElementType.SpecialType == SpecialType.System_Object)
-            {
-                // params overload, need to check array values instead
-
-                if (arrayArgument.IsNull)
-                {
-                    // If null is provided - analyze it as single null value, not as null array
-                    return ImmutableArray.Create(default(TypedConstant));
-                }
-                else
-                {
-                    return arrayArgument.Values;
-                }
-            }
-
-            return attributePositionalArguments;
         }
 
         private static bool IsSoleParameterAnObjectArray(IMethodSymbol methodSymbol)
@@ -222,13 +199,13 @@ namespace NUnit.Analyzers.TestCaseUsage
                     }
                 }
 
-                var attributeArgumentSyntax = attribute.GetConstructorArgumentSyntax(i, context.CancellationToken);
+                var argumentSyntax = attribute.GetAdjustedArgumentSyntax(i, attributePositionalArguments, context.CancellationToken);
 
-                if (attributeArgumentSyntax is null)
+                if (argumentSyntax is null)
                     continue;
 
                 context.ReportDiagnostic(Diagnostic.Create(parameterTypeMismatch,
-                    attributeArgumentSyntax.GetLocation(),
+                    argumentSyntax.GetLocation(),
                     i,
                     argumentType?.ToDisplayString() ?? "<null>",
                     methodParameterName,

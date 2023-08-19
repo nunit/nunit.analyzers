@@ -214,6 +214,32 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeParameterIsArrayOfObjectWithGoodArguments()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeArgumentIsArrayOfObject
+    {
+        [TestCase(new object[] { 1, 2.0 })]
+        public void Test(int i, double d) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeParameterIsArrayOfObjectWithBadArguments()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeArgumentIsArrayOfObject
+    {
+        [TestCase(new object[] { 1, ↓2.0 })]
+        public void Test(int i, int ii) { }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer,
+                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
+                testCode);
+        }
+
+        [Test]
         public void AnalyzeArgumentIsStringConvertedToEnum()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
@@ -386,12 +412,54 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void AnalyzeWhenArgumentPassesNullToNullableType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentPassesNullToNullableType
+    public sealed class AnalyzeWhenArgumentPassesNullToNullableValueType
     {
         [TestCase(null)]
         public void Test(int? a) { }
     }");
             RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenArgumentPassesNullToNullableReferenceType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesNullToNullableType
+    {
+        [TestCase(null)]
+        public void Test(object? a) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenArgumentPassesNullToUnspecifiedReferenceType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    #nullable disable
+    public sealed class AnalyzeWhenArgumentPassesNullToNullableType
+    {
+        [TestCase(null)]
+        public void Test(object a) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenArgumentPassesNullToNonNullableReferenceType()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
+                string.Format(CultureInfo.InvariantCulture,
+                    TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "<null>", "a", "object"));
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesNullToNullableType
+    {
+        [TestCase(↓null)]
+        public void Test(object a) { }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -534,7 +602,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToReferenceType
     {
         [TestCase(null)]
-        public void Test(params string[] a) { }
+        public void Test(params string[]? a) { }
     }");
             RoslynAssert.Valid(this.analyzer, testCode);
         }

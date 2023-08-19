@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace NUnit.Analyzers.Extensions
 {
     internal static class AttributeArgumentTypedConstantExtensions
     {
+        #region CanAssignTo
+
         private static readonly IReadOnlyList<Type> ConvertibleTypes = new List<Type>
         {
             typeof(short),
@@ -71,8 +74,13 @@ namespace NUnit.Analyzers.Extensions
 
             if (argumentValue is null)
             {
-                if (target.IsReferenceType ||
-                    target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+                if (
+#if NETSTANDARD1_6
+                    target.IsReferenceType
+#else
+                    (target.IsReferenceType && target.NullableAnnotation != NullableAnnotation.NotAnnotated)
+#endif
+                    || target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
                 {
                     return true;
                 }
@@ -221,6 +229,37 @@ namespace NUnit.Analyzers.Extensions
             }
 
             return false;
+        }
+
+#endregion
+
+#pragma warning disable SA1202 // Elements should be ordered by access. Prefer grouping
+        internal static ImmutableArray<TypedConstant> AdjustArguments(this ImmutableArray<TypedConstant> attributePositionalArguments)
+#pragma warning restore SA1202 // Elements should be ordered by access
+        {
+            if (attributePositionalArguments.Length == 1
+                && attributePositionalArguments[0] is { Kind: TypedConstantKind.Array } arrayArgument
+                && arrayArgument.Type is IArrayTypeSymbol arrayType
+                && arrayType.ElementType.SpecialType == SpecialType.System_Object)
+            {
+                // params overload, need to check array values instead
+
+                if (arrayArgument.IsNull)
+                {
+                    // If null is provided - analyze it as single null value, not as null array
+                    // Thebelow creates an invalid TypedConstant (Error, NullType)
+                    // but no public constructor is available to create a proper one.
+                    return ImmutableArray.Create(default(TypedConstant));
+                }
+                else
+                {
+                    // This is a special case where the argument is explicitly specified as an array.
+                    // TestCase(new object[] { 1.0, 2 }) is then translated into TestCase(1.0, 2)
+                    return arrayArgument.Values;
+                }
+            }
+
+            return attributePositionalArguments;
         }
     }
 }
