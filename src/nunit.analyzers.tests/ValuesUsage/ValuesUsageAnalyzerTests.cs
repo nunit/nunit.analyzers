@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using NUnit.Analyzers.Constants;
@@ -172,6 +171,30 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         }
 
         [Test]
+        public void AnalyzeParameterIsArrayOfObjectWithGoodArguments()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeArgumentIsArrayOfObject
+    {
+        public void Test([Values(new object[] { 1, 2.0 })] double d) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeParameterIsArrayOfObjectWithBadArguments()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeArgumentIsArrayOfObject
+    {
+        public void Test([Values(new object[] { 1, ↓2.0 })] int i) { }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer,
+                ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
+                testCode);
+        }
+
+        [Test]
         public void AnalyzeArgumentIsStringConvertedToEnum()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
@@ -180,7 +203,7 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         public enum TestEnum { A,B,C }
 
         [Test]
-        public void Test([Values(""A"", ""B"")] TestEnum e) { }
+        public void Test([Values(↓""A"", ↓""B"")] TestEnum e) { }
     }");
             RoslynAssert.Diagnostics(this.analyzer,
                                      ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
@@ -196,7 +219,7 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         public enum TestEnum { A,B,C }
 
         [Test]
-        public void Test([Values(TestEnum.A, TestEnum.B)] string e) { }
+        public void Test([Values(↓TestEnum.A, ↓TestEnum.B)] string e) { }
     }");
             RoslynAssert.Diagnostics(this.analyzer,
                                      ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
@@ -303,7 +326,7 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
     public sealed class Foo
     {
         [Test]
-        public void ATest([Values(true, null)] bool blah) { }
+        public void ATest([Values(true, ↓null)] bool blah) { }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
@@ -323,23 +346,22 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         [Test]
         public void AnalyzeWhenArgumentPassesNullToValueType()
         {
-            // TODO: Can we get this to report <null> instead of object?[]
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage,
                                                                string.Format(CultureInfo.InvariantCulture,
                                                                              ValuesUsageAnalyzerConstants.ParameterTypeMismatchMessage,
-                                                                             0, "object?[]", "a", "char"));
+                                                                             0, "<null>", "a", "char"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentPassesNullToValueType
     {
         [Test]
-        public void Test([Values(null)] char a) { }
+        public void Test([Values(↓null)] char a) { }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToNullableType()
+        public void AnalyzeWhenArgumentPassesNullToNullableValueType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentPassesNullToNullableType
@@ -348,6 +370,45 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         public void Test([Values(null)] int? a) { }
     }");
             RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenArgumentPassesNullToNullableReferenceType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesNullToNullableType
+    {
+        public void Test([Values(null)] object? a) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenArgumentPassesNullToUnspecifiedReferenceType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    #nullable disable
+    public sealed class AnalyzeWhenArgumentPassesNullToNullableType
+    {
+        public void Test([Values(null)] object a) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenArgumentPassesNullToNonNullableReferenceType()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage,
+                                                               string.Format(CultureInfo.InvariantCulture,
+                                                                             ValuesUsageAnalyzerConstants.ParameterTypeMismatchMessage,
+                                                                             0, "<null>", "a", "object"));
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesNullToNullableType
+    {
+        public void Test([Values(↓null)] object a) { }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
     }
 }

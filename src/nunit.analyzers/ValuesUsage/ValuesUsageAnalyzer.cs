@@ -50,9 +50,12 @@ namespace NUnit.Analyzers.ValuesUsage
                                                        && SymbolEqualityComparer.Default.Equals(x.AttributeClass, valuesType)))
             {
                 symbolContext.CancellationToken.ThrowIfCancellationRequested();
-                for (var index = 0; index < attribute.ConstructorArguments.Length; index++)
+
+                var attributePositionalArguments = attribute.ConstructorArguments.AdjustArguments();
+
+                for (var index = 0; index < attributePositionalArguments.Length; index++)
                 {
-                    var constructorArgument = attribute.ConstructorArguments[index];
+                    var constructorArgument = attributePositionalArguments[index];
 
                     // If the compiler detects an illegal constant, we shouldn't check it.
                     // Unfortunately the constant 'null' is marked as Error with a null type.
@@ -70,15 +73,17 @@ namespace NUnit.Analyzers.ValuesUsage
                         continue;
                     }
 
-                    var attributeArgumentSyntax = attribute.GetConstructorArgumentSyntax(index,
-                                                                                         symbolContext.CancellationToken);
-                    if (attributeArgumentSyntax is null)
+                    var argumentSyntax = attribute.GetAdjustedArgumentSyntax(index,
+                                                                             attributePositionalArguments,
+                                                                             symbolContext.CancellationToken);
+
+                    if (argumentSyntax is null)
                     {
                         continue;
                     }
 
                     var diagnostic = Diagnostic.Create(parameterTypeMismatch,
-                                                       attributeArgumentSyntax.GetLocation(),
+                                                       argumentSyntax.GetLocation(),
                                                        index,
                                                        constructorArgument.Type?.ToDisplayString() ?? "<null>",
                                                        parameterSymbol.Name,
