@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -289,9 +289,7 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
     public struct CustomType { }
     public class CustomTypeConverter : TypeConverter { }");
 
-            RoslynAssert.Diagnostics(this.analyzer,
-                                     ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
-                                     testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
