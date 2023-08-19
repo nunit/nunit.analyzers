@@ -325,7 +325,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 
     class C
     {
-        [TestCase(↓2)]
+        [TestCase(2)]
         public void Test(CustomType p) { }
     }
 
@@ -333,9 +333,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     struct CustomType { }
     class CustomTypeConverter : TypeConverter { }");
 
-            RoslynAssert.Diagnostics(this.analyzer,
-                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
-                testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
