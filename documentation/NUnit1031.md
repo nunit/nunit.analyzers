@@ -18,6 +18,8 @@ The individual arguments provided by a ValuesAttribute must match the type of th
 
 To prevent tests that will fail at runtime due to improper construction.
 
+## How to fix violations
+
 ### Example Violation
 
 ```csharp
@@ -32,7 +34,7 @@ public void SampleTest([Values(0.0, 1.0)] int numberValue)
 
 In the test above, `numberValue` is declared as an integer. However, `[Values(0.0, 1.0)]` provides values as doubles.  This will lead to a runtime failure.
 
-## How to fix violations
+### Fix
 
 Ensure that the type of the objects used by the `ValuesAttribute` matches that of the parameter.
 
@@ -48,6 +50,7 @@ public void SampleTest([Values(0, 1)] int numberValue)
 ```
 
 And this would also work:
+
 ```csharp
 // Both use type double
 [Test]
