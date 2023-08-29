@@ -10,12 +10,13 @@ namespace NUnit.Analyzers.ValuesUsage
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class ValuesUsageAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly DiagnosticDescriptor parameterTypeMismatch = DiagnosticDescriptorCreator.Create(id: AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage,
-                                                                                                                title: ValuesUsageAnalyzerConstants.ParameterTypeMismatchTitle,
-                                                                                                                messageFormat: ValuesUsageAnalyzerConstants.ParameterTypeMismatchMessage,
-                                                                                                                category: Categories.Structure,
-                                                                                                                defaultSeverity: DiagnosticSeverity.Error,
-                                                                                                                description: ValuesUsageAnalyzerConstants.ParameterTypeMismatchDescription);
+        private static readonly DiagnosticDescriptor parameterTypeMismatch = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage,
+            title: ValuesUsageAnalyzerConstants.ParameterTypeMismatchTitle,
+            messageFormat: ValuesUsageAnalyzerConstants.ParameterTypeMismatchMessage,
+            category: Categories.Structure,
+            defaultSeverity: DiagnosticSeverity.Error,
+            description: ValuesUsageAnalyzerConstants.ParameterTypeMismatchDescription);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(parameterTypeMismatch);
 

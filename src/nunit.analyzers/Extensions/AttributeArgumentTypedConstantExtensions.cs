@@ -247,7 +247,7 @@ namespace NUnit.Analyzers.Extensions
                 if (arrayArgument.IsNull)
                 {
                     // If null is provided - analyze it as single null value, not as null array
-                    // Thebelow creates an invalid TypedConstant (Error, NullType)
+                    // The code below creates an invalid TypedConstant (Error, NullType)
                     // but no public constructor is available to create a proper one.
                     return ImmutableArray.Create(default(TypedConstant));
                 }
