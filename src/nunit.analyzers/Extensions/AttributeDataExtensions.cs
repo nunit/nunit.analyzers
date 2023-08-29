@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -51,6 +52,33 @@ namespace NUnit.Analyzers.Extensions
             return attributeSyntax.ArgumentList?.Arguments
                 .Where(a => a.NameEquals is null)
                 .ElementAtOrDefault(position);
+        }
+
+        public static ExpressionSyntax? GetAdjustedArgumentSyntax(this AttributeData @this, int position,
+            ImmutableArray<TypedConstant> attributePositionalArguments,
+            CancellationToken cancellationToken = default)
+        {
+            AttributeArgumentSyntax? attributeArgumentSyntax;
+
+            if (@this.ConstructorArguments == attributePositionalArguments)
+            {
+                attributeArgumentSyntax = @this.GetConstructorArgumentSyntax(position, cancellationToken);
+            }
+            else
+            {
+                // Arguments have been adjusted to expand explicitly passed in array.
+                // Get the first argument.
+                attributeArgumentSyntax = @this.GetConstructorArgumentSyntax(0, cancellationToken);
+
+                if (attributeArgumentSyntax?.Expression is ArrayCreationExpressionSyntax arrayCreationExpressionSyntax &&
+                    arrayCreationExpressionSyntax.Initializer is InitializerExpressionSyntax initializerExpressionSyntax)
+                {
+                    // Get the position element of the array initializer
+                    return initializerExpressionSyntax.Expressions.ElementAtOrDefault(position);
+                }
+            }
+
+            return attributeArgumentSyntax?.Expression;
         }
 
         public static AttributeArgumentSyntax? GetNamedArgumentSyntax(this AttributeData @this, string name,

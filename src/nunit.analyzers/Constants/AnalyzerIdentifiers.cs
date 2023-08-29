@@ -34,6 +34,7 @@ namespace NUnit.Analyzers.Constants
         internal const string NonTestMethodIsPublic = "NUnit1028";
         internal const string TestCaseSourceMismatchInNumberOfTestMethodParameters = "NUnit1029";
         internal const string TestCaseSourceMismatchWithTestMethodParameterType = "NUnit1030";
+        internal const string ValuesParameterTypeMismatchUsage = "NUnit1031";
 
         #endregion Structure
 

@@ -85,7 +85,7 @@ namespace NUnit.Analyzers.Tests
             {
                 var descriptor = descriptorInfo.Descriptor;
                 var id = descriptor.Id;
-                DumpIfDebug(descriptorInfo.Stub);
+                DumpIfRequested(descriptorInfo.Stub);
                 File.WriteAllText(descriptorInfo.DocumentationFile.Name + ".generated", descriptorInfo.Stub);
                 Assert.Fail($"Documentation is missing for {id}");
             }
@@ -98,7 +98,7 @@ namespace NUnit.Analyzers.Tests
             {
                 var descriptor = suppressorInfo.Descriptor;
                 var id = descriptor.Id;
-                DumpIfDebug(suppressorInfo.Stub);
+                DumpIfRequested(suppressorInfo.Stub);
                 File.WriteAllText(suppressorInfo.DocumentationFile.Name + ".generated", suppressorInfo.Stub);
                 Assert.Fail($"Documentation is missing for {id}");
             }
@@ -156,8 +156,8 @@ namespace NUnit.Analyzers.Tests
                               .First(l => !string.IsNullOrWhiteSpace(l));
             var actual = Replace(actualRaw, "`", string.Empty);
 
-            DumpIfDebug(expected);
-            DumpIfDebug(actual);
+            DumpIfRequested(expected);
+            DumpIfRequested(actual);
             Assert.That(actual, Is.EqualTo(expected));
         }
 
@@ -166,7 +166,7 @@ namespace NUnit.Analyzers.Tests
         {
             const string headerRow = "| Topic    | Value";
             var expected = GetTable(info.Stub, headerRow);
-            DumpIfDebug(expected);
+            DumpIfRequested(expected);
             var actual = GetTable(info.DocumentationFile.AllText, headerRow);
             CodeAssert.AreEqual(expected, actual);
         }
@@ -175,7 +175,7 @@ namespace NUnit.Analyzers.Tests
         public void EnsureThatConfigSeverityIsAsExpected(BaseInfo info)
         {
             var expected = GetConfigSeverity(info.Stub);
-            DumpIfDebug(expected);
+            DumpIfRequested(expected);
             var actual = GetConfigSeverity(info.DocumentationFile.AllText);
             CodeAssert.AreEqual(expected, actual);
 
@@ -224,7 +224,7 @@ namespace NUnit.Analyzers.Tests
             }
 
             var expected = builder.ToString();
-            DumpIfDebug(expected);
+            DumpIfRequested(expected);
             var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), headerRow, tableNumber);
             CodeAssert.AreEqual(expected, actual);
         }
@@ -254,7 +254,7 @@ namespace NUnit.Analyzers.Tests
             }
 
             var expected = builder.ToString();
-            DumpIfDebug(expected);
+            DumpIfRequested(expected);
             var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), headerRow, tableNumber);
             CodeAssert.AreEqual(expected, actual);
         }
@@ -290,8 +290,8 @@ namespace NUnit.Analyzers.Tests
             }
         }
 
-        [Conditional("DEBUG")]
-        private static void DumpIfDebug(string text)
+        [Conditional("DUMP_DOCUMENTATION")]
+        private static void DumpIfRequested(string text)
         {
             Console.Write(text);
             Console.WriteLine();
