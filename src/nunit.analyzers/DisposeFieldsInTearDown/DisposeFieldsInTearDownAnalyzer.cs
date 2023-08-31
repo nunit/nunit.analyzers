@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -13,6 +14,8 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class DisposeFieldsInTearDownAnalyzer : DiagnosticAnalyzer
     {
+        private static readonly HashSet<string> DisposeMethods = new(new[] { "Dispose", "DisposeAsync", "Close", "CloseAsync" });
+
         private static readonly DiagnosticDescriptor fieldIsNotDisposedInTearDown = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.FieldIsNotDisposedInTearDown,
             title: DisposeFieldsInTearDownConstants.FieldIsNotDisposedInTearDownTitle,
@@ -309,6 +312,17 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
         private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, ExpressionSyntax expression)
         {
             var disposedSymbols = new HashSet<string>();
+            if (expression is AwaitExpressionSyntax awaitExpression)
+            {
+                expression = awaitExpression.Expression;
+                if (expression is InvocationExpressionSyntax awaitInvocationExpression &&
+                    awaitInvocationExpression.Expression is MemberAccessExpressionSyntax awaitMemberAccessExpression &&
+                    awaitMemberAccessExpression.Name.Identifier.Text == "ConfigureAwait")
+                {
+                    expression = awaitMemberAccessExpression.Expression;
+                }
+            }
+
             if (expression is InvocationExpressionSyntax invocationExpression)
             {
                 if (invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression)
@@ -387,6 +401,14 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                     return disposedSymbols;
                 }
 
+                case TryStatementSyntax tryStatement:
+                {
+                    var disposedSymbols = DisposedIn(model, type, symbols, tryStatement.Block);
+                    if (tryStatement.Finally is not null)
+                        disposedSymbols.UnionWith(DisposedIn(model, type, symbols, tryStatement.Finally.Block));
+                    return disposedSymbols;
+                }
+
                 default:
                     return new HashSet<string>();
             }
@@ -405,7 +427,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             return disposedSymbols;
         }
 
-        private static bool IsDispose(SimpleNameSyntax name) => name.Identifier.Text is "Dispose" or "DisposeAsync";
+        private static bool IsDispose(SimpleNameSyntax name) => DisposeMethods.Contains(name.Identifier.Text);
 
         private static string? GetTargetName(ExpressionSyntax expression)
         {

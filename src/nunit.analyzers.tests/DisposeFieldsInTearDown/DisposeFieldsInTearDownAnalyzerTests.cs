@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -7,7 +9,7 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
 {
-    public class DisposeFieldsInTearDownAnalyzerTests
+    public sealed class DisposeFieldsInTearDownAnalyzerTests
     {
         private const string DummyDisposable = @"
         private sealed class DummyDisposable : IDisposable
@@ -133,5 +135,101 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenFieldIsDisposedInTryOrFinallyStatement()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private IDisposable? field1;
+        private IDisposable? field2;
+
+        [SetUp]
+        public void SetUpMethod()
+        {{
+            field1 = new DummyDisposable();
+            field2 = new DummyDisposable();
+        }}
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            try
+            {{
+                field1?.Dispose();
+            }}
+            finally
+            {{
+                field2?.Dispose();
+            }}
+        }}
+
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("Dispose")]
+        [TestCase("Close")]
+        public void AnalyzeWhenFieldIsDisposedUsingClose(string method)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private DummyWriter? field;
+
+        [SetUp]
+        public void SetUpMethod()
+        {{
+            field = new DummyWriter();
+        }}
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            field?.{method}();
+        }}
+
+        private sealed class DummyWriter : IDisposable
+        {{
+            public void Dispose() {{}}
+
+            public void Close() => Dispose();
+        }}");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+#if !NETFRAMEWORK
+        [Test]
+        public void AnalyzeWhenFieldIsAsyncDisposable(
+            [Values("DisposeAsync", "CloseAsync")] string method,
+            [Values("", "this.")] string prefix,
+            [Values("", ".ConfigureAwait(false)")] string configureAwait)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private DummyAsyncWriter? field;
+
+        [SetUp]
+        public void SetUpMethod()
+        {{
+            field = new DummyAsyncWriter();
+        }}
+
+        [TearDown]
+        public async Task TearDownMethod()
+        {{
+            if (field is not null)
+                await {prefix}field.{method}(){configureAwait};
+        }}
+
+        private sealed class DummyAsyncWriter : IAsyncDisposable
+        {{
+            public ValueTask DisposeAsync() => default(ValueTask);
+
+            public Task CloseAsync() => DisposeAsync().AsTask();
+        }}");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+#endif
     }
 }
