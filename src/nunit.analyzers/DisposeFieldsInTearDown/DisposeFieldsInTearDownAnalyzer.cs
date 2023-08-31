@@ -60,26 +60,26 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
             ImmutableArray<ISymbol> members = typeSymbol.GetMembers();
             var methods = members.OfType<IMethodSymbol>().Where(m => !m.IsStatic).ToArray();
-            var oneTimeTearDownMethods = methods.Where(m => HasAttribute(m, "OneTimeTearDownAttribute")).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
-            var oneTimeSetUpMethods = methods.Where(m => HasAttribute(m, "OneTimeSetUpAttribute")).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
-            var setUpMethods = methods.Where(m => HasAttribute(m, "SetUpAttribute")).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
-            var tearDownMethods = methods.Where(m => HasAttribute(m, "TearDownAttribute")).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
+            var oneTimeTearDownMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
+            var oneTimeSetUpMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfOneTimeSetUpAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
+            var setUpMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfSetUpAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
+            var tearDownMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfTearDownAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
 
             var setUpAndTearDownMethods = oneTimeSetUpMethods.Union(oneTimeTearDownMethods).Union(setUpMethods).Union(tearDownMethods);
             var otherMethods = methods.Where(m => m.DeclaredAccessibility != Accessibility.Private && !setUpAndTearDownMethods.Contains(m));
 
             // Fields assigned in a OneTimeSetUp method must be disposed in a OneTimeTearDown method
             AnalyzeAssignedButNotDisposed(context, model, typeSymbol, fields, fieldNames,
-                "OneTimeTearDown", oneTimeSetUpMethods, oneTimeTearDownMethods);
+                NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute, oneTimeSetUpMethods, oneTimeTearDownMethods);
 
             // Fields assigned in a SetUp method must be disposed in a TearDown method
             AnalyzeAssignedButNotDisposed(context, model, typeSymbol, fields, fieldNames,
-                "TearDown", setUpMethods, tearDownMethods);
+                NUnitFrameworkConstants.NameOfTearDownAttribute, setUpMethods, tearDownMethods);
 
             // Fields assignd in any method, must be (conditionally) disposed in TearDown method.
             // If the field is disposed in the method itself, why is it a field?
             AnalyzeAssignedButNotDisposed(context, model, typeSymbol, fields, fieldNames,
-                "TearDown", otherMethods, tearDownMethods);
+                NUnitFrameworkConstants.NameOfTearDownAttribute, otherMethods, tearDownMethods);
         }
 
         private static bool HasAttribute(IMethodSymbol method, string attributeName)
@@ -180,6 +180,8 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                         // Make one exemption, if the value is returned from a 'xxx.Add()' call.
                         // It is then assumed that owner ship is transferred to that 'collection'.
                         // This matches the (undocumented) CA2000 behaviour.
+                        // Although we don't actually check if the class implements ICollection.
+                        // https://github.com/dotnet/roslyn-analyzers/blob/main/src/Utilities/Compiler/Extensions/IMethodSymbolExtensions.cs#L465-L499
                         if (assignmentExpression.Right is not InvocationExpressionSyntax invocationExpression ||
                             invocationExpression.Expression is not MemberAccessExpressionSyntax memberAccessExpression ||
                             memberAccessExpression.Name.Identifier.Text != "Add")
@@ -279,7 +281,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
         /// Returns a hash set of the fields disposed in <paramref name="symbol"/>.
         /// </summary>
         /// <param name="symbol">The method to look for.</param>
-        /// <param name="symbols">The symbols to check for assignment.</param>
+        /// <param name="symbols">The symbols to check for disposal.</param>
         /// <returns>HashSet of <paramref name="symbols"/> that are disposed in <paramref name="symbol"/>.</returns>
         private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, IMethodSymbol symbol)
         {
@@ -309,8 +311,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             var disposedSymbols = new HashSet<string>();
             if (expression is InvocationExpressionSyntax invocationExpression)
             {
-                if (invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
-                    memberAccessExpression.Expression is not ThisExpressionSyntax)
+                if (invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression)
                 {
                     if (IsDispose(memberAccessExpression.Name))
                     {
@@ -332,7 +333,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                     {
                         if (SymbolEqualityComparer.Default.Equals(calledMethod.ContainingType, type))
                         {
-                            // We are calling a local method on our class, keep looking for assignments.
+                            // We are calling a local method on our class, keep looking for disposals.
                             return DisposedIn(model, type, symbols, calledMethod);
                         }
                     }
@@ -361,30 +362,30 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                     return DisposedIn(model, type, symbols, expressionStatement.Expression);
 
                 case IfStatementSyntax ifStatement:
-                    {
-                        // We don't care about the condition
-                        HashSet<string> disposedSymbolsInStatement = DisposedIn(model, type, symbols, ifStatement.Statement);
-                        if (ifStatement.Else is not null)
-                            disposedSymbolsInStatement.UnionWith(DisposedIn(model, type, symbols, ifStatement.Else.Statement));
+                {
+                    // We don't care about the condition
+                    HashSet<string> disposedSymbolsInStatement = DisposedIn(model, type, symbols, ifStatement.Statement);
+                    if (ifStatement.Else is not null)
+                        disposedSymbolsInStatement.UnionWith(DisposedIn(model, type, symbols, ifStatement.Else.Statement));
 
-                        return disposedSymbolsInStatement;
-                    }
+                    return disposedSymbolsInStatement;
+                }
 
                 case BlockSyntax block:
                     return DisposedIn(model, type, symbols, block.Statements);
 
                 case SwitchStatementSyntax switchStatement:
+                {
+                    var disposedSymbols = new HashSet<string>();
+
+                    foreach (var caseStatements in switchStatement.Sections.Select(x => x.Statements))
                     {
-                        var disposedSymbols = new HashSet<string>();
-
-                        foreach (var caseStatements in switchStatement.Sections.Select(x => x.Statements))
-                        {
-                            HashSet<string> disposedSymbolsInStatement = DisposedIn(model, type, symbols, caseStatements);
-                            disposedSymbols.UnionWith(disposedSymbolsInStatement);
-                        }
-
-                        return disposedSymbols;
+                        HashSet<string> disposedSymbolsInStatement = DisposedIn(model, type, symbols, caseStatements);
+                        disposedSymbols.UnionWith(disposedSymbolsInStatement);
                     }
+
+                    return disposedSymbols;
+                }
 
                 default:
                     return new HashSet<string>();

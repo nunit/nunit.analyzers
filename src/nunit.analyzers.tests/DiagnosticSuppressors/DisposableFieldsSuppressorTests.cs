@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.DiagnosticSuppressors;
 using NUnit.Framework;
 
@@ -49,8 +50,8 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             await TestHelpers.Suppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
         }
 
-        [TestCase("TearDown", "")]
-        [TestCase("OneTimeTearDown", "this.")]
+        [TestCase(NUnitFrameworkConstants.NameOfTearDownAttribute, "")]
+        [TestCase(NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute, "this.")]
         public async Task FieldDisposed(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"

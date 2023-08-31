@@ -120,6 +120,11 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfValueSourceAttribute), nameof(ValueSourceAttribute)),
             (nameof(NUnitFrameworkConstants.NameOfValuesAttribute), nameof(ValuesAttribute)),
 
+            (nameof(NUnitFrameworkConstants.NameOfOneTimeSetUpAttribute), nameof(OneTimeSetUpAttribute)),
+            (nameof(NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute), nameof(OneTimeTearDownAttribute)),
+            (nameof(NUnitFrameworkConstants.NameOfSetUpAttribute), nameof(SetUpAttribute)),
+            (nameof(NUnitFrameworkConstants.NameOfTearDownAttribute), nameof(TearDownAttribute)),
+
             (nameof(NUnitFrameworkConstants.NameOfExpectedResult), nameof(TestAttribute.ExpectedResult)),
 
             (nameof(NUnitFrameworkConstants.NameOfConstraintExpressionAnd), nameof(EqualConstraint.And)),

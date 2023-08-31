@@ -198,8 +198,6 @@ namespace NUnit.Analyzers.Extensions
         /// <summary>
         /// Return value indicates whether type implements IDisposable.
         /// </summary>
-        /// <param name="elementType">Contains IEnumerable generic argument, or null, if type implements
-        /// only non-generic IEnumerable interface, or no IEnumerable interface at all.</param>
         internal static bool IsDisposable(this ITypeSymbol @this)
         {
             return @this.AllInterfaces.Any(i => i.GetFullMetadataName() is "System.IDisposable" or "System.IAsyncDisposable");
