@@ -1,6 +1,6 @@
 # NUnit1032
 
-## An IDisposable field should be Disposed in a TearDown method
+## An IDisposable field/property should be Disposed in a TearDown method
 
 | Topic    | Value
 | :--      | :--
@@ -8,20 +8,21 @@
 | Severity | Error
 | Enabled  | True
 | Category | Structure
-| Code     | [DisposeFieldsInTearDownAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/DisposeFieldsInTearDown/DisposeFieldsInTearDownAnalyzer.cs)
+| Code     | [DisposeFieldsAndPropertiesInTearDownAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/DisposeFieldsAndPropertiesInTearDown/DisposeFieldsAndPropertiesInTearDownAnalyzer.cs)
 
 ## Description
 
-An IDisposable field should be Disposed in a TearDown method.
+An IDisposable field/property should be Disposed in a TearDown method.
 
 ## Motivation
 
-Not Diposing fields can cause memory leaks or failing tests.
+Not Diposing fields/properties can cause memory leaks or failing tests.
 
 ## How to fix violations
 
-Dispose any fields that are initialized in `SetUp` or `Test` methods in a `TearDown` method.
-Fields that are initialized in `OneTimeSetUp` must be disposed in `OneTimeTearDown`.
+Dispose any fields/properties that are initialized in `SetUp` or `Test` methods in a `TearDown` method.
+Fields/Properties that are initialized in `OneTimeSetUp`, or with initializers or in constructors
+must be disposed in `OneTimeTearDown`.
 
 <!-- start generated config severity -->
 ## Configure severity
@@ -33,7 +34,7 @@ Configure the severity per project, for more info see [MSDN](https://learn.micro
 ### Via .editorconfig file
 
 ```ini
-# NUnit1032: An IDisposable field should be Disposed in a TearDown method
+# NUnit1032: An IDisposable field/property should be Disposed in a TearDown method
 dotnet_diagnostic.NUnit1032.severity = chosenSeverity
 ```
 
@@ -42,22 +43,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit1032 // An IDisposable field should be Disposed in a TearDown method
+#pragma warning disable NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
 Code violating the rule here
-#pragma warning restore NUnit1032 // An IDisposable field should be Disposed in a TearDown method
+#pragma warning restore NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit1032 // An IDisposable field should be Disposed in a TearDown method
+#pragma warning disable NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure",
-    "NUnit1032:An IDisposable field should be Disposed in a TearDown method",
+    "NUnit1032:An IDisposable field/property should be Disposed in a TearDown method",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

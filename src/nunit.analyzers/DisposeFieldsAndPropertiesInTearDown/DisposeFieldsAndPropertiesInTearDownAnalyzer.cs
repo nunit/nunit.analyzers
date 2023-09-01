@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,7 +16,7 @@ using NUnit.Analyzers.Extensions;
 namespace NUnit.Analyzers.DisposeFieldsInTearDown
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class DisposeFieldsInTearDownAnalyzer : DiagnosticAnalyzer
+    public sealed class DisposeFieldsAndPropertiesInTearDownAnalyzer : DiagnosticAnalyzer
     {
         // Methods that are considered to be Dispoing an instance.
         private static readonly ImmutableHashSet<string> DisposeMethods = ImmutableHashSet.Create(
@@ -32,12 +33,12 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
         private static readonly DiagnosticDescriptor fieldIsNotDisposedInTearDown = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.FieldIsNotDisposedInTearDown,
-            title: DisposeFieldsInTearDownConstants.FieldIsNotDisposedInTearDownTitle,
-            messageFormat: DisposeFieldsInTearDownConstants.FieldIsNotDisposedInTearDownMessageFormat,
+            title: DisposeFieldsAndPropertiesInTearDownConstants.FieldOrPropertyIsNotDisposedInTearDownTitle,
+            messageFormat: DisposeFieldsAndPropertiesInTearDownConstants.FieldOrPropertyIsNotDisposedInTearDownMessageFormat,
             category: Categories.Structure,
             defaultSeverity: DiagnosticSeverity.Error,
             isEnabledByDefault: true,
-            description: DisposeFieldsInTearDownConstants.FieldIsNotDisposedInTearDownDescription);
+            description: DisposeFieldsAndPropertiesInTearDownConstants.FieldOrPropertyIsNotDisposedInTearDownDescription);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(fieldIsNotDisposedInTearDown);
@@ -78,13 +79,35 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                                                     .Select(x => x.Declaration)
                                                     .SelectMany(x => x.Variables);
 
-            Dictionary<string, VariableDeclaratorSyntax> fields = fieldDeclarations.ToDictionary(x => x.Identifier.Text);
+            var propertyDeclarations = classDeclaration.Members
+                                                       .OfType<PropertyDeclarationSyntax>()
+                                                       .Where(x => x.AccessorList is not null);
+
+            HashSet<string> fieldsWithDisposableInitializers = new();
+
+            Dictionary<string, SyntaxNode> fields = new();
+            foreach (var field in fieldDeclarations)
+            {
+                fields.Add(field.Identifier.Text, field);
+                if (field.Initializer is not null && NeedsDisposal(model, field.Initializer.Value))
+                {
+                    fieldsWithDisposableInitializers.Add(field.Identifier.Text);
+                }
+            }
+
+            foreach (var property in propertyDeclarations)
+            {
+                fields.Add(property.Identifier.Text, property);
+                if (property.Initializer is not null && NeedsDisposal(model, property.Initializer.Value))
+                    fieldsWithDisposableInitializers.Add(property.Identifier.Text);
+            }
+
             HashSet<string> fieldNames = new HashSet<string>(fields.Keys);
 
             ImmutableArray<ISymbol> members = typeSymbol.GetMembers();
             var methods = members.OfType<IMethodSymbol>().Where(m => !m.IsStatic).ToArray();
             var oneTimeTearDownMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
-            var oneTimeSetUpMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfOneTimeSetUpAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
+            var oneTimeSetUpMethods = methods.Where(m => m.MethodKind == MethodKind.Constructor || HasAttribute(m, NUnitFrameworkConstants.NameOfOneTimeSetUpAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
             var setUpMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfSetUpAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
             var tearDownMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfTearDownAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
 
@@ -93,7 +116,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
             // Fields assigned in a OneTimeSetUp method must be disposed in a OneTimeTearDown method
             AnalyzeAssignedButNotDisposed(context, model, typeSymbol, fields, fieldNames,
-                NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute, oneTimeSetUpMethods, oneTimeTearDownMethods);
+                NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute, oneTimeSetUpMethods, oneTimeTearDownMethods, fieldsWithDisposableInitializers);
 
             // Fields assigned in a SetUp method must be disposed in a TearDown method
             AnalyzeAssignedButNotDisposed(context, model, typeSymbol, fields, fieldNames,
@@ -124,21 +147,28 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             SyntaxNodeAnalysisContext context,
             SemanticModel model,
             INamedTypeSymbol type,
-            Dictionary<string, VariableDeclaratorSyntax> fields,
+            Dictionary<string, SyntaxNode> fields,
             HashSet<string> names,
             string where,
             IEnumerable<IMethodSymbol> setUpMethods,
-            IEnumerable<IMethodSymbol> tearDownMethods)
+            IEnumerable<IMethodSymbol> tearDownMethods,
+            HashSet<string>? assignedWithInitializers = null)
         {
             var assignedInSetUpMethods = AssignedIn(model, type, names, setUpMethods);
             var disposedInTearDownMethods = DisposedIn(model, type, names, tearDownMethods);
+
+            if (assignedWithInitializers is not null)
+                assignedInSetUpMethods.UnionWith(assignedWithInitializers);
             assignedInSetUpMethods.ExceptWith(disposedInTearDownMethods);
 
             foreach (var assignedButNotDisposed in assignedInSetUpMethods)
             {
+                SyntaxNode syntaxNode = fields[assignedButNotDisposed];
+
                 context.ReportDiagnostic(Diagnostic.Create(
                     fieldIsNotDisposedInTearDown,
-                    fields[assignedButNotDisposed].GetLocation(),
+                    syntaxNode.GetLocation(),
+                    syntaxNode is PropertyDeclarationSyntax ? "property" : "field",
                     assignedButNotDisposed,
                     where));
             }
@@ -167,13 +197,13 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
         /// <returns>HashSet of <paramref name="symbols"/> that are assigned in <paramref name="symbol"/>.</returns>
         private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, IMethodSymbol symbol)
         {
-            MethodDeclarationSyntax? method =
-                symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() as MethodDeclarationSyntax;
+            BaseMethodDeclarationSyntax? method =
+                symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() as BaseMethodDeclarationSyntax;
 
             return method is null ? new HashSet<string>() : AssignedIn(model, type, symbols, method);
         }
 
-        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, MethodDeclarationSyntax method)
+        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, BaseMethodDeclarationSyntax method)
         {
             if (method.ExpressionBody is not null)
             {
@@ -197,15 +227,9 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 string? name = GetIdentifier(assignmentExpression.Left);
                 if (name is not null && symbols.Contains(name))
                 {
-                    if (IsPossibleDisposableCreation(assignmentExpression.Right))
+                    if (NeedsDisposal(model, assignmentExpression.Right))
                     {
-                        ITypeSymbol? instanceType = model.GetTypeInfo(assignmentExpression.Right).Type;
-                        if (instanceType is not null &&
-                            instanceType.IsDisposable() &&
-                            !IsDisposableTypeNotRequiringToBeDisposed(instanceType))
-                        {
-                            assignedSymbols.Add(name);
-                        }
+                        assignedSymbols.Add(name);
                     }
                 }
             }
@@ -276,6 +300,19 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             }
 
             return assignedSymbols;
+        }
+
+        private static bool NeedsDisposal(SemanticModel model, ExpressionSyntax expression)
+        {
+            if (IsPossibleDisposableCreation(expression))
+            {
+                ITypeSymbol? instanceType = model.GetTypeInfo(expression).Type;
+                return instanceType is not null &&
+                       instanceType.IsDisposable() &&
+                       !IsDisposableTypeNotRequiringToBeDisposed(instanceType);
+            }
+
+            return false;
         }
 
         private static bool IsPossibleDisposableCreation(ExpressionSyntax expression)
