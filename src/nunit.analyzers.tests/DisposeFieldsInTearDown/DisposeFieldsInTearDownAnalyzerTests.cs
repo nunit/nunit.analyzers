@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -171,7 +172,7 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
 
         [TestCase("Dispose")]
         [TestCase("Close")]
-        public void AnalyzeWhenFieldIsDisposedUsingClose(string method)
+        public void AnalyzeWhenFieldIsDisposedUsing(string method)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         private DummyWriter? field;
@@ -194,6 +195,77 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
 
             public void Close() => Dispose();
         }}");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenFieldIsCopied()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        private NestedDisposable? field1;
+        private IDisposable? field2;
+
+        [SetUp]
+        public void SetUpMethod()
+        {
+            field1 = new NestedDisposable();
+            field2 = field1.Member;
+        }
+
+        [TearDown]
+        public void TearDownMethod()
+        {
+            field1?.Dispose();
+        }
+
+        private sealed class NestedDisposable : IDisposable
+        {
+            public IDisposable Member { get; } = new DummyDisposable();
+
+            public void Dispose() => Member.Dispose();
+        }
+        " + DummyDisposable);
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("new Task(() => { })")]
+        [TestCase("new System.IO.MemoryStream(128)")]
+        [TestCase("new System.IO.StringReader(\"NUnit.Analyzers\")")]
+        public void AnalyzeWhenFieldDoesNotNeedDisposing(string expressionSyntax)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private IDisposable? field;
+
+        [SetUp]
+        public void SetUpMethod()
+        {{
+            field = {expressionSyntax};
+        }}
+
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenClassIsNotAnNUnitTestFixture()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+        public sealed class NotATestClass
+        {{
+            private IDisposable? field;
+
+            public void SomeMethod()
+            {{
+                field = new DummyDisposable();
+            }}
+
+            {DummyDisposable}
+        }}
+        ");
 
             RoslynAssert.Valid(analyzer, testCode);
         }

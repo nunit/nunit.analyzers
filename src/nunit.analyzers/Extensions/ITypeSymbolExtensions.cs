@@ -200,7 +200,13 @@ namespace NUnit.Analyzers.Extensions
         /// </summary>
         internal static bool IsDisposable(this ITypeSymbol @this)
         {
-            return @this.AllInterfaces.Any(i => i.GetFullMetadataName() is "System.IDisposable" or "System.IAsyncDisposable");
+            return @this.GetFullMetadataName().IsDisposable() ||
+                   @this.AllInterfaces.Any(i => i.GetFullMetadataName().IsDisposable());
+        }
+
+        internal static bool IsDisposable(this string fullName)
+        {
+            return fullName is "System.IDisposable" or "System.IAsyncDisposable";
         }
     }
 }

@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -14,7 +17,18 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class DisposeFieldsInTearDownAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly HashSet<string> DisposeMethods = new(new[] { "Dispose", "DisposeAsync", "Close", "CloseAsync" });
+        // Methods that are considered to be Dispoing an instance.
+        private static readonly ImmutableHashSet<string> DisposeMethods = ImmutableHashSet.Create(
+            "Dispose",
+            "DisposeAsync",
+            "Close",
+            "CloseAsync");
+
+        // Types that even though they are IDisposable, don't need to be Disposed.
+        private static readonly ImmutableHashSet<string> DisposableTypeNotRequiringToBeDisposed = ImmutableHashSet.Create(
+            "System.Threading.Tasks.Task",
+            "System.IO.MemoryStream",
+            "System.IO.StringReader");
 
         private static readonly DiagnosticDescriptor fieldIsNotDisposedInTearDown = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.FieldIsNotDisposedInTearDown,
@@ -49,7 +63,13 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
             if (typeSymbol.IsDisposable())
             {
-                // If the type is Disposable, the MS Analyzer will conflict, so bail out.
+                // If the type is Disposable, the CA2000 Analyzer will conflict, so bail out.
+                return;
+            }
+
+            if (!typeSymbol.GetMembers().OfType<IMethodSymbol>().Any(m => m.IsTestRelatedMethod(context.Compilation)))
+            {
+                // Not a TestFixture, CA1812 should have picked this up.
                 return;
             }
 
@@ -177,17 +197,12 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 string? name = GetIdentifier(assignmentExpression.Left);
                 if (name is not null && symbols.Contains(name))
                 {
-                    TypeInfo typeInfo = model.GetTypeInfo(assignmentExpression.Right);
-                    if (typeInfo.Type?.IsDisposable() == true)
+                    if (IsPossibleDisposableCreation(assignmentExpression.Right))
                     {
-                        // Make one exemption, if the value is returned from a 'xxx.Add()' call.
-                        // It is then assumed that owner ship is transferred to that 'collection'.
-                        // This matches the (undocumented) CA2000 behaviour.
-                        // Although we don't actually check if the class implements ICollection.
-                        // https://github.com/dotnet/roslyn-analyzers/blob/main/src/Utilities/Compiler/Extensions/IMethodSymbolExtensions.cs#L465-L499
-                        if (assignmentExpression.Right is not InvocationExpressionSyntax invocationExpression ||
-                            invocationExpression.Expression is not MemberAccessExpressionSyntax memberAccessExpression ||
-                            memberAccessExpression.Name.Identifier.Text != "Add")
+                        ITypeSymbol? instanceType = model.GetTypeInfo(assignmentExpression.Right).Type;
+                        if (instanceType is not null &&
+                            instanceType.IsDisposable() &&
+                            !IsDisposableTypeNotRequiringToBeDisposed(instanceType))
                         {
                             assignedSymbols.Add(name);
                         }
@@ -263,6 +278,30 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             return assignedSymbols;
         }
 
+        private static bool IsPossibleDisposableCreation(ExpressionSyntax expression)
+        {
+            if (expression is ObjectCreationExpressionSyntax)
+                return true;
+
+            if (expression is InvocationExpressionSyntax invocationExpression)
+            {
+                // Make one exemption, if the value is returned from a 'xxx.Add()' call.
+                // It is then assumed that owner ship is transferred to that 'collection'.
+                // This matches the (undocumented) CA2000 behaviour.
+                // Although we don't actually check if the class implements ICollection.
+                // https://github.com/dotnet/roslyn-analyzers/blob/main/src/Utilities/Compiler/Extensions/IMethodSymbolExtensions.cs#L465-L499
+                return invocationExpression.Expression is not MemberAccessExpressionSyntax memberAccessExpression ||
+                       !memberAccessExpression.Name.Identifier.Text.StartsWith("Add", StringComparison.Ordinal);
+            }
+
+            return false;
+        }
+
+        private static bool IsDisposableTypeNotRequiringToBeDisposed(ITypeSymbol typeSymbol)
+        {
+            return DisposableTypeNotRequiringToBeDisposed.Contains(typeSymbol.GetFullMetadataName());
+        }
+
         #endregion
 
         #region DisposedIn
@@ -327,7 +366,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             {
                 if (invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression)
                 {
-                    if (IsDispose(memberAccessExpression.Name))
+                    if (IsDisposeMethod(memberAccessExpression.Name))
                     {
                         string? target = GetTargetName(memberAccessExpression.Expression);
                         if (target is not null && symbols.Contains(target))
@@ -356,7 +395,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             else if (expression is ConditionalAccessExpressionSyntax conditionalAccessExpression &&
                 conditionalAccessExpression.WhenNotNull is InvocationExpressionSyntax conditionalInvocationExpression &&
                 conditionalInvocationExpression.Expression is MemberBindingExpressionSyntax memberBindingExpression &&
-                IsDispose(memberBindingExpression.Name))
+                IsDisposeMethod(memberBindingExpression.Name))
             {
                 string? target = GetTargetName(conditionalAccessExpression.Expression);
                 if (target is not null && symbols.Contains(target))
@@ -427,7 +466,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             return disposedSymbols;
         }
 
-        private static bool IsDispose(SimpleNameSyntax name) => DisposeMethods.Contains(name.Identifier.Text);
+        private static bool IsDisposeMethod(SimpleNameSyntax name) => DisposeMethods.Contains(name.Identifier.Text);
 
         private static string? GetTargetName(ExpressionSyntax expression)
         {
