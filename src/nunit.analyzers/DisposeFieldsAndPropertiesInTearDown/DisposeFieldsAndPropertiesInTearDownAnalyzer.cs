@@ -453,7 +453,28 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
                 case IfStatementSyntax ifStatement:
                 {
-                    // We don't care about the condition
+                    // Check for:
+                    // if (field is IDisposable disposable)
+                    //     disposable.Dispose();
+                    if (ifStatement.Condition is IsPatternExpressionSyntax isPatternExpression &&
+                        isPatternExpression.Pattern is DeclarationPatternSyntax declarationPattern &&
+                        declarationPattern.Type is IdentifierNameSyntax identifierName &&
+                        identifierName.Identifier.Text.EndsWith("Disposable", StringComparison.Ordinal) &&
+                        declarationPattern.Designation is SingleVariableDesignationSyntax singleVariableDesignation)
+                    {
+                        string? member = GetIdentifier(isPatternExpression.Expression);
+                        if (member is not null && symbols.Contains(member))
+                        {
+                            string variable = singleVariableDesignation.Identifier.Text;
+                            HashSet<string> disposedSymbols = DisposedIn(model, type, new HashSet<string>() { variable }, ifStatement.Statement);
+                            if (disposedSymbols.Contains(variable))
+                            {
+                                return new HashSet<string>() { member };
+                            }
+                        }
+                    }
+
+                    // In other cases we don't care about the condition
                     HashSet<string> disposedSymbolsInStatement = DisposedIn(model, type, symbols, ifStatement.Statement);
                     if (ifStatement.Else is not null)
                         disposedSymbolsInStatement.UnionWith(DisposedIn(model, type, symbols, ifStatement.Else.Statement));

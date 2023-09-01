@@ -55,6 +55,25 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         }
 
         [Test]
+        public void AnalyzeWhenFieldIsConditionallyDisposed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private object field = new DummyDisposable();
+
+        [OneTimeTearDown]
+        public void TearDownMethod()
+        {{
+            if (field is IDisposable disposable)
+                disposable.Dispose();
+        }}
+
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenFieldWithInitializerIsDisposedInOneTimeTearDownMethod()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
