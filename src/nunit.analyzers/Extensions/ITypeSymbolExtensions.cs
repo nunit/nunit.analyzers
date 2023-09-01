@@ -200,6 +200,9 @@ namespace NUnit.Analyzers.Extensions
         /// </summary>
         internal static bool IsDisposable(this ITypeSymbol @this)
         {
+            if (@this is ITypeParameterSymbol typeParameter)
+                return typeParameter.ConstraintTypes.Any(t => t.IsDisposable());
+
             return @this.GetFullMetadataName().IsDisposable() ||
                    @this.AllInterfaces.Any(i => i.GetFullMetadataName().IsDisposable());
         }

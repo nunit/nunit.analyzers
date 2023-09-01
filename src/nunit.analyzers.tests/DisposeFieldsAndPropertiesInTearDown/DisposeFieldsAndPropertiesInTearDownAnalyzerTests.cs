@@ -164,6 +164,29 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
+        [TestCase("SetUp")]
+        [TestCase("Test")]
+        public void AnalyzeWhenFieldTypeParameterIsNotDisposed(string attribute)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+        public class TestClass<T>
+            where T : IDisposable, new()
+        {{
+            private T? ↓field;
+
+            [{attribute}]
+            public void SomeMethod()
+            {{
+                field = new T();
+            }}
+
+            {DummyDisposable}
+        }}
+        ");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
         [Test]
         public void AnalyzeWhenFieldWithInitializerIsNotDisposed()
         {
