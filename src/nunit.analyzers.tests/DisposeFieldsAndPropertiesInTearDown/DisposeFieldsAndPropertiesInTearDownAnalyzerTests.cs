@@ -226,6 +226,37 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         }
 
         [Test]
+        public void AnalyzeWhenPropertyBackingFieldIsDisposed(
+            [Values("field", "Property")] string fieldOrProperty)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private IDisposable? field;
+
+        private IDisposable? Property
+        {{
+            get => field;
+            set => this.field = value;
+        }}
+
+        [SetUp]
+        public void SetUpMethod()
+        {{
+            {fieldOrProperty} = new DummyDisposable();
+        }}
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            {fieldOrProperty}?.Dispose();
+        }}
+
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenPropertyIsDisposedInCorrectMethod(
             [Values("", "OneTime")] string attributePrefix,
             [Values("", "this.")] string prefix)

@@ -83,26 +83,26 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                                                        .OfType<PropertyDeclarationSyntax>()
                                                        .Where(x => x.AccessorList is not null);
 
-            HashSet<string> fieldsWithDisposableInitializers = new();
+            HashSet<string> symbolsWithDisposableInitializers = new();
 
-            Dictionary<string, SyntaxNode> fields = new();
+            Dictionary<string, SyntaxNode> symbols = new();
             foreach (var field in fieldDeclarations)
             {
-                fields.Add(field.Identifier.Text, field);
+                symbols.Add(field.Identifier.Text, field);
                 if (field.Initializer is not null && NeedsDisposal(model, field.Initializer.Value))
                 {
-                    fieldsWithDisposableInitializers.Add(field.Identifier.Text);
+                    symbolsWithDisposableInitializers.Add(field.Identifier.Text);
                 }
             }
 
             foreach (var property in propertyDeclarations)
             {
-                fields.Add(property.Identifier.Text, property);
+                symbols.Add(property.Identifier.Text, property);
                 if (property.Initializer is not null && NeedsDisposal(model, property.Initializer.Value))
-                    fieldsWithDisposableInitializers.Add(property.Identifier.Text);
+                    symbolsWithDisposableInitializers.Add(property.Identifier.Text);
             }
 
-            HashSet<string> fieldNames = new HashSet<string>(fields.Keys);
+            HashSet<string> symbolNames = new HashSet<string>(symbols.Keys);
 
             ImmutableArray<ISymbol> members = typeSymbol.GetMembers();
             var methods = members.OfType<IMethodSymbol>().Where(m => !m.IsStatic).ToArray();
@@ -115,16 +115,16 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             var otherMethods = methods.Where(m => m.DeclaredAccessibility != Accessibility.Private && !setUpAndTearDownMethods.Contains(m));
 
             // Fields assigned in a OneTimeSetUp method must be disposed in a OneTimeTearDown method
-            AnalyzeAssignedButNotDisposed(context, model, typeSymbol, fields, fieldNames,
-                NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute, oneTimeSetUpMethods, oneTimeTearDownMethods, fieldsWithDisposableInitializers);
+            AnalyzeAssignedButNotDisposed(context, model, typeSymbol, symbols, symbolNames,
+                NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute, oneTimeSetUpMethods, oneTimeTearDownMethods, symbolsWithDisposableInitializers);
 
             // Fields assigned in a SetUp method must be disposed in a TearDown method
-            AnalyzeAssignedButNotDisposed(context, model, typeSymbol, fields, fieldNames,
+            AnalyzeAssignedButNotDisposed(context, model, typeSymbol, symbols, symbolNames,
                 NUnitFrameworkConstants.NameOfTearDownAttribute, setUpMethods, tearDownMethods);
 
             // Fields assignd in any method, must be (conditionally) disposed in TearDown method.
             // If the field is disposed in the method itself, why is it a field?
-            AnalyzeAssignedButNotDisposed(context, model, typeSymbol, fields, fieldNames,
+            AnalyzeAssignedButNotDisposed(context, model, typeSymbol, symbols, symbolNames,
                 NUnitFrameworkConstants.NameOfTearDownAttribute, otherMethods, tearDownMethods);
         }
 
@@ -147,7 +147,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             SyntaxNodeAnalysisContext context,
             SemanticModel model,
             INamedTypeSymbol type,
-            Dictionary<string, SyntaxNode> fields,
+            Dictionary<string, SyntaxNode> symbols,
             HashSet<string> names,
             string where,
             IEnumerable<IMethodSymbol> setUpMethods,
@@ -163,7 +163,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
             foreach (var assignedButNotDisposed in assignedInSetUpMethods)
             {
-                SyntaxNode syntaxNode = fields[assignedButNotDisposed];
+                SyntaxNode syntaxNode = symbols[assignedButNotDisposed];
 
                 context.ReportDiagnostic(Diagnostic.Create(
                     fieldIsNotDisposedInTearDown,
@@ -176,13 +176,13 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
         #region AssignedIn
 
-        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, IEnumerable<IMethodSymbol> methods)
+        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> names, IEnumerable<IMethodSymbol> methods)
         {
             var assignedSymbols = new HashSet<string>();
 
             foreach (var method in methods)
             {
-                HashSet<string> assignedSymbolsInMethod = AssignedIn(model, type, symbols, method);
+                HashSet<string> assignedSymbolsInMethod = AssignedIn(model, type, names, method);
                 assignedSymbols.UnionWith(assignedSymbolsInMethod);
             }
 
@@ -190,42 +190,42 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
         }
 
         /// <summary>
-        /// Returns a hash set of the fields assigned in <paramref name="symbol"/>.
+        /// Returns a hash set of the symbols assigned in <paramref name="symbol"/>.
         /// </summary>
         /// <param name="symbol">The method to look for.</param>
-        /// <param name="symbols">The symbols to check for assignment.</param>
-        /// <returns>HashSet of <paramref name="symbols"/> that are assigned in <paramref name="symbol"/>.</returns>
-        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, IMethodSymbol symbol)
+        /// <param name="names">The symbols to check for assignment.</param>
+        /// <returns>HashSet of <paramref name="names"/> that are assigned in <paramref name="symbol"/>.</returns>
+        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> names, IMethodSymbol symbol)
         {
             BaseMethodDeclarationSyntax? method =
                 symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() as BaseMethodDeclarationSyntax;
 
-            return method is null ? new HashSet<string>() : AssignedIn(model, type, symbols, method);
+            return method is null ? new HashSet<string>() : AssignedIn(model, type, names, method);
         }
 
-        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, BaseMethodDeclarationSyntax method)
+        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> names, BaseMethodDeclarationSyntax method)
         {
             if (method.ExpressionBody is not null)
             {
-                return AssignedIn(model, type, symbols, method.ExpressionBody.Expression);
+                return AssignedIn(model, type, names, method.ExpressionBody.Expression);
             }
 
             if (method.Body is not null)
             {
-                return AssignedIn(model, type, symbols, method.Body);
+                return AssignedIn(model, type, names, method.Body);
             }
 
             return new HashSet<string>();
         }
 
-        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, ExpressionSyntax expression)
+        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> names, ExpressionSyntax expression)
         {
             var assignedSymbols = new HashSet<string>();
             if (expression is AssignmentExpressionSyntax assignmentExpression)
             {
                 // We only deal with simple assignments, not tuple or deconstruct
                 string? name = GetIdentifier(assignmentExpression.Left);
-                if (name is not null && symbols.Contains(name))
+                if (name is not null && names.Contains(name))
                 {
                     if (NeedsDisposal(model, assignmentExpression.Right))
                     {
@@ -242,7 +242,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                     if (calledMethod is not null && SymbolEqualityComparer.Default.Equals(calledMethod.ContainingType, type))
                     {
                         // We are calling a local method on our class, keep looking for assignments.
-                        return AssignedIn(model, type, symbols, calledMethod);
+                        return AssignedIn(model, type, names, calledMethod);
                     }
                 }
             }
@@ -250,25 +250,25 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             return assignedSymbols;
         }
 
-        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, StatementSyntax statement)
+        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> names, StatementSyntax statement)
         {
             switch (statement)
             {
                 case ExpressionStatementSyntax expressionStatement:
-                    return AssignedIn(model, type, symbols, expressionStatement.Expression);
+                    return AssignedIn(model, type, names, expressionStatement.Expression);
 
                 case IfStatementSyntax ifStatement:
                 {
                     // We don't care about the condition
-                    HashSet<string> assignedSymbolsInStatement = AssignedIn(model, type, symbols, ifStatement.Statement);
+                    HashSet<string> assignedSymbolsInStatement = AssignedIn(model, type, names, ifStatement.Statement);
                     if (ifStatement.Else is not null)
-                        assignedSymbolsInStatement.UnionWith(AssignedIn(model, type, symbols, ifStatement.Else.Statement));
+                        assignedSymbolsInStatement.UnionWith(AssignedIn(model, type, names, ifStatement.Else.Statement));
 
                     return assignedSymbolsInStatement;
                 }
 
                 case BlockSyntax block:
-                    return AssignedIn(model, type, symbols, block.Statements);
+                    return AssignedIn(model, type, names, block.Statements);
 
                 case SwitchStatementSyntax switchStatement:
                 {
@@ -276,7 +276,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
                     foreach (var caseStatements in switchStatement.Sections.Select(x => x.Statements))
                     {
-                        HashSet<string> assignedSymbolsInStatement = AssignedIn(model, type, symbols, caseStatements);
+                        HashSet<string> assignedSymbolsInStatement = AssignedIn(model, type, names, caseStatements);
                         assignedSymbols.UnionWith(assignedSymbolsInStatement);
                     }
 
@@ -289,13 +289,13 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             }
         }
 
-        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, SyntaxList<StatementSyntax> statements)
+        private static HashSet<string> AssignedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> names, SyntaxList<StatementSyntax> statements)
         {
             var assignedSymbols = new HashSet<string>();
 
             foreach (var statement in statements)
             {
-                HashSet<string> assignedSymbolsInStatement = AssignedIn(model, type, symbols, statement);
+                HashSet<string> assignedSymbolsInStatement = AssignedIn(model, type, names, statement);
                 assignedSymbols.UnionWith(assignedSymbolsInStatement);
             }
 
@@ -343,13 +343,13 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
         #region DisposedIn
 
-        private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, IEnumerable<IMethodSymbol> methods)
+        private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> names, IEnumerable<IMethodSymbol> methods)
         {
             var disposedSymbols = new HashSet<string>();
 
             foreach (var method in methods)
             {
-                HashSet<string> disposedSymbolsInMethod = DisposedIn(model, type, symbols, method);
+                HashSet<string> disposedSymbolsInMethod = DisposedIn(model, type, names, method);
                 disposedSymbols.UnionWith(disposedSymbolsInMethod);
             }
 
@@ -357,35 +357,35 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
         }
 
         /// <summary>
-        /// Returns a hash set of the fields disposed in <paramref name="symbol"/>.
+        /// Returns a hash set of the symbols disposed in <paramref name="symbol"/>.
         /// </summary>
         /// <param name="symbol">The method to look for.</param>
-        /// <param name="symbols">The symbols to check for disposal.</param>
-        /// <returns>HashSet of <paramref name="symbols"/> that are disposed in <paramref name="symbol"/>.</returns>
-        private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, IMethodSymbol symbol)
+        /// <param name="names">The symbols to check for disposal.</param>
+        /// <returns>HashSet of <paramref name="names"/> that are disposed in <paramref name="symbol"/>.</returns>
+        private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> names, IMethodSymbol symbol)
         {
             MethodDeclarationSyntax? method =
                 symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() as MethodDeclarationSyntax;
 
-            return method is null ? new HashSet<string>() : DisposedIn(model, type, symbols, method);
+            return method is null ? new HashSet<string>() : DisposedIn(model, type, names, method);
         }
 
-        private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, MethodDeclarationSyntax method)
+        private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> names, MethodDeclarationSyntax method)
         {
             if (method.ExpressionBody is not null)
             {
-                return DisposedIn(model, type, symbols, method.ExpressionBody.Expression);
+                return DisposedIn(model, type, names, method.ExpressionBody.Expression);
             }
 
             if (method.Body is not null)
             {
-                return DisposedIn(model, type, symbols, method.Body);
+                return DisposedIn(model, type, names, method.Body);
             }
 
             return new HashSet<string>();
         }
 
-        private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, ExpressionSyntax expression)
+        private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> names, ExpressionSyntax expression)
         {
             var disposedSymbols = new HashSet<string>();
             if (expression is AwaitExpressionSyntax awaitExpression)
@@ -406,7 +406,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                     if (IsDisposeMethod(memberAccessExpression.Name))
                     {
                         string? target = GetTargetName(memberAccessExpression.Expression);
-                        if (target is not null && symbols.Contains(target))
+                        if (target is not null && names.Contains(target))
                         {
                             disposedSymbols.Add(target);
                         }
@@ -424,7 +424,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                         if (SymbolEqualityComparer.Default.Equals(calledMethod.ContainingType, type))
                         {
                             // We are calling a local method on our class, keep looking for disposals.
-                            return DisposedIn(model, type, symbols, calledMethod);
+                            return DisposedIn(model, type, names, calledMethod);
                         }
                     }
                 }
@@ -435,7 +435,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 IsDisposeMethod(memberBindingExpression.Name))
             {
                 string? target = GetTargetName(conditionalAccessExpression.Expression);
-                if (target is not null && symbols.Contains(target))
+                if (target is not null && names.Contains(target))
                 {
                     disposedSymbols.Add(target);
                 }
@@ -444,12 +444,12 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             return disposedSymbols;
         }
 
-        private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, StatementSyntax statement)
+        private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> names, StatementSyntax statement)
         {
             switch (statement)
             {
                 case ExpressionStatementSyntax expressionStatement:
-                    return DisposedIn(model, type, symbols, expressionStatement.Expression);
+                    return DisposedIn(model, type, names, expressionStatement.Expression);
 
                 case IfStatementSyntax ifStatement:
                 {
@@ -463,7 +463,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                         declarationPattern.Designation is SingleVariableDesignationSyntax singleVariableDesignation)
                     {
                         string? member = GetIdentifier(isPatternExpression.Expression);
-                        if (member is not null && symbols.Contains(member))
+                        if (member is not null && names.Contains(member))
                         {
                             string variable = singleVariableDesignation.Identifier.Text;
                             HashSet<string> disposedSymbols = DisposedIn(model, type, new HashSet<string>() { variable }, ifStatement.Statement);
@@ -475,15 +475,15 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                     }
 
                     // In other cases we don't care about the condition
-                    HashSet<string> disposedSymbolsInStatement = DisposedIn(model, type, symbols, ifStatement.Statement);
+                    HashSet<string> disposedSymbolsInStatement = DisposedIn(model, type, names, ifStatement.Statement);
                     if (ifStatement.Else is not null)
-                        disposedSymbolsInStatement.UnionWith(DisposedIn(model, type, symbols, ifStatement.Else.Statement));
+                        disposedSymbolsInStatement.UnionWith(DisposedIn(model, type, names, ifStatement.Else.Statement));
 
                     return disposedSymbolsInStatement;
                 }
 
                 case BlockSyntax block:
-                    return DisposedIn(model, type, symbols, block.Statements);
+                    return DisposedIn(model, type, names, block.Statements);
 
                 case SwitchStatementSyntax switchStatement:
                 {
@@ -491,7 +491,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
                     foreach (var caseStatements in switchStatement.Sections.Select(x => x.Statements))
                     {
-                        HashSet<string> disposedSymbolsInStatement = DisposedIn(model, type, symbols, caseStatements);
+                        HashSet<string> disposedSymbolsInStatement = DisposedIn(model, type, names, caseStatements);
                         disposedSymbols.UnionWith(disposedSymbolsInStatement);
                     }
 
@@ -500,9 +500,9 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
                 case TryStatementSyntax tryStatement:
                 {
-                    var disposedSymbols = DisposedIn(model, type, symbols, tryStatement.Block);
+                    var disposedSymbols = DisposedIn(model, type, names, tryStatement.Block);
                     if (tryStatement.Finally is not null)
-                        disposedSymbols.UnionWith(DisposedIn(model, type, symbols, tryStatement.Finally.Block));
+                        disposedSymbols.UnionWith(DisposedIn(model, type, names, tryStatement.Finally.Block));
                     return disposedSymbols;
                 }
 
@@ -511,13 +511,13 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             }
         }
 
-        private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> symbols, SyntaxList<StatementSyntax> statements)
+        private static HashSet<string> DisposedIn(SemanticModel model, INamedTypeSymbol type, HashSet<string> names, SyntaxList<StatementSyntax> statements)
         {
             var disposedSymbols = new HashSet<string>();
 
             foreach (var statement in statements)
             {
-                HashSet<string> disposedSymbolsInStatement = DisposedIn(model, type, symbols, statement);
+                HashSet<string> disposedSymbolsInStatement = DisposedIn(model, type, names, statement);
                 disposedSymbols.UnionWith(disposedSymbolsInStatement);
             }
 
