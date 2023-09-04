@@ -9,7 +9,7 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
     public sealed class DisposeFieldsAndPropertiesInTearDownAnalyzerTests
     {
         private const string DummyDisposable = @"
-        private sealed class DummyDisposable : IDisposable
+        sealed class DummyDisposable : IDisposable
         {
             public void Dispose() {}
         }";
@@ -254,6 +254,108 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         ");
 
             RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenFieldIsDisposedInSpecialExtensionMethod()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    public class TestClass
+    {{
+        private object? field;
+
+        [SetUp]
+        public void SetUpMethod()
+        {{
+            field = new DummyDisposable();
+        }}
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            field.DisposeIfDisposable();
+        }}
+
+        {DummyDisposable}
+    }}
+
+    public static class DisposableExtensions
+    {{
+        public static void DisposeIfDisposable<T>(this T instance)
+        {{
+            if (instance is IDisposable disposable)
+                disposable.Dispose();
+        }}
+    }}
+        ");
+
+            const string AnalyzerConfig = "dotnet_diagnostic.NUnit1032.additional_dispose_methods = DisposeIfDisposable";
+            Settings settings = Settings.Default.WithAnalyzerConfig(AnalyzerConfig);
+            RoslynAssert.Valid(analyzer, testCode, settings);
+        }
+
+        [Test]
+        public void AnalyzeWhenFieldIsDisposedInSpecialMethodWithParameter()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private object? field;
+
+        [SetUp]
+        public void SetUpMethod()
+        {{
+            field = new DummyDisposable();
+        }}
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            Release(field);
+        }}
+
+        private void Release<T>(T instance)
+        {{
+            if (instance is IDisposable disposable)
+                disposable.Dispose();
+        }}
+        
+        {DummyDisposable}
+        ");
+
+            const string AnalyzerConfig = "dotnet_diagnostic.NUnit1032.additional_dispose_methods = Release";
+            Settings settings = Settings.Default.WithAnalyzerConfig(AnalyzerConfig);
+            RoslynAssert.Valid(analyzer, testCode, settings);
+        }
+
+        [Test]
+        public void AnalyzeWhenFieldIsDisposedUsingFactoryWithParameter()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    public class TestClass
+    {{
+        private IFactory<DummyDisposable> _factory;
+        private DummyDisposable? _field;
+
+        public TestClass(IFactory<DummyDisposable> factory) => _factory = factory;
+
+        [SetUp]
+        public void SetUpMethod() => _field = _factory.Create();
+
+        [TearDown]
+        public void TearDownMethod() => _factory.Release(_field!);
+    }}
+
+    public {DummyDisposable}
+
+    public interface IFactory<T>
+    {{
+        T Create();
+        void Release(T instance);
+    }}
+        ");
+
+            const string AnalyzerConfig = "dotnet_diagnostic.NUnit1032.additional_dispose_methods = Release";
+            Settings settings = Settings.Default.WithAnalyzerConfig(AnalyzerConfig);
+            RoslynAssert.Valid(analyzer, testCode, settings);
         }
 
         [Test]
