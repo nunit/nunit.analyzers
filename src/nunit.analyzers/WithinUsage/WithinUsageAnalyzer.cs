@@ -142,6 +142,12 @@ namespace NUnit.Analyzers.WithinUsage
             if (fullName.Equals("System.DateTimeOffset", StringComparison.Ordinal))
                 return true;
 
+            // Check for Nullable<T>
+            if (fullName.Equals("System.Nullable`1", StringComparison.Ordinal))
+            {
+                return IsTypeSupported(namedType.TypeArguments[0]);
+            }
+
             if (fullName.StartsWith("System.Collections.Generic.KeyValuePair`", StringComparison.Ordinal))
             {
                 // We pass tolerance to the Value Type.

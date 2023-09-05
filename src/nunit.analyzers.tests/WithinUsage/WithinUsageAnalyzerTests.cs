@@ -272,5 +272,20 @@ namespace NUnit.Analyzers.Tests.WithinUsage
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+        [TestCase("double")]
+        [TestCase("int")]
+        [TestCase("TimeSpan")]
+        public void AnalyzeWhenAppliedToEqualityConstraintForNullableValidTypes(string type)
+        {
+            string testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                [TestCase(null, null)]
+                public void Test({type}? a, {type}? b)
+                {{
+                    Assert.That(a, Is.EqualTo(b).Within(0.1));
+                }}");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
     }
 }
