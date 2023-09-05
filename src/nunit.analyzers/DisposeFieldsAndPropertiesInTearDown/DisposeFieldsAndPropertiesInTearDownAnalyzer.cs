@@ -173,11 +173,12 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             IEnumerable<IMethodSymbol> tearDownMethods,
             HashSet<string>? assignedWithInitializers = null)
         {
-            var assignedInSetUpMethods = AssignedIn(parameters, setUpMethods);
-            var disposedInTearDownMethods = DisposedIn(parameters, tearDownMethods);
+            HashSet<string> assignedInSetUpMethods = assignedWithInitializers ?? new();
+            HashSet<string> disposedInTearDownMethods = new();
 
-            if (assignedWithInitializers is not null)
-                assignedInSetUpMethods.UnionWith(assignedWithInitializers);
+            AssignedIn(parameters, assignedInSetUpMethods, setUpMethods);
+            DisposedIn(parameters, disposedInTearDownMethods, tearDownMethods);
+
             assignedInSetUpMethods.ExceptWith(disposedInTearDownMethods);
 
             foreach (var assignedButNotDisposed in assignedInSetUpMethods)
@@ -195,51 +196,37 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
         #region AssignedIn
 
-        private static HashSet<string> AssignedIn(Parameters parameters, IEnumerable<IMethodSymbol> methods)
+        private static void AssignedIn(Parameters parameters, HashSet<string> assignments, IEnumerable<IMethodSymbol> methods)
         {
-            var assignedSymbols = new HashSet<string>();
-
             foreach (var method in methods)
             {
-                HashSet<string> assignedSymbolsInMethod = AssignedIn(parameters, method);
-                assignedSymbols.UnionWith(assignedSymbolsInMethod);
+                AssignedIn(parameters, assignments, method);
             }
-
-            return assignedSymbols;
         }
 
-        /// <summary>
-        /// Returns a hash set of the symbols assigned in <paramref name="symbol"/>.
-        /// </summary>
-        /// <param name="symbol">The method to look for.</param>
-        /// <param name="names">The symbols to check for assignment.</param>
-        /// <returns>HashSet of <paramref name="names"/> that are assigned in <paramref name="symbol"/>.</returns>
-        private static HashSet<string> AssignedIn(Parameters parameters, IMethodSymbol symbol)
+        private static void AssignedIn(Parameters parameters, HashSet<string> assignments, IMethodSymbol symbol)
         {
             BaseMethodDeclarationSyntax? method =
                 symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() as BaseMethodDeclarationSyntax;
 
-            return method is null ? new HashSet<string>() : AssignedIn(parameters, method);
+            if (method is not null)
+                AssignedIn(parameters, assignments, method);
         }
 
-        private static HashSet<string> AssignedIn(Parameters parameters, BaseMethodDeclarationSyntax method)
+        private static void AssignedIn(Parameters parameters, HashSet<string> assignments, BaseMethodDeclarationSyntax method)
         {
             if (method.ExpressionBody is not null)
             {
-                return AssignedIn(parameters, method.ExpressionBody.Expression);
+                AssignedIn(parameters, assignments, method.ExpressionBody.Expression);
             }
-
-            if (method.Body is not null)
+            else if (method.Body is not null)
             {
-                return AssignedIn(parameters, method.Body);
+                AssignedIn(parameters, assignments, method.Body);
             }
-
-            return new HashSet<string>();
         }
 
-        private static HashSet<string> AssignedIn(Parameters parameters, ExpressionSyntax expression)
+        private static void AssignedIn(Parameters parameters, HashSet<string> assignments, ExpressionSyntax expression)
         {
-            var assignedSymbols = new HashSet<string>();
             if (expression is AssignmentExpressionSyntax assignmentExpression)
             {
                 // We only deal with simple assignments, not tuple or deconstruct
@@ -248,7 +235,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 {
                     if (NeedsDisposal(parameters.Model, assignmentExpression.Right))
                     {
-                        assignedSymbols.Add(name);
+                        assignments.Add(name);
                     }
                 }
             }
@@ -260,64 +247,57 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                     if (parameters.IsLocalMethodCall(invocationExpression, out IMethodSymbol? calledMethod))
                     {
                         // We are calling a local method on our class, keep looking for assignments.
-                        return AssignedIn(parameters, calledMethod);
+                        AssignedIn(parameters, assignments, calledMethod);
                     }
                 }
             }
-
-            return assignedSymbols;
         }
 
-        private static HashSet<string> AssignedIn(Parameters parameters, StatementSyntax statement)
+        private static void AssignedIn(Parameters parameters, HashSet<string> assignments, StatementSyntax statement)
         {
             switch (statement)
             {
                 case ExpressionStatementSyntax expressionStatement:
-                    return AssignedIn(parameters, expressionStatement.Expression);
+                    AssignedIn(parameters, assignments, expressionStatement.Expression);
+                    break;
 
                 case IfStatementSyntax ifStatement:
-                {
                     // We don't care about the condition
-                    HashSet<string> assignedSymbolsInStatement = AssignedIn(parameters, ifStatement.Statement);
+                    AssignedIn(parameters, assignments, ifStatement.Statement);
                     if (ifStatement.Else is not null)
-                        assignedSymbolsInStatement.UnionWith(AssignedIn(parameters, ifStatement.Else.Statement));
-
-                    return assignedSymbolsInStatement;
-                }
+                        AssignedIn(parameters, assignments, ifStatement.Else.Statement);
+                    break;
 
                 case BlockSyntax block:
-                    return AssignedIn(parameters, block.Statements);
+                    AssignedIn(parameters, assignments, block.Statements);
+                    break;
 
                 case SwitchStatementSyntax switchStatement:
-                {
-                    var assignedSymbols = new HashSet<string>();
-
                     foreach (var caseStatements in switchStatement.Sections.Select(x => x.Statements))
                     {
-                        HashSet<string> assignedSymbolsInStatement = AssignedIn(parameters, caseStatements);
-                        assignedSymbols.UnionWith(assignedSymbolsInStatement);
+                        AssignedIn(parameters, assignments, caseStatements);
                     }
 
-                    return assignedSymbols;
-                }
+                    break;
+
+                case TryStatementSyntax tryStatement:
+                    AssignedIn(parameters, assignments, tryStatement.Block);
+                    if (tryStatement.Finally is not null)
+                        AssignedIn(parameters, assignments, tryStatement.Finally.Block);
+                    break;
 
                 default:
                     // Anything assigned in a loop is bad as it overrides previous assignments.
-                    return new HashSet<string>();
+                    break;
             }
         }
 
-        private static HashSet<string> AssignedIn(Parameters parameters, SyntaxList<StatementSyntax> statements)
+        private static void AssignedIn(Parameters parameters, HashSet<string> assignments, SyntaxList<StatementSyntax> statements)
         {
-            var assignedSymbols = new HashSet<string>();
-
             foreach (var statement in statements)
             {
-                HashSet<string> assignedSymbolsInStatement = AssignedIn(parameters, statement);
-                assignedSymbols.UnionWith(assignedSymbolsInStatement);
+                AssignedIn(parameters, assignments, statement);
             }
-
-            return assignedSymbols;
         }
 
         private static bool NeedsDisposal(SemanticModel model, ExpressionSyntax expression)
@@ -361,51 +341,37 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
         #region DisposedIn
 
-        private static HashSet<string> DisposedIn(Parameters parameters, IEnumerable<IMethodSymbol> methods)
+        private static void DisposedIn(Parameters parameters, HashSet<string> disposals, IEnumerable<IMethodSymbol> methods)
         {
-            var disposedSymbols = new HashSet<string>();
-
             foreach (var method in methods)
             {
-                HashSet<string> disposedSymbolsInMethod = DisposedIn(parameters, method);
-                disposedSymbols.UnionWith(disposedSymbolsInMethod);
+                DisposedIn(parameters, disposals, method);
             }
-
-            return disposedSymbols;
         }
 
-        /// <summary>
-        /// Returns a hash set of the symbols disposed in <paramref name="symbol"/>.
-        /// </summary>
-        /// <param name="symbol">The method to look for.</param>
-        /// <param name="names">The symbols to check for disposal.</param>
-        /// <returns>HashSet of <paramref name="names"/> that are disposed in <paramref name="symbol"/>.</returns>
-        private static HashSet<string> DisposedIn(Parameters parameters, IMethodSymbol symbol)
+        private static void DisposedIn(Parameters parameters, HashSet<string> disposals, IMethodSymbol symbol)
         {
             MethodDeclarationSyntax? method =
                 symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() as MethodDeclarationSyntax;
 
-            return method is null ? new HashSet<string>() : DisposedIn(parameters, method);
+            if (method is not null)
+                DisposedIn(parameters, disposals, method);
         }
 
-        private static HashSet<string> DisposedIn(Parameters parameters, MethodDeclarationSyntax method)
+        private static void DisposedIn(Parameters parameters, HashSet<string> disposals, MethodDeclarationSyntax method)
         {
             if (method.ExpressionBody is not null)
             {
-                return DisposedIn(parameters, method.ExpressionBody.Expression);
+                DisposedIn(parameters, disposals, method.ExpressionBody.Expression);
             }
-
-            if (method.Body is not null)
+            else if (method.Body is not null)
             {
-                return DisposedIn(parameters, method.Body);
+                DisposedIn(parameters, disposals, method.Body);
             }
-
-            return new HashSet<string>();
         }
 
-        private static HashSet<string> DisposedIn(Parameters parameters, ExpressionSyntax expression)
+        private static void DisposedIn(Parameters parameters, HashSet<string> disposals, ExpressionSyntax expression)
         {
-            var disposedSymbols = new HashSet<string>();
             if (expression is AwaitExpressionSyntax awaitExpression)
             {
                 expression = awaitExpression.Expression;
@@ -421,33 +387,31 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             {
                 if (parameters.IsDisposalOf(invocationExpression, null, out string? disposedSymbol))
                 {
-                    disposedSymbols.Add(disposedSymbol);
+                    disposals.Add(disposedSymbol);
                 }
                 else if (parameters.IsLocalMethodCall(invocationExpression, out IMethodSymbol? calledMethod))
                 {
                     // We are calling a local method on our class, keep looking for disposals.
-                    return DisposedIn(parameters, calledMethod);
+                    DisposedIn(parameters, disposals, calledMethod);
                 }
             }
             else if (expression is ConditionalAccessExpressionSyntax conditionalAccessExpression &&
                 conditionalAccessExpression.WhenNotNull is InvocationExpressionSyntax conditionalInvocationExpression &&
                 parameters.IsDisposalOf(conditionalInvocationExpression, conditionalAccessExpression.Expression, out string? disposedSymbol))
             {
-                disposedSymbols.Add(disposedSymbol);
+                disposals.Add(disposedSymbol);
             }
-
-            return disposedSymbols;
         }
 
-        private static HashSet<string> DisposedIn(Parameters parameters, StatementSyntax statement)
+        private static void DisposedIn(Parameters parameters, HashSet<string> disposals, StatementSyntax statement)
         {
             switch (statement)
             {
                 case ExpressionStatementSyntax expressionStatement:
-                    return DisposedIn(parameters, expressionStatement.Expression);
+                    DisposedIn(parameters, disposals, expressionStatement.Expression);
+                    break;
 
                 case IfStatementSyntax ifStatement:
-                {
                     // Check for:
                     // if (field is IDisposable disposable)
                     //     disposable.Dispose();
@@ -461,62 +425,50 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                         if (member is not null && parameters.HasSymbolFor(member))
                         {
                             string variable = singleVariableDesignation.Identifier.Text;
-                            HashSet<string> disposedSymbols = DisposedIn(parameters.With(variable), ifStatement.Statement);
+                            HashSet<string> disposedSymbols = new();
+                            DisposedIn(parameters.With(variable), disposedSymbols, ifStatement.Statement);
                             if (disposedSymbols.Contains(variable))
                             {
-                                return new HashSet<string>() { member };
+                                disposals.Add(member);
                             }
                         }
                     }
 
                     // In other cases we don't care about the condition
-                    HashSet<string> disposedSymbolsInStatement = DisposedIn(parameters, ifStatement.Statement);
+                    DisposedIn(parameters, disposals, ifStatement.Statement);
                     if (ifStatement.Else is not null)
-                        disposedSymbolsInStatement.UnionWith(DisposedIn(parameters, ifStatement.Else.Statement));
-
-                    return disposedSymbolsInStatement;
-                }
+                        DisposedIn(parameters, disposals, ifStatement.Else.Statement);
+                    break;
 
                 case BlockSyntax block:
-                    return DisposedIn(parameters, block.Statements);
+                    DisposedIn(parameters, disposals, block.Statements);
+                    break;
 
                 case SwitchStatementSyntax switchStatement:
-                {
-                    var disposedSymbols = new HashSet<string>();
-
                     foreach (var caseStatements in switchStatement.Sections.Select(x => x.Statements))
                     {
-                        HashSet<string> disposedSymbolsInStatement = DisposedIn(parameters, caseStatements);
-                        disposedSymbols.UnionWith(disposedSymbolsInStatement);
+                        DisposedIn(parameters, disposals, caseStatements);
                     }
 
-                    return disposedSymbols;
-                }
+                    break;
 
                 case TryStatementSyntax tryStatement:
-                {
-                    var disposedSymbols = DisposedIn(parameters, tryStatement.Block);
+                    DisposedIn(parameters, disposals, tryStatement.Block);
                     if (tryStatement.Finally is not null)
-                        disposedSymbols.UnionWith(DisposedIn(parameters, tryStatement.Finally.Block));
-                    return disposedSymbols;
-                }
+                        DisposedIn(parameters, disposals, tryStatement.Finally.Block);
+                    break;
 
                 default:
-                    return new HashSet<string>();
+                    break;
             }
         }
 
-        private static HashSet<string> DisposedIn(Parameters parameters, SyntaxList<StatementSyntax> statements)
+        private static void DisposedIn(Parameters parameters, HashSet<string> disposals, SyntaxList<StatementSyntax> statements)
         {
-            var disposedSymbols = new HashSet<string>();
-
             foreach (var statement in statements)
             {
-                HashSet<string> disposedSymbolsInStatement = DisposedIn(parameters, statement);
-                disposedSymbols.UnionWith(disposedSymbolsInStatement);
+                DisposedIn(parameters, disposals, statement);
             }
-
-            return disposedSymbols;
         }
 
         #endregion
