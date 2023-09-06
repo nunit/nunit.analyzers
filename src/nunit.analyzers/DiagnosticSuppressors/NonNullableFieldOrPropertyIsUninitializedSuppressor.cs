@@ -127,18 +127,49 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 return IsAssignedIn(model, classDeclaration, method.ExpressionBody.Expression, fieldOrPropertyName);
             }
 
-            if (method.Body is null)
+            if (method.Body is not null)
             {
-                return false;
+                return IsAssignedIn(model, classDeclaration, method.Body, fieldOrPropertyName);
             }
 
-            foreach (var statement in method.Body.Statements)
+            return false;
+        }
+
+        private static bool IsAssignedIn(
+            SemanticModel model,
+            ClassDeclarationSyntax classDeclaration,
+            StatementSyntax statement,
+            string fieldOrPropertyName)
+        {
+            switch (statement)
             {
-                if (statement is ExpressionStatementSyntax expressionStatement &&
-                    IsAssignedIn(model, classDeclaration, expressionStatement.Expression, fieldOrPropertyName))
-                {
+                case ExpressionStatementSyntax expressionStatement:
+                    return IsAssignedIn(model, classDeclaration, expressionStatement.Expression, fieldOrPropertyName);
+
+                case BlockSyntax block:
+                    return IsAssignedIn(model, classDeclaration, block.Statements, fieldOrPropertyName);
+
+                case TryStatementSyntax tryStatement:
+                    return IsAssignedIn(model, classDeclaration, tryStatement.Block, fieldOrPropertyName) ||
+                        (tryStatement.Finally is not null &&
+                        IsAssignedIn(model, classDeclaration, tryStatement.Finally.Block, fieldOrPropertyName));
+
+                default:
+                    // Any conditional statement does not guarantee assignment.
+                    return false;
+            }
+        }
+
+        private static bool IsAssignedIn(
+            SemanticModel model,
+            ClassDeclarationSyntax classDeclaration,
+            SyntaxList<StatementSyntax> statements,
+            string fieldOrPropertyName)
+        {
+            foreach (var statement in statements)
+            {
+                if (IsAssignedIn(model, classDeclaration, statement, fieldOrPropertyName))
                     return true;
-                }
             }
 
             return false;

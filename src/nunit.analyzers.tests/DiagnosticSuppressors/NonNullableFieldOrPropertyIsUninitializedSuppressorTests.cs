@@ -124,6 +124,37 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         }
 
         [Test]
+        public void FieldAssignedInTryFinally()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                private string ↓field1;
+                private string ↓field2;
+
+                [SetUp]
+                public void SetUp()
+                {
+                    try
+                    {
+                        field1 = ""NUnit"";
+                    }
+                    finally
+                    {
+                        field2 = ""Analyzers"";
+                    }
+                }
+
+                [Test]
+                public void Test()
+                {
+                    Assert.That(field1, Is.Not.Null);
+                    Assert.That(field2, Is.Not.Null);
+                }
+            ");
+
+            RoslynAssert.Suppressed(suppressor, testCode);
+        }
+
+        [Test]
         public void PropertyNotAssigned()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
