@@ -543,7 +543,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
                 if (arguments.Count == 0 && (target is not null || conditionalTarget is not null))
                 {
-                    // This muse be `diposable(?).DisposeMethod()`
+                    // This must be `diposable(?).DisposeMethod()`
                     symbol = GetIdentifier(target ?? conditionalTarget!);
                 }
                 else if (arguments.Count == 1)
