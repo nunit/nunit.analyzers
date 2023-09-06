@@ -194,5 +194,22 @@ namespace NUnit.Analyzers.Extensions
 
             return false;
         }
+
+        /// <summary>
+        /// Return value indicates whether type implements IDisposable.
+        /// </summary>
+        internal static bool IsDisposable(this ITypeSymbol @this)
+        {
+            if (@this is ITypeParameterSymbol typeParameter)
+                return typeParameter.ConstraintTypes.Any(t => t.IsDisposable());
+
+            return @this.GetFullMetadataName().IsDisposable() ||
+                   @this.AllInterfaces.Any(i => i.GetFullMetadataName().IsDisposable());
+        }
+
+        internal static bool IsDisposable(this string fullName)
+        {
+            return fullName is "System.IDisposable" or "System.IAsyncDisposable";
+        }
     }
 }

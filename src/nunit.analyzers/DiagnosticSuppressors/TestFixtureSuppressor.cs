@@ -11,15 +11,20 @@ using NUnit.Analyzers.Extensions;
 namespace NUnit.Analyzers.DiagnosticSuppressors
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class AvoidUninstantiatedInternalClassesSuppressor : DiagnosticSuppressor
+    public sealed class TestFixtureSuppressor : DiagnosticSuppressor
     {
         internal static readonly SuppressionDescriptor AvoidUninstantiatedInternalTestFixtureClasses = new(
             id: AnalyzerIdentifiers.AvoidUninstantiatedInternalClasses,
             suppressedDiagnosticId: "CA1812",
-            justification: "Class is a NUnit TestFixture and called by reflection");
+            justification: "Class is an NUnit TestFixture and is instantiated using reflection");
+
+        internal static readonly SuppressionDescriptor TypesThatOwnDisposableFieldsShouldHaveATearDown = new(
+            id: AnalyzerIdentifiers.TypesThatOwnDisposableFieldsShouldBeDisposable,
+            suppressedDiagnosticId: "CA1001",
+            justification: "Field should be Disposed in TearDown or OneTimeTearDown method");
 
         public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions { get; } =
-            ImmutableArray.Create(AvoidUninstantiatedInternalTestFixtureClasses);
+            ImmutableArray.Create(AvoidUninstantiatedInternalTestFixtureClasses, TypesThatOwnDisposableFieldsShouldHaveATearDown);
 
         public override void ReportSuppressions(SuppressionAnalysisContext context)
         {
@@ -47,7 +52,13 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 if (typeSymbol is not null &&
                     typeSymbol.GetMembers().OfType<IMethodSymbol>().Any(m => m.IsTestRelatedMethod(context.Compilation)))
                 {
-                    context.ReportSuppression(Suppression.Create(AvoidUninstantiatedInternalTestFixtureClasses, diagnostic));
+                    foreach (var suppression in this.SupportedSuppressions)
+                    {
+                        if (diagnostic.Descriptor.Id == suppression.SuppressedDiagnosticId)
+                        {
+                            context.ReportSuppression(Suppression.Create(suppression, diagnostic));
+                        }
+                    }
                 }
             }
         }

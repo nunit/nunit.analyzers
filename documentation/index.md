@@ -50,6 +50,7 @@ Rules which enforce structural requirements on the test code.
 | [NUnit1029](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1029.md) | The number of parameters provided by the TestCaseSource does not match the number of parameters in the Test method | :white_check_mark: | :exclamation: | :x: |
 | [NUnit1030](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1030.md) | The type of parameter provided by the TestCaseSource does not match the type of the parameter in the Test method | :white_check_mark: | :exclamation: | :x: |
 | [NUnit1031](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1031.md) | The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method | :white_check_mark: | :exclamation: | :x: |
+| [NUnit1032](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1032.md) | An IDisposable field/property should be Disposed in a TearDown method | :white_check_mark: | :exclamation: | :x: |
 
 ### Assertion Rules (NUnit2001 - )
 
@@ -113,4 +114,5 @@ Rules which suppress compiler errors based on context. Note that these rules are
 | :--      | :--         | :--:  | :--:   | :--:   |
 | [NUnit3001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3001.md) | Expression was checked in an Assert.NotNull, Assert.IsNotNull or Assert.That call | :white_check_mark: | :information_source: | :x: |
 | [NUnit3002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3002.md) | Field/Property is initialized in SetUp or OneTimeSetUp method | :white_check_mark: | :information_source: | :x: |
-| [NUnit3003](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3003.md) | Class is a NUnit TestFixture and called by reflection | :white_check_mark: | :information_source: | :x: |
+| [NUnit3003](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3003.md) | Class is an NUnit TestFixture and is instantiated using reflection | :white_check_mark: | :information_source: | :x: |
+| [NUnit3004](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3004.md) | Field should be Disposed in TearDown or OneTimeTearDown method | :white_check_mark: | :information_source: | :x: |

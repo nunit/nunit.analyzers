@@ -1,10 +1,10 @@
-# NUnit3003
+# NUnit3004
 
-## Class is an NUnit TestFixture and is instantiated using reflection
+## Field should be Disposed in TearDown or OneTimeTearDown method
 
 | Topic    | Value
 | :--      | :--
-| Id       | NUnit3003
+| Id       | NUnit3004
 | Severity | Info
 | Enabled  | True
 | Category | Suppressor
@@ -12,14 +12,18 @@
 
 ## Description
 
-Class is a NUnit TestFixture and called by reflection
+Field/Property is Disposed in TearDown or OneTimeTearDown method
 
 ## Motivation
 
-The default roslyn analyzer has rule [CA1812](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1812)
-which warns about internal classes not being used.
-That analyzer doesn't know about NUnit test classes.
-This suppressor catches the error, verifies the class is an NUnit TestFixture and if so suppresses the error.
+The Roslyn analyzer fires [CA1001](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1001)
+for classes that have [`IDisposable`](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable) members, but itself is not `IDisposable`.
+
+Many NUnit tests initialize fields in tests or a `SetUp` method and then `Dispose` them in the `TearDown` method.
+
+## How to fix violations
+
+Ensure that all `IDisposable` fields have a `Dispose` call in the `TearDown` method.
 
 <!-- start generated config severity -->
 ## Configure severity
@@ -58,7 +62,7 @@ For more info about rulesets see [MSDN](https://learn.microsoft.com/en-us/visual
 This is currently not working. Waiting for [Roslyn](https://github.com/dotnet/roslyn/issues/49727)
 
 ```ini
-# NUnit3003: Class is an NUnit TestFixture and is instantiated using reflection
-dotnet_diagnostic.NUnit3003.severity = none
+# NUnit3004: Field should be Disposed in TearDown or OneTimeTearDown method
+dotnet_diagnostic.NUnit3004.severity = none
 ```
 <!-- end generated config severity -->

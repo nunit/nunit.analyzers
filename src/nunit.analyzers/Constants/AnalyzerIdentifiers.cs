@@ -35,6 +35,7 @@ namespace NUnit.Analyzers.Constants
         internal const string TestCaseSourceMismatchInNumberOfTestMethodParameters = "NUnit1029";
         internal const string TestCaseSourceMismatchWithTestMethodParameterType = "NUnit1030";
         internal const string ValuesParameterTypeMismatchUsage = "NUnit1031";
+        internal const string FieldIsNotDisposedInTearDown = "NUnit1032";
 
         #endregion Structure
 
@@ -95,6 +96,7 @@ namespace NUnit.Analyzers.Constants
         internal const string DereferencePossibleNullReference = "NUnit3001";
         internal const string NonNullableFieldOrPropertyIsUninitialized = "NUnit3002";
         internal const string AvoidUninstantiatedInternalClasses = "NUnit3003";
+        internal const string TypesThatOwnDisposableFieldsShouldBeDisposable = "NUnit3004";
 
         #endregion
     }
