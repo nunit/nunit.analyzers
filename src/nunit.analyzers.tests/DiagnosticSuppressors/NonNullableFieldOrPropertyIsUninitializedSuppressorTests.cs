@@ -126,42 +126,28 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [Test]
         public void FieldAssignedInTryFinally()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-                public class BaseClass
-                {
-                    [SetUp]
-                    public virtual void SetUp()
-                    {
-                    }
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                private string ↓field1;
+                private string ↓field2;
 
-                    [TearDown]
-                    public virtual void TearDown()
+                [SetUp]
+                public void SetUp()
+                {
+                    try
                     {
+                        field1 = ""NUnit"";
+                    }
+                    finally
+                    {
+                        field2 = ""Analyzers"";
                     }
                 }
 
-                public class TestClass : BaseClass
+                [Test]
+                public void Test()
                 {
-                    private string ↓field;
-
-                    public override void SetUp()
-                    {
-                        base.SetUp();
-                        try
-                        {
-                            field = string.Empty;
-                        }
-                        catch
-                        {
-                            base.TearDown();
-                        }
-                    }
-
-                    [Test]
-                    public void Test()
-                    {
-                        Assert.That(field, Is.Not.Null);
-                    }
+                    Assert.That(field1, Is.Not.Null);
+                    Assert.That(field2, Is.Not.Null);
                 }
             ");
 
