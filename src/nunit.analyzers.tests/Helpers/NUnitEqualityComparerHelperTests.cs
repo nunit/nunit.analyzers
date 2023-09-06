@@ -213,6 +213,21 @@ namespace NUnit.Analyzers.Tests.Helpers
             AssertThatCommutativeEqual(leftTypeSymbol, rightTypeSymbol, compilation, Is.True);
         }
 
+        [Test]
+        public void UriCanEqualStringButStringCanNotEqualUri()
+        {
+            var compilation = TestHelpers.CreateCompilation();
+
+            var stringSymbol = compilation.GetSpecialType(SpecialType.System_String);
+            var uriSymbol = compilation.GetTypeByMetadataName("System.Uri");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(NUnitEqualityComparerHelper.CanBeEqual(uriSymbol, stringSymbol, compilation), Is.True);
+                Assert.That(NUnitEqualityComparerHelper.CanBeEqual(stringSymbol, uriSymbol, compilation), Is.False);
+            });
+        }
+
         private static void AssertThatCommutativeEqual(ITypeSymbol? leftTypeSymbol, ITypeSymbol? rightTypeSymbol, Compilation compilation, Constraint constraint)
         {
             Assert.Multiple(() =>
