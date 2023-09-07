@@ -226,6 +226,40 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         }
 
         [Test]
+        public void FieldConditionallyAssignedInCalledLocalMethod()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private object? ↓field;
+        private bool initializeField;
+
+        public TestClass(bool initializeField) => this.initializeField = initializeField;
+
+        [SetUp]
+        public async Task SetUp()
+        {{
+            if (initializeField)
+                await InitializeField().ConfigureAwait(false);
+        }}
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            field = null;
+        }}
+
+        private Task InitializeField()
+        {{
+            field = new DummyDisposable();
+            return Task.CompletedTask;
+        }}
+
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenPropertyBackingFieldIsDisposed(
             [Values("field", "Property")] string fieldOrProperty)
         {
