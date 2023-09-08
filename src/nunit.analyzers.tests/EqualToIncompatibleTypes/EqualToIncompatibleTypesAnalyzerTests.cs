@@ -951,5 +951,34 @@ using System.Collections.Generic;");
 
             RoslynAssert.Diagnostics(analyzer, testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenComparingUriWithString()
+        {
+            // Uri.Equals(object? comparand) has code that checks if comparand is a string.
+            // There is no separate overload for Uri.Equals(string?) to check for.
+            var testCode = TestUtility.WrapInTestMethod(@"
+                const string testString = ""test"";
+                Uri testUri = new Uri(""test"", UriKind.Relative);
+
+                Assert.That(testUri, Is.EqualTo(testString));
+            ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenComparingStringWithUri()
+        {
+            // string.Equals(Uri) always fails
+            var testCode = TestUtility.WrapInTestMethod(@"
+                const string testString = ""test"";
+                Uri testUri = new Uri(""test"", UriKind.Relative);
+
+                Assert.That(testString, Is.EqualTo(↓testUri));
+            ");
+
+            RoslynAssert.Diagnostics(analyzer, testCode);
+        }
     }
 }

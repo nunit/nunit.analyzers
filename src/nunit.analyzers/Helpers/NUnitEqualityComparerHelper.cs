@@ -100,6 +100,10 @@ namespace NUnit.Analyzers.Helpers
                     return CanBeEqual(actualKeyType, expectedKeyType, compilation, checkedTypes)
                         && CanBeEqual(actualValueType, expectedValueType, compilation, checkedTypes);
                 }
+
+                // Uri.Equals(string) works, but not string.Equals(Uri)
+                if (IsUri(actualFullName) && expectedType.SpecialType == SpecialType.System_String)
+                    return true;
             }
 
             // IEnumerables
@@ -180,6 +184,11 @@ namespace NUnit.Analyzers.Helpers
         private static bool IsTuple(string fullName)
         {
             return fullName.StartsWith("System.Tuple`", StringComparison.Ordinal);
+        }
+
+        private static bool IsUri(string fullName)
+        {
+            return fullName.Equals("System.Uri", StringComparison.Ordinal);
         }
 
         private static bool IsIEquatable(ITypeSymbol typeSymbol, ITypeSymbol equatableTypeArguments)
