@@ -957,7 +957,17 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
                 private static Extra? GetResult() => new("".NET"", 8);
 
-                private sealed record class Extra(string Info, int Value);
+                private sealed class Extra
+                {
+                    public Extra(string info, int value)
+                    {
+                        Info = info;
+                        Value = value;
+                    }
+
+                    public string Info { get; }
+                    public int Value { get; }
+                }
             ");
 
             RoslynAssert.Suppressed(suppressor,
