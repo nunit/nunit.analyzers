@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -257,12 +258,13 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             return null;
         }
 
-        private static bool IsValidatedNotNullByPreviousStatementInSameBlock(string possibleNullReference, BlockSyntax block, StatementSyntax statement)
+        private static bool IsValidatedNotNullByPreviousStatementInSameBlock(string possibleNullReference, BlockSyntax block, StatementSyntax? statement)
         {
             var siblings = block.ChildNodes().ToList();
+            int nodeIndex = statement is null ? siblings.Count : siblings.FindIndex(x => x == statement);
 
             // Look in earlier statements to see if the variable was previously checked for null.
-            for (int nodeIndex = siblings.FindIndex(x => x == statement); --nodeIndex >= 0;)
+            while (--nodeIndex >= 0)
             {
                 SyntaxNode previous = siblings[nodeIndex];
 
@@ -277,58 +279,10 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                                 ShouldBeSuppressed(assignmentExpression.Right);
                         }
                     }
-
-                    // Check if this is an Assert for the same symbol
-                    if (AssertHelper.IsAssert(expressionStatement.Expression, out string member, out ArgumentListSyntax? argumentList))
+                    else
                     {
-                        string firstArgument = argumentList.Arguments.First().Expression.ToString();
-
-                        if (member == NUnitFrameworkConstants.NameOfAssertThat)
-                        {
-                            string? secondArgument =
-                                argumentList.Arguments.ElementAtOrDefault(1)?.Expression.ToString();
-
-                            // If test is on <nullable>.HasValue
-                            if (IsHasValue(firstArgument, possibleNullReference))
-                            {
-                                // Could be:
-                                // Assert.That(<nullable>.HasValue)
-                                // Assert.That(<nullable>.HasValue, "Ensure Value Set")
-                                // Assert.That(<nullable>.HasValue, Is.True)
-                                if (secondArgument != "Is.False")
-                                {
-                                    return true;
-                                }
-                            }
-                            else
-                            {
-                                // Null check, could be Is.Not.Null or more complex
-                                // like Is.Not.Null.And.Not.Empty.
-                                if (secondArgument != "Is.Null")
-                                {
-                                    if (CoveredBy(firstArgument, possibleNullReference))
-                                    {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                        else if (member == NUnitFrameworkConstants.NameOfAssertNotNull ||
-                                member == NUnitFrameworkConstants.NameOfAssertIsNotNull)
-                        {
-                            if (CoveredBy(firstArgument, possibleNullReference))
-                            {
-                                return true;
-                            }
-                        }
-                        else if (member == NUnitFrameworkConstants.NameOfAssertIsTrue ||
-                                member == NUnitFrameworkConstants.NameOfAssertTrue)
-                        {
-                            if (IsHasValue(firstArgument, possibleNullReference))
-                            {
-                                return true;
-                            }
-                        }
+                        if (IsValidatedNotNullByExpression(possibleNullReference, expressionStatement.Expression))
+                            return true;
                     }
                 }
                 else if (previous is LocalDeclarationStatementSyntax localDeclarationStatement)
@@ -342,6 +296,81 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                             return initializer is not null &&
                                 (IsKnownToBeNotNull(initializer) ||
                                 ShouldBeSuppressed(initializer));
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsValidatedNotNullByExpression(string possibleNullReference, ExpressionSyntax expression)
+        {
+            // Check if this is an Assert for the same symbol
+            if (AssertHelper.IsAssert(expression, out string member, out ArgumentListSyntax? argumentList))
+            {
+                string firstArgument = argumentList.Arguments.First().Expression.ToString();
+
+                if (member == NUnitFrameworkConstants.NameOfAssertThat)
+                {
+                    string? secondArgument =
+                        argumentList.Arguments.ElementAtOrDefault(1)?.Expression.ToString();
+
+                    // If test is on <nullable>.HasValue
+                    if (IsHasValue(firstArgument, possibleNullReference))
+                    {
+                        // Could be:
+                        // Assert.That(<nullable>.HasValue)
+                        // Assert.That(<nullable>.HasValue, "Ensure Value Set")
+                        // Assert.That(<nullable>.HasValue, Is.True)
+                        if (secondArgument != "Is.False")
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        // Null check, could be Is.Not.Null or more complex
+                        // like Is.Not.Null.And.Not.Empty.
+                        if (secondArgument != "Is.Null")
+                        {
+                            if (CoveredBy(firstArgument, possibleNullReference))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                else if (member == NUnitFrameworkConstants.NameOfAssertNotNull ||
+                        member == NUnitFrameworkConstants.NameOfAssertIsNotNull)
+                {
+                    if (CoveredBy(firstArgument, possibleNullReference))
+                    {
+                        return true;
+                    }
+                }
+                else if (member == NUnitFrameworkConstants.NameOfAssertIsTrue ||
+                        member == NUnitFrameworkConstants.NameOfAssertTrue)
+                {
+                    if (IsHasValue(firstArgument, possibleNullReference))
+                    {
+                        return true;
+                    }
+                }
+                else if (member == NUnitFrameworkConstants.NameOfMultiple)
+                {
+                    // Look up into the actual asserted parameter
+                    if (argumentList.Arguments.First().Expression is AnonymousFunctionExpressionSyntax anonymousFunction)
+                    {
+                        if (anonymousFunction.Block is not null)
+                        {
+                            if (IsValidatedNotNullByPreviousStatementInSameBlock(possibleNullReference, anonymousFunction.Block, null))
+                                return true;
+                        }
+                        else if (anonymousFunction.ExpressionBody is not null)
+                        {
+                            if (IsValidatedNotNullByExpression(possibleNullReference, anonymousFunction.ExpressionBody))
+                                return true;
                         }
                     }
                 }
