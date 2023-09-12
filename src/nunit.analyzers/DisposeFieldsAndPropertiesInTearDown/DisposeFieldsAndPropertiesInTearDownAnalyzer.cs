@@ -227,6 +227,17 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
         private static void AssignedIn(Parameters parameters, HashSet<string> assignments, ExpressionSyntax expression)
         {
+            if (expression is AwaitExpressionSyntax awaitExpression)
+            {
+                expression = awaitExpression.Expression;
+                if (expression is InvocationExpressionSyntax awaitInvocationExpression &&
+                    awaitInvocationExpression.Expression is MemberAccessExpressionSyntax awaitMemberAccessExpression &&
+                    awaitMemberAccessExpression.Name.Identifier.Text == "ConfigureAwait")
+                {
+                    expression = awaitMemberAccessExpression.Expression;
+                }
+            }
+
             if (expression is AssignmentExpressionSyntax assignmentExpression)
             {
                 // We only deal with simple assignments, not tuple or deconstruct
@@ -241,6 +252,13 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             }
             else if (expression is InvocationExpressionSyntax invocationExpression)
             {
+                if (invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
+                    memberAccessExpression.Expression is InvocationExpressionSyntax awaitedInvocationExpression &&
+                    memberAccessExpression.Name.Identifier.Text == "Wait")
+                {
+                    invocationExpression = awaitedInvocationExpression;
+                }
+
                 string? method = GetIdentifier(invocationExpression.Expression);
                 if (method is not null)
                 {

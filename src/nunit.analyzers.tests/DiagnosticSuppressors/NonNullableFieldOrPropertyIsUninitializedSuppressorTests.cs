@@ -246,6 +246,39 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             RoslynAssert.Suppressed(suppressor, testCode);
         }
 
+        [TestCase("async Task", "await ", "", "")]
+        [TestCase("async Task", "await ", "this.", "")]
+        [TestCase("async Task", "await ", "", ".ConfigureAwait(false)")]
+        [TestCase("async Task", "await ", "this.", ".ConfigureAwait(false)")]
+        [TestCase("void", "", "", ".Wait()")]
+        [TestCase("void", "", "this.", ".Wait()")]
+        public void FieldAssignedInAsyncCalledMethod(string returnType, string awaitKeyWord, string accessor, string suffix)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                private string ↓field;
+
+                [SetUp]
+                public {returnType} Initialize()
+                {{
+                    {awaitKeyWord}{accessor}SetFields(){suffix};
+                }}
+
+                [Test]
+                public void Test()
+                {{
+                    Assert.That({accessor}field, Is.Not.Null);
+                }}
+
+                private Task SetFields()
+                {{
+                    {accessor}field = string.Empty;
+                    return Task.CompletedTask;
+                }}
+            ");
+
+            RoslynAssert.Suppressed(suppressor, testCode);
+        }
+
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
         public void FieldAssignedInCalledMethods(string attribute, string prefix)

@@ -202,6 +202,17 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             ExpressionSyntax? expressionStatement,
             string fieldOrPropertyName)
         {
+            if (expressionStatement is AwaitExpressionSyntax awaitExpression)
+            {
+                expressionStatement = awaitExpression.Expression;
+                if (expressionStatement is InvocationExpressionSyntax awaitInvocationExpression &&
+                    awaitInvocationExpression.Expression is MemberAccessExpressionSyntax awaitMemberAccessExpression &&
+                    awaitMemberAccessExpression.Name.Identifier.Text == "ConfigureAwait")
+                {
+                    expressionStatement = awaitMemberAccessExpression.Expression;
+                }
+            }
+
             if (expressionStatement is AssignmentExpressionSyntax assignmentExpression)
             {
                 if (assignmentExpression.Left is TupleExpressionSyntax tupleExpression)
@@ -224,6 +235,13 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             }
             else if (expressionStatement is InvocationExpressionSyntax invocationExpression)
             {
+                if (invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
+                    memberAccessExpression.Expression is InvocationExpressionSyntax awaitedInvocationExpression &&
+                    memberAccessExpression.Name.Identifier.Text == "Wait")
+                {
+                    invocationExpression = awaitedInvocationExpression;
+                }
+
                 string? identifier = GetIdentifier(invocationExpression.Expression);
 
                 if (!string.IsNullOrEmpty(identifier) &&
