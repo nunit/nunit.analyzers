@@ -932,5 +932,47 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors[diagnostic]),
                 testCode);
         }
+
+        [Test]
+        public void TestIssue587SuppressedInsideAssertMultiple()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [Test]
+                public void Test()
+                {
+                    Extra? oldExtra = GetResult();
+                    Extra? extra = GetResult();
+
+                    Assert.Multiple(() =>
+                    {
+                        Assert.That(oldExtra, Is.SameAs(extra));
+                        Assert.That(extra, Is.Not.Null);
+                    });
+                    Assert.Multiple(() =>
+                    {
+                        Assert.That(↓extra.Value, Is.EqualTo(8));
+                        Assert.That(extra.Info, Is.EqualTo(""Hi""));
+                    });
+                }
+
+                private static Extra? GetResult() => new("".NET"", 8);
+
+                private sealed class Extra
+                {
+                    public Extra(string info, int value)
+                    {
+                        Info = info;
+                        Value = value;
+                    }
+
+                    public string Info { get; }
+                    public int Value { get; }
+                }
+            ");
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
     }
 }
