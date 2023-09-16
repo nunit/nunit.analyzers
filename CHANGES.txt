@@ -1,4 +1,69 @@
-﻿NUnit Analyzers 3.6.1 (and 2.6.1) - March 10, 2023
+﻿NUnit Analyzers 3.7 (and 2.7) - September 16, 2023
+
+This release contains a lot of improvements and corrections to the supression of non-nullable fields and properties
+that are assigned in setup methods (and not in constructors). We have also added suppression of:
+* CA1812 - Avoid uninstantiated internal classes - on test classes
+* CA1001 - Types that own disposable fields should be disposable - when disposed is called in TearDown methods
+
+The release also contain some improvements to the performance of the analyzers by avoid repeated calls to 
+GetTypeByMetadataName. Also ValuesAttribute is now also handled by the analyzer in a similar manner as TestCaseAttribute.
+Most of the work done in this release have either been driven by or made by manfred-brands.
+
+The release contains contributions from the following users (in alphabetical order):
+* 333fred
+* Corniel
+* andrewimcclement
+* IlIlIllIllI
+* jhinder
+* MaceWindu
+* manfred-brands
+* mikkelbu
+* RenderMichael
+* SeanKilleen
+* stevenaw
+
+Issues Resolved
+
+Features and Enhancements
+* #585 NonNullableFieldOrPropertyIsUninitializedSuppressor doesn't check async methods called from SetUp
+* #582 NonNullableFieldOrPropertyIsUninitializedSuppressor does not detect assignments in try/finally blocks
+* #569 Added a suppressor when CA1812 fires on NUnit Test classes.
+* #568 Feature request: suppress CA1001 when Dispose is called in the TearDown method
+* #561 NUnit2021 error shown when comparing Uri and string
+* #548 Use RegisterCompilationStartAction to avoid repeated calls to GetTypeByMetadataName 
+* #542 Allow the *Source Analyzers to permit Task<IEnumerable>
+* #462 DiagnosticsSuppress does not suppress CS8634
+* #344 Add a rule informing that .Within is not valid for non-numeric types.
+* #52 Reuse TestCaseAttribute logic for ValuesAttribute improvement
+
+Bugs
+* #587 Buggy interaction between the Assert.Multiple fixer and null reference suppression
+* #580 False positive for WithinUsageAnalyzer
+* #559 FP NUnit1001: CustomTypeConverters could convert from anything
+* #549 Code Fix for NUnit2010 on Ref Structs Creates CS0306
+* #541 [NUnit2045] Incorrect refactoring
+* #535 DiagnosticSuppressor doesn't suppress values passed as arguments
+* #534 QuickFix for Assert.Multiple looses white space before and comments after bug
+
+Tooling, Process, and Documentation
+* #579 chore: Bump Microsoft.NET.Test.Sdk
+* #578 chore(deps): Bump Microsoft.CodeAnalysis.NetAnalyzers
+* #573 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.7.0 to 17.7.1
+* #571 chore(deps): Bump System.Collections.Immutable from 6.0.0 to 7.0.0
+* #567 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.6.3 to 17.7.0
+* #566 Update CONTRIBUTING.md to fix link to MS documentation.
+* #560 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.6.2 to 17.6.3
+* #558 chore(deps): Bump StyleCop.Analyzers.Unstable from 1.2.0.435 to 1.2.0.507
+* #557 chore(deps): Bump Microsoft.CodeAnalysis.NetAnalyzers from 7.0.1 to 7.0.3
+* #556 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.6.1 to 17.6.2
+* #553 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.6.0 to 17.6.1
+* #551 chore(deps): Bump NUnit3TestAdapter from 4.4.2 to 4.5.0
+* #547 chore(deps): Bump CSharpIsNullAnalyzer from 0.1.300 to 0.1.495
+* #543 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.5.0 to 17.6.0
+* #531 Markdown fixes
+
+
+NUnit Analyzers 3.6.1 (and 2.6.1) - March 10, 2023
 
 This release of the NUnit Analyzers contain a single bug fix and some updates of dependencies.
 The bug fix removes a false positive from NUnit1030 - "The type of parameter provided by the TestCaseSource 
