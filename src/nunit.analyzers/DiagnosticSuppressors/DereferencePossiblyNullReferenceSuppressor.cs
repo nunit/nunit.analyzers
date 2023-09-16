@@ -360,7 +360,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 else if (member == NUnitFrameworkConstants.NameOfMultiple)
                 {
                     // Look up into the actual asserted parameter
-                    if (argumentList.Arguments.First().Expression is AnonymousFunctionExpressionSyntax anonymousFunction)
+                    if (argumentList.Arguments.FirstOrDefault()?.Expression is AnonymousFunctionExpressionSyntax anonymousFunction)
                     {
                         if (anonymousFunction.Block is not null)
                         {
