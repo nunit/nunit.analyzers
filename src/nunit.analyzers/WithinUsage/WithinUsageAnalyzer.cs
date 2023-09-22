@@ -117,7 +117,7 @@ namespace NUnit.Analyzers.WithinUsage
                 string interfaceTypeName = interfaceType.GetFullMetadataName();
                 if (interfaceTypeName.StartsWith("System.Collections.Generic.IEnumerable`", StringComparison.Ordinal))
                 {
-                    return IsTypeSupported(namedType.TypeArguments[0], checkedTypes);
+                    return IsTypeSupported(interfaceType.TypeArguments[0], checkedTypes);
                 }
 
                 if (interfaceTypeName.Equals("System.Collections.IEnumerable", StringComparison.Ordinal))

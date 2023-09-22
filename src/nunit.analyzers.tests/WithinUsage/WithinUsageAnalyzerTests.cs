@@ -273,6 +273,31 @@ namespace NUnit.Analyzers.Tests.WithinUsage
             RoslynAssert.Valid(analyzer, testCode);
         }
 
+        [Test]
+        public void AnalyzeNonGenericSubclassOfGenericIEnumerable()
+        {
+            string testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+                 [TestFixture]
+                 public class TestClass
+                 {
+                     public void TestMethod()
+                     {
+                         Assert.That(new DoubleCollection(1), Is.EqualTo(new DoubleCollection(2)).Within(0.001));
+                     }
+
+                     private sealed class DoubleCollection : IEnumerable<double>
+                     {
+                         public DoubleCollection(params double[] numbers) { }
+                         public IEnumerator<double> GetEnumerator() => throw new NotImplementedException();
+                         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+                     }
+                 }",
+                additionalUsings: @"using System.Collections;
+ using System.Collections.Generic;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
         [TestCase("double")]
         [TestCase("int")]
         [TestCase("TimeSpan")]
