@@ -16,7 +16,7 @@ An IDisposable field/property should be Disposed in a TearDown method.
 
 ## Motivation
 
-Not Diposing fields/properties can cause memory leaks or failing tests.
+Not Disposing fields/properties can cause memory leaks or failing tests.
 
 ## How to fix violations
 
