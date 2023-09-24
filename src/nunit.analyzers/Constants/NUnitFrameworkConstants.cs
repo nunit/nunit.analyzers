@@ -117,6 +117,9 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfTypeSetUpAttribute = "NUnit.Framework.SetUpAttribute";
         public const string FullNameOfTypeTearDownAttribute = "NUnit.Framework.TearDownAttribute";
 
+        public const string FullNameOfFixtureLifeCycleAttribute = "NUnit.Framework.FixtureLifeCycleAttribute";
+        public const string FullNameOfLifeCycle = "NUnit.Framework.LifeCycle";
+
         public const string NameOfConstraint = "Constraint";
 
         public const string FullNameOfSameAsConstraint = "NUnit.Framework.Constraints.SameAsConstraint";

@@ -67,5 +67,10 @@ namespace NUnit.Analyzers.Extensions
             return methodSymbol.GetAttributes().Any(
                 a => a.IsTestMethodAttribute(compilation) || a.IsSetUpOrTearDownMethodAttribute(compilation));
         }
+
+        internal static bool IsTestFixture(this ITypeSymbol typeSymbol, Compilation compilation)
+        {
+            return typeSymbol.GetMembers().OfType<IMethodSymbol>().Any(m => m.IsTestRelatedMethod(compilation));
+        }
     }
 }

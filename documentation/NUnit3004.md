@@ -8,7 +8,7 @@
 | Severity | Info
 | Enabled  | True
 | Category | Suppressor
-| Code     | [TestFixtureSuppressor](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/DiagnosticSuppressors/TestFixtureSuppressor.cs)
+| Code     | [TypesThatOwnDisposableFieldsShouldBeDisposableSuppressor](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/DiagnosticSuppressors/TypesThatOwnDisposableFieldsShouldBeDisposableSuppressor.cs)
 
 ## Description
 

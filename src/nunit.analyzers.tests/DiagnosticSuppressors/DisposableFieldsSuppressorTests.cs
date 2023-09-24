@@ -11,7 +11,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 {
     public class DisposableFieldsSuppressorTests
     {
-        private static readonly DiagnosticSuppressor suppressor = new TestFixtureSuppressor();
+        private static readonly DiagnosticSuppressor suppressor = new TypesThatOwnDisposableFieldsShouldBeDisposableSuppressor();
         private DiagnosticAnalyzer analyzer;
 
         [OneTimeSetUp]
@@ -89,6 +89,37 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             ");
 
             await TestHelpers.Suppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
+        }
+
+        [Test]
+        public async Task ShouldNotSuppressWhenInstancePerTestCase()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
+            public class TestClass
+            {
+                private readonly IDisposable? field;
+
+                public TestClass()
+                {
+                    field = new DummyDisposable();
+                }
+
+                [Test]
+                public void Test()
+                {
+                    Assert.That(field, Is.Not.Null);
+                }
+
+                private sealed class DummyDisposable : IDisposable
+                {
+                    public void Dispose() {}
+                }
+            }
+            ");
+
+            // InstancePerTestCase mean test should use IDisposable
+            await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
         }
     }
 }
