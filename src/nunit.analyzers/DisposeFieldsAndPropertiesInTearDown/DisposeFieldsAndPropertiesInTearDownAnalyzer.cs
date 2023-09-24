@@ -69,9 +69,10 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 return;
             }
 
-            if (!typeSymbol.GetMembers().OfType<IMethodSymbol>().Any(m => m.IsTestRelatedMethod(context.Compilation)))
+            if (typeSymbol.IsInstancePerTestCaseFixture(context.Compilation) ||
+                !typeSymbol.IsTestFixture(context.Compilation))
             {
-                // Not a TestFixture, CA1812 should have picked this up.
+                // CA1001 should picked this up. Assuming it is enabled.
                 return;
             }
 

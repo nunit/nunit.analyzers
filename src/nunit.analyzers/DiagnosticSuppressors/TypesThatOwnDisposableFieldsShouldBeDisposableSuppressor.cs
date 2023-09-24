@@ -45,18 +45,10 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
                 if (typeSymbol is not null)
                 {
-                    // Is the class set up for a InstancePerTestCase
-                    AttributeData? fixtureLifeCycleAttribute = typeSymbol.GetAllAttributes().FirstOrDefault(x => x.IsFixtureLifeCycleAttribute(context.Compilation));
-                    if (fixtureLifeCycleAttribute is not null &&
-                        fixtureLifeCycleAttribute.ConstructorArguments.Length == 1 &&
-                        fixtureLifeCycleAttribute.ConstructorArguments[0] is TypedConstant typeConstant &&
-                        typeConstant.Kind == TypedConstantKind.Enum &&
-                        typeConstant.Type.IsType(NUnitFrameworkConstants.FullNameOfLifeCycle, context.Compilation) &&
-                        typeConstant.Value is 1 /* LifeCycle.InstancePerTestCase */)
+                    if (typeSymbol.IsInstancePerTestCaseFixture(context.Compilation))
                     {
                         // If a TestFixture used InstancePerTestCase, it should be IDisposable
-                        if (diagnostic.Descriptor.Id == TypesThatOwnDisposableFieldsShouldHaveATearDown.SuppressedDiagnosticId)
-                            continue;
+                        continue;
                     }
 
                     if (typeSymbol.IsTestFixture(context.Compilation))
