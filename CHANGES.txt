@@ -1,4 +1,29 @@
-﻿NUnit Analyzers 3.7 (and 2.7) - September 16, 2023
+﻿NUnit Analyzers 3.8 (and 2.8) - September 25, 2023
+
+This release contains a fix to the WithinUsageAnalyzer and handling of false duplicates when
+combining NUnit1032 - An IDisposable field/property should be Disposed in a TearDown method -
+with LifeCycle.InstancePerTestCase.
+
+The release contains contributions from the following users (in alphabetical order):
+* andrewimcclement
+* fredjeronimo
+* HenryZhang-ZHY
+* manfred-brands
+* mikkelbu
+
+Issues Resolved
+
+Features and Enhancements
+* #595 NUnit1032 false positive in LifeCycle.InstancePerTestCase test fixture using constructor
+
+Bugs
+* #596 WithinUsageAnalyzer threw an exception of type 'System.IndexOutOfRangeException'
+
+Tooling, Process, and Documentation
+* #598 Update NUnit1032.md to fix typo Dipose -> Dispose.
+
+
+NUnit Analyzers 3.7 (and 2.7) - September 16, 2023
 
 This release contains a lot of improvements and corrections to the supression of non-nullable fields and properties
 that are assigned in setup methods (and not in constructors). We have also added suppression of:
