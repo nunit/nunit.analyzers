@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -742,5 +743,33 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             RoslynAssert.Valid(analyzer, testCode);
         }
 #endif
+
+        [Test]
+        public void ShouldNotAnalyzeWhenInstancePerTestCase()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@$"
+            [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
+            public class TestClass
+            {{
+                private readonly IDisposable? field;
+
+                public TestClass()
+                {{
+                    field = new DummyDisposable();
+                }}
+
+                [Test]
+                public void Test()
+                {{
+                    Assert.That(field, Is.Not.Null);
+                }}
+
+                {DummyDisposable}
+            }}
+            ");
+
+            // InstancePerTestCase mean test should use IDisposable
+            RoslynAssert.Valid(analyzer, testCode);
+        }
     }
 }

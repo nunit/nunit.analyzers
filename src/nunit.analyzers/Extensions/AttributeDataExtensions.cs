@@ -43,6 +43,16 @@ namespace NUnit.Analyzers.Extensions
                 || attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeTearDownAttribute, compilation);
         }
 
+        public static bool IsFixtureLifeCycleAttribute(this AttributeData @this, Compilation compilation)
+        {
+            var attributeType = @this.AttributeClass;
+
+            if (attributeType is null)
+                return false;
+
+            return attributeType.IsType(NUnitFrameworkConstants.FullNameOfFixtureLifeCycleAttribute, compilation);
+        }
+
         public static AttributeArgumentSyntax? GetConstructorArgumentSyntax(this AttributeData @this, int position,
             CancellationToken cancellationToken = default)
         {

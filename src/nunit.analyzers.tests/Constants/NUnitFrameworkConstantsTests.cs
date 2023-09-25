@@ -155,6 +155,9 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.FullNameOfTypeSetUpAttribute), typeof(SetUpAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeTearDownAttribute), typeof(TearDownAttribute)),
 
+            (nameof(NUnitFrameworkConstants.FullNameOfFixtureLifeCycleAttribute), typeof(FixtureLifeCycleAttribute)),
+            (nameof(NUnitFrameworkConstants.FullNameOfLifeCycle), typeof(LifeCycle)),
+
             (nameof(NUnitFrameworkConstants.FullNameOfSameAsConstraint), typeof(SameAsConstraint)),
             (nameof(NUnitFrameworkConstants.FullNameOfSomeItemsConstraint), typeof(SomeItemsConstraint)),
             (nameof(NUnitFrameworkConstants.FullNameOfEqualToConstraint), typeof(EqualConstraint)),

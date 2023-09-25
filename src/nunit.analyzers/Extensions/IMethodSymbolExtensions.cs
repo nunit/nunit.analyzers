@@ -1,5 +1,6 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using NUnit.Analyzers.Constants;
 
 namespace NUnit.Analyzers.Extensions
 {
@@ -66,6 +67,23 @@ namespace NUnit.Analyzers.Extensions
         {
             return methodSymbol.GetAttributes().Any(
                 a => a.IsTestMethodAttribute(compilation) || a.IsSetUpOrTearDownMethodAttribute(compilation));
+        }
+
+        internal static bool IsTestFixture(this ITypeSymbol typeSymbol, Compilation compilation)
+        {
+            return typeSymbol.GetMembers().OfType<IMethodSymbol>().Any(m => m.IsTestRelatedMethod(compilation));
+        }
+
+        internal static bool IsInstancePerTestCaseFixture(this ITypeSymbol typeSymbol, Compilation compilation)
+        {
+            // Is there a FixtureLifeCycleAttribute?
+            AttributeData? fixtureLifeCycleAttribute = typeSymbol.GetAllAttributes().FirstOrDefault(x => x.IsFixtureLifeCycleAttribute(compilation));
+            return fixtureLifeCycleAttribute is not null &&
+                fixtureLifeCycleAttribute.ConstructorArguments.Length == 1 &&
+                fixtureLifeCycleAttribute.ConstructorArguments[0] is TypedConstant typeConstant &&
+                typeConstant.Kind == TypedConstantKind.Enum &&
+                typeConstant.Type.IsType(NUnitFrameworkConstants.FullNameOfLifeCycle, compilation) &&
+                typeConstant.Value is 1 /* LifeCycle.InstancePerTestCase */;
         }
     }
 }
