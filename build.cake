@@ -145,7 +145,9 @@ Task("Build")
             NoRestore = true,
             MSBuildSettings = new DotNetMSBuildSettings
             {
-                Version = packageVersion
+                Version = packageVersion,
+                FileVersion	= packageVersion,
+                InformationalVersion = packageVersionString,
             }
         });
     });
