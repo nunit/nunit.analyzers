@@ -771,5 +771,64 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             // InstancePerTestCase mean test should use IDisposable
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+        [Test]
+        public void ShouldDealWithDirectRecursiveMethods()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                private Dictionary<string, bool> _values = new();
+
+                [Test]
+                public void MinimalRepro()
+                {
+                    Recurse(""help"");
+                }
+
+                private void Recurse(string one, bool keepGoing = true)
+                {
+                    _values[one] = keepGoing;
+                    if (keepGoing)
+                    {
+                        Recurse(one, false);
+                    }
+                }
+            ", "using System.Collections.Generic;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ShouldDealWithIndirectRecursiveMethods()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                private Dictionary<string, string> _values = new();
+
+                [Test]
+                public void Indirect()
+                {
+                    A(""help"");
+                }
+
+                private void A(string one, bool keepGoing = true)
+                {
+                    if (keepGoing)
+                    {
+                        _values[one] = nameof(A);
+                        B(one, false);
+                    }
+                }
+
+                private void B(string one, bool keepGoing)
+                {
+                    if (keepGoing)
+                    {
+                        _values[one] = nameof(B);
+                        A(one, false);
+                    }
+                }
+            ", "using System.Collections.Generic;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
     }
 }
