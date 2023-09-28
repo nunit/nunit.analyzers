@@ -195,9 +195,8 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             if (method?.Parent == classDeclaration)
             {
                 // We only get here if the method is in our source code and our class.
-                if (!visitedMethods.Contains(method))
+                if (visitedMethods.Add(method))
                 {
-                    visitedMethods.Add(method);
                     return IsAssignedIn(model, classDeclaration, visitedMethods, method, fieldOrPropertyName);
                 }
             }

@@ -550,14 +550,8 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 InvocationExpressionSyntax invocationExpression,
                 [NotNullWhen(true)] out IMethodSymbol? calledMethod)
             {
-                if (this.IsLocalMethodCall(invocationExpression, out calledMethod) &&
-                    !this.visitedMethods.Contains(calledMethod))
-                {
-                    this.visitedMethods.Add(calledMethod);
-                    return true;
-                }
-
-                return false;
+                return this.IsLocalMethodCall(invocationExpression, out calledMethod) &&
+                       this.visitedMethods.Add(calledMethod);
             }
 
             public bool IsDisposalOf(
