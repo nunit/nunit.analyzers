@@ -401,5 +401,39 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             RoslynAssert.Suppressed(suppressor, testCode);
         }
+
+        [Test]
+        public void ShouldDealWithRecursiveMethods()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                private Dictionary<string, bool> _values = new();
+                private string ↓_lastOne;
+
+                [SetUp]
+                public void SetUp()
+                {
+                    Recurse(""SetUp"");
+                }
+
+                [Test]
+                public void MinimalRepro()
+                {
+                    Recurse(""help"");
+                }
+
+                private void Recurse(string one, bool keepGoing = true)
+                {
+                    _values[one] = keepGoing;
+                    if (!keepGoing)
+                    {
+                        return;
+                    }
+                    Recurse(one, false);
+                    _lastOne = one;
+                }
+            ", "using System.Collections.Generic;");
+
+            RoslynAssert.Suppressed(suppressor, testCode);
+        }
     }
 }

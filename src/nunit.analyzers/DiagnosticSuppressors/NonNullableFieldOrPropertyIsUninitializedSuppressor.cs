@@ -107,7 +107,8 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     if (isSetup)
                     {
                         // Find (OneTime)SetUps method and check for assignment to this field.
-                        if (IsAssignedIn(model, classDeclaration, method, fieldOrPropertyName))
+                        HashSet<MethodDeclarationSyntax> visitedMethods = new();
+                        if (IsAssignedIn(model, classDeclaration, visitedMethods, method, fieldOrPropertyName))
                         {
                             context.ReportSuppression(Suppression.Create(NullableFieldOrPropertyInitializedInSetUp, diagnostic));
                         }
@@ -119,17 +120,18 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsAssignedIn(
             SemanticModel model,
             ClassDeclarationSyntax classDeclaration,
+            HashSet<MethodDeclarationSyntax> visitedMethods,
             MethodDeclarationSyntax method,
             string fieldOrPropertyName)
         {
             if (method.ExpressionBody is not null)
             {
-                return IsAssignedIn(model, classDeclaration, method.ExpressionBody.Expression, fieldOrPropertyName);
+                return IsAssignedIn(model, classDeclaration, visitedMethods, method.ExpressionBody.Expression, fieldOrPropertyName);
             }
 
             if (method.Body is not null)
             {
-                return IsAssignedIn(model, classDeclaration, method.Body, fieldOrPropertyName);
+                return IsAssignedIn(model, classDeclaration, visitedMethods, method.Body, fieldOrPropertyName);
             }
 
             return false;
@@ -138,21 +140,22 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsAssignedIn(
             SemanticModel model,
             ClassDeclarationSyntax classDeclaration,
+            HashSet<MethodDeclarationSyntax> visitedMethods,
             StatementSyntax statement,
             string fieldOrPropertyName)
         {
             switch (statement)
             {
                 case ExpressionStatementSyntax expressionStatement:
-                    return IsAssignedIn(model, classDeclaration, expressionStatement.Expression, fieldOrPropertyName);
+                    return IsAssignedIn(model, classDeclaration, visitedMethods, expressionStatement.Expression, fieldOrPropertyName);
 
                 case BlockSyntax block:
-                    return IsAssignedIn(model, classDeclaration, block.Statements, fieldOrPropertyName);
+                    return IsAssignedIn(model, classDeclaration, visitedMethods, block.Statements, fieldOrPropertyName);
 
                 case TryStatementSyntax tryStatement:
-                    return IsAssignedIn(model, classDeclaration, tryStatement.Block, fieldOrPropertyName) ||
+                    return IsAssignedIn(model, classDeclaration, visitedMethods, tryStatement.Block, fieldOrPropertyName) ||
                         (tryStatement.Finally is not null &&
-                        IsAssignedIn(model, classDeclaration, tryStatement.Finally.Block, fieldOrPropertyName));
+                        IsAssignedIn(model, classDeclaration, visitedMethods, tryStatement.Finally.Block, fieldOrPropertyName));
 
                 default:
                     // Any conditional statement does not guarantee assignment.
@@ -163,12 +166,13 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsAssignedIn(
             SemanticModel model,
             ClassDeclarationSyntax classDeclaration,
+            HashSet<MethodDeclarationSyntax> visitedMethods,
             SyntaxList<StatementSyntax> statements,
             string fieldOrPropertyName)
         {
             foreach (var statement in statements)
             {
-                if (IsAssignedIn(model, classDeclaration, statement, fieldOrPropertyName))
+                if (IsAssignedIn(model, classDeclaration, visitedMethods, statement, fieldOrPropertyName))
                     return true;
             }
 
@@ -178,6 +182,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsAssignedIn(
             SemanticModel model,
             ClassDeclarationSyntax classDeclaration,
+            HashSet<MethodDeclarationSyntax> visitedMethods,
             InvocationExpressionSyntax invocationExpression,
             string fieldOrPropertyName)
         {
@@ -190,7 +195,10 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             if (method?.Parent == classDeclaration)
             {
                 // We only get here if the method is in our source code and our class.
-                return IsAssignedIn(model, classDeclaration, method, fieldOrPropertyName);
+                if (visitedMethods.Add(method))
+                {
+                    return IsAssignedIn(model, classDeclaration, visitedMethods, method, fieldOrPropertyName);
+                }
             }
 
             return false;
@@ -199,6 +207,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsAssignedIn(
             SemanticModel model,
             ClassDeclarationSyntax classDeclaration,
+            HashSet<MethodDeclarationSyntax> visitedMethods,
             ExpressionSyntax? expressionStatement,
             string fieldOrPropertyName)
         {
@@ -245,7 +254,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 string? identifier = GetIdentifier(invocationExpression.Expression);
 
                 if (!string.IsNullOrEmpty(identifier) &&
-                    IsAssignedIn(model, classDeclaration, invocationExpression, fieldOrPropertyName))
+                    IsAssignedIn(model, classDeclaration, visitedMethods, invocationExpression, fieldOrPropertyName))
                 {
                     return true;
                 }

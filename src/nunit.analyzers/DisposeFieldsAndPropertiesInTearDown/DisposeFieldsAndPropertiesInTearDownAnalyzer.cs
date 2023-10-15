@@ -199,6 +199,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
         private static void AssignedIn(Parameters parameters, HashSet<string> assignments, IEnumerable<IMethodSymbol> methods)
         {
+            parameters.ResetMethodCallVisits();
             foreach (var method in methods)
             {
                 AssignedIn(parameters, assignments, method);
@@ -263,7 +264,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 string? method = GetIdentifier(invocationExpression.Expression);
                 if (method is not null)
                 {
-                    if (parameters.IsLocalMethodCall(invocationExpression, out IMethodSymbol? calledMethod))
+                    if (parameters.IsLocalNotYetVisitedMethodCall(invocationExpression, out IMethodSymbol? calledMethod))
                     {
                         // We are calling a local method on our class, keep looking for assignments.
                         AssignedIn(parameters, assignments, calledMethod);
@@ -362,6 +363,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
         private static void DisposedIn(Parameters parameters, HashSet<string> disposals, IEnumerable<IMethodSymbol> methods)
         {
+            parameters.ResetMethodCallVisits();
             foreach (var method in methods)
             {
                 DisposedIn(parameters, disposals, method);
@@ -408,7 +410,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 {
                     disposals.Add(disposedSymbol);
                 }
-                else if (parameters.IsLocalMethodCall(invocationExpression, out IMethodSymbol? calledMethod))
+                else if (parameters.IsLocalNotYetVisitedMethodCall(invocationExpression, out IMethodSymbol? calledMethod))
                 {
                     // We are calling a local method on our class, keep looking for disposals.
                     DisposedIn(parameters, disposals, calledMethod);
@@ -521,6 +523,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             private readonly INamedTypeSymbol type;
             private readonly ImmutableHashSet<string> disposeMethods;
             private readonly HashSet<string> names;
+            private readonly HashSet<IMethodSymbol> visitedMethods = new(SymbolEqualityComparer.Default);
 
             public Parameters(SemanticModel model, INamedTypeSymbol type, ImmutableHashSet<string> disposeMethods, HashSet<string> names)
             {
@@ -539,6 +542,16 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 calledMethod = this.Model.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
                 return calledMethod is not null &&
                     SymbolEqualityComparer.Default.Equals(calledMethod.ContainingType, this.type);
+            }
+
+            public void ResetMethodCallVisits() => this.visitedMethods.Clear();
+
+            public bool IsLocalNotYetVisitedMethodCall(
+                InvocationExpressionSyntax invocationExpression,
+                [NotNullWhen(true)] out IMethodSymbol? calledMethod)
+            {
+                return this.IsLocalMethodCall(invocationExpression, out calledMethod) &&
+                       this.visitedMethods.Add(calledMethod);
             }
 
             public bool IsDisposalOf(
