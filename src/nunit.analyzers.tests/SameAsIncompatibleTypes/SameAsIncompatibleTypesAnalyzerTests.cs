@@ -47,7 +47,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         {
             var actual = new A();
             var expected = new B();
-            Assert.AreSame(↓expected, actual);
+            ClassicAssert.AreSame(↓expected, actual);
         }
     }");
 
@@ -128,7 +128,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         {
             var actual = new A();
             var expected = new B();
-            Assert.AreNotSame(↓expected, actual);
+            ClassicAssert.AreNotSame(↓expected, actual);
         }
     }");
 
@@ -246,7 +246,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = """";
                 var expected = """";
-                Assert.AreSame(expected, actual);");
+                ClassicAssert.AreSame(expected, actual);");
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -268,7 +268,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = """";
                 var expected = """";
-                Assert.AreNotSame(expected, actual);");
+                ClassicAssert.AreNotSame(expected, actual);");
 
             RoslynAssert.Valid(analyzer, testCode);
         }

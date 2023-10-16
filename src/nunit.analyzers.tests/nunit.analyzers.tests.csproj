@@ -1,7 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>NUnit.Analyzers.Tests</RootNamespace>
-    <TargetFrameworks>net7.0;net462</TargetFrameworks>
+    <TargetFrameworks>net6.0;net462</TargetFrameworks>
+    <NUnitVersion Condition="'$(NUnitVersion)'==''">4</NUnitVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(NUnitVersion)' == '4'">
+    <DefineConstants>$(DefineConstants);NUNIT4</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,9 +17,16 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageReference Include="Gu.Roslyn.Asserts" Version="4.3.0" />
     <PackageReference Include="Gu.Roslyn.Asserts.Analyzers" Version="4.0.0" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(NUnitVersion)' == '4'">
+    <PackageReference Include="NUnit" Version="4.0.0-beta.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(NUnitVersion)' == '3'">
+    <PackageReference Include="NUnit" Version="3.13.3" />
   </ItemGroup>
 
   <ItemGroup>

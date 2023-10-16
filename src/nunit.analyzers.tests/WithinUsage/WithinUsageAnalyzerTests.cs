@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.WithinUsage;
@@ -12,6 +16,17 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         private static readonly DiagnosticAnalyzer analyzer = new WithinUsageAnalyzer();
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.WithinIncompatibleTypes);
+
+        private Settings settings;
+
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            IEnumerable<MetadataReference> existingReferences = Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>();
+
+            this.settings = Settings.Default
+                                    .WithMetadataReferences(existingReferences.Concat(MetadataReferences.Transitive(typeof(ImmutableArray<>))));
+        }
 
         [TestCase(NUnitFrameworkConstants.NameOfIsEqualTo)]
         [TestCase(NUnitFrameworkConstants.NameOfIsLessThan)]
@@ -193,7 +208,6 @@ namespace NUnit.Analyzers.Tests.WithinUsage
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
-#if !NETFRAMEWORK
         [Test]
         public void AnalyzeWhenAppliedToImmutableArrayOfValidTypes()
         {
@@ -203,7 +217,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                 Assert.That(ImmutableArray.Create(value), Is.EqualTo(ImmutableArray.Create(value2)).Within(2));",
                 "using System.Collections.Immutable;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode, this.settings);
         }
 
         [Test]
@@ -215,9 +229,8 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                 Assert.That(ImmutableArray.Create(value), Is.EqualTo(ImmutableArray.Create(value2)).↓Within(2));",
                 "using System.Collections.Immutable;");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode, this.settings);
         }
-#endif
 
         [Test]
         public void AnalyzeWhenAppliedToChar()

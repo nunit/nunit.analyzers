@@ -28,7 +28,7 @@ public class MyTestClass
     [Test]
     public void DivideTest([ValueSource(nameof(Numbers))] int n)
     {
-        Assert.AreEqual(n, Is.GreaterThanOrEqualTo(0));
+        ClassicAssert.AreEqual(n, Is.GreaterThanOrEqualTo(0));
     }
 
     object[] Numbers => new int[] { 1, 2, 3 };
@@ -51,7 +51,7 @@ public class MyTestClass
     [Test]
     public void DivideTest([ValueSource(nameof(Numbers))] int n)
     {
-        Assert.AreEqual(n, Is.GreaterThanOrEqualTo(0));
+        ClassicAssert.AreEqual(n, Is.GreaterThanOrEqualTo(0));
     }
 
     static object[] Numbers => new int[] { 1, 2, 3 };

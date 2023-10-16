@@ -22,15 +22,22 @@ namespace NUnit.Analyzers.Extensions
         internal static bool IsAssert(this ITypeSymbol? @this)
         {
             return @this is not null &&
-                @this.ContainingAssembly.Name == NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
-                @this.Name == NUnitFrameworkConstants.NameOfAssert;
+                   @this.ContainingAssembly.Name is NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
+                   @this.Name is NUnitFrameworkConstants.NameOfAssert;
         }
 
-        internal static bool IsAnyAssert(this ITypeSymbol? @this)
+        internal static bool IsClassicAssert(this ITypeSymbol? @this)
         {
             return @this is not null &&
-                   @this.ContainingAssembly.Name == NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
-                   NUnitFrameworkConstants.AllAsserts.Contains(@this.Name);
+                   @this.ContainingAssembly.Name is NUnitFrameworkConstants.NUnitFrameworkLegacyAssemblyName &&
+                   @this.Name is NUnitFrameworkConstants.NameOfClassicAssert;
+        }
+
+        internal static bool IsStringAssert(this ITypeSymbol? @this)
+        {
+            return @this is not null &&
+                   @this.ContainingAssembly.Name is NUnitFrameworkConstants.NUnitFrameworkLegacyAssemblyName or NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
+                   @this.Name is NUnitFrameworkConstants.NameOfStringAssert;
         }
 
         internal static bool IsConstraint(this ITypeSymbol? @this)

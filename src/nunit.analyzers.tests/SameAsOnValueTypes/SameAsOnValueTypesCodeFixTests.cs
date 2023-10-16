@@ -59,6 +59,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: SameAsOnValueTypesCodeFix.UseIsEqualToDescription);
         }
 
+#if !NUNIT4
         [Test]
         public void VerifySameAsIntoEqualToFixWithMessageAndParams()
         {
@@ -74,6 +75,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: SameAsOnValueTypesCodeFix.UseIsEqualToDescription);
         }
+#endif
 
         [Test]
         public void VerifyAreSameIntoAreEqualFix()
@@ -82,13 +84,13 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
                 var expected = Guid.Empty;
                 var actual = expected;
 
-                Assert.AreSame(↓expected, actual);
+                ClassicAssert.AreSame(↓expected, actual);
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
                 var actual = expected;
 
-                Assert.AreEqual(expected, actual);
+                ClassicAssert.AreEqual(expected, actual);
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: SameAsOnValueTypesCodeFix.UseIsEqualToDescription);
         }
@@ -99,31 +101,33 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
             var code = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
 
-                Assert.AreNotSame(↓expected, Guid.NewGuid(), ""message"");
+                ClassicAssert.AreNotSame(↓expected, Guid.NewGuid(), ""message"");
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@"
                 var expected = Guid.Empty;
 
-                Assert.AreNotEqual(expected, Guid.NewGuid(), ""message"");
+                ClassicAssert.AreNotEqual(expected, Guid.NewGuid(), ""message"");
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: SameAsOnValueTypesCodeFix.UseIsEqualToDescription);
         }
 
+#if !NUNIT4
         [Test]
         public void VerifyAreSameIntoAreEqualFixWithMessageAndParams()
         {
             var code = TestUtility.WrapInTestMethod(@"
-                var expected = Guid.Empty;
+            var expected = Guid.Empty;
 
-                Assert.AreSame(↓expected, expected, ""message"", Guid.Empty);
+            ClassicAssert.AreSame(↓expected, expected, ""message"", Guid.Empty);
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@"
-                var expected = Guid.Empty;
+            var expected = Guid.Empty;
 
-                Assert.AreEqual(expected, expected, ""message"", Guid.Empty);
+            ClassicAssert.AreEqual(expected, expected, ""message"", Guid.Empty);
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: SameAsOnValueTypesCodeFix.UseIsEqualToDescription);
         }
+#endif
 
         [Test]
         public void AnalyzeWhenMoreThanOneConstraintExpressionIsUsed()

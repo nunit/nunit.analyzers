@@ -28,7 +28,7 @@ public void NUnit2007SampleTest()
 {
     var x = 5;
     Assert.That(5, Is.EqualTo(x));
-    Assert.AreEqual(x, 5);
+    ClassicAssert.AreEqual(x, 5);
 }
 ```
 
@@ -50,7 +50,7 @@ public void NUnit2007SampleTest()
 {
     var x = 5;
     Assert.That(x, Is.EqualTo(5));
-    Assert.AreEqual(5, x);
+    ClassicAssert.AreEqual(5, x);
 }
 ```
 

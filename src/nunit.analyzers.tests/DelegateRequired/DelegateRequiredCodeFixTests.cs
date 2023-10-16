@@ -60,13 +60,13 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         public void VerifyNonDelegateFixWithMessageAndParams()
         {
             var code = TestUtility.WrapInTestMethod(@"
-                Assert.That(↓MyOperation() + MyOtherOperation(), Throws.InstanceOf<InvalidOperationException>(), ""message"", Guid.NewGuid());
+                Assert.That(↓MyOperation() + MyOtherOperation(), Throws.InstanceOf<InvalidOperationException>(), ""message-id: {{0}}"", Guid.NewGuid());
 
                 int MyOperation() => throw new InvalidOperationException();
                 int MyOtherOperation() => throw new InvalidOperationException();
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(() => MyOperation() + MyOtherOperation(), Throws.InstanceOf<InvalidOperationException>(), ""message"", Guid.NewGuid());
+                Assert.That(() => MyOperation() + MyOtherOperation(), Throws.InstanceOf<InvalidOperationException>(), $""message-id: {Guid.NewGuid()}"");
 
                 int MyOperation() => throw new InvalidOperationException();
                 int MyOtherOperation() => throw new InvalidOperationException();

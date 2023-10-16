@@ -102,11 +102,11 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
             var methodSymbol = semanticModel.GetSymbolInfo(invocationSyntax).Symbol as IMethodSymbol;
 
-            if (methodSymbol is null || !methodSymbol.ContainingType.IsAnyAssert())
+            if (methodSymbol is null)
                 return false;
 
-            // option 1: Classic assert (e.g. Assert.AreEqual(expected, actual) )
-            if ((IsSupportedAssert(methodSymbol) || IsSupportedStringAssert(methodSymbol))
+            // option 1: Classic assert (e.g. ClassicAssert.AreEqual(expected, actual) )
+            if ((IsSupportedClassicAssert(methodSymbol) || IsSupportedStringAssert(methodSymbol))
                 && methodSymbol.Parameters.Length >= 2)
             {
                 expectedArgument = invocationSyntax.ArgumentList.Arguments[0].Expression;
@@ -116,7 +116,7 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
             // option 2: Assert with 'actual' and 'constraint' parameters
             // (e.g. Assert.That(actual, Is.EqualTo(expected)))
-            if (methodSymbol.Name == NUnitFrameworkConstants.NameOfAssertThat
+            if (methodSymbol.ContainingType.IsAssert() && methodSymbol.Name == NUnitFrameworkConstants.NameOfAssertThat
                 && methodSymbol.Parameters.Length >= 2)
             {
                 actualArgument = invocationSyntax.ArgumentList.Arguments[0].Expression;
@@ -151,14 +151,15 @@ namespace NUnit.Analyzers.ConstActualValueUsage
             return false;
         }
 
-        private static bool IsSupportedAssert(IMethodSymbol methodSymbol)
+        private static bool IsSupportedClassicAssert(IMethodSymbol methodSymbol)
         {
-            return methodSymbol.ContainingType.Name == NUnitFrameworkConstants.NameOfAssert && SupportedClassicAsserts.Contains(methodSymbol.Name);
+            return (methodSymbol.ContainingType.IsClassicAssert() || methodSymbol.ContainingType.IsAssert()) &&
+                SupportedClassicAsserts.Contains(methodSymbol.Name);
         }
 
         private static bool IsSupportedStringAssert(IMethodSymbol methodSymbol)
         {
-            return methodSymbol.ContainingType.Name == NUnitFrameworkConstants.NameOfStringAssert && SupportedStringAsserts.Contains(methodSymbol.Name);
+            return methodSymbol.ContainingType.IsStringAssert() && SupportedStringAsserts.Contains(methodSymbol.Name);
         }
     }
 }

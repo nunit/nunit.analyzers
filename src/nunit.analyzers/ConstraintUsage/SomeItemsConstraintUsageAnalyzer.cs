@@ -13,8 +13,8 @@ namespace NUnit.Analyzers.ConstraintUsage
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class SomeItemsConstraintUsageAnalyzer : BaseConditionConstraintAnalyzer
     {
-        private static readonly string DoesContain = $"{NameOfDoes}.{NameOfDoesContain}";
-        private static readonly string DoesNotContain = $"{NameOfDoes}.{NameOfDoesNot}.{NameOfDoesContain}";
+        private const string DoesContain = $"{NameOfDoes}.{NameOfDoesContain}";
+        private const string DoesNotContain = $"{NameOfDoes}.{NameOfDoesNot}.{NameOfDoesContain}";
 
         private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.CollectionContainsConstraintUsage,

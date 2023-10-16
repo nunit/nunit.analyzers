@@ -33,7 +33,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {{
             var collection = Array.Empty<object>();
 
-            ↓Assert.IsEmpty(collection);
+            ↓ClassicAssert.IsEmpty(collection);
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -53,7 +53,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {{
             var collection = Array.Empty<object>();
 
-            ↓Assert.IsEmpty(collection, ""message"");
+            ↓ClassicAssert.IsEmpty(collection, ""message"");
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -73,14 +73,14 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {{
             var collection = Array.Empty<object>();
 
-            ↓Assert.IsEmpty(collection, ""message"", Guid.NewGuid());
+            ↓ClassicAssert.IsEmpty(collection, ""message-id: {{0}}"", Guid.NewGuid());
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
             var collection = Array.Empty<object>();
 
-            Assert.That(collection, Is.Empty, ""message"", Guid.NewGuid());
+            Assert.That(collection, Is.Empty, $""message-id: {Guid.NewGuid()}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void TestMethod()
         {
             MyString s = string.Empty;
-            ↓Assert.IsEmpty(s);
+            ↓ClassicAssert.IsEmpty(s);
         }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         private struct MyString

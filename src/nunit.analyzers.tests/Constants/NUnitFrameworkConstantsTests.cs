@@ -8,6 +8,12 @@ using NUnit.Framework.Constraints;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 
+#if NUNIT4
+using NUnit.Framework.Legacy;
+#else
+using ClassicAssert = NUnit.Framework.Assert;
+#endif
+
 namespace NUnit.Analyzers.Tests.Constants
 {
     /// <summary>
@@ -68,31 +74,31 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfThrowsTargetInvocationException), nameof(Throws.TargetInvocationException)),
 
             (nameof(NUnitFrameworkConstants.NameOfAssert), nameof(Assert)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertIsTrue), nameof(Assert.IsTrue)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertTrue), nameof(Assert.True)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertIsFalse), nameof(Assert.IsFalse)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertFalse), nameof(Assert.False)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertAreEqual), nameof(Assert.AreEqual)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertAreNotEqual), nameof(Assert.AreNotEqual)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertAreSame), nameof(Assert.AreSame)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertAreNotSame), nameof(Assert.AreNotSame)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertNull), nameof(Assert.Null)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertIsNull), nameof(Assert.IsNull)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertIsNotNull), nameof(Assert.IsNotNull)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertNotNull), nameof(Assert.NotNull)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertThat), nameof(Assert.That)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertGreater), nameof(Assert.Greater)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertGreaterOrEqual), nameof(Assert.GreaterOrEqual)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertLess), nameof(Assert.Less)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertLessOrEqual), nameof(Assert.LessOrEqual)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertZero), nameof(Assert.Zero)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertNotZero), nameof(Assert.NotZero)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertIsNaN), nameof(Assert.IsNaN)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertIsEmpty), nameof(Assert.IsEmpty)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertIsNotEmpty), nameof(Assert.IsNotEmpty)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertContains), nameof(Assert.Contains)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertIsInstanceOf), nameof(Assert.IsInstanceOf)),
-            (nameof(NUnitFrameworkConstants.NameOfAssertIsNotInstanceOf), nameof(Assert.IsNotInstanceOf)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertIsTrue), nameof(ClassicAssert.IsTrue)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertTrue), nameof(ClassicAssert.True)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertIsFalse), nameof(ClassicAssert.IsFalse)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertFalse), nameof(ClassicAssert.False)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertAreEqual), nameof(ClassicAssert.AreEqual)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertAreNotEqual), nameof(ClassicAssert.AreNotEqual)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertAreSame), nameof(ClassicAssert.AreSame)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertAreNotSame), nameof(ClassicAssert.AreNotSame)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertNull), nameof(ClassicAssert.Null)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertIsNull), nameof(ClassicAssert.IsNull)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertIsNotNull), nameof(ClassicAssert.IsNotNull)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertNotNull), nameof(ClassicAssert.NotNull)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertThat), nameof(ClassicAssert.That)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertGreater), nameof(ClassicAssert.Greater)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertGreaterOrEqual), nameof(ClassicAssert.GreaterOrEqual)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertLess), nameof(ClassicAssert.Less)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertLessOrEqual), nameof(ClassicAssert.LessOrEqual)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertZero), nameof(ClassicAssert.Zero)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertNotZero), nameof(ClassicAssert.NotZero)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertIsNaN), nameof(ClassicAssert.IsNaN)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertIsEmpty), nameof(ClassicAssert.IsEmpty)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertIsNotEmpty), nameof(ClassicAssert.IsNotEmpty)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertContains), nameof(ClassicAssert.Contains)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertIsInstanceOf), nameof(ClassicAssert.IsInstanceOf)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertIsNotInstanceOf), nameof(ClassicAssert.IsNotInstanceOf)),
 
             (nameof(NUnitFrameworkConstants.NameOfAssertCatch), nameof(Assert.Catch)),
             (nameof(NUnitFrameworkConstants.NameOfAssertCatchAsync), nameof(Assert.CatchAsync)),
@@ -133,6 +139,7 @@ namespace NUnit.Analyzers.Tests.Constants
 
             (nameof(NUnitFrameworkConstants.NameOfIgnoreCase), nameof(EqualConstraint.IgnoreCase)),
             (nameof(NUnitFrameworkConstants.NameOfUsing), nameof(EqualConstraint.Using)),
+            (nameof(NUnitFrameworkConstants.NameOfClassicAssert), "ClassicAssert"),
         };
 
         private static readonly (string Constant, Type Type)[] FullNameOfTypeSource = new (string Constant, Type Type)[]
@@ -191,8 +198,8 @@ namespace NUnit.Analyzers.Tests.Constants
         [Test]
         public void NameOfAssertAreEqualParameters()
         {
-            var parameters = typeof(Assert).GetMethods()
-                .First(m => m.Name == nameof(Assert.AreEqual))
+            var parameters = typeof(ClassicAssert).GetMethods()
+                .First(m => m.Name == nameof(ClassicAssert.AreEqual))
                 .GetParameters();
             var parameterNames = parameters.Select(p => p.Name);
 
@@ -215,14 +222,14 @@ namespace NUnit.Analyzers.Tests.Constants
             Assert.That(parameterNames, Does.Contain(NUnitFrameworkConstants.NameOfConditionParameter));
         }
 
-        [TestCase(nameof(Assert.True))]
-        [TestCase(nameof(Assert.IsTrue))]
-        [TestCase(nameof(Assert.False))]
-        [TestCase(nameof(Assert.IsFalse))]
-        [TestCase(nameof(Assert.IsTrue))]
+        [TestCase(nameof(ClassicAssert.True))]
+        [TestCase(nameof(ClassicAssert.IsTrue))]
+        [TestCase(nameof(ClassicAssert.False))]
+        [TestCase(nameof(ClassicAssert.IsFalse))]
+        [TestCase(nameof(ClassicAssert.IsTrue))]
         public void NameOfAssertConditionParameters(string method)
         {
-            var parameters = typeof(Assert).GetMethods()
+            var parameters = typeof(ClassicAssert).GetMethods()
                 .First(m => m.Name == method)
                 .GetParameters();
             var parameterNames = parameters.Select(p => p.Name);
@@ -238,6 +245,20 @@ namespace NUnit.Analyzers.Tests.Constants
             Assert.That(
                 NUnitFrameworkConstants.NUnitFrameworkAssemblyName,
                 Is.EqualTo(typeof(Assert).Assembly.GetName().Name));
+#pragma warning restore NUnit2007 // The actual value should not be a constant
+        }
+
+        [Test]
+        public void NUnitLegacyAssemblyNameTest()
+        {
+            // We are testing that the value of the constant is correct
+#pragma warning disable NUnit2007 // The actual value should not be a constant
+#if NUNIT4
+            Assert.That(NUnitFrameworkConstants.NUnitFrameworkLegacyAssemblyName,
+#else
+            Assert.That(NUnitFrameworkConstants.NUnitFrameworkAssemblyName,
+#endif
+                Is.EqualTo(typeof(ClassicAssert).Assembly.GetName().Name));
 #pragma warning restore NUnit2007 // The actual value should not be a constant
         }
 

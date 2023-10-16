@@ -26,13 +26,13 @@ public void Test()
 {
     string actual = "...";
     string expected = "...";
-    Assert.True(actual.EndsWith(expected));
+    ClassicAssert.True(actual.EndsWith(expected));
 }
 ```
 
 ## How to fix violations
 
-The analyzer comes with a code fix that will replace `Assert.True(actual.EndsWith(expected))` with
+The analyzer comes with a code fix that will replace `ClassicAssert.True(actual.EndsWith(expected))` with
 `Assert.That(actual, Does.EndWith(expected))`. So the code block above will be changed into
 
 ```csharp

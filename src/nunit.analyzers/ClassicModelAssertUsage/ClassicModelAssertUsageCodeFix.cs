@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
+using NUnit.Analyzers.Helpers;
 
 namespace NUnit.Analyzers.ClassicModelAssertUsage
 {
@@ -16,6 +17,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
         : CodeFixProvider
     {
         internal const string TransformToConstraintModelDescription = "Transform to constraint model";
+
+        protected virtual int MinimumNumberOfParameters { get; } = 2;
 
         protected virtual string Title => TransformToConstraintModelDescription;
 
@@ -36,7 +39,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             context.CancellationToken.ThrowIfCancellationRequested();
 
             var diagnostic = context.Diagnostics.First();
-            var invocationNode = root.FindNode(diagnostic.Location.SourceSpan) as InvocationExpressionSyntax;
+            var node = root.FindNode(diagnostic.Location.SourceSpan);
+            var invocationNode = node as InvocationExpressionSyntax;
 
             if (invocationNode is null)
                 return;
@@ -65,34 +69,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 return convertedType.ToString();
             }
 
-            // First, replace the original method invocation name to "That".
-            var descendantNodes = invocationNode.DescendantNodes(_ => true).ToArray();
+            // Replace the original ClassicAssert.<Method> invocation name into Assert.That
+            var newInvocationNode = invocationNode.UpdateClassicAssertToAssertThat(out TypeArgumentListSyntax? typeArguments);
 
-            SyntaxNode methodNode;
-            TypeArgumentListSyntax? typeArguments;
-            if (isGenericMethod)
-            {
-                methodNode = descendantNodes
-                    .Where(_ => _.IsKind(SyntaxKind.GenericName) &&
-                        ((GenericNameSyntax)_).Identifier.Text == invocationIdentifier)
-                    .Single();
-                typeArguments = descendantNodes
-                    .Where(_ => _.IsKind(SyntaxKind.TypeArgumentList))
-                    .Cast<TypeArgumentListSyntax>()
-                    .First();
-            }
-            else
-            {
-                methodNode = descendantNodes
-                    .Where(_ => _.IsKind(SyntaxKind.IdentifierName) &&
-                        ((IdentifierNameSyntax)_).Identifier.Text == invocationIdentifier)
-                    .Single();
-                typeArguments = null;
-            }
-
-            var newInvocationNode = invocationNode.ReplaceNode(
-                methodNode,
-                SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfAssertThat));
+            if (newInvocationNode is null)
+                return;
 
             // Now, replace the arguments.
             List<ArgumentSyntax> arguments = invocationNode.ArgumentList.Arguments.ToList();
@@ -120,6 +101,9 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 this.UpdateArguments(diagnostic, arguments);
             else
                 this.UpdateArguments(diagnostic, arguments, typeArguments);
+
+            // Do the format spec, params to formattable string conversion
+            CodeFixHelper.UpdateStringFormatToFormattableString(arguments, MinimumNumberOfParameters);
 
             var newArgumentsList = invocationNode.ArgumentList.WithArguments(arguments);
             newInvocationNode = newInvocationNode.WithArgumentList(newArgumentsList);

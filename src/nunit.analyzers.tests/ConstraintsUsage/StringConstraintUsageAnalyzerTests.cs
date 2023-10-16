@@ -28,7 +28,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCaseSource(nameof(PositiveAssertData))]
         public void AnalyzeStringBooleanMethodAssertTrue(string method, string analyzerId, string suggestedConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"Assert.True(↓""abc"".{method}(""ab""));");
+            var testCode = TestUtility.WrapInTestMethod($@"ClassicAssert.True(↓""abc"".{method}(""ab""));");
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
                 string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
@@ -38,7 +38,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCaseSource(nameof(PositiveAssertData))]
         public void AnalyzeStringBooleanMethodAssertIsTrue(string method, string analyzerId, string suggestedConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"Assert.IsTrue(↓""abc"".{method}(""ab""));");
+            var testCode = TestUtility.WrapInTestMethod($@"ClassicAssert.IsTrue(↓""abc"".{method}(""ab""));");
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
                 string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
@@ -68,7 +68,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCaseSource(nameof(NegativeAssertData))]
         public void AnalyzeStringBooleanMethodAssertFalse(string method, string analyzerId, string suggestedConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"Assert.False(↓""abc"".{method}(""ab""));");
+            var testCode = TestUtility.WrapInTestMethod($@"ClassicAssert.False(↓""abc"".{method}(""ab""));");
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
                 string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
@@ -78,7 +78,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCaseSource(nameof(NegativeAssertData))]
         public void AnalyzeStringBooleanMethodAssertIsFalse(string method, string analyzerId, string suggestedConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"Assert.IsFalse(↓""abc"".{method}(""ab""));");
+            var testCode = TestUtility.WrapInTestMethod($@"ClassicAssert.IsFalse(↓""abc"".{method}(""ab""));");
 
             var diagnostic = ExpectedDiagnostic.Create(analyzerId,
                 string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));

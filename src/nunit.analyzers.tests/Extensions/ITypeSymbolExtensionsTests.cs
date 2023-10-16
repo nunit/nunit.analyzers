@@ -200,24 +200,6 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
             Assert.That(typeSymbol.IsAssert(), Is.True);
         }
 
-        [TestCase("Assert")]
-        [TestCase("StringAssert")]
-        public async Task IsAnyAssertWhenSymbolIsAnyAssertType(string assertType)
-        {
-            var testCode = $@"
-using NUnit.Framework;
-
-namespace NUnit.Analyzers.Tests.Targets.Extensions
-{{
-    public sealed class IsAnyAssertWhenSymbolIsAnyAssertType
-    {{
-        public {assertType} x;
-    }}
-}}";
-            var typeSymbol = await GetTypeSymbolFromFieldAsync(testCode, "IsAnyAssertWhenSymbolIsAnyAssertType").ConfigureAwait(false);
-            Assert.That(typeSymbol.IsAnyAssert(), Is.True);
-        }
-
         private static async Task<ImmutableArray<ITypeSymbol>> GetTypeSymbolAsync(string code, string[] typeNames)
         {
             var rootAndModel = await TestHelpers.GetRootAndModel(code).ConfigureAwait(false);
@@ -250,10 +232,11 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
                 .DescendantNodes().OfType<FieldDeclarationSyntax>().Single();
 
             VariableDeclaratorSyntax variableDeclaration = fieldNode.Declaration.Variables[0];
-            ISymbol? symbol = rootAndModel.Model.GetDeclaredSymbol(variableDeclaration);
+            IFieldSymbol? symbol = rootAndModel.Model.GetDeclaredSymbol(variableDeclaration) as IFieldSymbol;
             Assert.That(symbol, Is.Not.Null, $"Cannot find symbol for {variableDeclaration.Identifier}");
+            Assert.That(symbol.Type.Kind, Is.Not.EqualTo(SymbolKind.ErrorType), $"Cannot find type for {fieldNode.ToString()}");
 
-            return ((IFieldSymbol)symbol).Type;
+            return symbol.Type;
         }
     }
 }

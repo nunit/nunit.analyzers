@@ -31,7 +31,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
         {{
-            ↓Assert.LessOrEqual(2d, 3d);
+            ↓ClassicAssert.LessOrEqual(2d, 3d);
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -47,7 +47,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
         {{
-            ↓Assert.LessOrEqual(2d, 3d, ""message"");
+            ↓ClassicAssert.LessOrEqual(2d, 3d, ""message"");
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -63,12 +63,12 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
         {{
-            ↓Assert.LessOrEqual(2d, 3d, ""message"", Guid.NewGuid());
+            ↓ClassicAssert.LessOrEqual(2d, 3d, ""message-id: {{0}}"", Guid.NewGuid());
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
-            Assert.That(2d, Is.LessThanOrEqualTo(3d), ""message"", Guid.NewGuid());
+            Assert.That(2d, Is.LessThanOrEqualTo(3d), $""message-id: {Guid.NewGuid()}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
@@ -77,14 +77,12 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void CodeFixPreservesLineBreakBeforeMessage()
         {
             var code = TestUtility.WrapInTestMethod($@"
-            Assert.LessOrEqual(2d, 3d,
-                ""message"",
-                Guid.NewGuid());");
+            ClassicAssert.LessOrEqual(2d, 3d,
+                ""message"");");
 
             var fixedCode = TestUtility.WrapInTestMethod(@"
             Assert.That(2d, Is.LessThanOrEqualTo(3d),
-                ""message"",
-                Guid.NewGuid());");
+                ""message"");");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
@@ -106,7 +104,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             MyFloat x = 1;
             float y = 2;
-            ↓Assert.LessOrEqual(x, y);
+            ↓ClassicAssert.LessOrEqual(x, y);
         }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         private struct MyFloat
@@ -144,7 +142,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             float x = 1;
             MyFloat y = 2;
-            ↓Assert.LessOrEqual(x, y);
+            ↓ClassicAssert.LessOrEqual(x, y);
         }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         private struct MyFloat

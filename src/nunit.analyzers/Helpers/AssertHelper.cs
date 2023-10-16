@@ -123,10 +123,25 @@ namespace NUnit.Analyzers.Helpers
                                     out string member,
                                     [NotNullWhen(true)] out ArgumentListSyntax? argumentList)
         {
+            return IsAssert(expression, NUnitFrameworkConstants.NameOfAssert, out member, out argumentList);
+        }
+
+        public static bool IsClassicAssert(ExpressionSyntax? expression,
+                                           out string member,
+                                           [NotNullWhen(true)] out ArgumentListSyntax? argumentList)
+        {
+            return IsAssert(expression, NUnitFrameworkConstants.NameOfClassicAssert, out member, out argumentList);
+        }
+
+        private static bool IsAssert(ExpressionSyntax? expression,
+                                     string nameOfAssert,
+                                     out string member,
+                                     [NotNullWhen(true)] out ArgumentListSyntax? argumentList)
+        {
             if (expression is InvocationExpressionSyntax invocationExpression &&
                 invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
                 memberAccessExpression.Expression is IdentifierNameSyntax identifierName &&
-                identifierName.Identifier.Text == NUnitFrameworkConstants.NameOfAssert)
+                identifierName.Identifier.Text == nameOfAssert)
             {
                 member = memberAccessExpression.Name.Identifier.Text;
                 argumentList = invocationExpression.ArgumentList;

@@ -31,7 +31,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
         {{
-            ↓Assert.AreNotEqual(2d, 3d);
+            ↓ClassicAssert.AreNotEqual(2d, 3d);
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -47,7 +47,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
         {{
-            ↓Assert.AreNotEqual(2d, 3d, ""message"");
+            ↓ClassicAssert.AreNotEqual(2d, 3d, ""message"");
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -63,12 +63,12 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
         {{
-            ↓Assert.AreNotEqual(2d, 3d, ""message"", Guid.NewGuid());
+            ↓ClassicAssert.AreNotEqual(2d, 3d, ""message-id: {{0}}"", Guid.NewGuid());
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
-            Assert.That(3d, Is.Not.EqualTo(2d), ""message"", Guid.NewGuid());
+            Assert.That(3d, Is.Not.EqualTo(2d), $""message-id: {Guid.NewGuid()}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

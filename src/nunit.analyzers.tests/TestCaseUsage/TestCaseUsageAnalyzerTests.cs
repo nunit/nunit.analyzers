@@ -41,7 +41,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
                 AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage
             };
-            CollectionAssert.AreEquivalent(expectedIdentifiers, diagnostics.Select(d => d.Id));
+
+            Assert.That(diagnostics.Select(d => d.Id), Is.EquivalentTo(expectedIdentifiers));
 
             foreach (var diagnostic in diagnostics)
             {

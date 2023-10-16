@@ -24,13 +24,13 @@ with `Is.EqualTo` constraint.
 [Test]
 public void Test()
 {
-    Assert.True(actual == expected);
+    ClassicAssert.True(actual == expected);
 }
 ```
 
 ## How to fix violations
 
-The analyzer comes with a code fix that will replace `Assert.True(actual == expected)` with
+The analyzer comes with a code fix that will replace `ClassicAssert.True(actual == expected)` with
 `Assert.That(actual, Is.EqualTo(expected))`. So the code block above will be changed into
 
 ```csharp

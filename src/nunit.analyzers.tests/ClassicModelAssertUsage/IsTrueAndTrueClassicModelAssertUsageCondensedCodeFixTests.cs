@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
         {{
-            ↓Assert.{assertion}(true);
+            ↓ClassicAssert.{assertion}(true);
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -52,7 +52,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
         {{
-            ↓Assert.{assertion}(true, ""message"");
+            ↓ClassicAssert.{assertion}(true, ""message"");
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -72,12 +72,12 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
         {{
-            ↓Assert.{assertion}(true, ""message"", Guid.NewGuid());
+            ↓ClassicAssert.{assertion}(true, ""message-id: {{0}}"", Guid.NewGuid());
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
-            Assert.That(true, ""message"", Guid.NewGuid());
+            Assert.That(true, $""message-id: {Guid.NewGuid()}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription + IsTrueAndTrueClassicModelAssertUsageCondensedCodeFix.Suffix);

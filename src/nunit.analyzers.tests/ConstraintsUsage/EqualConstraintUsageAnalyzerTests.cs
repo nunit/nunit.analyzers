@@ -106,7 +106,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";
-                Assert.True(↓actual.Equals(""abc""));");
+                ClassicAssert.True(↓actual.Equals(""abc""));");
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -116,7 +116,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";
-                Assert.False(↓actual.Equals(""bcd""));");
+                ClassicAssert.False(↓actual.Equals(""bcd""));");
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
@@ -126,7 +126,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";
-                Assert.IsTrue(↓actual.Equals(""abc""));");
+                ClassicAssert.IsTrue(↓actual.Equals(""abc""));");
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -136,7 +136,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";
-                Assert.IsFalse(↓actual.Equals(""bcd""));");
+                ClassicAssert.IsFalse(↓actual.Equals(""bcd""));");
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
@@ -146,7 +146,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";
-                Assert.IsFalse(↓!actual.Equals(""bcd""));");
+                ClassicAssert.IsFalse(↓!actual.Equals(""bcd""));");
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -176,7 +176,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";
-                Assert.True(↓actual.Equals(""abc""), ""Assertion message"");");
+                ClassicAssert.True(↓actual.Equals(""abc""), ""Assertion message"");");
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -186,7 +186,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 var actual = ""abc"";
-                Assert.False(↓actual.Equals(""bcd""), ""Assertion message"");");
+                ClassicAssert.False(↓actual.Equals(""bcd""), ""Assertion message"");");
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }

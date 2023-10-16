@@ -4,12 +4,13 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.Extensions;
 using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
 
 namespace NUnit.Analyzers.ClassicModelAssertUsage
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class ClassicModelAssertUsageAnalyzer : BaseAssertionAnalyzer
+    public sealed class ClassicModelAssertUsageAnalyzer : ClassicAssertionAnalyzer
     {
         private static readonly DiagnosticDescriptor isTrueDescriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.IsTrueUsage,

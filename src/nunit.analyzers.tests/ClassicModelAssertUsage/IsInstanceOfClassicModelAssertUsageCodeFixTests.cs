@@ -34,7 +34,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var expected = typeof(int);
             var actual = 42;
 
-            ↓Assert.IsInstanceOf(expected, actual);
+            ↓ClassicAssert.IsInstanceOf(expected, actual);
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -56,7 +56,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var expected = typeof(int);
             var actual = 42;
 
-            ↓Assert.IsInstanceOf(expected, actual, ""message"");
+            ↓ClassicAssert.IsInstanceOf(expected, actual, ""message"");
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -78,7 +78,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var expected = typeof(int);
             var actual = 42;
 
-            ↓Assert.IsInstanceOf(expected, actual, ""message"", Guid.NewGuid());
+            ↓ClassicAssert.IsInstanceOf(expected, actual, ""message-id: {{0}}"", Guid.NewGuid());
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -86,7 +86,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var expected = typeof(int);
             var actual = 42;
 
-            Assert.That(actual, Is.InstanceOf(expected), ""message"", Guid.NewGuid());
+            Assert.That(actual, Is.InstanceOf(expected), $""message-id: {Guid.NewGuid()}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
@@ -95,19 +95,19 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void VerifyIsInstanceOfGenericFix()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-            public void TestMethod()
-            {{
-                var actual = 42;
+        public void TestMethod()
+        {{
+            var actual = 42;
 
-                ↓Assert.IsInstanceOf<int>(actual);
-            }}");
+            ↓ClassicAssert.IsInstanceOf<int>(actual);
+        }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-            public void TestMethod()
-            {
-                var actual = 42;
+        public void TestMethod()
+        {
+            var actual = 42;
 
-                Assert.That(actual, Is.InstanceOf<int>());
-            }");
+            Assert.That(actual, Is.InstanceOf<int>());
+        }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -115,41 +115,41 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void VerifyIsInstanceOfSingleNestedGenericFix()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-            public void TestMethod()
+        public void TestMethod()
+        {
+            var wrapped = Create(42);
+            ↓ClassicAssert.IsInstanceOf<Wrapped<int>>(wrapped);
+        }
+
+        private Wrapped<T> Create<T>(T value) => new Wrapped<T>(value);
+
+        private class Wrapped<T>
+        {
+            public Wrapped(T value)
             {
-                var wrapped = Create(42);
-                ↓Assert.IsInstanceOf<Wrapped<int>>(wrapped);
+                Value = value;
             }
 
-            private Wrapped<T> Create<T>(T value) => new Wrapped<T>(value);
-
-            private class Wrapped<T>
-            {
-                public Wrapped(T value)
-                {
-                    Value = value;
-                }
-
-                public T Value { get; }
-            }");
+            public T Value { get; }
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-            public void TestMethod()
+        public void TestMethod()
+        {
+            var wrapped = Create(42);
+            Assert.That(wrapped, Is.InstanceOf<Wrapped<int>>());
+        }
+
+        private Wrapped<T> Create<T>(T value) => new Wrapped<T>(value);
+
+        private class Wrapped<T>
+        {
+            public Wrapped(T value)
             {
-                var wrapped = Create(42);
-                Assert.That(wrapped, Is.InstanceOf<Wrapped<int>>());
+                Value = value;
             }
 
-            private Wrapped<T> Create<T>(T value) => new Wrapped<T>(value);
-
-            private class Wrapped<T>
-            {
-                public Wrapped(T value)
-                {
-                    Value = value;
-                }
-
-                public T Value { get; }
-            }");
+            public T Value { get; }
+        }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -157,43 +157,43 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void VerifyIsInstanceOfDoubleNestedGenericFix()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-            public void TestMethod()
+        public void TestMethod()
+        {
+            var wrapped = Create(42);
+            var nested = Create(wrapped);
+            ↓ClassicAssert.IsInstanceOf<Wrapped<Wrapped<int>>>(wrapped);
+        }
+
+        private Wrapped<T> Create<T>(T value) => new Wrapped<T>(value);
+
+        private class Wrapped<T>
+        {
+            public Wrapped(T value)
             {
-                var wrapped = Create(42);
-                var nested = Create(wrapped);
-                ↓Assert.IsInstanceOf<Wrapped<Wrapped<int>>>(wrapped);
+                Value = value;
             }
 
-            private Wrapped<T> Create<T>(T value) => new Wrapped<T>(value);
-
-            private class Wrapped<T>
-            {
-                public Wrapped(T value)
-                {
-                    Value = value;
-                }
-
-                public T Value { get; }
-            }");
+            public T Value { get; }
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-            public void TestMethod()
+        public void TestMethod()
+        {
+            var wrapped = Create(42);
+            var nested = Create(wrapped);
+            Assert.That(wrapped, Is.InstanceOf<Wrapped<Wrapped<int>>>());
+        }
+
+        private Wrapped<T> Create<T>(T value) => new Wrapped<T>(value);
+
+        private class Wrapped<T>
+        {
+            public Wrapped(T value)
             {
-                var wrapped = Create(42);
-                var nested = Create(wrapped);
-                Assert.That(wrapped, Is.InstanceOf<Wrapped<Wrapped<int>>>());
+                Value = value;
             }
 
-            private Wrapped<T> Create<T>(T value) => new Wrapped<T>(value);
-
-            private class Wrapped<T>
-            {
-                public Wrapped(T value)
-                {
-                    Value = value;
-                }
-
-                public T Value { get; }
-            }");
+            public T Value { get; }
+        }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -201,39 +201,33 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void VerifyIsInstanceOfGenericFixWithMessage()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-            public void TestMethod()
-            {{
-                var actual = 42;
+        public void TestMethod()
+        {{
+            var actual = 42;
 
-                ↓Assert.IsInstanceOf<int>(actual, ""message"");
-            }}");
+            ↓ClassicAssert.IsInstanceOf<int>(actual, ""message"");
+        }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-            public void TestMethod()
-            {
-                var actual = 42;
+        public void TestMethod()
+        {
+            var actual = 42;
 
-                Assert.That(actual, Is.InstanceOf<int>(), ""message"");
-            }");
+            Assert.That(actual, Is.InstanceOf<int>(), ""message"");
+        }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyIsInstanceOfGenericFixWithMessageAndParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-            public void TestMethod()
-            {{
-                var actual = 42;
+            var code = TestUtility.WrapInTestMethod($@"
+            var actual = 42;
 
-                ↓Assert.IsInstanceOf<int>(actual, ""message"", Guid.NewGuid());
-            }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-            public void TestMethod()
-            {
-                var actual = 42;
+            ↓ClassicAssert.IsInstanceOf<int>(actual, ""message-id: {{0}}"", Guid.NewGuid());");
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+            var actual = 42;
 
-                Assert.That(actual, Is.InstanceOf<int>(), ""message"", Guid.NewGuid());
-            }");
+            Assert.That(actual, Is.InstanceOf<int>(), $""message-id: {Guid.NewGuid()}"");");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }

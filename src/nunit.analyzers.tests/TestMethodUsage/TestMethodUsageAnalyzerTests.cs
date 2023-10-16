@@ -44,7 +44,8 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                 AnalyzerIdentifiers.TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage,
                 AnalyzerIdentifiers.SimpleTestMethodHasParameters
             };
-            CollectionAssert.AreEquivalent(expectedIdentifiers, diagnostics.Select(d => d.Id));
+
+            Assert.That(diagnostics.Select(d => d.Id), Is.EquivalentTo(expectedIdentifiers));
 
             Assert.Multiple(() =>
             {
@@ -524,12 +525,12 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                AnalyzerIdentifiers.SimpleTestMethodHasParameters);
 
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-    [↓Test]
-    [Category(""Test"")]
-    public void M(int p)
-    {
-        Assert.That(p, Is.EqualTo(42));
-    }");
+        [↓Test]
+        [Category(""Test"")]
+        public void M(int p)
+        {
+            Assert.That(p, Is.EqualTo(42));
+        }");
 
             var message = "The test method has '1' parameter(s), but only '0' argument(s) are supplied by attributes";
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);

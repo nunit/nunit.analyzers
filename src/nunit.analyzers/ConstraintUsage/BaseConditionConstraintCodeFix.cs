@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
+using NUnit.Analyzers.Helpers;
 using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
 
 namespace NUnit.Analyzers.ConstraintUsage
@@ -46,7 +47,8 @@ namespace NUnit.Analyzers.ConstraintUsage
             }
 
             context.CancellationToken.ThrowIfCancellationRequested();
-            var conditionNode = (root.FindNode(context.Span) as ArgumentSyntax)?.Expression;
+            SyntaxNode node = root.FindNode(context.Span);
+            var conditionNode = (node as ArgumentSyntax)?.Expression;
 
             if (conditionNode is null)
                 return;
@@ -73,6 +75,10 @@ namespace NUnit.Analyzers.ConstraintUsage
                 return;
 
             var newAssertNode = UpdateAssertNode(assertNode, assertMethod, actual, constraintExpression);
+
+            if (newAssertNode is null)
+                return;
+
             var newRoot = root.ReplaceNode(assertNode, newAssertNode);
 
             var codeAction = CodeAction.Create(
@@ -105,12 +111,14 @@ namespace NUnit.Analyzers.ConstraintUsage
                 SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(expected))));
         }
 
-        protected static InvocationExpressionSyntax UpdateAssertNode(InvocationExpressionSyntax assertNode, IMethodSymbol assertMethod,
+        protected static InvocationExpressionSyntax? UpdateAssertNode(InvocationExpressionSyntax assertNode, IMethodSymbol assertMethod,
             ExpressionSyntax actual, ExpressionSyntax constraintExpression)
         {
-            // Replace Assert method to Assert.That
-            var newExpression = ((MemberAccessExpressionSyntax)assertNode.Expression)
-                .WithName(SyntaxFactory.IdentifierName(NameOfAssertThat));
+            // Replace the original ClassicAssert.<Method> invocation name into Assert.That
+            var newAssertNode = assertNode.UpdateClassicAssertToAssertThat(out TypeArgumentListSyntax? typeArguments);
+
+            if (newAssertNode is null)
+                return null;
 
             // Replace arguments
             var hasConstraint = assertNode.GetArgumentExpression(assertMethod, NameOfExpressionParameter) is not null;
@@ -127,9 +135,7 @@ namespace NUnit.Analyzers.ConstraintUsage
 
             var newArgumentsList = assertNode.ArgumentList.WithArguments(newArguments);
 
-            return assertNode
-                .WithExpression(newExpression)
-                .WithArgumentList(newArgumentsList);
+            return newAssertNode.WithArgumentList(newArgumentsList);
         }
     }
 }

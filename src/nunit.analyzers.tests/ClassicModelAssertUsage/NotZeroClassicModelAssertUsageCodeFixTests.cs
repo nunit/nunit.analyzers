@@ -33,7 +33,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {{
             var expr = default(int);
 
-            ↓Assert.NotZero(expr);
+            ↓ClassicAssert.NotZero(expr);
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -53,7 +53,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {{
             var expr = default(int);
 
-            ↓Assert.NotZero(expr, ""message"");
+            ↓ClassicAssert.NotZero(expr, ""message"");
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -73,14 +73,14 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {{
             var expr = default(int);
 
-            ↓Assert.NotZero(expr, ""message"", Guid.NewGuid());
+            ↓ClassicAssert.NotZero(expr, ""message-id: {{0}}"", Guid.NewGuid());
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
             var expr = default(int);
 
-            Assert.That(expr, Is.Not.Zero, ""message"", Guid.NewGuid());
+            Assert.That(expr, Is.Not.Zero, $""message-id: {Guid.NewGuid()}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

@@ -1,6 +1,6 @@
 # NUnit3001
 
-## Expression was checked in an Assert.NotNull, Assert.IsNotNull or Assert.That call
+## Expression was checked in an ClassicAssert.NotNull, ClassicAssert.IsNotNull or Assert.That call
 
 | Topic    | Value
 | :--      | :--
@@ -18,8 +18,8 @@ This rule check diagnostics reported by the CS8601-CS8607 and CS8629 compiler er
 
 It then checks the previous statements for one of:
 
-* `Assert.NotNull(...)`
-* `Assert.IsNotNull(...)`
+* `ClassicAssert.NotNull(...)`
+* `ClassicAssert.IsNotNull(...)`
 * `Assert.That(..., Is.Not.Null)`
 
 For the same expression as the one that raised the original compiler error.
@@ -31,8 +31,8 @@ In this case, the previous statement is allowed to be one of:
 
 * `Assert.That(...HasValue)`
 * `Assert.That(...HasValue, Is.True)`
-* `Assert.True(...HasValue)`
-* `Assert.IsTrue(...HasValue)`
+* `ClassicAssert.True(...HasValue)`
+* `ClassicAssert.IsTrue(...HasValue)`
 
 The exception is that if the statement is part of an `Assert.Multiple`
 it is not suppressed, as in this case the statement containing the compiler error will be executed.
@@ -119,7 +119,7 @@ For more info about rulesets see [MSDN](https://learn.microsoft.com/en-us/visual
 This is currently not working. Waiting for [Roslyn](https://github.com/dotnet/roslyn/issues/49727)
 
 ```ini
-# NUnit3001: Expression was checked in an Assert.NotNull, Assert.IsNotNull or Assert.That call
+# NUnit3001: Expression was checked in an ClassicAssert.NotNull, ClassicAssert.IsNotNull or Assert.That call
 dotnet_diagnostic.NUnit3001.severity = none
 ```
 <!-- end generated config severity -->

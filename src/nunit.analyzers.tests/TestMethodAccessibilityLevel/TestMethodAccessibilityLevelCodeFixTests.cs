@@ -71,11 +71,11 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         public void FixesDefaultImplicitAccessModifierWronglyIndented()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-    [TestCase(1)]
+        [TestCase(1)]
         void ↓TestMethod(int i) {{ }}");
 
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-    [TestCase(1)]
+        [TestCase(1)]
         public void TestMethod(int i) {{ }}");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);

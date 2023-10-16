@@ -167,9 +167,7 @@ namespace NUnit.Analyzers.Constants
 
         public const string NUnitFrameworkAssemblyName = "nunit.framework";
 
-        public static readonly string[] AllAsserts =
-        {
-            NameOfAssert, NameOfStringAssert
-        };
+        public const string NUnitFrameworkLegacyAssemblyName = "nunit.framework.legacy";
+        public const string NameOfClassicAssert = "ClassicAssert";
     }
 }

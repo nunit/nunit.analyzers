@@ -18,6 +18,9 @@ namespace NUnit.Analyzers.Tests
 {
     public class DocumentationTests
     {
+        // Overload of Append(InterpolatedStringHanlder) with IFormatProvider not available in .NET 462
+#pragma warning disable CA1305 // Specify IFormatProvider
+
         private static readonly IReadOnlyList<DiagnosticAnalyzer> analyzers =
             typeof(BaseAssertionAnalyzer)
                 .Assembly
@@ -361,7 +364,7 @@ namespace NUnit.Analyzers.Tests
             private static string CreateStub(DiagnosticAnalyzer analyzer, DiagnosticDescriptor descriptor)
             {
                 var builder = new StringBuilder();
-                builder.Append($"|{(builder.Length == 0 ? " Code     " : "          ")}| ");
+                builder.Append("| Code     | ");
                 builder.Append($"[{analyzer.GetType().Name}]({CodeFile.Find(analyzer.GetType()).Uri})");
 
                 var text = builder.ToString();

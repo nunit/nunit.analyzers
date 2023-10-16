@@ -28,7 +28,7 @@ public class MyTestClass
     [TestCaseSource(nameof(DivideCases))]
     public void DivideTest(int n, int d, int q)
     {
-        Assert.AreEqual(q, n / d);
+        ClassicAssert.AreEqual(q, n / d);
     }
 
     object[] DivideCases =
@@ -56,7 +56,7 @@ public class MyTestClass
     [TestCaseSource(nameof(DivideCases))]
     public void DivideTest(int n, int d, int q)
     {
-        Assert.AreEqual(q, n / d);
+        ClassicAssert.AreEqual(q, n / d);
     }
 
     static object[] DivideCases =

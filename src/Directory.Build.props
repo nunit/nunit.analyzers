@@ -7,11 +7,11 @@
     <Product>NUnit Analyzers</Product>
     <Copyright>Copyright © 2018-2023 NUnit project</Copyright>
   </PropertyGroup>
-
+    
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Nullable>enable</Nullable>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <!-- Counter intuitive, but this only enabled the pre-shipped analyzer, we configure them below -->
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>

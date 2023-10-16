@@ -26,13 +26,13 @@ public void Test()
 {
     var actual = new List<int> {1,2,3};
     int expected = 1;
-    Assert.True(actual.Contains(expected));
+    ClassicAssert.True(actual.Contains(expected));
 }
 ```
 
 ## How to fix violations
 
-The analyzer comes with a code fix that will replace `Assert.True(actual.Contains(expected))` with
+The analyzer comes with a code fix that will replace `ClassicAssert.True(actual.Contains(expected))` with
 `Assert.That(actual, Does.Contain(expected))`. So the code block above will be changed into
 
 ```csharp
