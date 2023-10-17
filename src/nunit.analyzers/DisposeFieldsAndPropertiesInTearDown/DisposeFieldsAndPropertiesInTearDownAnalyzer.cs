@@ -113,7 +113,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             ImmutableHashSet<string> disposeMethods = StandardDisposeMethods;
 
 #if NETSTANDARD2_0_OR_GREATER
-            // Are there any additional methods configured that are considers Dispose Methods
+            // Are there any additional methods configured that are considered Dispose Methods
             // e.g. DisposeIfDisposeable or Release
             AnalyzerConfigOptions options = context.Options.AnalyzerConfigOptionsProvider.GetOptions(classDeclaration.SyntaxTree);
             if (options.TryGetValue("dotnet_diagnostic.NUnit1032.additional_dispose_methods", out string? value))
@@ -127,7 +127,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             Parameters parameters = new(model, typeSymbol, disposeMethods, symbolNames);
 
             ImmutableArray<ISymbol> members = typeSymbol.GetMembers();
-            var methods = members.OfType<IMethodSymbol>().Where(m => !m.IsStatic).ToArray();
+            var methods = members.OfType<IMethodSymbol>().ToArray();
             var oneTimeTearDownMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
             var oneTimeSetUpMethods = methods.Where(m => m.MethodKind == MethodKind.Constructor || HasAttribute(m, NUnitFrameworkConstants.NameOfOneTimeSetUpAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
             var setUpMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfSetUpAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
