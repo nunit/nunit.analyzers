@@ -15,5 +15,9 @@ jobs:
         uses: actions/setup-dotnet@main
         with:
           global-json-file: ./global.json
-      - name: dotnet test
-        run: dotnet test --configuration=Release ./src/nunit.analyzers.tests/
+
+      - name: dotnet test (NUnit4)
+        run: dotnet test --configuration=Release -p:NUnitVersion=4 ./src/nunit.analyzers.tests/
+
+      - name: dotnet test (NUnit3)
+        run: dotnet test --configuration=Release -p:NUnitVersion=3 ./src/nunit.analyzers.tests/

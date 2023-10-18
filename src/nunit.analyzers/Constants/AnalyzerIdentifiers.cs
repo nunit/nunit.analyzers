@@ -36,6 +36,7 @@ namespace NUnit.Analyzers.Constants
         internal const string TestCaseSourceMismatchWithTestMethodParameterType = "NUnit1030";
         internal const string ValuesParameterTypeMismatchUsage = "NUnit1031";
         internal const string FieldIsNotDisposedInTearDown = "NUnit1032";
+        internal const string UpdateStringFormatToInterpolatableString = "NUnit1033";
 
         #endregion Structure
 

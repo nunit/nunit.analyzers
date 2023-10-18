@@ -42,16 +42,16 @@ namespace NUnit.Analyzers.Helpers
         /// which needs converting into 'Assert.That(actual, constraint, $"...: {param0} - {param1}").
         /// </summary>
         /// <param name="arguments">The arguments passed to the 'Assert' method. </param>
-        /// <param name="minimumArguments">The argument needed for the actual method, any more are assumed messages.</param>
-        public static void UpdateStringFormatToFormattableString(List<ArgumentSyntax> arguments, int minimumArguments = 2)
+        /// <param name="minimumNumberOfArguments">The argument needed for the actual method, any more are assumed messages.</param>
+        public static void UpdateStringFormatToFormattableString(List<ArgumentSyntax> arguments, int minimumNumberOfArguments = 2)
         {
-            int firstParamsArgument = minimumArguments + 1;
+            int firstParamsArgument = minimumNumberOfArguments + 1;
 
             // If only 1 extra argument is passed, it must be a non-formattable message.
             if (arguments.Count <= firstParamsArgument)
                 return;
 
-            ExpressionSyntax formatSpecificationArgument = arguments[minimumArguments].Expression;
+            ExpressionSyntax formatSpecificationArgument = arguments[minimumNumberOfArguments].Expression;
             if (formatSpecificationArgument is not LiteralExpressionSyntax literalExpression)
             {
                 // We only support converting if the format specification is a constant string.
@@ -75,10 +75,10 @@ namespace NUnit.Analyzers.Helpers
                 SyntaxFactory.List(interpolatedStringContent));
 
             // Replace format specificatio argument with interpolated string.
-            arguments[minimumArguments] = SyntaxFactory.Argument(interpolatedString);
+            arguments[minimumNumberOfArguments] = SyntaxFactory.Argument(interpolatedString);
 
             // Delete params arguments.
-            var nextArgument = minimumArguments + 1;
+            var nextArgument = minimumNumberOfArguments + 1;
             arguments.RemoveRange(nextArgument, arguments.Count - nextArgument);
         }
 

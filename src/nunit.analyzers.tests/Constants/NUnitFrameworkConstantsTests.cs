@@ -74,6 +74,13 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfThrowsTargetInvocationException), nameof(Throws.TargetInvocationException)),
 
             (nameof(NUnitFrameworkConstants.NameOfAssert), nameof(Assert)),
+
+            (nameof(NUnitFrameworkConstants.NameOfAssertPass), nameof(Assert.Pass)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertFail), nameof(Assert.Fail)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertWarn), nameof(Assert.Warn)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertIgnore), nameof(Assert.Ignore)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertInconclusive), nameof(Assert.Inconclusive)),
+
             (nameof(NUnitFrameworkConstants.NameOfAssertIsTrue), nameof(ClassicAssert.IsTrue)),
             (nameof(NUnitFrameworkConstants.NameOfAssertTrue), nameof(ClassicAssert.True)),
             (nameof(NUnitFrameworkConstants.NameOfAssertIsFalse), nameof(ClassicAssert.IsFalse)),

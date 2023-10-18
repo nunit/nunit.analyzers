@@ -48,6 +48,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfHasNo = "No";
 
         public const string NameOfMultiple = "Multiple";
+
         public const string NameOfThrows = "Throws";
         public const string NameOfThrowsArgumentException = "ArgumentException";
         public const string NameOfThrowsArgumentNullException = "ArgumentNullException";
@@ -55,6 +56,13 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfThrowsTargetInvocationException = "TargetInvocationException";
 
         public const string NameOfAssert = "Assert";
+
+        public const string NameOfAssertPass = "Pass";
+        public const string NameOfAssertFail = "Fail";
+        public const string NameOfAssertWarn = "Warn";
+        public const string NameOfAssertIgnore = "Ignore";
+        public const string NameOfAssertInconclusive = "Inconclusive";
+
         public const string NameOfAssertIsTrue = "IsTrue";
         public const string NameOfAssertTrue = "True";
         public const string NameOfAssertIsFalse = "IsFalse";

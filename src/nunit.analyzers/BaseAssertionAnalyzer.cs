@@ -17,7 +17,15 @@ namespace NUnit.Analyzers
             context.RegisterCompilationStartAction(this.AnalyzeCompilationStart);
         }
 
-        protected abstract void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation);
+        protected virtual void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
+        {
+            throw new NotImplementedException($"You must override one of the {nameof(AnalyzeAssertInvocation)} overloads.");
+        }
+
+        protected virtual void AnalyzeAssertInvocation(Version nunitVersion, OperationAnalysisContext context, IInvocationOperation assertOperation)
+        {
+            this.AnalyzeAssertInvocation(context, assertOperation);
+        }
 
         protected virtual bool IsAssert(bool hasClassicAssert, IInvocationOperation invocationOperation)
         {
@@ -25,17 +33,17 @@ namespace NUnit.Analyzers
             return containingType.IsAssert() || (hasClassicAssert && containingType.IsClassicAssert());
         }
 
-        private void AnalyzeInvocation(bool hasClassicAssert, OperationAnalysisContext context)
+        private void AnalyzeInvocation(Version nunitVersion, OperationAnalysisContext context)
         {
             if (context.Operation is not IInvocationOperation invocationOperation)
                 return;
 
-            if (!this.IsAssert(hasClassicAssert, invocationOperation))
+            if (!this.IsAssert(nunitVersion.Major >= 4, invocationOperation))
                 return;
 
             context.CancellationToken.ThrowIfCancellationRequested();
 
-            this.AnalyzeAssertInvocation(context, invocationOperation);
+            this.AnalyzeAssertInvocation(nunitVersion, context, invocationOperation);
         }
 
         private void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
@@ -46,12 +54,11 @@ namespace NUnit.Analyzers
 
             if (nunit is null)
             {
+                // Who would use NUnit.Analyzers without NUnit?
                 return;
             }
 
-            bool hasClassicAssert = nunit.Version.Major >= 4;
-
-            context.RegisterOperationAction((context) => this.AnalyzeInvocation(hasClassicAssert, context), OperationKind.Invocation);
+            context.RegisterOperationAction((context) => this.AnalyzeInvocation(nunit.Version, context), OperationKind.Invocation);
         }
     }
 }

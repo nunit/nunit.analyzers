@@ -57,10 +57,10 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         }
 
         [Test]
-        public void VerifyNonDelegateFixWithMessageAndParams()
+        public void VerifyNonDelegateFixWithFormattableMessage()
         {
             var code = TestUtility.WrapInTestMethod(@"
-                Assert.That(↓MyOperation() + MyOtherOperation(), Throws.InstanceOf<InvalidOperationException>(), ""message-id: {{0}}"", Guid.NewGuid());
+                Assert.That(↓MyOperation() + MyOtherOperation(), Throws.InstanceOf<InvalidOperationException>(), $""message-id: {Guid.NewGuid()}"");
 
                 int MyOperation() => throw new InvalidOperationException();
                 int MyOtherOperation() => throw new InvalidOperationException();

@@ -103,7 +103,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 this.UpdateArguments(diagnostic, arguments, typeArguments);
 
             // Do the format spec, params to formattable string conversion
-            CodeFixHelper.UpdateStringFormatToFormattableString(arguments, MinimumNumberOfParameters);
+            CodeFixHelper.UpdateStringFormatToFormattableString(arguments, this.MinimumNumberOfParameters);
 
             var newArgumentsList = invocationNode.ArgumentList.WithArguments(arguments);
             newInvocationNode = newInvocationNode.WithArgumentList(newArgumentsList);
