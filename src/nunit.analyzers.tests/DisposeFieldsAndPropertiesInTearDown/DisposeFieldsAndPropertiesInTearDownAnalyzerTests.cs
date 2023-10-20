@@ -830,5 +830,55 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+        [TestCase("")]
+        [TestCase("static")]
+        public void StaticFieldsNeedDisposingInOneTimeTearDown(string modifier)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+        public {modifier} class StaticFields
+        {{
+            private static readonly IDisposable? ↓field = new DummyDisposable();
+
+            [Test]
+            public {modifier} void TestMethod()
+            {{
+                Assert.That(field, Is.Not.Null);
+            }}
+
+            {DummyDisposable}
+        }}
+        ");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [TestCase("")]
+        [TestCase("static")]
+        public void StaticFieldsAreDisposed(string modifier)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+        public {modifier} class StaticFields
+        {{
+            private static readonly IDisposable? field = new DummyDisposable();
+
+            [OneTimeTearDown]
+            public {modifier} void OneTimeTearDown()
+            {{
+                field?.Dispose();
+            }}
+
+            [Test]
+            public {modifier} void TestMethod()
+            {{
+                Assert.That(field, Is.Not.Null);
+            }}
+
+            {DummyDisposable}
+        }}
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
     }
 }
