@@ -82,7 +82,13 @@ namespace NUnit.Analyzers.UseAssertMultiple
                 var previousArguments = new HashSet<string>(StringComparer.Ordinal);
 
                 // No need to check argument count as Assert.That needs at least one argument.
-                var assertArgument = assertOperation.Arguments[0].Syntax.ToString();
+                IArgumentOperation assertArgumentOperation = assertOperation.Arguments[0];
+                if (assertArgumentOperation.Value is IDelegateCreationOperation)
+                {
+                    return;
+                }
+
+                var assertArgument = assertArgumentOperation.Syntax.ToString();
 
                 IOperation? statementBefore = null;
                 int firstAssert = -1;
@@ -139,7 +145,16 @@ namespace NUnit.Analyzers.UseAssertMultiple
             if (currentAssertOperation is not null)
             {
                 // No need to check argument count as Assert.That needs at least one argument.
-                string currentArgument = currentAssertOperation.Arguments[0].Syntax.ToString();
+                IArgumentOperation argumentOperation = currentAssertOperation.Arguments[0];
+                if (argumentOperation.Value is IDelegateCreationOperation)
+                {
+                    // Assert.That(() => { SomeCode }, Throws.Nothing);
+                    // TODO: Should we delve into the lambda?
+                    // For now state that it isn't mergeable inside an Assert.Multiple.
+                    return false;
+                }
+
+                string currentArgument = argumentOperation.Syntax.ToString();
 
                 // Check if test is independent
                 return IsIndependent(previousArguments, currentArgument);

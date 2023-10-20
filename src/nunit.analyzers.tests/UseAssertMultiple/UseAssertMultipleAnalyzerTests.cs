@@ -99,5 +99,39 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
         }");
             RoslynAssert.Valid(this.analyzer, testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenUsingAnonymousLambda()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void Test()
+        {
+            object? actualDeserialized = null;
+
+            Assert.That(() => actualDeserialized = Calculate(), Throws.Nothing);
+            Assert.That(actualDeserialized, Is.Not.Null);
+
+            static object? Calculate() => new object();
+        }");
+
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenUsingTestDelegate()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void Test()
+        {
+            object? actualDeserialized = null;
+
+            Assert.That(Calculate, Throws.Nothing);
+            Assert.That(actualDeserialized, Is.Not.Null);
+
+            void Calculate() => actualDeserialized = new object();
+        }");
+
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
     }
 }
