@@ -325,5 +325,119 @@ namespace NUnit.Analyzers.Tests.WithinUsage
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+        [TestCase("class")]
+        [TestCase("struct")]
+        public void AnalyzeWhenAppliedToUserDefinedType(string kind)
+        {
+            string testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@$"
+    [TestFixture]
+    public sealed class TestClass
+    {{
+        [Test]
+        public void TestMethod()
+        {{
+            var instance = new UserDefinedType(1, 1.1, ""1.1"");
+
+            Assert.That(new UserDefinedType(1, 1.2, ""1.1""), Is.EqualTo(instance).Within(0.1));
+        }}
+
+        private {kind} UserDefinedType
+        {{
+            public UserDefinedType(int valueA, double valueB, string valueC)
+            {{
+                ValueA = valueA;
+                ValueB = valueB;
+                ValueC = valueC;
+            }}
+
+            public int ValueA {{ get; }}
+            public double ValueB {{ get; }}
+            public string ValueC {{ get; }}
+        }}
+    }}");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("class")]
+        [TestCase("struct")]
+        public void AnalyzeWhenAppliedToUserDefinedTypeOverridingEquals(string kind)
+        {
+            string testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@$"
+    [TestFixture]
+    public sealed class TestClass
+    {{
+        [Test]
+        public void TestMethod()
+        {{
+            var instance = new UserDefinedType(1, 1.1, ""1.1"");
+
+            Assert.That(new UserDefinedType(1, 1.2, ""1.1""), Is.EqualTo(instance).Within(0.1));
+        }}
+
+        private {kind} UserDefinedType
+        {{
+            public UserDefinedType(int valueA, double valueB, string valueC)
+            {{
+                ValueA = valueA;
+                ValueB = valueB;
+                ValueC = valueC;
+            }}
+
+            public int ValueA {{ get; }}
+            public double ValueB {{ get; }}
+            public string ValueC {{ get; }}
+
+            public override bool Equals(object? obj)
+            {{
+                return obj is UserDefinedType other &&
+                    other.ValueA == ValueA &&
+                    other.ValueB == ValueB &&
+                    other.ValueC == ValueC;
+            }}
+
+            public override int GetHashCode()
+            {{
+                return ValueA.GetHashCode() ^ ValueB.GetHashCode() ^ ValueC.GetHashCode();
+            }}
+        }}
+    }}");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenAppliedToRecord()
+        {
+            string testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public sealed class TestClass
+    {
+        [Test]
+        public void TestMethod()
+        {
+            var instance = new SomeRecord(1, 1.1, ""1.1"");
+
+            Assert.That(new SomeRecord(1, 1.2, ""1.1""), Is.EqualTo(instance).Within(0.1));
+        }
+
+        private sealed record SomeRecord
+        {
+            public SomeRecord(int valueA, double valueB, string valueC)
+            {
+                ValueA = valueA;
+                ValueB = valueB;
+                ValueC = valueC;
+            }
+
+            public int ValueA { get; }
+            public double ValueB { get; }
+            public string ValueC { get; }
+        }
+    }");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
     }
 }
