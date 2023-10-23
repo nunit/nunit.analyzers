@@ -44,7 +44,7 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
         {
             if (nunitVersion.Major >= 4)
             {
-                // Too late, this won't work as the method with the `params` doesn't exit
+                // Too late, this won't work as the method with the `params` parameter doesn't exists
                 // and won't be resolved by the compiler.
                 return;
             }

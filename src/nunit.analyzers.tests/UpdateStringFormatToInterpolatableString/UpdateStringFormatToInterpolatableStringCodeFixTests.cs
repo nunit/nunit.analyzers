@@ -64,6 +64,24 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
+
+        // We need to double the backslashes as the text is formatted and we want the code to contain \n and not LF
+        [TestCase("Passed: {0}")]
+        [TestCase("Passed: {0} {{")]
+        [TestCase("Passed: {{{0}}}")]
+        [TestCase("{{{0}}}")]
+        [TestCase("Passed: \\\"{0}\\\"")]
+        [TestCase("Passed:\\n{0}")]
+        [TestCase("Passed:\\t\\\"{0}\\\"")]
+        public void TestConvertWithEmbeddedSpecialCharacters(string text)
+        {
+            var code = TestUtility.WrapInTestMethod($"↓Assert.Pass(\"{text}\", 42);");
+
+            string interpolatableText = text.Replace("{0}", "{42}");
+            var fixedCode = TestUtility.WrapInTestMethod($"Assert.Pass($\"{interpolatableText}\");");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
     }
 }
 #endif

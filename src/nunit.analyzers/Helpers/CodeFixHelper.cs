@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -74,7 +72,7 @@ namespace NUnit.Analyzers.Helpers
                 SyntaxFactory.Token(SyntaxKind.InterpolatedStringStartToken),
                 SyntaxFactory.List(interpolatedStringContent));
 
-            // Replace format specificatio argument with interpolated string.
+            // Replace format specification argument with interpolated string.
             arguments[minimumNumberOfArguments] = SyntaxFactory.Argument(interpolatedString);
 
             // Delete params arguments.
@@ -85,7 +83,7 @@ namespace NUnit.Analyzers.Helpers
         internal static IEnumerable<InterpolatedStringContentSyntax> UpdateStringFormatToFormattableString(string formatSpecification, ExpressionSyntax[] formatArguments)
         {
             int startIndex = 0;
-            for (; ;)
+            for (; startIndex < formatSpecification.Length;)
             {
                 int argumentSpecification = formatSpecification.IndexOf('{', startIndex);
                 if (argumentSpecification < 0)
@@ -94,6 +92,15 @@ namespace NUnit.Analyzers.Helpers
                     string text = formatSpecification.Substring(startIndex, formatSpecification.Length - startIndex);
                     yield return SyntaxFactory.InterpolatedStringText(InterpolatedStringTextToken(text));
                     break;
+                }
+                else if (argumentSpecification + 1 < formatSpecification.Length &&
+                         formatSpecification[argumentSpecification + 1] == '{')
+                {
+                    // Special case, double '{' is an escaped '{' and should be treated as text.
+                    argumentSpecification += 2;
+                    string text = formatSpecification.Substring(startIndex, argumentSpecification - startIndex);
+                    yield return SyntaxFactory.InterpolatedStringText(InterpolatedStringTextToken(text));
+                    startIndex = argumentSpecification;
                 }
                 else
                 {
@@ -165,7 +172,14 @@ namespace NUnit.Analyzers.Helpers
 
         private static SyntaxToken InterpolatedStringTextToken(string text)
         {
-            return SyntaxFactory.Token(SyntaxTriviaList.Empty, SyntaxKind.InterpolatedStringTextToken, text, text, SyntaxTriviaList.Empty);
+            // FormatLiteral doesn't escape double quotes when passing in quote: false
+            // It does when passing in quote: true but then it also surrounds it with double quotes.
+            // So we do that replacement ourselves.
+            string escapedText = SymbolDisplay.FormatLiteral(text, false)
+                                              .Replace("\"", "\\\"");
+
+            return SyntaxFactory.Token(SyntaxTriviaList.Empty, SyntaxKind.InterpolatedStringTextToken,
+                                       escapedText, text, SyntaxTriviaList.Empty);
         }
     }
 }
