@@ -56,6 +56,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfDoesContain), nameof(Does.Contain)),
             (nameof(NUnitFrameworkConstants.NameOfDoesStartWith), nameof(Does.StartWith)),
             (nameof(NUnitFrameworkConstants.NameOfDoesEndWith), nameof(Does.EndWith)),
+            (nameof(NUnitFrameworkConstants.NameOfDoesMatch), nameof(Does.Match)),
 
             (nameof(NUnitFrameworkConstants.NameOfHas), nameof(Has)),
             (nameof(NUnitFrameworkConstants.NameOfHasProperty), nameof(Has.Property)),
@@ -113,16 +114,16 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfAssertThrowsAsync), nameof(Assert.ThrowsAsync)),
 
             (nameof(NUnitFrameworkConstants.NameOfStringAssert), nameof(StringAssert)),
-            (nameof(NUnitFrameworkConstants.NameOfStringAssertAreEqualIgnoringCase), nameof(StringAssert.AreEqualIgnoringCase)),
-            (nameof(NUnitFrameworkConstants.NameOfStringAssertAreNotEqualIgnoringCase), nameof(StringAssert.AreNotEqualIgnoringCase)),
             (nameof(NUnitFrameworkConstants.NameOfStringAssertContains), nameof(StringAssert.Contains)),
             (nameof(NUnitFrameworkConstants.NameOfStringAssertDoesNotContain), nameof(StringAssert.DoesNotContain)),
-            (nameof(NUnitFrameworkConstants.NameOfStringAssertDoesNotEndWith), nameof(StringAssert.DoesNotEndWith)),
-            (nameof(NUnitFrameworkConstants.NameOfStringAssertDoesNotMatch), nameof(StringAssert.DoesNotMatch)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertStartsWith), nameof(StringAssert.StartsWith)),
             (nameof(NUnitFrameworkConstants.NameOfStringAssertDoesNotStartWith), nameof(StringAssert.DoesNotStartWith)),
             (nameof(NUnitFrameworkConstants.NameOfStringAssertEndsWith), nameof(StringAssert.EndsWith)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertDoesNotEndWith), nameof(StringAssert.DoesNotEndWith)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertAreEqualIgnoringCase), nameof(StringAssert.AreEqualIgnoringCase)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertAreNotEqualIgnoringCase), nameof(StringAssert.AreNotEqualIgnoringCase)),
             (nameof(NUnitFrameworkConstants.NameOfStringAssertIsMatch), nameof(StringAssert.IsMatch)),
-            (nameof(NUnitFrameworkConstants.NameOfStringAssertStartsWith), nameof(StringAssert.StartsWith)),
+            (nameof(NUnitFrameworkConstants.NameOfStringAssertDoesNotMatch), nameof(StringAssert.DoesNotMatch)),
 
             (nameof(NUnitFrameworkConstants.NameOfConstraint), nameof(Constraint)),
 

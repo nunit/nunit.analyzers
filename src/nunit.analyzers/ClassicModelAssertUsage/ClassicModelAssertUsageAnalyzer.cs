@@ -252,14 +252,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
         {
             return new Dictionary<string, string?>
             {
-                { AnalyzerPropertyKeys.ModelName, invocationSymbol.Name },
-                {
-                    AnalyzerPropertyKeys.HasToleranceValue,
+                [AnalyzerPropertyKeys.ModelName] = invocationSymbol.Name,
+                [AnalyzerPropertyKeys.HasToleranceValue] =
                     (invocationSymbol.Name == NameOfAssertAreEqual &&
                         invocationSymbol.Parameters.Length >= 3 &&
-                        invocationSymbol.Parameters[2].Type.SpecialType == SpecialType.System_Double).ToString()
-                },
-                { AnalyzerPropertyKeys.IsGenericMethod, invocationSymbol.IsGenericMethod.ToString() },
+                        invocationSymbol.Parameters[2].Type.SpecialType == SpecialType.System_Double).ToString(),
             }.ToImmutableDictionary();
         }
     }

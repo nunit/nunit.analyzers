@@ -45,29 +45,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             if (invocationNode is null)
                 return;
 
-            var invocationIdentifier = diagnostic.Properties[AnalyzerPropertyKeys.ModelName];
-            var isGenericMethod = diagnostic.Properties[AnalyzerPropertyKeys.IsGenericMethod] == true.ToString();
-
             var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
-
-            string? GetUserDefinedImplicitTypeConversion(ExpressionSyntax expression)
-            {
-                var typeInfo = semanticModel.GetTypeInfo(expression, context.CancellationToken);
-                var convertedType = typeInfo.ConvertedType;
-                if (convertedType is null)
-                {
-                    return null;
-                }
-
-                var conversion = semanticModel.ClassifyConversion(expression, convertedType);
-
-                if (!conversion.IsUserDefined)
-                {
-                    return null;
-                }
-
-                return convertedType.ToString();
-            }
 
             // Replace the original ClassicAssert.<Method> invocation name into Assert.That
             var newInvocationNode = invocationNode.UpdateClassicAssertToAssertThat(out TypeArgumentListSyntax? typeArguments);
@@ -77,19 +55,6 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
             // Now, replace the arguments.
             List<ArgumentSyntax> arguments = invocationNode.ArgumentList.Arguments.ToList();
-
-            ArgumentSyntax CastIfNecessary(ArgumentSyntax argument)
-            {
-                string? implicitTypeConversion = GetUserDefinedImplicitTypeConversion(argument.Expression);
-                if (implicitTypeConversion is null)
-                    return argument;
-
-                // Assert.That only expects objects whilst the classic methods have overloads
-                // Add an explicit cast operation for the first argument.
-                return SyntaxFactory.Argument(SyntaxFactory.CastExpression(
-                    SyntaxFactory.ParseTypeName(implicitTypeConversion),
-                    argument.Expression));
-            }
 
             // See if we need to cast the arguments when they were using a specific classic overload.
             arguments[0] = CastIfNecessary(arguments[0]);
@@ -117,6 +82,38 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                     this.Title,
                     _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
                     this.Title), diagnostic);
+
+            ArgumentSyntax CastIfNecessary(ArgumentSyntax argument)
+            {
+                string? implicitTypeConversion = GetUserDefinedImplicitTypeConversion(argument.Expression);
+                if (implicitTypeConversion is null)
+                    return argument;
+
+                // Assert.That only expects objects whilst the classic methods have overloads
+                // Add an explicit cast operation for the first argument.
+                return SyntaxFactory.Argument(SyntaxFactory.CastExpression(
+                    SyntaxFactory.ParseTypeName(implicitTypeConversion),
+                    argument.Expression));
+            }
+
+            string? GetUserDefinedImplicitTypeConversion(ExpressionSyntax expression)
+            {
+                var typeInfo = semanticModel.GetTypeInfo(expression, context.CancellationToken);
+                var convertedType = typeInfo.ConvertedType;
+                if (convertedType is null)
+                {
+                    return null;
+                }
+
+                var conversion = semanticModel.ClassifyConversion(expression, convertedType);
+
+                if (!conversion.IsUserDefined)
+                {
+                    return null;
+                }
+
+                return convertedType.ToString();
+            }
         }
 
         protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments, TypeArgumentListSyntax typeArguments)
