@@ -25,7 +25,6 @@ namespace NUnit.Analyzers.Tests.Constants
     {
         private static readonly (string Constant, string TypeName)[] NameOfSource = new (string Constant, string TypeName)[]
         {
-            (nameof(NUnitFrameworkConstants.NameOfEqualConstraintWithin), nameof(EqualConstraint.Within)),
             (nameof(NUnitFrameworkConstants.NameOfIs), nameof(Is)),
             (nameof(NUnitFrameworkConstants.NameOfIsFalse), nameof(Is.False)),
             (nameof(NUnitFrameworkConstants.NameOfIsTrue), nameof(Is.True)),
@@ -34,10 +33,9 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfIsSubsetOf), nameof(Is.SubsetOf)),
             (nameof(NUnitFrameworkConstants.NameOfIsSupersetOf), nameof(Is.SupersetOf)),
             (nameof(NUnitFrameworkConstants.NameOfIsNot), nameof(Is.Not)),
-            (nameof(NUnitFrameworkConstants.NameOfIsNotEqualTo), nameof(Is.Not.EqualTo)),
             (nameof(NUnitFrameworkConstants.NameOfIsSameAs), nameof(Is.SameAs)),
             (nameof(NUnitFrameworkConstants.NameOfIsSamePath), nameof(Is.SamePath)),
-            (nameof(NUnitFrameworkConstants.NameOfNull), nameof(Is.Null)),
+            (nameof(NUnitFrameworkConstants.NameOfIsNull), nameof(Is.Null)),
             (nameof(NUnitFrameworkConstants.NameOfIsGreaterThan), nameof(Is.GreaterThan)),
             (nameof(NUnitFrameworkConstants.NameOfIsGreaterThanOrEqualTo), nameof(Is.GreaterThanOrEqualTo)),
             (nameof(NUnitFrameworkConstants.NameOfIsLessThan), nameof(Is.LessThan)),
@@ -145,8 +143,9 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfConstraintExpressionOr), nameof(EqualConstraint.Or)),
             (nameof(NUnitFrameworkConstants.NameOfConstraintExpressionWith), nameof(ConstraintExpression.With)),
 
-            (nameof(NUnitFrameworkConstants.NameOfIgnoreCase), nameof(EqualConstraint.IgnoreCase)),
-            (nameof(NUnitFrameworkConstants.NameOfUsing), nameof(EqualConstraint.Using)),
+            (nameof(NUnitFrameworkConstants.NameOfEqualConstraintIgnoreCase), nameof(EqualConstraint.IgnoreCase)),
+            (nameof(NUnitFrameworkConstants.NameOfEqualConstraintUsing), nameof(EqualConstraint.Using)),
+            (nameof(NUnitFrameworkConstants.NameOfEqualConstraintWithin), nameof(EqualConstraint.Within)),
             (nameof(NUnitFrameworkConstants.NameOfClassicAssert), "ClassicAssert"),
         };
 

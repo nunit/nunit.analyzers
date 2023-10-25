@@ -173,7 +173,7 @@ namespace NUnit.Analyzers.ComparableTypes
 
         private static bool HasCustomComparer(ConstraintExpressionPart constraintPartExpression)
         {
-            return constraintPartExpression.GetSuffixesNames().Any(s => s == NUnitFrameworkConstants.NameOfUsing);
+            return constraintPartExpression.GetSuffixesNames().Any(s => s == NUnitFrameworkConstants.NameOfEqualConstraintUsing);
         }
     }
 }

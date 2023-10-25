@@ -55,7 +55,7 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
                     if (elementType is null)
                         continue;
 
-                    IInvocationOperation? usingInvocation = constraintPart.GetSuffix(NUnitFrameworkConstants.NameOfUsing) as IInvocationOperation;
+                    IInvocationOperation? usingInvocation = constraintPart.GetSuffix(NUnitFrameworkConstants.NameOfEqualConstraintUsing) as IInvocationOperation;
                     if (usingInvocation is not null)
                     {
                         IMethodSymbol target = usingInvocation.TargetMethod;

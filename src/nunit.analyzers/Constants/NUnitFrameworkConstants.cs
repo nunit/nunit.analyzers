@@ -6,8 +6,6 @@ namespace NUnit.Analyzers.Constants
     /// </summary>
     public static class NUnitFrameworkConstants
     {
-        public const string NameOfEqualConstraintWithin = "Within";
-
         public const string NameOfIs = "Is";
         public const string NameOfIsFalse = "False";
         public const string NameOfIsTrue = "True";
@@ -16,10 +14,9 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfIsSubsetOf = "SubsetOf";
         public const string NameOfIsSupersetOf = "SupersetOf";
         public const string NameOfIsNot = "Not";
-        public const string NameOfIsNotEqualTo = "EqualTo";
         public const string NameOfIsSameAs = "SameAs";
         public const string NameOfIsSamePath = "SamePath";
-        public const string NameOfNull = "Null";
+        public const string NameOfIsNull = "Null";
         public const string NameOfIsGreaterThan = "GreaterThan";
         public const string NameOfIsGreaterThanOrEqualTo = "GreaterThanOrEqualTo";
         public const string NameOfIsLessThan = "LessThan";
@@ -171,8 +168,9 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfConstraintExpressionOr = "Or";
         public const string NameOfConstraintExpressionWith = "With";
 
-        public const string NameOfIgnoreCase = "IgnoreCase";
-        public const string NameOfUsing = "Using";
+        public const string NameOfEqualConstraintIgnoreCase = "IgnoreCase";
+        public const string NameOfEqualConstraintUsing = "Using";
+        public const string NameOfEqualConstraintWithin = "Within";
 
         public const string NUnitFrameworkAssemblyName = "nunit.framework";
 

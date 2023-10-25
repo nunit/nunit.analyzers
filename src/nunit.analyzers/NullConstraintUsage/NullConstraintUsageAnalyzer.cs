@@ -33,7 +33,7 @@ namespace NUnit.Analyzers.NullConstraintUsage
                 if (!constraintPart.HasIncompatiblePrefixes()
                     && constraintPart.Root is not null
                     && constraintPart.HelperClass?.Name == NUnitFrameworkConstants.NameOfIs
-                    && constraintPart.GetConstraintName() == NUnitFrameworkConstants.NameOfNull)
+                    && constraintPart.GetConstraintName() == NUnitFrameworkConstants.NameOfIsNull)
                 {
                     var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
