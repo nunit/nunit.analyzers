@@ -107,6 +107,7 @@ Rules which improve assertions in the test code.
 | [NUnit2046](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2046.md) | Use CollectionConstraint for better assertion messages in case of failure | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2047](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2047.md) | Incompatible types for Within constraint | :white_check_mark: | :warning: | :white_check_mark: |
 | [NUnit2048](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2048.md) | Consider using Assert.That(...) instead of StringAssert(...) | :white_check_mark: | :warning: | :white_check_mark: |
+| [NUnit2049](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2049.md) | Consider using Assert.That(...) instead of CollectionAssert(...) | :white_check_mark: | :warning: | :white_check_mark: |
 
 ### Suppressor Rules (NUnit3001 - )
 

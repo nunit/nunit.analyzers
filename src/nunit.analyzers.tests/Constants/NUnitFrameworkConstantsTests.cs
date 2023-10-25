@@ -45,6 +45,9 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfIsNaN), nameof(Is.NaN)),
             (nameof(NUnitFrameworkConstants.NameOfIsEmpty), nameof(Is.Empty)),
             (nameof(NUnitFrameworkConstants.NameOfIsInstanceOf), nameof(Is.InstanceOf)),
+            (nameof(NUnitFrameworkConstants.NameOfIsAll), nameof(Is.All)),
+            (nameof(NUnitFrameworkConstants.NameOfIsUnique), nameof(Is.Unique)),
+            (nameof(NUnitFrameworkConstants.NameOfIsOrdered), nameof(Is.Ordered)),
 
             (nameof(NUnitFrameworkConstants.NameOfContains), nameof(Contains)),
             (nameof(NUnitFrameworkConstants.NameOfContainsItem), nameof(Contains.Item)),
@@ -63,6 +66,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfHasMessage), nameof(Has.Message)),
             (nameof(NUnitFrameworkConstants.NameOfHasInnerException), nameof(Has.InnerException)),
             (nameof(NUnitFrameworkConstants.NameOfHasNo), nameof(Has.No)),
+            (nameof(NUnitFrameworkConstants.NameOfHasMember), nameof(Has.Member)),
 
             (nameof(NUnitFrameworkConstants.NameOfMultiple), nameof(Assert.Multiple)),
 
@@ -123,6 +127,24 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfStringAssertIsMatch), nameof(StringAssert.IsMatch)),
             (nameof(NUnitFrameworkConstants.NameOfStringAssertDoesNotMatch), nameof(StringAssert.DoesNotMatch)),
 
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssert), nameof(CollectionAssert)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertAllItemsAreInstancesOfType), nameof(CollectionAssert.AllItemsAreInstancesOfType)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertAllItemsAreNotNull), nameof(CollectionAssert.AllItemsAreNotNull)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertAllItemsAreUnique), nameof(CollectionAssert.AllItemsAreUnique)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertAreEqual), nameof(CollectionAssert.AreEqual)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertAreEquivalent), nameof(CollectionAssert.AreEquivalent)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertAreNotEqual), nameof(CollectionAssert.AreNotEqual)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertAreNotEquivalent), nameof(CollectionAssert.AreNotEquivalent)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertContains), nameof(CollectionAssert.Contains)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertDoesNotContain), nameof(CollectionAssert.DoesNotContain)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertIsNotSubsetOf), nameof(CollectionAssert.IsNotSubsetOf)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertIsSubsetOf), nameof(CollectionAssert.IsSubsetOf)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertIsNotSupersetOf), nameof(CollectionAssert.IsNotSupersetOf)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertIsSupersetOf), nameof(CollectionAssert.IsSupersetOf)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertIsEmpty), nameof(CollectionAssert.IsEmpty)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertIsNotEmpty), nameof(CollectionAssert.IsNotEmpty)),
+            (nameof(NUnitFrameworkConstants.NameOfCollectionAssertIsOrdered), nameof(CollectionAssert.IsOrdered)),
+
             (nameof(NUnitFrameworkConstants.NameOfConstraint), nameof(Constraint)),
 
             (nameof(NUnitFrameworkConstants.NameOfTestCaseAttribute), nameof(TestCaseAttribute)),
@@ -146,6 +168,8 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfEqualConstraintIgnoreCase), nameof(EqualConstraint.IgnoreCase)),
             (nameof(NUnitFrameworkConstants.NameOfEqualConstraintUsing), nameof(EqualConstraint.Using)),
             (nameof(NUnitFrameworkConstants.NameOfEqualConstraintWithin), nameof(EqualConstraint.Within)),
+            (nameof(NUnitFrameworkConstants.NameOfEqualConstraintAsCollection), nameof(EqualConstraint.AsCollection)),
+
             (nameof(NUnitFrameworkConstants.NameOfClassicAssert), "ClassicAssert"),
         };
 

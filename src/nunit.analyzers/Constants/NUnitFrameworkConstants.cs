@@ -26,6 +26,9 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfIsNaN = "NaN";
         public const string NameOfIsEmpty = "Empty";
         public const string NameOfIsInstanceOf = "InstanceOf";
+        public const string NameOfIsAll = "All";
+        public const string NameOfIsUnique = "Unique";
+        public const string NameOfIsOrdered = "Ordered";
 
         public const string NameOfContains = "Contains";
         public const string NameOfContainsItem = "Item";
@@ -44,6 +47,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfHasMessage = "Message";
         public const string NameOfHasInnerException = "InnerException";
         public const string NameOfHasNo = "No";
+        public const string NameOfHasMember = "Member";
 
         public const string NameOfMultiple = "Multiple";
 
@@ -103,6 +107,24 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfStringAssertAreNotEqualIgnoringCase = "AreNotEqualIgnoringCase";
         public const string NameOfStringAssertIsMatch = "IsMatch";
         public const string NameOfStringAssertDoesNotMatch = "DoesNotMatch";
+
+        public const string NameOfCollectionAssert = "CollectionAssert";
+        public const string NameOfCollectionAssertAllItemsAreInstancesOfType = "AllItemsAreInstancesOfType";
+        public const string NameOfCollectionAssertAllItemsAreNotNull = "AllItemsAreNotNull";
+        public const string NameOfCollectionAssertAllItemsAreUnique = "AllItemsAreUnique";
+        public const string NameOfCollectionAssertAreEqual = "AreEqual";
+        public const string NameOfCollectionAssertAreEquivalent = "AreEquivalent";
+        public const string NameOfCollectionAssertAreNotEqual = "AreNotEqual";
+        public const string NameOfCollectionAssertAreNotEquivalent = "AreNotEquivalent";
+        public const string NameOfCollectionAssertContains = "Contains";
+        public const string NameOfCollectionAssertDoesNotContain = "DoesNotContain";
+        public const string NameOfCollectionAssertIsNotSubsetOf = "IsNotSubsetOf";
+        public const string NameOfCollectionAssertIsSubsetOf = "IsSubsetOf";
+        public const string NameOfCollectionAssertIsNotSupersetOf = "IsNotSupersetOf";
+        public const string NameOfCollectionAssertIsSupersetOf = "IsSupersetOf";
+        public const string NameOfCollectionAssertIsEmpty = "IsEmpty";
+        public const string NameOfCollectionAssertIsNotEmpty = "IsNotEmpty";
+        public const string NameOfCollectionAssertIsOrdered = "IsOrdered";
 
         public const string FullNameOfTypeIs = "NUnit.Framework.Is";
         public const string FullNameOfTypeTestCaseAttribute = "NUnit.Framework.TestCaseAttribute";
@@ -171,6 +193,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfEqualConstraintIgnoreCase = "IgnoreCase";
         public const string NameOfEqualConstraintUsing = "Using";
         public const string NameOfEqualConstraintWithin = "Within";
+        public const string NameOfEqualConstraintAsCollection = "AsCollection";
 
         public const string NUnitFrameworkAssemblyName = "nunit.framework";
 

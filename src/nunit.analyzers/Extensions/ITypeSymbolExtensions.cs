@@ -40,6 +40,13 @@ namespace NUnit.Analyzers.Extensions
                    @this.Name is NUnitFrameworkConstants.NameOfStringAssert;
         }
 
+        internal static bool IsCollectionAssert(this ITypeSymbol? @this)
+        {
+            return @this is not null &&
+                   @this.ContainingAssembly.Name is NUnitFrameworkConstants.NUnitFrameworkLegacyAssemblyName or NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
+                   @this.Name is NUnitFrameworkConstants.NameOfCollectionAssert;
+        }
+
         internal static bool IsConstraint(this ITypeSymbol? @this)
         {
             return @this is not null && @this.GetAllBaseTypes()
