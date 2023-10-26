@@ -1,13 +1,13 @@
-# NUnit1033
+# NUnit2050
 
 ## NUnit 4 no longer supports string.Format specification
 
 | Topic    | Value
 | :--      | :--
-| Id       | NUnit1033
+| Id       | NUnit2050
 | Severity | Error
 | Enabled  | True
-| Category | Structure
+| Category | Assertion
 | Code     | [UpdateStringFormatToInterpolatableStringAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/UpdateStringFormatToInterpolatableString/UpdateStringFormatToInterpolatableStringAnalyzer.cs)
 
 ## Description
@@ -77,8 +77,8 @@ Configure the severity per project, for more info see [MSDN](https://learn.micro
 ### Via .editorconfig file
 
 ```ini
-# NUnit1033: NUnit 4 no longer supports string.Format specification
-dotnet_diagnostic.NUnit1033.severity = chosenSeverity
+# NUnit2050: NUnit 4 no longer supports string.Format specification
+dotnet_diagnostic.NUnit2050.severity = chosenSeverity
 ```
 
 where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, or `error`.
@@ -86,22 +86,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit1033 // NUnit 4 no longer supports string.Format specification
+#pragma warning disable NUnit2050 // NUnit 4 no longer supports string.Format specification
 Code violating the rule here
-#pragma warning restore NUnit1033 // NUnit 4 no longer supports string.Format specification
+#pragma warning restore NUnit2050 // NUnit 4 no longer supports string.Format specification
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit1033 // NUnit 4 no longer supports string.Format specification
+#pragma warning disable NUnit2050 // NUnit 4 no longer supports string.Format specification
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Structure",
-    "NUnit1033:NUnit 4 no longer supports string.Format specification",
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
+    "NUnit2050:NUnit 4 no longer supports string.Format specification",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

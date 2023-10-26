@@ -3,7 +3,6 @@
     <RootNamespace>NUnit.Analyzers.Tests</RootNamespace>
     <TargetFrameworks>net6.0;net462</TargetFrameworks>
     <NUnitVersion Condition="'$(NUnitVersion)'==''">3</NUnitVersion>
-    <NoWarn>$(NoWarn);NUnit1033</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(NUnitVersion)' == '4'">

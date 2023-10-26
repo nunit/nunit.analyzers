@@ -28,7 +28,7 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
             id: AnalyzerIdentifiers.UpdateStringFormatToInterpolatableString,
             title: UpdateStringFormatToInterpolatableStringConstants.UpdateStringFormatToInterpolatableStringTitle,
             messageFormat: UpdateStringFormatToInterpolatableStringConstants.UpdateStringFormatToInterpolatableStringMessage,
-            category: Categories.Structure,
+            category: Categories.Assertion,
             defaultSeverity: DiagnosticSeverity.Error,
             description: UpdateStringFormatToInterpolatableStringConstants.UpdateStringFormatToInterpolatableStringDescription);
 
