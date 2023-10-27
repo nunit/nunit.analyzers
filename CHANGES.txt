@@ -1,4 +1,25 @@
-﻿NUnit Analyzers 3.8 (and 2.8) - September 25, 2023
+﻿NUnit Analyzers 3.9 (and 2.9) - October 27, 2023
+
+This release contains bugfixes to NUnit2045 - Use Assert.Multiple - and NUnit1032 - 
+An IDisposable field/property should be Disposed in a TearDown method - and corrects
+a StackOverflowException when tests calls methods recursively.
+
+The release contains contributions from the following users (in alphabetical order):
+* andrewimcclement
+* manfred-brands
+* mikkelbu
+* NottsColin
+* RenderMichael
+
+Issues Resolved
+
+Bugs
+#614 NUnit2045 does not respect lambda captures
+#607 NUnit1032 false positive when test class is static
+#602 Bug: StackOverflowException when test calls recursive method in 3.7.
+
+
+NUnit Analyzers 3.8 (and 2.8) - September 25, 2023
 
 This release contains a fix to the WithinUsageAnalyzer and handling of false duplicates when
 combining NUnit1032 - An IDisposable field/property should be Disposed in a TearDown method -
