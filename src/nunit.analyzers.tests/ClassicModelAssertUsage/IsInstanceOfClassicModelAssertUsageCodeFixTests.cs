@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;

@@ -1,8 +1,4 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.DiagnosticSuppressors;
 using NUnit.Framework;

@@ -1,8 +1,4 @@
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;

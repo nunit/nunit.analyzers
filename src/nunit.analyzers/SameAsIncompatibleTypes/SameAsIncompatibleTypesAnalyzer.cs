@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -8,7 +7,6 @@ using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
-using NUnit.Analyzers.Operations;
 
 namespace NUnit.Analyzers.SameAsIncompatibleTypes
 {

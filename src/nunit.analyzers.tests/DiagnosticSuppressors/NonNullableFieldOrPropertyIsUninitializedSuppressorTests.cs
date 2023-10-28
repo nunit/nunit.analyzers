@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.DiagnosticSuppressors;

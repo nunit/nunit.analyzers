@@ -136,6 +136,9 @@ dotnet_naming_rule.parameters_and_locals.style = camel_case
 ##################################################################################
 # IDE Code Style Analyzers
 
+# IDE0005: Using directive is unnecessary
+dotnet_diagnostic.IDE0005.severity = warning
+
 # IDE0041: Use 'is null' check
 dotnet_diagnostic.IDE0041.severity = warning
 
