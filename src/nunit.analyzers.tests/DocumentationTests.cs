@@ -18,7 +18,7 @@ namespace NUnit.Analyzers.Tests
 {
     public class DocumentationTests
     {
-        // Overload of Append(InterpolatedStringHanlder) with IFormatProvider not available in .NET 462
+        // Overload of Append(AppendInterpolatedStringHandler) with IFormatProvider not available in .NET 462
 #pragma warning disable CA1305 // Specify IFormatProvider
 
         private static readonly IReadOnlyList<DiagnosticAnalyzer> analyzers =
