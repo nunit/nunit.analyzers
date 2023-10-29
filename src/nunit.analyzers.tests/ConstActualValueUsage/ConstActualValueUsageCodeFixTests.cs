@@ -6,6 +6,12 @@ using NUnit.Analyzers.Constants;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
+#if NUNIT4
+using NUnit.Framework.Legacy;
+#else
+using ClassicAssert = NUnit.Framework.Assert;
+#endif
+
 namespace NUnit.Analyzers.Tests.ConstActualValueUsage
 {
     public class ConstActualValueUsageCodeFixTests
@@ -15,24 +21,24 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.ConstActualValueUsage);
 
-        [TestCase(nameof(Assert.AreEqual))]
-        [TestCase(nameof(Assert.AreNotEqual))]
-        [TestCase(nameof(Assert.AreSame))]
-        [TestCase(nameof(Assert.AreNotSame))]
+        [TestCase(nameof(ClassicAssert.AreEqual))]
+        [TestCase(nameof(ClassicAssert.AreNotEqual))]
+        [TestCase(nameof(ClassicAssert.AreSame))]
+        [TestCase(nameof(ClassicAssert.AreNotSame))]
         public void LiteralArgumentIsProvidedForClassicAssertCodeFix(string classicAssertMethod)
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
                 public void Test()
                 {{
                     int expected = 5;
-                    Assert.{classicAssertMethod}(expected, ↓1);
+                    ClassicAssert.{classicAssertMethod}(expected, ↓1);
                 }}");
 
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
                 public void Test()
                 {{
                     int expected = 5;
-                    Assert.{classicAssertMethod}(1, expected);
+                    ClassicAssert.{classicAssertMethod}(1, expected);
                 }}");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
@@ -46,14 +52,14 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     int expected = 5;
-                    Assert.AreEqual(actual: ↓1, expected: expected);
+                    ClassicAssert.AreEqual(actual: ↓1, expected: expected);
                 }");
 
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
                 public void Test()
                 {
                     int expected = 5;
-                    Assert.AreEqual(actual: expected, expected: 1);
+                    ClassicAssert.AreEqual(actual: expected, expected: 1);
                 }");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,

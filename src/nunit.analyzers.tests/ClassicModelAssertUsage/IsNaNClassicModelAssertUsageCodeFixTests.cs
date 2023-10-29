@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -33,7 +32,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {{
             var expr = double.NaN;
 
-            ↓Assert.IsNaN(expr);
+            ↓ClassicAssert.IsNaN(expr);
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -53,7 +52,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {{
             var expr = double.NaN;
 
-            ↓Assert.IsNaN(expr, ""message"");
+            ↓ClassicAssert.IsNaN(expr, ""message"");
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -73,14 +72,14 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {{
             var expr = double.NaN;
 
-            ↓Assert.IsNaN(expr, ""message"", Guid.NewGuid());
+            ↓ClassicAssert.IsNaN(expr, ""message-id: {{0}}"", Guid.NewGuid());
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
             var expr = double.NaN;
 
-            Assert.That(expr, Is.NaN, ""message"", Guid.NewGuid());
+            Assert.That(expr, Is.NaN, $""message-id: {Guid.NewGuid()}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

@@ -26,13 +26,13 @@ public void Test()
 {
     string actual = "...";
     string expected = "...";
-    Assert.True(actual.StartsWith(expected));
+    ClassicAssert.True(actual.StartsWith(expected));
 }
 ```
 
 ## How to fix violations
 
-The analyzer comes with a code fix that will replace `Assert.True(actual.StartWith(expected))` with
+The analyzer comes with a code fix that will replace `ClassicAssert.True(actual.StartWith(expected))` with
 `Assert.That(actual, Does.StartWith(expected))`. So the code block above will be changed into
 
 ```csharp

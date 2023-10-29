@@ -88,6 +88,9 @@ namespace NUnit.Analyzers.Constants
         internal const string UseAssertMultiple = "NUnit2045";
         internal const string UsePropertyConstraint = "NUnit2046";
         internal const string WithinIncompatibleTypes = "NUnit2047";
+        internal const string StringAssertUsage = "NUnit2048";
+        internal const string CollectionAssertUsage = "NUnit2049";
+        internal const string UpdateStringFormatToInterpolatableString = "NUnit2050";
 
         #endregion Assertion
 

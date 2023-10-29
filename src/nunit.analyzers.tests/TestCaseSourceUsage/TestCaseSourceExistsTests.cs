@@ -40,7 +40,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCaseSource(nameof(TargetFrameworks))]
         public void Test(string targetFramework)
         {
-            Assert.IsNotNull(targetFramework);
+            ClassicAssert.IsNotNull(targetFramework);
         }
     }", "using System.Collections.Generic;");
 

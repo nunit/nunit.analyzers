@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Linq.Expressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,7 +16,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class DereferencePossiblyNullReferenceSuppressor : DiagnosticSuppressor
     {
-        private const string Justification = "Expression was checked in an Assert.NotNull, Assert.IsNotNull or Assert.That call";
+        private const string Justification = "Expression was checked in an ClassicAssert.NotNull, ClassicAssert.IsNotNull or Assert.That call";
 
         // Numbers from: https://cezarypiatek.github.io/post/non-nullable-references-in-dotnet-core/
         public static ImmutableDictionary<string, SuppressionDescriptor> SuppressionDescriptors { get; } =
@@ -307,7 +306,8 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsValidatedNotNullByExpression(string possibleNullReference, ExpressionSyntax expression)
         {
             // Check if this is an Assert for the same symbol
-            if (AssertHelper.IsAssert(expression, out string member, out ArgumentListSyntax? argumentList))
+            if (AssertHelper.IsAssert(expression, out string member, out ArgumentListSyntax? argumentList) ||
+                AssertHelper.IsClassicAssert(expression, out member, out argumentList))
             {
                 string firstArgument = argumentList.Arguments.First().Expression.ToString();
 
@@ -342,7 +342,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     }
                 }
                 else if (member == NUnitFrameworkConstants.NameOfAssertNotNull ||
-                        member == NUnitFrameworkConstants.NameOfAssertIsNotNull)
+                    member == NUnitFrameworkConstants.NameOfAssertIsNotNull)
                 {
                     if (CoveredBy(firstArgument, possibleNullReference))
                     {
@@ -350,7 +350,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     }
                 }
                 else if (member == NUnitFrameworkConstants.NameOfAssertIsTrue ||
-                        member == NUnitFrameworkConstants.NameOfAssertTrue)
+                         member == NUnitFrameworkConstants.NameOfAssertTrue)
                 {
                     if (IsHasValue(firstArgument, possibleNullReference))
                     {

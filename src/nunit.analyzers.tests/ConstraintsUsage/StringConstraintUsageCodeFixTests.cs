@@ -29,9 +29,11 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCaseSource(nameof(PositiveAssertData))]
         public void AnalyzeStringBooleanMethodAssertTrue(string method, string analyzerId, string suggestedConstraint)
         {
-            var code = TestUtility.WrapInTestMethod($@"Assert.True(↓""abc"".{method}(""ab""));");
+            var code = TestUtility.WrapInTestMethod($@"
+            ClassicAssert.True(↓""abc"".{method}(""ab""));");
 
-            var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
             RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
@@ -39,9 +41,11 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCaseSource(nameof(PositiveAssertData))]
         public void AnalyzeStringBooleanMethodAssertIsTrue(string method, string analyzerId, string suggestedConstraint)
         {
-            var code = TestUtility.WrapInTestMethod($@"Assert.IsTrue(↓""abc"".{method}(""ab""));");
+            var code = TestUtility.WrapInTestMethod($@"
+            ClassicAssert.IsTrue(↓""abc"".{method}(""ab""));");
 
-            var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
             RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
@@ -49,9 +53,11 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCaseSource(nameof(PositiveAssertData))]
         public void AnalyzeStringBooleanMethodAssertThat(string method, string analyzerId, string suggestedConstraint)
         {
-            var code = TestUtility.WrapInTestMethod($@"Assert.That(↓""abc"".{method}(""ab""));");
+            var code = TestUtility.WrapInTestMethod($@"
+            Assert.That(↓""abc"".{method}(""ab""));");
 
-            var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
             RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
@@ -59,9 +65,11 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCaseSource(nameof(PositiveAssertData))]
         public void AnalyzeStringBooleanMethodAssertThatIsTrue(string method, string analyzerId, string suggestedConstraint)
         {
-            var code = TestUtility.WrapInTestMethod($@"Assert.That(↓""abc"".{method}(""ab""), Is.True);");
+            var code = TestUtility.WrapInTestMethod($@"
+            Assert.That(↓""abc"".{method}(""ab""), Is.True);");
 
-            var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
             RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
@@ -69,9 +77,11 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCaseSource(nameof(NegativeAssertData))]
         public void AnalyzeStringBooleanMethodAssertThatNegated(string method, string analyzerId, string suggestedConstraint)
         {
-            var code = TestUtility.WrapInTestMethod($@"Assert.That(↓!""abc"".{method}(""ab""));");
+            var code = TestUtility.WrapInTestMethod($@"
+            Assert.That(↓!""abc"".{method}(""ab""));");
 
-            var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
             RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
@@ -79,9 +89,11 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCaseSource(nameof(NegativeAssertData))]
         public void AnalyzeStringBooleanMethodAssertFalse(string method, string analyzerId, string suggestedConstraint)
         {
-            var code = TestUtility.WrapInTestMethod($@"Assert.False(↓""abc"".{method}(""ab""));");
+            var code = TestUtility.WrapInTestMethod($@"
+            ClassicAssert.False(↓""abc"".{method}(""ab""));");
 
-            var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
             RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
@@ -89,9 +101,11 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCaseSource(nameof(NegativeAssertData))]
         public void AnalyzeStringBooleanMethodAssertIsFalse(string method, string analyzerId, string suggestedConstraint)
         {
-            var code = TestUtility.WrapInTestMethod($@"Assert.IsFalse(↓""abc"".{method}(""ab""));");
+            var code = TestUtility.WrapInTestMethod($@"
+            ClassicAssert.IsFalse(↓""abc"".{method}(""ab""));");
 
-            var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
             RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
@@ -99,9 +113,11 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCaseSource(nameof(NegativeAssertData))]
         public void AnalyzeStringBooleanMethodAssertThatIsFalse(string method, string analyzerId, string suggestedConstraint)
         {
-            var code = TestUtility.WrapInTestMethod($@"Assert.That(↓""abc"".{method}(""ab""), Is.False);");
+            var code = TestUtility.WrapInTestMethod($@"
+            Assert.That(↓""abc"".{method}(""ab""), Is.False);");
 
-            var fixedCode = TestUtility.WrapInTestMethod($@"Assert.That(""abc"", {suggestedConstraint}(""ab""));");
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(""abc"", {suggestedConstraint}(""ab""));");
 
             RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }

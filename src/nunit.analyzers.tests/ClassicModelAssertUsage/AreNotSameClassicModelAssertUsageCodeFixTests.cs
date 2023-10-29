@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -34,7 +33,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var expected = new object();
             var actual = new object();
 
-            ↓Assert.AreNotSame(expected, actual);
+            ↓ClassicAssert.AreNotSame(expected, actual);
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -56,7 +55,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var expected = new object();
             var actual = new object();
 
-            ↓Assert.AreNotSame(expected, actual, ""message"");
+            ↓ClassicAssert.AreNotSame(expected, actual, ""message"");
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -78,7 +77,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var expected = new object();
             var actual = new object();
 
-            ↓Assert.AreNotSame(expected, actual, ""message"", Guid.NewGuid());
+            ↓ClassicAssert.AreNotSame(expected, actual, ""message-id: {{0}}"", Guid.NewGuid());
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -86,7 +85,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var expected = new object();
             var actual = new object();
 
-            Assert.That(actual, Is.Not.SameAs(expected), ""message"", Guid.NewGuid());
+            Assert.That(actual, Is.Not.SameAs(expected), $""message-id: {Guid.NewGuid()}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

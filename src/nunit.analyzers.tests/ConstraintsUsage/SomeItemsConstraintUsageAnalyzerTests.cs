@@ -31,7 +31,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         public void AnalyzeWhenListContainsUsedAssertIsTrue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.IsTrue(↓new List<int> {1, 2, 3}.Contains(1));",
+                ClassicAssert.IsTrue(↓new List<int> {1, 2, 3}.Contains(1));",
                 additionalUsings: "using System.Collections.Generic;");
 
             RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
@@ -41,7 +41,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         public void AnalyzeWhenListContainsUsedAssertIsFalse()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.IsFalse(↓new List<int> {1, 2, 3}.Contains(1));",
+                ClassicAssert.IsFalse(↓new List<int> {1, 2, 3}.Contains(1));",
                 additionalUsings: "using System.Collections.Generic;");
 
             RoslynAssert.Diagnostics(analyzer, doesNotContainDiagnostic, testCode);
@@ -61,7 +61,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         public void AnalyzeWhenLinqContainsUsedAssertIsTrue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.IsTrue(↓new[] {1, 2, 3}.Contains(1));",
+                ClassicAssert.IsTrue(↓new[] {1, 2, 3}.Contains(1));",
                 additionalUsings: "using System.Linq;");
 
             RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
@@ -71,7 +71,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         public void AnalyzeWhenLinqContainsUsedAssertIsFalse()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.IsFalse(↓new[] {1, 2, 3}.Contains(1));",
+                ClassicAssert.IsFalse(↓new[] {1, 2, 3}.Contains(1));",
                 additionalUsings: "using System.Linq;");
 
             RoslynAssert.Diagnostics(analyzer, doesNotContainDiagnostic, testCode);

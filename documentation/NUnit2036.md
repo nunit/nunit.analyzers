@@ -1,6 +1,6 @@
 # NUnit2036
 
-## Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection)
+## Consider using Assert.That(collection, Is.Not.Empty) instead of ClassicAssert.IsNotEmpty(collection)
 
 | Topic    | Value
 | :--      | :--
@@ -12,24 +12,24 @@
 
 ## Description
 
-Consider using the constraint model, `Assert.That(collection, Is.Not.Empty)`, instead of the classic model, `Assert.IsNotEmpty(collection)`.
+Consider using the constraint model, `Assert.That(collection, Is.Not.Empty)`, instead of the classic model, `ClassicAssert.IsNotEmpty(collection)`.
 
 ## Motivation
 
 The classic Assert model contains less flexibility than the constraint model,
-so this analyzer marks usages of `Assert.IsNotEmpty` from the classic Assert model.
+so this analyzer marks usages of `ClassicAssert.IsNotEmpty` from the classic Assert model.
 
 ```csharp
 [Test]
 public void Test()
 {
-    Assert.IsNotEmpty(collection);
+    ClassicAssert.IsNotEmpty(collection);
 }
 ```
 
 ## How to fix violations
 
-The analyzer comes with a code fix that will replace `Assert.IsNotEmpty(collection)` with
+The analyzer comes with a code fix that will replace `ClassicAssert.IsNotEmpty(collection)` with
 `Assert.That(collection, Is.Not.Empty)`. So the code block above will be changed into.
 
 ```csharp
@@ -50,7 +50,7 @@ Configure the severity per project, for more info see [MSDN](https://learn.micro
 ### Via .editorconfig file
 
 ```ini
-# NUnit2036: Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection)
+# NUnit2036: Consider using Assert.That(collection, Is.Not.Empty) instead of ClassicAssert.IsNotEmpty(collection)
 dotnet_diagnostic.NUnit2036.severity = chosenSeverity
 ```
 
@@ -59,22 +59,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit2036 // Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection)
+#pragma warning disable NUnit2036 // Consider using Assert.That(collection, Is.Not.Empty) instead of ClassicAssert.IsNotEmpty(collection)
 Code violating the rule here
-#pragma warning restore NUnit2036 // Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection)
+#pragma warning restore NUnit2036 // Consider using Assert.That(collection, Is.Not.Empty) instead of ClassicAssert.IsNotEmpty(collection)
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit2036 // Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection)
+#pragma warning disable NUnit2036 // Consider using Assert.That(collection, Is.Not.Empty) instead of ClassicAssert.IsNotEmpty(collection)
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion",
-    "NUnit2036:Consider using Assert.That(collection, Is.Not.Empty) instead of Assert.IsNotEmpty(collection)",
+    "NUnit2036:Consider using Assert.That(collection, Is.Not.Empty) instead of ClassicAssert.IsNotEmpty(collection)",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

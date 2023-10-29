@@ -6,8 +6,6 @@ namespace NUnit.Analyzers.Constants
     /// </summary>
     public static class NUnitFrameworkConstants
     {
-        public const string NameOfEqualConstraintWithin = "Within";
-
         public const string NameOfIs = "Is";
         public const string NameOfIsFalse = "False";
         public const string NameOfIsTrue = "True";
@@ -16,10 +14,9 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfIsSubsetOf = "SubsetOf";
         public const string NameOfIsSupersetOf = "SupersetOf";
         public const string NameOfIsNot = "Not";
-        public const string NameOfIsNotEqualTo = "EqualTo";
         public const string NameOfIsSameAs = "SameAs";
         public const string NameOfIsSamePath = "SamePath";
-        public const string NameOfNull = "Null";
+        public const string NameOfIsNull = "Null";
         public const string NameOfIsGreaterThan = "GreaterThan";
         public const string NameOfIsGreaterThanOrEqualTo = "GreaterThanOrEqualTo";
         public const string NameOfIsLessThan = "LessThan";
@@ -29,6 +26,9 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfIsNaN = "NaN";
         public const string NameOfIsEmpty = "Empty";
         public const string NameOfIsInstanceOf = "InstanceOf";
+        public const string NameOfIsAll = "All";
+        public const string NameOfIsUnique = "Unique";
+        public const string NameOfIsOrdered = "Ordered";
 
         public const string NameOfContains = "Contains";
         public const string NameOfContainsItem = "Item";
@@ -38,6 +38,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfDoesContain = "Contain";
         public const string NameOfDoesStartWith = "StartWith";
         public const string NameOfDoesEndWith = "EndWith";
+        public const string NameOfDoesMatch = "Match";
 
         public const string NameOfHas = "Has";
         public const string NameOfHasProperty = "Property";
@@ -46,8 +47,10 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfHasMessage = "Message";
         public const string NameOfHasInnerException = "InnerException";
         public const string NameOfHasNo = "No";
+        public const string NameOfHasMember = "Member";
 
         public const string NameOfMultiple = "Multiple";
+
         public const string NameOfThrows = "Throws";
         public const string NameOfThrowsArgumentException = "ArgumentException";
         public const string NameOfThrowsArgumentNullException = "ArgumentNullException";
@@ -55,6 +58,13 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfThrowsTargetInvocationException = "TargetInvocationException";
 
         public const string NameOfAssert = "Assert";
+
+        public const string NameOfAssertPass = "Pass";
+        public const string NameOfAssertFail = "Fail";
+        public const string NameOfAssertWarn = "Warn";
+        public const string NameOfAssertIgnore = "Ignore";
+        public const string NameOfAssertInconclusive = "Inconclusive";
+
         public const string NameOfAssertIsTrue = "IsTrue";
         public const string NameOfAssertTrue = "True";
         public const string NameOfAssertIsFalse = "IsFalse";
@@ -87,16 +97,34 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfAssertThrowsAsync = "ThrowsAsync";
 
         public const string NameOfStringAssert = "StringAssert";
-        public const string NameOfStringAssertAreEqualIgnoringCase = "AreEqualIgnoringCase";
-        public const string NameOfStringAssertAreNotEqualIgnoringCase = "AreNotEqualIgnoringCase";
         public const string NameOfStringAssertContains = "Contains";
         public const string NameOfStringAssertDoesNotContain = "DoesNotContain";
-        public const string NameOfStringAssertDoesNotEndWith = "DoesNotEndWith";
-        public const string NameOfStringAssertDoesNotMatch = "DoesNotMatch";
+        public const string NameOfStringAssertStartsWith = "StartsWith";
         public const string NameOfStringAssertDoesNotStartWith = "DoesNotStartWith";
         public const string NameOfStringAssertEndsWith = "EndsWith";
+        public const string NameOfStringAssertDoesNotEndWith = "DoesNotEndWith";
+        public const string NameOfStringAssertAreEqualIgnoringCase = "AreEqualIgnoringCase";
+        public const string NameOfStringAssertAreNotEqualIgnoringCase = "AreNotEqualIgnoringCase";
         public const string NameOfStringAssertIsMatch = "IsMatch";
-        public const string NameOfStringAssertStartsWith = "StartsWith";
+        public const string NameOfStringAssertDoesNotMatch = "DoesNotMatch";
+
+        public const string NameOfCollectionAssert = "CollectionAssert";
+        public const string NameOfCollectionAssertAllItemsAreInstancesOfType = "AllItemsAreInstancesOfType";
+        public const string NameOfCollectionAssertAllItemsAreNotNull = "AllItemsAreNotNull";
+        public const string NameOfCollectionAssertAllItemsAreUnique = "AllItemsAreUnique";
+        public const string NameOfCollectionAssertAreEqual = "AreEqual";
+        public const string NameOfCollectionAssertAreEquivalent = "AreEquivalent";
+        public const string NameOfCollectionAssertAreNotEqual = "AreNotEqual";
+        public const string NameOfCollectionAssertAreNotEquivalent = "AreNotEquivalent";
+        public const string NameOfCollectionAssertContains = "Contains";
+        public const string NameOfCollectionAssertDoesNotContain = "DoesNotContain";
+        public const string NameOfCollectionAssertIsNotSubsetOf = "IsNotSubsetOf";
+        public const string NameOfCollectionAssertIsSubsetOf = "IsSubsetOf";
+        public const string NameOfCollectionAssertIsNotSupersetOf = "IsNotSupersetOf";
+        public const string NameOfCollectionAssertIsSupersetOf = "IsSupersetOf";
+        public const string NameOfCollectionAssertIsEmpty = "IsEmpty";
+        public const string NameOfCollectionAssertIsNotEmpty = "IsNotEmpty";
+        public const string NameOfCollectionAssertIsOrdered = "IsOrdered";
 
         public const string FullNameOfTypeIs = "NUnit.Framework.Is";
         public const string FullNameOfTypeTestCaseAttribute = "NUnit.Framework.TestCaseAttribute";
@@ -162,14 +190,14 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfConstraintExpressionOr = "Or";
         public const string NameOfConstraintExpressionWith = "With";
 
-        public const string NameOfIgnoreCase = "IgnoreCase";
-        public const string NameOfUsing = "Using";
+        public const string NameOfEqualConstraintIgnoreCase = "IgnoreCase";
+        public const string NameOfEqualConstraintUsing = "Using";
+        public const string NameOfEqualConstraintWithin = "Within";
+        public const string NameOfEqualConstraintAsCollection = "AsCollection";
 
         public const string NUnitFrameworkAssemblyName = "nunit.framework";
 
-        public static readonly string[] AllAsserts =
-        {
-            NameOfAssert, NameOfStringAssert
-        };
+        public const string NUnitFrameworkLegacyAssemblyName = "nunit.framework.legacy";
+        public const string NameOfClassicAssert = "ClassicAssert";
     }
 }

@@ -30,7 +30,8 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
                 AnalyzerIdentifiers.ParallelScopeChildrenOnNonParameterizedTestMethodUsage,
                 AnalyzerIdentifiers.ParallelScopeFixturesOnTestMethodUsage
             };
-            CollectionAssert.AreEquivalent(expectedIdentifiers, diagnostics.Select(d => d.Id));
+
+            Assert.That(diagnostics.Select(d => d.Id), Is.EquivalentTo(expectedIdentifiers));
 
             foreach (var diagnostic in diagnostics)
             {

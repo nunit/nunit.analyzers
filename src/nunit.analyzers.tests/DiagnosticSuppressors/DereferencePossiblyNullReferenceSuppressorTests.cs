@@ -1,7 +1,4 @@
-using System.IO;
-using System.Threading.Tasks;
 using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.DiagnosticSuppressors;
 using NUnit.Framework;
@@ -36,10 +33,10 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         private static readonly DiagnosticSuppressor suppressor = new DereferencePossiblyNullReferenceSuppressor();
 
         [TestCase("")]
-        [TestCase("Assert.NotNull(string.Empty)")]
-        [TestCase("Assert.IsNull(s)")]
-        [TestCase("Assert.Null(s)")]
-        [TestCase("Assert.That(s, Is.Null)")]
+        [TestCase("ClassicAssert.NotNull(string.Empty)")]
+        [TestCase("ClassicAssert.IsNull(s)")]
+        [TestCase("ClassicAssert.Null(s)")]
+        [TestCase("ClassicAssert.That(s, Is.Null)")]
         public void NoValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
@@ -56,8 +53,8 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
-        [TestCase("Assert.NotNull(s)")]
-        [TestCase("Assert.IsNotNull(s)")]
+        [TestCase("ClassicAssert.NotNull(s)")]
+        [TestCase("ClassicAssert.IsNotNull(s)")]
         [TestCase("Assert.That(s, Is.Not.Null)")]
         public void WithLocalValidAssert(string assert)
         {
@@ -75,8 +72,8 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
-        [TestCase("Assert.NotNull(s)")]
-        [TestCase("Assert.IsNotNull(s)")]
+        [TestCase("ClassicAssert.NotNull(s)")]
+        [TestCase("ClassicAssert.IsNotNull(s)")]
         [TestCase("Assert.That(s, Is.Not.Null)")]
         public void WithFieldValidAssert(string assert)
         {
@@ -109,7 +106,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
                 private static string DoSomething(string? s)
                 {
-                    Assert.NotNull(s);
+                    ClassicAssert.NotNull(s);
                     return ↓s;
                 }
             ");
@@ -122,18 +119,18 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [Test]
         public void Parameter()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
                 [TestCase("""")]
                 public void Test(string? s)
-                {
-                    Assert.NotNull(s);
+                {{
+                    ClassicAssert.NotNull(s);
                     DoSomething(↓s);
-                }
+                }}
 
                 private static void DoSomething(string s)
-                {
+                {{
                     _ = s;
-                }
+                }}
             ");
 
             RoslynAssert.Suppressed(suppressor,
@@ -144,15 +141,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [Test]
         public void NullableCast()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
                 [Test]
                 public void Test()
-                {
+                {{
                     int? possibleNull = GetNext();
-                    Assert.NotNull(possibleNull);
+                    ClassicAssert.NotNull(possibleNull);
                     int i = ↓(int)possibleNull;
                     AssertOne(i);
-                }
+                }}
 
                 private static int? GetNext() => 1;
 
@@ -185,8 +182,8 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             RoslynAssert.Suppressed(suppressor,
                 new[]
                 {
-                    ExpectedDiagnostic.Create("CS8600", 18, 31),
-                    ExpectedDiagnostic.Create("CS8604", 19, 32),
+                    ExpectedDiagnostic.Create("CS8600", 24, 31),
+                    ExpectedDiagnostic.Create("CS8604", 25, 32),
                 },
                 testCode);
         }
@@ -213,8 +210,8 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             RoslynAssert.Suppressed(suppressor,
                 new[]
                 {
-                    ExpectedDiagnostic.Create("CS8600", 19, 24),
-                    ExpectedDiagnostic.Create("CS8604", 20, 32),
+                    ExpectedDiagnostic.Create("CS8600", 25, 24),
+                    ExpectedDiagnostic.Create("CS8604", 26, 32),
                 },
                 testCode);
         }
@@ -239,8 +236,8 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             RoslynAssert.Suppressed(suppressor,
                 new[]
                 {
-                    ExpectedDiagnostic.Create("CS8600", 18, 32),
-                    ExpectedDiagnostic.Create("CS8604", 18, 32),
+                    ExpectedDiagnostic.Create("CS8600", 24, 32),
+                    ExpectedDiagnostic.Create("CS8604", 24, 32),
                 },
                 testCode);
         }
@@ -248,14 +245,14 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [Test]
         public void WithReassignedAfterAssert()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
                 [TestCase("""")]
                 public void Test(string? s)
-                {
-                    Assert.NotNull(s);
+                {{
+                    ClassicAssert.NotNull(s);
                     s = null;
                     Assert.That(↓s.Length, Is.GreaterThan(0));
-                }
+                }}
             ");
 
             RoslynAssert.NotSuppressed(suppressor,
@@ -266,15 +263,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [Test]
         public void WithReassignedFieldAfterAssert()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
                 private string? s;
                 [Test]
                 public void Test()
-                {
-                    Assert.NotNull(this.s);
+                {{
+                    ClassicAssert.NotNull(this.s);
                     this.s = null;
                     Assert.That(↓this.s.Length, Is.GreaterThan(0));
-                }
+                }}
             ");
 
             RoslynAssert.NotSuppressed(suppressor,
@@ -348,16 +345,16 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [Test]
         public void InsideAssertMultiple()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
                 [TestCase("""")]
                 public void Test(string? s)
-                {
+                {{
                     Assert.Multiple(() =>
-                    {
-                        Assert.NotNull(s);
+                    {{
+                        ClassicAssert.NotNull(s);
                         Assert.That(↓s.Length, Is.GreaterThan(0));
-                    });
-                }
+                    }});
+                }}
             ");
 
             RoslynAssert.NotSuppressed(suppressor,
@@ -365,8 +362,8 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
-        [TestCase("Assert.True(nullable.HasValue)")]
-        [TestCase("Assert.IsTrue(nullable.HasValue)")]
+        [TestCase("ClassicAssert.True(nullable.HasValue)")]
+        [TestCase("ClassicAssert.IsTrue(nullable.HasValue)")]
         [TestCase("Assert.That(nullable.HasValue, \"Ensure Value is set\")")]
         [TestCase("Assert.That(nullable.HasValue)")]
         [TestCase("Assert.That(nullable.HasValue, Is.True)")]
@@ -387,8 +384,8 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
-        [TestCase("Assert.False(nullable.HasValue)")]
-        [TestCase("Assert.IsFalse(nullable.HasValue)")]
+        [TestCase("ClassicAssert.False(nullable.HasValue)")]
+        [TestCase("ClassicAssert.IsFalse(nullable.HasValue)")]
         [TestCase("Assert.That(!nullable.HasValue)")]
         [TestCase("Assert.That(nullable.HasValue, Is.False)")]
         [TestCase("Assert.That(nullable, Is.Null)")]
@@ -783,7 +780,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 {{
                     object? possibleNull = GetNext();
                     object? assertedNotNull = possibleNull;
-                    Assert.NotNull(assertedNotNull);
+                    ClassicAssert.NotNull(assertedNotNull);
                     ↓DoNothing(assertedNotNull);
                 }}
 
@@ -809,7 +806,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 {{
                     object? possibleNull = GetNext();
                     object? assertedNotNull = GetNext();
-                    Assert.NotNull(assertedNotNull);
+                    ClassicAssert.NotNull(assertedNotNull);
                     ↓DoNothing(assertedNotNull, possibleNull);
                 }}
 
@@ -836,7 +833,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 {{
                     object? possibleNull = GetNext();
                     object? assertedNotNull = GetNext();
-                    Assert.NotNull(assertedNotNull);
+                    ClassicAssert.NotNull(assertedNotNull);
                     ↓DoNothing(assertedNotNull, assertedNotNull);
                 }}
 
@@ -863,7 +860,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 {{
                     object? possibleNull = GetNext();
                     object? assertedNotNull = GetNext();
-                    Assert.NotNull(assertedNotNull);
+                    ClassicAssert.NotNull(assertedNotNull);
                     ↓DoNothing(assertedNotNull, assertedNotNull);
                 }}
 
@@ -889,7 +886,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 {{
                     object? possibleNull = GetNext();
                     object? assertedNotNull = possibleNull;
-                    Assert.NotNull(assertedNotNull);
+                    ClassicAssert.NotNull(assertedNotNull);
                     ↓DoNothing(possibleNull);
                 }}
 
@@ -917,7 +914,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 {{
                     object? possibleNull = GetNext();
                     object? assertedNotNull = GetNext();
-                    Assert.NotNull(assertedNotNull);
+                    ClassicAssert.NotNull(assertedNotNull);
                     ↓DoNothing(assertedNotNull, possibleNull);
                 }}
 

@@ -104,6 +104,9 @@ namespace NUnit.Analyzers.WithinUsage
             if (type.SpecialType == SpecialType.System_String)
                 return false; // Even though it implements IEnumerable, it doesn't support Tolerance.
 
+            if (type.TypeKind == TypeKind.Enum)
+                return false;
+
             if (type is IArrayTypeSymbol arrayType && IsTypeSupported(arrayType.ElementType, checkedTypes))
                 return true;
 
@@ -160,7 +163,8 @@ namespace NUnit.Analyzers.WithinUsage
                 return true; // Non-generic collections, we have no idea of the actual type used.
             }
 
-            return false;
+            // If the type overrides Equals, NUnit won't use tolerance
+            return type.GetMembers("Equals").Length == 0;
         }
     }
 }

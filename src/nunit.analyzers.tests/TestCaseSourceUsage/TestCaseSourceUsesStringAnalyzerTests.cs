@@ -356,7 +356,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCaseSource(typeof(AnotherClass), ""DivideCases"")]
         public void DivideTest(int n, int d, int q)
         {
-            Assert.AreEqual(q, n / d);
+            ClassicAssert.AreEqual(q, n / d);
         }
     }
 
@@ -381,7 +381,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCaseSource(typeof(AnotherClass), ""DivideCases"")]
         public void DivideTest(int n, int d, int q)
         {
-            Assert.AreEqual(q, n / d);
+            ClassicAssert.AreEqual(q, n / d);
         }
 
         class AnotherClass

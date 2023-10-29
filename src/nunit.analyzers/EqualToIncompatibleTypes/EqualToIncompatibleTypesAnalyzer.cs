@@ -143,7 +143,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
 
         private static bool HasCustomEqualityComparer(ConstraintExpressionPart constraintPartExpression)
         {
-            return constraintPartExpression.GetSuffixesNames().Any(s => s == NUnitFrameworkConstants.NameOfUsing);
+            return constraintPartExpression.GetSuffixesNames().Any(s => s == NUnitFrameworkConstants.NameOfEqualConstraintUsing);
         }
     }
 }

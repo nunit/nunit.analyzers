@@ -10,6 +10,12 @@ namespace NUnit.Analyzers.Tests
 using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
+#if NUNIT4
+using NUnit.Framework.Legacy;
+#else
+using ClassicAssert = NUnit.Framework.Assert;
+#endif
+
 #pragma warning restore CS8019
 {additionalUsings}
 

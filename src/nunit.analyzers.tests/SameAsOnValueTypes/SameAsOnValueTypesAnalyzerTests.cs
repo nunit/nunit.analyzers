@@ -98,7 +98,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeClassicWhenLiteralTypesProvided()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                "Assert.AreSame(↓1, 1);");
+                "ClassicAssert.AreSame(↓1, 1);");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -110,7 +110,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
                 var expected = Guid.Empty;
                 var actual = expected;
 
-                Assert.AreSame(↓expected, actual);");
+                ClassicAssert.AreSame(↓expected, actual);");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -119,7 +119,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeClassicWhenActualIsReferenceTypeAndExpectedIsValueType()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"Assert.AreNotSame(↓3, ""3"");");
+                @"ClassicAssert.AreNotSame(↓3, ""3"");");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -128,7 +128,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeClassicWhenActualIsValueTypeAndExpectedIsReferenceType()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"Assert.AreNotSame(""3"", ↓3);");
+                @"ClassicAssert.AreNotSame(""3"", ↓3);");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -137,7 +137,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeClassicWhenBothArgumentsAreReferenceType()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"Assert.AreSame(""3"", ""3"");");
+                @"ClassicAssert.AreSame(""3"", ""3"");");
 
             RoslynAssert.Valid(analyzer, testCode);
         }

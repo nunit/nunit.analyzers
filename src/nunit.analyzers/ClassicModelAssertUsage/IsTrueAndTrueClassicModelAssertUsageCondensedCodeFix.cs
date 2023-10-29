@@ -19,6 +19,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             AnalyzerIdentifiers.IsTrueUsage,
             AnalyzerIdentifiers.TrueUsage);
 
+        protected override int MinimumNumberOfParameters { get; } = 1;
+
         protected override string Title => base.Title + Suffix;
 
         protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)

@@ -9,7 +9,7 @@ using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
 namespace NUnit.Analyzers.ClassicModelAssertUsage
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class ClassicModelAssertUsageAnalyzer : BaseAssertionAnalyzer
+    public sealed class ClassicModelAssertUsageAnalyzer : ClassicAssertionAnalyzer
     {
         private static readonly DiagnosticDescriptor isTrueDescriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.IsTrueUsage,
@@ -251,14 +251,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
         {
             return new Dictionary<string, string?>
             {
-                { AnalyzerPropertyKeys.ModelName, invocationSymbol.Name },
-                {
-                    AnalyzerPropertyKeys.HasToleranceValue,
+                [AnalyzerPropertyKeys.ModelName] = invocationSymbol.Name,
+                [AnalyzerPropertyKeys.HasToleranceValue] =
                     (invocationSymbol.Name == NameOfAssertAreEqual &&
                         invocationSymbol.Parameters.Length >= 3 &&
-                        invocationSymbol.Parameters[2].Type.SpecialType == SpecialType.System_Double).ToString()
-                },
-                { AnalyzerPropertyKeys.IsGenericMethod, invocationSymbol.IsGenericMethod.ToString() },
+                        invocationSymbol.Parameters[2].Type.SpecialType == SpecialType.System_Double).ToString(),
             }.ToImmutableDictionary();
         }
     }

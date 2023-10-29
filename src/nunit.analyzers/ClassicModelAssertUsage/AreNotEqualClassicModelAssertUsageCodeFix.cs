@@ -26,7 +26,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                             SyntaxKind.SimpleMemberAccessExpression,
                             SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                             SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsNot)),
-                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsNotEqualTo)))
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsEqualTo)))
                     .WithArgumentList(SyntaxFactory.ArgumentList(
                         SyntaxFactory.SingletonSeparatedList(arguments[0])))));
 

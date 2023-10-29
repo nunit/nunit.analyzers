@@ -115,10 +115,10 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            Assert.AreEqual(3, 4);
+            ClassicAssert.AreEqual(3, 4);
         }
 
-        private static class Assert
+        private static class ClassicAssert
         {
             public static bool AreEqual(int a, int b) => false;
         }
@@ -136,7 +136,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.IsTrue(true);
+            ↓ClassicAssert.IsTrue(true);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -152,7 +152,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.True(true);
+            ↓ClassicAssert.True(true);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -168,7 +168,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.IsFalse(false);
+            ↓ClassicAssert.IsFalse(false);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -184,7 +184,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.False(false);
+            ↓ClassicAssert.False(false);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -200,7 +200,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.AreEqual(2, 2);
+            ↓ClassicAssert.AreEqual(2, 2);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -216,7 +216,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.AreEqual(2d, 2d, 0.0000001d);
+            ↓ClassicAssert.AreEqual(2d, 2d, 0.0000001d);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -232,7 +232,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.AreNotEqual(2, 3);
+            ↓ClassicAssert.AreNotEqual(2, 3);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -248,7 +248,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.AreSame(2, 3);
+            ↓ClassicAssert.AreSame(2, 3);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -265,7 +265,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void Test()
         {
             object? obj = null;
-            ↓Assert.IsNull(obj);
+            ↓ClassicAssert.IsNull(obj);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -282,7 +282,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void Test()
         {
             object? obj = null;
-            ↓Assert.Null(obj);
+            ↓ClassicAssert.Null(obj);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -299,7 +299,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void Test()
         {
             object? obj = null;
-            ↓Assert.IsNotNull(obj);
+            ↓ClassicAssert.IsNotNull(obj);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -316,7 +316,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void Test()
         {
             object? obj = null;
-            ↓Assert.NotNull(obj);
+            ↓ClassicAssert.NotNull(obj);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -343,7 +343,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.Greater(2, 3);
+            ↓ClassicAssert.Greater(2, 3);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -359,7 +359,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.GreaterOrEqual(2, 3);
+            ↓ClassicAssert.GreaterOrEqual(2, 3);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -375,7 +375,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.Less(2, 3);
+            ↓ClassicAssert.Less(2, 3);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -391,7 +391,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.LessOrEqual(2, 3);
+            ↓ClassicAssert.LessOrEqual(2, 3);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -407,7 +407,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.AreNotSame(2, 3);
+            ↓ClassicAssert.AreNotSame(2, 3);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -423,7 +423,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.Zero(2);
+            ↓ClassicAssert.Zero(2);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -439,7 +439,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.NotZero(2);
+            ↓ClassicAssert.NotZero(2);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -455,7 +455,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.IsNaN(2);
+            ↓ClassicAssert.IsNaN(2);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -471,7 +471,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.IsEmpty(Array.Empty<object>());
+            ↓ClassicAssert.IsEmpty(Array.Empty<object>());
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -487,7 +487,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.IsNotEmpty(Array.Empty<object>());
+            ↓ClassicAssert.IsNotEmpty(Array.Empty<object>());
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -503,7 +503,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.Contains(this, Array.Empty<object>());
+            ↓ClassicAssert.Contains(this, Array.Empty<object>());
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -519,7 +519,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.IsInstanceOf(typeof(int), 2);
+            ↓ClassicAssert.IsInstanceOf(typeof(int), 2);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -535,7 +535,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.IsInstanceOf<int>(2);
+            ↓ClassicAssert.IsInstanceOf<int>(2);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -551,7 +551,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.IsNotInstanceOf(typeof(int), 2);
+            ↓ClassicAssert.IsNotInstanceOf(typeof(int), 2);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
@@ -567,7 +567,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         public void Test()
         {
-            ↓Assert.IsNotInstanceOf<int>(2);
+            ↓ClassicAssert.IsNotInstanceOf<int>(2);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);

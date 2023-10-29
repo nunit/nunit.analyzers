@@ -73,10 +73,10 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         public void FixesWithinUsageOnConstraintWithIncompatibleExpectedTypeWithMessageAndParam()
         {
             var code = TestUtility.WrapInTestMethod(
-                @"Assert.That(""1"", Is.EqualTo(""1"").↓Within(1), ""message"", Guid.NewGuid());");
+                @"Assert.That(""1"", Is.EqualTo(""1"").↓Within(1), ""message"");");
 
             var fixedCode = TestUtility.WrapInTestMethod(
-                @"Assert.That(""1"", Is.EqualTo(""1""), ""message"", Guid.NewGuid());");
+                @"Assert.That(""1"", Is.EqualTo(""1""), ""message"");");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: WithinUsageCodeFix.RemoveWithinDescription);

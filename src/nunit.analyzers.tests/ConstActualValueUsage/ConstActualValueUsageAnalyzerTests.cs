@@ -19,7 +19,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     int expected = 5;
-                    Assert.AreEqual(expected, ↓1);
+                    ClassicAssert.AreEqual(expected, ↓1);
                 }");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     int expected = 5;
-                    Assert.AreEqual(actual: ↓1, expected: expected);
+                    ClassicAssert.AreEqual(actual: ↓1, expected: expected);
                 }");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
@@ -59,7 +59,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 {
                     const string actual = ""act"";
                     string expected = ""exp"";
-                    Assert.AreEqual(expected, ↓actual);
+                    ClassicAssert.AreEqual(expected, ↓actual);
                 }");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
@@ -73,7 +73,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 {
                     const string actual = ""act"";
                     string expected = ""exp"";
-                    Assert.AreEqual(actual: ↓actual, expected: expected);
+                    ClassicAssert.AreEqual(actual: ↓actual, expected: expected);
                 }");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
@@ -104,7 +104,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     string expected = ""exp"";
-                    Assert.AreEqual(expected, ↓actual);
+                    ClassicAssert.AreEqual(expected, ↓actual);
                 }
             }");
 
@@ -136,7 +136,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     string actual = ""act"";
-                    Assert.AreEqual(actual, string.Empty);
+                    ClassicAssert.AreEqual(actual, string.Empty);
                 }");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
@@ -166,7 +166,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     string actual = ""act"";
-                    Assert.AreEqual(expected, actual);
+                    ClassicAssert.AreEqual(expected, actual);
                 }
             }");
 
@@ -184,7 +184,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     const string actual = ""act"";
-                    Assert.AreEqual(expected, actual);
+                    ClassicAssert.AreEqual(expected, actual);
                 }
             }");
 
@@ -202,7 +202,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     string actual = ""act"";
-                    Assert.AreEqual(actual: actual, expected: expected);
+                    ClassicAssert.AreEqual(actual: actual, expected: expected);
                 }
             }");
 
@@ -220,7 +220,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     const string actual = ""act"";
-                    Assert.AreEqual(actual: actual, expected: expected);
+                    ClassicAssert.AreEqual(actual: actual, expected: expected);
                 }
             }");
 

@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;

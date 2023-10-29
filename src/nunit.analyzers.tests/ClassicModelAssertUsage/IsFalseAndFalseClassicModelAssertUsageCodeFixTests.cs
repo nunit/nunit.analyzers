@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -32,7 +31,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
         {{
-            ↓Assert.{assertion}(false);
+            ↓ClassicAssert.{assertion}(false);
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -51,7 +50,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
         {{
-            ↓Assert.{assertion}(false, ""message"");
+            ↓ClassicAssert.{assertion}(false, ""message"");
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -70,12 +69,12 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
         {{
-            ↓Assert.{assertion}(false, ""message"", Guid.NewGuid());
+            ↓ClassicAssert.{assertion}(false, ""message-id: {{0}}"", Guid.NewGuid());
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
-            Assert.That(false, Is.False, ""message"", Guid.NewGuid());
+            Assert.That(false, Is.False, $""message-id: {Guid.NewGuid()}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
@@ -99,7 +98,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void TestMethod()
         {{
             MyBool x = false;
-            ↓Assert.{assertion}(x);
+            ↓ClassicAssert.{assertion}(x);
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         private struct MyBool

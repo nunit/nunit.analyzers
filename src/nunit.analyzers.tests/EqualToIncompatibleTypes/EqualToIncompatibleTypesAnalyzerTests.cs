@@ -31,7 +31,7 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         public void AnalyzeClassicWhenIncompatibleTypesProvided()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                "Assert.AreEqual(↓\"1\", 1);");
+                "ClassicAssert.AreEqual(↓\"1\", 1);");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -246,7 +246,7 @@ using System.Collections.Generic;");
         {
             var actual = new A();
             var expected = new B();
-            Assert.AreNotEqual(↓expected, actual);
+            ClassicAssert.AreNotEqual(↓expected, actual);
         }
     }");
 

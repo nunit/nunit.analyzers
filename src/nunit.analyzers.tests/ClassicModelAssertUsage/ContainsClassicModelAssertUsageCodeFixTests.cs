@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -34,7 +33,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var instance = new object();
             var collection = Array.Empty<object>();
 
-            ↓Assert.Contains(instance, collection);
+            ↓ClassicAssert.Contains(instance, collection);
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -56,7 +55,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var instance = new object();
             var collection = Array.Empty<object>();
 
-            ↓Assert.Contains(instance, collection, ""message"");
+            ↓ClassicAssert.Contains(instance, collection, ""message"");
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -78,7 +77,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var instance = new object();
             var collection = Array.Empty<object>();
 
-            ↓Assert.Contains(instance, collection, ""message"", Guid.NewGuid());
+            ↓ClassicAssert.Contains(instance, collection, ""message-id: {{0}}"", Guid.NewGuid());
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -86,7 +85,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var instance = new object();
             var collection = Array.Empty<object>();
 
-            Assert.That(collection, Does.Contain(instance), ""message"", Guid.NewGuid());
+            Assert.That(collection, Does.Contain(instance), $""message-id: {Guid.NewGuid()}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

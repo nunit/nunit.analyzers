@@ -10,8 +10,8 @@ namespace NUnit.Analyzers.ConstraintUsage
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class EqualConstraintUsageAnalyzer : BaseConditionConstraintAnalyzer
     {
-        private static readonly string IsEqualTo = $"{NameOfIs}.{NameOfIsEqualTo}";
-        private static readonly string IsNotEqualTo = $"{NameOfIs}.{NameOfIsNot}.{NameOfIsEqualTo}";
+        private const string IsEqualTo = $"{NameOfIs}.{NameOfIsEqualTo}";
+        private const string IsNotEqualTo = $"{NameOfIs}.{NameOfIsNot}.{NameOfIsEqualTo}";
 
         private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.EqualConstraintUsage,

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -11,27 +14,51 @@ namespace NUnit.Analyzers
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
-            context.RegisterOperationAction(this.AnalyzeInvocation, OperationKind.Invocation);
+            context.RegisterCompilationStartAction(this.AnalyzeCompilationStart);
         }
 
-        protected abstract void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation);
-
-        protected virtual bool IsAssert(IInvocationOperation invocationOperation)
+        protected virtual void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            return invocationOperation.TargetMethod.ContainingType.IsAssert();
+            throw new NotImplementedException($"You must override one of the {nameof(AnalyzeAssertInvocation)} overloads.");
         }
 
-        private void AnalyzeInvocation(OperationAnalysisContext context)
+        protected virtual void AnalyzeAssertInvocation(Version nunitVersion, OperationAnalysisContext context, IInvocationOperation assertOperation)
+        {
+            this.AnalyzeAssertInvocation(context, assertOperation);
+        }
+
+        protected virtual bool IsAssert(bool hasClassicAssert, IInvocationOperation invocationOperation)
+        {
+            INamedTypeSymbol containingType = invocationOperation.TargetMethod.ContainingType;
+            return containingType.IsAssert() || (hasClassicAssert && containingType.IsClassicAssert());
+        }
+
+        private void AnalyzeInvocation(Version nunitVersion, OperationAnalysisContext context)
         {
             if (context.Operation is not IInvocationOperation invocationOperation)
                 return;
 
-            if (!this.IsAssert(invocationOperation))
+            if (!this.IsAssert(nunitVersion.Major >= 4, invocationOperation))
                 return;
 
             context.CancellationToken.ThrowIfCancellationRequested();
 
-            this.AnalyzeAssertInvocation(context, invocationOperation);
+            this.AnalyzeAssertInvocation(nunitVersion, context, invocationOperation);
+        }
+
+        private void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
+        {
+            IEnumerable<AssemblyIdentity> referencedAssemblies = context.Compilation.ReferencedAssemblyNames;
+
+            AssemblyIdentity? nunit = referencedAssemblies.SingleOrDefault(a => a.Name.Equals("nunit.framework", StringComparison.OrdinalIgnoreCase));
+
+            if (nunit is null)
+            {
+                // Who would use NUnit.Analyzers without NUnit?
+                return;
+            }
+
+            context.RegisterOperationAction((context) => this.AnalyzeInvocation(nunit.Version, context), OperationKind.Invocation);
         }
     }
 }
