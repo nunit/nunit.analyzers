@@ -16,7 +16,8 @@ namespace NUnit.Analyzers.ContainsConstraintWrongActualType
             title: ContainsConstraintWrongActualTypeConstants.Title,
             messageFormat: ContainsConstraintWrongActualTypeConstants.Message,
             category: Categories.Assertion,
-            defaultSeverity: DiagnosticSeverity.Error,
+            defaultSeverity: DiagnosticSeverity.Hidden,
+            isEnabledByDefault: false,
             description: ContainsConstraintWrongActualTypeConstants.Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }

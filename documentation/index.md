@@ -82,7 +82,7 @@ Rules which improve assertions in the test code.
 | [NUnit2022](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2022.md) | Missing property required for constraint | :white_check_mark: | :exclamation: | :white_check_mark: |
 | [NUnit2023](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2023.md) | Invalid NullConstraint usage | :white_check_mark: | :exclamation: | :x: |
 | [NUnit2024](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2024.md) | Wrong actual type used with String Constraint | :white_check_mark: | :exclamation: | :x: |
-| [NUnit2025](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2025.md) | Wrong actual type used with ContainsConstraint | :white_check_mark: | :exclamation: | :x: |
+| [NUnit2025](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2025.md) | Wrong actual type used with ContainsConstraint | :x: | :thought_balloon: | :x: |
 | [NUnit2026](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2026.md) | Wrong actual type used with the SomeItemsConstraint with EqualConstraint | :white_check_mark: | :exclamation: | :x: |
 | [NUnit2027](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2027.md) | Consider using Assert.That(actual, Is.GreaterThan(expected)) instead of ClassicAssert.Greater(actual, expected) | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2028](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2028.md) | Consider using Assert.That(actual, Is.GreaterThanOrEqualTo(expected)) instead of ClassicAssert.GreaterOrEqual(actual, expected) | :white_check_mark: | :information_source: | :white_check_mark: |
