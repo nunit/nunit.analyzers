@@ -373,7 +373,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         {{
             var instance = new UserDefinedType(1, 1.1, ""1.1"");
 
-            Assert.That(new UserDefinedType(1, 1.2, ""1.1""), Is.EqualTo(instance).Within(0.1));
+            Assert.That(new UserDefinedType(1, 1.2, ""1.1""), Is.EqualTo(instance).↓Within(0.1));
         }}
 
         private {kind} UserDefinedType
@@ -419,7 +419,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         {
             var instance = new SomeRecord(1, 1.1, ""1.1"");
 
-            Assert.That(new SomeRecord(1, 1.2, ""1.1""), Is.EqualTo(instance).Within(0.1));
+            Assert.That(new SomeRecord(1, 1.2, ""1.1""), Is.EqualTo(instance).↓Within(0.1));
         }
 
         private sealed record SomeRecord

@@ -56,11 +56,11 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         {
             var code = TestUtility.WrapInTestMethod(@"
                 const int actual = 42;
-                ↓Assert.That(actual, Is.EqualTo(42), ""Expected actual value to be 42, but was: {0}"", actual);
+                ↓Assert.That(actual, Is.EqualTo(42), ""Expected actual value to be 42, but was: {0} at time {1:HH:mm:ss}"", actual, DateTime.Now);
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@"
                 const int actual = 42;
-                Assert.That(actual, Is.EqualTo(42), $""Expected actual value to be 42, but was: {actual}"");
+                Assert.That(actual, Is.EqualTo(42), $""Expected actual value to be 42, but was: {actual} at time {DateTime.Now:HH:mm:ss}"");
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
@@ -79,6 +79,31 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
 
             string interpolatableText = text.Replace("{0}", "{42}");
             var fixedCode = TestUtility.WrapInTestMethod($"Assert.Pass($\"{interpolatableText}\");");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [TestCase("")]
+        [TestCase(":N1")]
+        [TestCase(",5")]
+        [TestCase(",-5")]
+        [TestCase(",5:N1")]
+        public void TestFormatModifiers(string modifier)
+        {
+            string argument = "1.23";
+            var code = TestUtility.WrapInTestMethod($"↓Assert.Pass(\"{{0{modifier}}}\", {argument});");
+
+            var fixedCode = TestUtility.WrapInTestMethod($"Assert.Pass($\"{{{argument}{modifier}}}\");");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void TestEscapedBraces()
+        {
+            var code = TestUtility.WrapInTestMethod("↓Assert.Pass(\"{{{0}}}\", 42);");
+
+            var fixedCode = TestUtility.WrapInTestMethod("Assert.Pass($\"{{{42}}}\");");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }

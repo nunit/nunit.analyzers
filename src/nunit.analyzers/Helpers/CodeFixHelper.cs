@@ -159,7 +159,7 @@ namespace NUnit.Analyzers.Helpers
                             string formatClause = formatSpecification.Substring(++argumentFormatSpecification, argumentSpecificationEnd - argumentFormatSpecification);
                             interpolationFormat = SyntaxFactory.InterpolationFormatClause(
                                 SyntaxFactory.Token(SyntaxKind.ColonToken),
-                                SyntaxFactory.Literal(formatClause));
+                                InterpolatedStringTextToken(formatClause));
                         }
 
                         yield return SyntaxFactory.Interpolation(formatArgument, interpolationAlignment, interpolationFormat);

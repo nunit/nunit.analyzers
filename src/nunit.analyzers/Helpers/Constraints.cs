@@ -7,7 +7,7 @@ namespace NUnit.Analyzers.Helpers
 {
     internal sealed class Constraints
     {
-        public Constraints(string staticClass, string? modifier, string? constraintMethod, string? property1 = default, string? property2 = null)
+        public Constraints(string staticClass, string? modifier, string? constraintMethod, string? property1 = null, string? property2 = null)
         {
             this.StaticClass = staticClass;
             this.Modifier = modifier;
