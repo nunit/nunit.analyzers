@@ -410,5 +410,16 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenSuppressedNullIsPassedToAReferenceType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenSuppressedNullIsPassedToAReferenceType
+    {
+        public void Test([Values(null!)] string s) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
     }
 }

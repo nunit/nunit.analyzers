@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
@@ -83,6 +84,12 @@ namespace NUnit.Analyzers.ValuesUsage
                         continue;
                     }
 
+#if NETSTANDARD2_0_OR_GREATER
+                    if (argumentSyntax.IsKind(SyntaxKind.SuppressNullableWarningExpression))
+                    {
+                        continue;
+                    }
+#endif
                     var diagnostic = Diagnostic.Create(parameterTypeMismatch,
                                                        argumentSyntax.GetLocation(),
                                                        index,
