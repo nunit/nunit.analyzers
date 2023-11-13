@@ -56,7 +56,8 @@ namespace NUnit.Analyzers.Extensions
 
         internal static bool CanAssignTo(this TypedConstant @this, ITypeSymbol target, Compilation compilation,
             bool allowImplicitConversion = false,
-            bool allowEnumToUnderlyingTypeConversion = false)
+            bool allowEnumToUnderlyingTypeConversion = false,
+            bool suppressNullableWarning = false)
         {
             // See https://github.com/nunit/nunit/blob/f16d12d6fa9e5c879601ad57b4b24ec805c66054/src/NUnitFramework/framework/Attributes/TestCaseAttribute.cs#L396
             // for the reasoning behind this implementation.
@@ -78,7 +79,7 @@ namespace NUnit.Analyzers.Extensions
 #if NETSTANDARD1_6
                     target.IsReferenceType
 #else
-                    (target.IsReferenceType && target.NullableAnnotation != NullableAnnotation.NotAnnotated)
+                    (target.IsReferenceType && (target.NullableAnnotation != NullableAnnotation.NotAnnotated || suppressNullableWarning))
 #endif
                     || target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
                 {

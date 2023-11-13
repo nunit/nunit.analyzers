@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
@@ -66,15 +65,6 @@ namespace NUnit.Analyzers.ValuesUsage
                         continue;
                     }
 
-                    var argumentTypeMatchesParameterType = constructorArgument.CanAssignTo(parameterSymbol.Type,
-                                                                                           symbolContext.Compilation,
-                                                                                           allowImplicitConversion: true,
-                                                                                           allowEnumToUnderlyingTypeConversion: true);
-                    if (argumentTypeMatchesParameterType)
-                    {
-                        continue;
-                    }
-
                     var argumentSyntax = attribute.GetAdjustedArgumentSyntax(index,
                                                                              attributePositionalArguments,
                                                                              symbolContext.CancellationToken);
@@ -84,12 +74,16 @@ namespace NUnit.Analyzers.ValuesUsage
                         continue;
                     }
 
-#if NETSTANDARD2_0_OR_GREATER
-                    if (argumentSyntax.IsKind(SyntaxKind.SuppressNullableWarningExpression))
+                    var argumentTypeMatchesParameterType = constructorArgument.CanAssignTo(parameterSymbol.Type,
+                                                                                           symbolContext.Compilation,
+                                                                                           allowImplicitConversion: true,
+                                                                                           allowEnumToUnderlyingTypeConversion: true,
+                                                                                           suppressNullableWarning: argumentSyntax.IsSuppressNullableWarning());
+                    if (argumentTypeMatchesParameterType)
                     {
                         continue;
                     }
-#endif
+
                     var diagnostic = Diagnostic.Create(parameterTypeMismatch,
                                                        argumentSyntax.GetLocation(),
                                                        index,

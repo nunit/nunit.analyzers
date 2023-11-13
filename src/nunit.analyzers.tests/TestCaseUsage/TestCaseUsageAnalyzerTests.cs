@@ -464,6 +464,18 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeWhenArgumentPassesSuppressedNullToNonNullableReferenceType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesSuppressedNullToNonNullableType
+    {
+        [TestCase(null!)]
+        public void Test(object a) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenArgumentPassesValueToNullableType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"

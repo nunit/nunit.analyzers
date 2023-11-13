@@ -173,13 +173,19 @@ namespace NUnit.Analyzers.TestCaseUsage
                 if (methodParameterType.IsTypeParameterAndDeclaredOnMethod())
                     continue;
 
+                var argumentSyntax = attribute.GetAdjustedArgumentSyntax(i, attributePositionalArguments, context.CancellationToken);
+
+                if (argumentSyntax is null)
+                    continue;
+
                 ITypeSymbol? argumentType = attributeArgument.Type;
 
                 var argumentTypeMatchesParameterType = attributeArgument.CanAssignTo(
                     methodParameterType,
                     context.Compilation,
                     allowImplicitConversion: true,
-                    allowEnumToUnderlyingTypeConversion: true);
+                    allowEnumToUnderlyingTypeConversion: true,
+                    suppressNullableWarning: argumentSyntax.IsSuppressNullableWarning());
 
                 if (methodParameterParamsType is null && argumentTypeMatchesParameterType)
                     continue;
@@ -190,7 +196,8 @@ namespace NUnit.Analyzers.TestCaseUsage
                         methodParameterParamsType,
                         context.Compilation,
                         allowImplicitConversion: true,
-                        allowEnumToUnderlyingTypeConversion: true);
+                        allowEnumToUnderlyingTypeConversion: true,
+                        suppressNullableWarning: false);
 
                     if (argumentTypeMatchesElementType ||
                         (argumentTypeMatchesParameterType && (argumentType is not null || !methodParameterParamsType.IsValueType)))
@@ -198,11 +205,6 @@ namespace NUnit.Analyzers.TestCaseUsage
                         continue;
                     }
                 }
-
-                var argumentSyntax = attribute.GetAdjustedArgumentSyntax(i, attributePositionalArguments, context.CancellationToken);
-
-                if (argumentSyntax is null)
-                    continue;
 
                 context.ReportDiagnostic(Diagnostic.Create(parameterTypeMismatch,
                     argumentSyntax.GetLocation(),

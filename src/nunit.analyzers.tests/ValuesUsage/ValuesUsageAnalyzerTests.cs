@@ -404,7 +404,7 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
                                                                              0, "<null>", "a", "object"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentPassesNullToNullableType
+    public sealed class AnalyzeWhenArgumentPassesNullToNonNullableType
     {
         public void Test([Values(↓null)] object a) { }
     }");
@@ -420,6 +420,28 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         public void Test([Values(null!)] string s) { }
     }");
             RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSuppressedNullIsPassedToANonReferenceType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenSuppressedNullIsPassedToAReferenceType
+    {
+        public void Test([Values(↓null!)] int i) { }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer, ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage), testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSuppressedConstantIsPassedToANonNullableReferenceType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenSuppressedNullIsPassedToAReferenceType
+    {
+        public void Test([Values(↓2!)] string s) { }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer, ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage), testCode);
         }
     }
 }
