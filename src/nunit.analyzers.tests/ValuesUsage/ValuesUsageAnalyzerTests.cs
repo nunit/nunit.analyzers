@@ -159,6 +159,87 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         }
 
         [Test]
+        public void AnalyzeWhenArgumentTypeGeneric()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentTypeIsCorrect
+    {
+        [Test]
+        public void ATest<T>([Values(5, 5.0)] T blah) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [TestCase("notnull")]
+        [TestCase("class")]
+        public void AnalyzeWhenArgumentTypeGenericWithConstraintsAndNonCompatible(string constraint)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
+    {{
+        [Test]
+        public void ATest<T>([Values(↓null, ""5.0"")] T blah) where T : {constraint} {{ }}
+    }}");
+            RoslynAssert.Diagnostics(this.analyzer,
+                ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
+                testCode);
+        }
+
+        [TestCase("null")]
+        [TestCase("\"5.0\"")]
+        public void AnalyzeWhenArgumentTypeGenericWithStructConstraintsAndNonCompatible(string value)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
+    {{
+        [Test]
+        public void ATest<T>([Values(↓{value})] T blah) where T : struct {{ }}
+    }}");
+            RoslynAssert.Diagnostics(this.analyzer,
+                ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
+                testCode);
+        }
+
+        [TestCase("", "class?")]
+        [TestCase("?", "class")]
+        public void AnalyzeWhenArgumentTypeGenericWithConstraintsAndCompatible(string nullableAnnotation, string constraint)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
+    {{
+        [Test]
+        public void ATest<T>([Values(null, ""5.0"")] T{nullableAnnotation} blah) where T : {constraint} {{ }}
+    }}");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenArgumentTypeGenericAndDifferentTypes()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
+    {
+        [Test]
+        public void ATest<T>([Values(5, ↓""5.0"")] T blah) { }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer,
+                ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
+                testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenArgumentTypeGenericResolvesNullableType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
+    {
+        [Test]
+        public void ATest<T>([Values(""5.0"", null)] T blah) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeParameterIsArray()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
