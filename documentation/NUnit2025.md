@@ -5,8 +5,8 @@
 | Topic    | Value
 | :--      | :--
 | Id       | NUnit2025
-| Severity | Error
-| Enabled  | True
+| Severity | Hidden
+| Enabled  | False
 | Category | Assertion
 | Code     | [ContainsConstraintWrongActualTypeAnalyzer](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/ContainsConstraintWrongActualType/ContainsConstraintWrongActualTypeAnalyzer.cs)
 
