@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
@@ -199,7 +201,8 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
         [TestCase("private static TestCaseData[] TestCases => new TestCaseData[0];")]
         [TestCase("private static TestCaseData[] TestCases() => new TestCaseData[0];")]
         [TestCase("private static Task<TestCaseData[]> TestCases() => Task.FromResult(new TestCaseData[0]);")]
-        public void AnalyzeWhenSourceDoesProvideIEnumerable(string testCaseMember)
+        [TestCase("private static async IAsyncEnumerable<int> TestCases() { foreach (var value in new[] { 0 }) { yield return value; await Task.Yield(); } }", "using System.Collections.Generic;")]
+        public void AnalyzeWhenSourceDoesProvideIEnumerable(string testCaseMember, string? additionalUsings = null)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public class AnalyzeWhenSourceDoesProvideIEnumerable
@@ -210,9 +213,12 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
         public void Test([ValueSource(nameof(TestCases))] int number)
         {{
         }}
-    }}");
+    }}", additionalUsings);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            IEnumerable<MetadataReference> asyncEnumerableMetadata = MetadataReferences.Transitive(typeof(IAsyncEnumerable<>));
+            IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(asyncEnumerableMetadata);
+
+            RoslynAssert.Valid(analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
         }
 
         [TestCase("private static readonly object? TestCases = null;", "object?")]
@@ -230,7 +236,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
         public void AnalyzeWhenSourceDoesNotProvideIEnumerable(string testCaseMember, string returnType)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    public class AnalyzeWhenSourceDoesProvideIEnumerable
+    public class AnalyzeWhenSourceDoesNotProvideIEnumerable
     {{
 #pragma warning disable CS0414 // Consider changing the field to a 'const'
         {testCaseMember}
@@ -244,7 +250,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.ValueSourceDoesNotReturnIEnumerable)
-                .WithMessage($"The ValueSource does not return an IEnumerable or a type that implements IEnumerable. Instead it returns a '{returnType}'.");
+                .WithMessage($"The ValueSource does not return an I(Async)Enumerable or a type that implements I(Async)Enumerable. Instead it returns a '{returnType}'.");
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 

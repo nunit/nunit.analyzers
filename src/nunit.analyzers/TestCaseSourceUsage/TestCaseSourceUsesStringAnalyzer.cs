@@ -144,7 +144,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 // The Type argument in this form represents the class that provides test cases.
                 // It must have a default constructor and implement IEnumerable.
                 var sourceType = attributeInfo.SourceType;
-                bool typeImplementsIEnumerable = sourceType.IsIEnumerable(out _);
+                bool typeImplementsIEnumerable = sourceType.IsIEnumerableOrIAsyncEnumerable(out _);
                 bool typeHasDefaultConstructor = sourceType.Constructors.Any(c => c.Parameters.IsEmpty);
                 if (!typeImplementsIEnumerable)
                 {
@@ -292,7 +292,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
             SyntaxNode syntaxNode,
             ITypeSymbol typeSymbol)
         {
-            if (!typeSymbol.IsIEnumerable(out ITypeSymbol? elementType))
+            if (!typeSymbol.IsIEnumerableOrIAsyncEnumerable(out ITypeSymbol? elementType))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     sourceDoesNotReturnIEnumerable,

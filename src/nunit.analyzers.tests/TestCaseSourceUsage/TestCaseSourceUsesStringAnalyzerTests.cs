@@ -322,7 +322,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceDoesNotReturnIEnumerable)
-                .WithMessage($"The TestCaseSource does not return an IEnumerable or a type that implements IEnumerable. Instead it returns a '{returnType}'.");
+                .WithMessage($"The TestCaseSource does not return an I(Async)Enumerable or a type that implements I(Async)Enumerable. Instead it returns a '{returnType}'.");
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 

@@ -18,8 +18,8 @@ namespace NUnit.Analyzers.ValueSourceUsage
         internal const string MethodExpectParametersMessage = "The ValueSource cannot supply parameters, but the target method expects '{0}' parameter(s)";
         internal const string MethodExpectParametersDescription = "The target method expects parameters which cannot be supplied by the ValueSource.";
 
-        internal const string SourceDoesNotReturnIEnumerableTitle = "The source specified by the ValueSource does not return an IEnumerable or a type that implements IEnumerable";
-        internal const string SourceDoesNotReturnIEnumerableMessage = "The ValueSource does not return an IEnumerable or a type that implements IEnumerable. Instead it returns a '{0}'.";
-        internal const string SourceDoesNotReturnIEnumerableDescription = "The source specified by the ValueSource must return an IEnumerable or a type that implements IEnumerable.";
+        internal const string SourceDoesNotReturnIEnumerableTitle = "The source specified by the ValueSource does not return an I(Async)Enumerable or a type that implements I(Async)Enumerable";
+        internal const string SourceDoesNotReturnIEnumerableMessage = "The ValueSource does not return an I(Async)Enumerable or a type that implements I(Async)Enumerable. Instead it returns a '{0}'.";
+        internal const string SourceDoesNotReturnIEnumerableDescription = "The source specified by the ValueSource must return an I(Async)Enumerable or a type that implements I(Async)Enumerable.";
     }
 }

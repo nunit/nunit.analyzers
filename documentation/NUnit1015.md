@@ -1,6 +1,6 @@
 # NUnit1015
 
-## The source type does not implement IEnumerable
+## The source type does not implement I(Async)Enumerable
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-The source type must implement IEnumerable in order to provide test cases.
+The source type must implement I(Async)Enumerable in order to provide test cases.
 
 ## Motivation
 
@@ -45,13 +45,13 @@ class DivideCases
 
 ### Explanation
 
-In the sample above, the class `DivideCases` does not implement `IEnumerable`.
+In the sample above, the class `DivideCases` does not implement `IEnumerable` nor `IAsyncEnumerable`
 
-However, source types specified by `TestCaseSource` [must implement `IEnumerable`](https://github.com/nunit/docs/wiki/TestCaseSource-Attribute).
+However, source types specified by `TestCaseSource` [must implement `IEnumerable` or `IAsyncEnumerable`](https://github.com/nunit/docs/wiki/TestCaseSource-Attribute).
 
 ### Fix
 
-Make the source type implement `IEnumerable`:
+Make the source type implement `IEnumerable` or `IAsyncEnumerable`
 
 ```csharp
 public class MyTestClass
@@ -84,7 +84,7 @@ Configure the severity per project, for more info see [MSDN](https://learn.micro
 ### Via .editorconfig file
 
 ```ini
-# NUnit1015: The source type does not implement IEnumerable
+# NUnit1015: The source type does not implement I(Async)Enumerable
 dotnet_diagnostic.NUnit1015.severity = chosenSeverity
 ```
 
@@ -93,22 +93,22 @@ where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, 
 ### Via #pragma directive
 
 ```csharp
-#pragma warning disable NUnit1015 // The source type does not implement IEnumerable
+#pragma warning disable NUnit1015 // The source type does not implement I(Async)Enumerable
 Code violating the rule here
-#pragma warning restore NUnit1015 // The source type does not implement IEnumerable
+#pragma warning restore NUnit1015 // The source type does not implement I(Async)Enumerable
 ```
 
 Or put this at the top of the file to disable all instances.
 
 ```csharp
-#pragma warning disable NUnit1015 // The source type does not implement IEnumerable
+#pragma warning disable NUnit1015 // The source type does not implement I(Async)Enumerable
 ```
 
 ### Via attribute `[SuppressMessage]`
 
 ```csharp
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Structure",
-    "NUnit1015:The source type does not implement IEnumerable",
+    "NUnit1015:The source type does not implement I(Async)Enumerable",
     Justification = "Reason...")]
 ```
 <!-- end generated config severity -->

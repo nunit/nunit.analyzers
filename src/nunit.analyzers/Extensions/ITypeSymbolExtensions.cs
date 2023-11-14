@@ -210,6 +210,40 @@ namespace NUnit.Analyzers.Extensions
         }
 
         /// <summary>
+        /// Return value indicates whether type implements I(Async)Enumerable{T} interface.
+        /// </summary>
+        /// <param name="elementType">Contains I(Async)Enumerable generic argument, or null, if type implements
+        /// only non-generic IEnumerable interface, or no I(Async)Enumerable interface at all.</param>
+        internal static bool IsIEnumerableOrIAsyncEnumerable(this ITypeSymbol @this, out ITypeSymbol? elementType)
+        {
+            elementType = null;
+
+            var allInterfaces = @this.AllInterfaces;
+
+            if (@this is INamedTypeSymbol namedType && namedType.TypeKind == TypeKind.Interface)
+                allInterfaces = allInterfaces.Add(namedType);
+
+            var genericIEnumerableInterface = allInterfaces.FirstOrDefault(i =>
+                i.GetFullMetadataName() is "System.Collections.Generic.IEnumerable`1" or "System.Collections.Generic.IAsyncEnumerable`1");
+
+            if (genericIEnumerableInterface is not null)
+            {
+                elementType = genericIEnumerableInterface.TypeArguments.FirstOrDefault();
+                return true;
+            }
+
+            var nonGenericIEnumerableInterface = allInterfaces.FirstOrDefault(i =>
+                i.GetFullMetadataName() == "System.Collections.IEnumerable");
+
+            if (nonGenericIEnumerableInterface is not null)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Return value indicates whether type implements IDisposable.
         /// </summary>
         internal static bool IsDisposable(this ITypeSymbol @this)

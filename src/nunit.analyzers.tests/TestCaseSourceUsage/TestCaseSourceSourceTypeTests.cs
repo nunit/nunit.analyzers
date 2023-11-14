@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
 using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.TestCaseSourceUsage;
@@ -51,8 +54,35 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceSourceTypeNotIEnumerable)
-                .WithMessage("The source type 'MyTests' does not implement IEnumerable");
+                .WithMessage("The source type 'MyTests' does not implement I(Async)Enumerable");
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTypeOfSourceImplementsIAsyncEnumerable()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class AnalyzeWhenTypeOfSourceImplementsIAsyncEnumerable
+    {
+        [TestCaseSource(typeof(MyTests))]
+        public void Test(int i)
+        {
+        }
+    }
+
+    public sealed class MyTests : IAsyncEnumerable<int>
+    {
+        public IAsyncEnumerator<int> GetAsyncEnumerator(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new NotImplementedException();
+        }
+    }",
+        additionalUsings: "using System.Collections.Generic;using System.Threading;");
+
+            IEnumerable<MetadataReference> asyncEnumerableMetadata = MetadataReferences.Transitive(typeof(IAsyncEnumerable<>));
+            IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(asyncEnumerableMetadata);
+
+            RoslynAssert.Valid(analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
         }
 
         [Test]
