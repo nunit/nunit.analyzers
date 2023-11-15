@@ -180,27 +180,32 @@ namespace NUnit.Analyzers.TestCaseUsage
 
                 ITypeSymbol? argumentType = attributeArgument.Type;
 
-                var argumentTypeMatchesParameterType = attributeArgument.CanAssignTo(
-                    methodParameterType,
-                    context.Compilation,
-                    allowImplicitConversion: true,
-                    allowEnumToUnderlyingTypeConversion: true,
-                    suppressNullableWarning: argumentSyntax.IsSuppressNullableWarning());
+                if (i < methodParameters.Length)
+                {
+                    // Test against the actual parameter definition.
+                    // In case an array is passed to a params parameter.
+                    var argumentTypeMatchesParameterType = attributeArgument.CanAssignTo(
+                        methodParameterType,
+                        context.Compilation,
+                        allowImplicitConversion: true,
+                        allowEnumToUnderlyingTypeConversion: true,
+                        suppressNullableWarning: argumentSyntax.IsSuppressNullableWarning());
 
-                if (methodParameterParamsType is null && argumentTypeMatchesParameterType)
-                    continue;
+                    if (argumentTypeMatchesParameterType)
+                        continue;
+                }
 
                 if (methodParameterParamsType is not null)
                 {
+                    // Test against the element type of the params parameter.
                     var argumentTypeMatchesElementType = attributeArgument.CanAssignTo(
                         methodParameterParamsType,
                         context.Compilation,
                         allowImplicitConversion: true,
                         allowEnumToUnderlyingTypeConversion: true,
-                        suppressNullableWarning: false);
+                        suppressNullableWarning: argumentSyntax.IsSuppressNullableWarning());
 
-                    if (argumentTypeMatchesElementType ||
-                        (argumentTypeMatchesParameterType && (argumentType is not null || !methodParameterParamsType.IsValueType)))
+                    if (argumentTypeMatchesElementType)
                     {
                         continue;
                     }
