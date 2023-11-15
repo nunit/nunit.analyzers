@@ -173,36 +173,43 @@ namespace NUnit.Analyzers.TestCaseUsage
                 if (methodParameterType.IsTypeParameterAndDeclaredOnMethod())
                     continue;
 
-                ITypeSymbol? argumentType = attributeArgument.Type;
-
-                var argumentTypeMatchesParameterType = attributeArgument.CanAssignTo(
-                    methodParameterType,
-                    context.Compilation,
-                    allowImplicitConversion: true,
-                    allowEnumToUnderlyingTypeConversion: true);
-
-                if (methodParameterParamsType is null && argumentTypeMatchesParameterType)
-                    continue;
-
-                if (methodParameterParamsType is not null)
-                {
-                    var argumentTypeMatchesElementType = attributeArgument.CanAssignTo(
-                        methodParameterParamsType,
-                        context.Compilation,
-                        allowImplicitConversion: true,
-                        allowEnumToUnderlyingTypeConversion: true);
-
-                    if (argumentTypeMatchesElementType ||
-                        (argumentTypeMatchesParameterType && (argumentType is not null || !methodParameterParamsType.IsValueType)))
-                    {
-                        continue;
-                    }
-                }
-
                 var argumentSyntax = attribute.GetAdjustedArgumentSyntax(i, attributePositionalArguments, context.CancellationToken);
 
                 if (argumentSyntax is null)
                     continue;
+
+                ITypeSymbol? argumentType = attributeArgument.Type;
+
+                if (i < methodParameters.Length)
+                {
+                    // Test against the actual parameter definition.
+                    // In case an array is passed to a params parameter.
+                    var argumentTypeMatchesParameterType = attributeArgument.CanAssignTo(
+                        methodParameterType,
+                        context.Compilation,
+                        allowImplicitConversion: true,
+                        allowEnumToUnderlyingTypeConversion: true,
+                        suppressNullableWarning: argumentSyntax.IsSuppressNullableWarning());
+
+                    if (argumentTypeMatchesParameterType)
+                        continue;
+                }
+
+                if (methodParameterParamsType is not null)
+                {
+                    // Test against the element type of the params parameter.
+                    var argumentTypeMatchesElementType = attributeArgument.CanAssignTo(
+                        methodParameterParamsType,
+                        context.Compilation,
+                        allowImplicitConversion: true,
+                        allowEnumToUnderlyingTypeConversion: true,
+                        suppressNullableWarning: argumentSyntax.IsSuppressNullableWarning());
+
+                    if (argumentTypeMatchesElementType)
+                    {
+                        continue;
+                    }
+                }
 
                 context.ReportDiagnostic(Diagnostic.Create(parameterTypeMismatch,
                     argumentSyntax.GetLocation(),

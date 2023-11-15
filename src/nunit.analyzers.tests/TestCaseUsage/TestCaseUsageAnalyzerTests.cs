@@ -464,6 +464,44 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeWhenArgumentPassesSuppressedNullToNonNullableReferenceType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesSuppressedNullToNonNullableType
+    {
+        [TestCase(null!)]
+        public void Test(object a) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenArgumentPassesNullToNonNullableParamsReferenceType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesSuppressedNullToNonNullableType
+    {
+        [TestCase(""Hello"", null)]
+        public void Test(params string[] a) { }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer,
+                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
+                testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenArgumentPassesSuppressedNullToNonNullableParamsReferenceType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesSuppressedNullToNonNullableType
+    {
+        [TestCase(""Hello"", null!)]
+        public void Test(params string[] a) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenArgumentPassesValueToNullableType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"

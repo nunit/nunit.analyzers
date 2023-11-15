@@ -65,20 +65,21 @@ namespace NUnit.Analyzers.ValuesUsage
                         continue;
                     }
 
-                    var argumentTypeMatchesParameterType = constructorArgument.CanAssignTo(parameterSymbol.Type,
-                                                                                           symbolContext.Compilation,
-                                                                                           allowImplicitConversion: true,
-                                                                                           allowEnumToUnderlyingTypeConversion: true);
-                    if (argumentTypeMatchesParameterType)
-                    {
-                        continue;
-                    }
-
                     var argumentSyntax = attribute.GetAdjustedArgumentSyntax(index,
                                                                              attributePositionalArguments,
                                                                              symbolContext.CancellationToken);
 
                     if (argumentSyntax is null)
+                    {
+                        continue;
+                    }
+
+                    var argumentTypeMatchesParameterType = constructorArgument.CanAssignTo(parameterSymbol.Type,
+                                                                                           symbolContext.Compilation,
+                                                                                           allowImplicitConversion: true,
+                                                                                           allowEnumToUnderlyingTypeConversion: true,
+                                                                                           suppressNullableWarning: argumentSyntax.IsSuppressNullableWarning());
+                    if (argumentTypeMatchesParameterType)
                     {
                         continue;
                     }

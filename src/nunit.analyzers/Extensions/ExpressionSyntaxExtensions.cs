@@ -48,5 +48,14 @@ namespace NUnit.Analyzers.Extensions
                     return null;
             }
         }
+
+        public static bool IsSuppressNullableWarning(this ExpressionSyntax expression)
+        {
+#if NETSTANDARD1_6
+            return false;
+#else
+            return expression.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.SuppressNullableWarningExpression);
+#endif
+        }
     }
 }
