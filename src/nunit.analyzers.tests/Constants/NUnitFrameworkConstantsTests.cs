@@ -69,6 +69,11 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfHasMember), nameof(Has.Member)),
 
             (nameof(NUnitFrameworkConstants.NameOfMultiple), nameof(Assert.Multiple)),
+#if NUNIT4
+            (nameof(NUnitFrameworkConstants.NameOfMultipleAsync), nameof(Assert.MultipleAsync)),
+#else
+            (nameof(NUnitFrameworkConstants.NameOfMultipleAsync), "MultipleAsync"),
+#endif
 
             (nameof(NUnitFrameworkConstants.NameOfThrows), nameof(Throws)),
             (nameof(NUnitFrameworkConstants.NameOfThrowsArgumentException), nameof(Throws.ArgumentException)),

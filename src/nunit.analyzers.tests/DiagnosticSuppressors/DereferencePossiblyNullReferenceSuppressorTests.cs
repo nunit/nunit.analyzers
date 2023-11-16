@@ -362,6 +362,29 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
+#if NUNIT4
+        [Test]
+        public void InsideAssertMultipleAsync()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                [TestCase("""")]
+                public async Task Test(string? s)
+                {{
+                    await Assert.MultipleAsync(async () =>
+                    {{
+                        await Task.Yield();
+                        ClassicAssert.NotNull(s);
+                        Assert.That(↓s.Length, Is.GreaterThan(0));
+                    }});
+                }}
+            ");
+
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+#endif
+
         [TestCase("ClassicAssert.True(nullable.HasValue)")]
         [TestCase("ClassicAssert.IsTrue(nullable.HasValue)")]
         [TestCase("Assert.That(nullable.HasValue, \"Ensure Value is set\")")]

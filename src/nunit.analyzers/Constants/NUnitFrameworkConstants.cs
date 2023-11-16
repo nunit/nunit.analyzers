@@ -50,6 +50,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfHasMember = "Member";
 
         public const string NameOfMultiple = "Multiple";
+        public const string NameOfMultipleAsync = "MultipleAsync";
 
         public const string NameOfThrows = "Throws";
         public const string NameOfThrowsArgumentException = "ArgumentException";

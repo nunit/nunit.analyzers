@@ -27,6 +27,26 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
+#if NUNIT4
+        [Test]
+        public void AnalyzeWhenMultipleAsyncIsUsed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public async Task Test()
+        {
+            await Assert.MultipleAsync(async () =>
+            {
+                Assert.That(await Get1(), Is.Not.Null);
+                Assert.That(await Get2(), Is.Not.Null);
+            });
+
+            static Task<string?> Get1() => Task.FromResult(default(string));
+            static Task<string?> Get2() => Task.FromResult(default(string));
+        }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+#endif
+
         [Test]
         public void AnalyzeWhenDependent()
         {

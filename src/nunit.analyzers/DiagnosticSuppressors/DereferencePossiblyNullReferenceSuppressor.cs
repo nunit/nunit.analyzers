@@ -357,7 +357,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                         return true;
                     }
                 }
-                else if (member == NUnitFrameworkConstants.NameOfMultiple)
+                else if (member is NUnitFrameworkConstants.NameOfMultiple or NUnitFrameworkConstants.NameOfMultipleAsync)
                 {
                     // Look up into the actual asserted parameter
                     if (argumentList.Arguments.FirstOrDefault()?.Expression is AnonymousFunctionExpressionSyntax anonymousFunction)
