@@ -54,6 +54,8 @@ namespace NUnit.Analyzers.ValuesUsage
 
                 var attributePositionalArguments = attribute.ConstructorArguments.AdjustArguments();
 
+                TypedConstant? resolvedGeneric = null;
+
                 for (var index = 0; index < attributePositionalArguments.Length; index++)
                 {
                     var constructorArgument = attributePositionalArguments[index];
@@ -74,14 +76,48 @@ namespace NUnit.Analyzers.ValuesUsage
                         continue;
                     }
 
+                    bool usesNullForgivessOperator = argumentSyntax.IsSuppressNullableWarning();
+
                     var argumentTypeMatchesParameterType = constructorArgument.CanAssignTo(parameterSymbol.Type,
                                                                                            symbolContext.Compilation,
                                                                                            allowImplicitConversion: true,
                                                                                            allowEnumToUnderlyingTypeConversion: true,
-                                                                                           suppressNullableWarning: argumentSyntax.IsSuppressNullableWarning());
+                                                                                           suppressNullableWarning: usesNullForgivessOperator);
                     if (argumentTypeMatchesParameterType)
                     {
-                        continue;
+                        if (parameterSymbol.Type.TypeKind == TypeKind.TypeParameter)
+                        {
+                            if (resolvedGeneric is null)
+                            {
+                                // Remember first non-null argument to compare others to.
+                                if (constructorArgument.Type is not null)
+                                    resolvedGeneric = constructorArgument;
+
+                                continue;
+                            }
+                            else
+                            {
+                                // The arguments must also be compatible with first matched class
+                                // In case the first one is 'int' and the next one 'double' check reverse match as well
+                                if (constructorArgument.CanAssignTo(resolvedGeneric.Value.Type!,
+                                                                    symbolContext.Compilation,
+                                                                    allowImplicitConversion: true,
+                                                                    allowEnumToUnderlyingTypeConversion: true,
+                                                                    suppressNullableWarning: usesNullForgivessOperator) ||
+                                    resolvedGeneric.Value.CanAssignTo(constructorArgument.Type!,
+                                                                      symbolContext.Compilation,
+                                                                      allowImplicitConversion: true,
+                                                                      allowEnumToUnderlyingTypeConversion: true,
+                                                                      suppressNullableWarning: false /* resolvedGeneric has non-null value */))
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        }
                     }
 
                     var diagnostic = Diagnostic.Create(parameterTypeMismatch,

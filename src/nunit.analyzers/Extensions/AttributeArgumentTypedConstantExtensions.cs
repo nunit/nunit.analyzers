@@ -73,6 +73,8 @@ namespace NUnit.Analyzers.Extensions
             if (targetType is null)
                 return false;
 
+            var typeParameter = targetType as ITypeParameterSymbol;
+
             if (argumentValue is null)
             {
                 if (
@@ -85,6 +87,21 @@ namespace NUnit.Analyzers.Extensions
                 {
                     return true;
                 }
+
+#if !NETSTANDARD1_6
+                if (typeParameter is not null)
+                {
+                    if (typeParameter.HasValueTypeConstraint ||
+                        typeParameter.HasNotNullConstraint ||
+                        (typeParameter.HasReferenceTypeConstraint && typeParameter.ReferenceTypeConstraintNullableAnnotation == NullableAnnotation.NotAnnotated))
+                    {
+                        return false;
+                    }
+
+                    // Either no constraint or class?
+                    return true;
+                }
+#endif
             }
             else
             {
@@ -93,6 +110,17 @@ namespace NUnit.Analyzers.Extensions
 
                 if (argumentType is null)
                     return false;
+
+                if (typeParameter is not null)
+                {
+                    if ((typeParameter.HasReferenceTypeConstraint && !argumentType.IsReferenceType) ||
+                        (typeParameter.HasValueTypeConstraint && argumentType.IsReferenceType))
+                    {
+                        return false;
+                    }
+
+                    return true;
+                }
 
                 if (targetType.IsAssignableFrom(argumentType)
                     || (allowImplicitConversion && HasBuiltInImplicitConversion(argumentType, targetType, compilation)))
