@@ -1,4 +1,45 @@
-﻿NUnit Analyzers 3.9 (and 2.9) - October 27, 2023
+﻿NUnit Analyzers 3.10-beta1 (and 2.9-beta1) - November 17, 2023
+
+This beta adds support for the upcoming NUnit 4 - see pull request #612 - which solves the following issues
+* #620 Make Classic Conversion rule for CollectionAssert improvement
+* #618 Make Classic Conversion rule for StringAssert
+* #617 Update .Within makes no sense rule
+* #610 Ensure Test Code works with NUnit4
+* #606 Support for NUnit 4 legacy asserts
+* #562 Warn use of params for assertion messages
+
+The primary change is the handling of the movement of classic asserts into a new namespace
+`NUnit.Framework.Legacy` and of the improved assert result messages - for more information see
+https://docs.nunit.org/articles/nunit/Towards-NUnit4.html. The analyzers can help updating the
+classic assert and fix the assert messages.
+
+The release contains contributions from the following users (in alphabetical order):
+* CollinAlpert
+* manfred-brands
+* mikkelbu
+* OsirisTerje
+
+Issues Resolved
+
+Features and Enhancements
+* #620 Make Classic Conversion rule for CollectionAssert improvement
+* #618 Make Classic Conversion rule for StringAssert
+* #617 Update .Within makes no sense rule
+* #615 Add support for Assert.MultipleAsync
+* #610 Ensure Test Code works with NUnit4
+* #606 Support for NUnit 4 legacy asserts
+* #562 Warn use of params for assertion messages
+
+Bugs
+* #632 NUnit1031 doesn't seem to work with Generic parameters
+* #631 NUnit1001/NUnit1031 don't observe null forgiveness operator
+* #621 NUnit2025 fires unnecessarily
+
+Tooling, Process, and Documentation
+* #633 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.7.2 to 17.8.0
+
+
+NUnit Analyzers 3.9 (and 2.9) - October 27, 2023
 
 This release contains bugfixes to NUnit2045 - Use Assert.Multiple - and NUnit1032 - 
 An IDisposable field/property should be Disposed in a TearDown method - and corrects
