@@ -99,7 +99,7 @@ namespace NUnit.Analyzers.Helpers
             while ((possibleAssertMultiple = node.Ancestors().OfType<InvocationExpressionSyntax>().FirstOrDefault()) is not null)
             {
                 // Is the statement inside a Block which is part of an Assert.Multiple.
-                if (IsAssert(possibleAssertMultiple, NUnitFrameworkConstants.NameOfMultiple))
+                if (IsAssert(possibleAssertMultiple, NUnitFrameworkConstants.NameOfMultiple, NUnitFrameworkConstants.NameOfMultipleAsync))
                 {
                     return true;
                 }
