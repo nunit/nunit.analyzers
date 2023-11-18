@@ -127,4 +127,4 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
 #endif
 
     }
-    }
+}
