@@ -152,7 +152,7 @@ namespace NUnit.Analyzers.ValueSourceUsage
                 if (symbol is IMethodSymbol && memberType.IsAwaitable(out ITypeSymbol? returnType))
                     memberType = returnType;
 
-                if (!memberType.IsIEnumerable(out var _))
+                if (!memberType.IsIEnumerableOrIAsyncEnumerable(out var _))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         sourceDoesNotReturnIEnumerable,
