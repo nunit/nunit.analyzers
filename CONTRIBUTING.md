@@ -18,8 +18,6 @@ For bug reports please provide as much information as possible:
 * Include steps to reproduce the issue
 * The expected and the actual behaviour (preferably including small code examples)
 
-If the analyzers unexpectedly do not report a diagnostic, then try to compile the analyzers and run the analyzers as a VSIX extension as this will make them throw exceptions visible in Visual Studio, see the section **Building using Visual Studio** below for more information.
-
 ### Requests for Improvements and New Functionality
 
 For requests for improvements and new functionality please provide:
@@ -50,13 +48,9 @@ The project can now be built from within **Visual Studio 2017** or **Visual Stud
 
 ### Building using Visual Studio
 
-From Visual Studio one can debug the analyzers by setting the **nunit.analyzers.vsix** project as the StartUp project and pressing F5 (Start Debugging). This will compile the analyzers as an extension and start a new (experimental) instance of Visual Studio with the extension.
+From Visual Studio one can debug the analyzers by adding a small test that illustrates the problem (get inspiration from the existing tests - depending on whether it is a problem with a diagnostic or a codefix). Add a breakpoint to the relevant method, compile and run the test from within Visual Studio, and you can now debug the analyzer code.
 
 ### Building using Cake
 
 The command `.\build.ps1` will restore the packages necessary to build the solution, build the projects, and then run the tests. The script can also build the projects in **Release** mode using the option `--configuration=Release` or create NuGet Packages using the option `--target=Pack`. This will create a NuGet package under `package\Debug\` (for a `Debug` build) and the file will be named `NUnit.Analyzers.***.nupkg` where `***` depends upon the build type (`Debug` vs. `Release`) and the version. The NuGet package can then be referenced from another project.
 You need to use the `--targetFramework=netstandard1.6` option to build a analyzer version for `netstandard1.6` (VS 2017), this version will not include the new DiagnosticSuppressor rules (NUnit3001-) as these require `netstandard2.0`.
-
-See [NuGet package versus VSIX extension
-](https://learn.microsoft.com/en-us/visualstudio/code-quality/roslyn-analyzers-overview?#nuget-package-versus-vsix-extension) for more information about the difference between installing a Roslyn analyzer as a NuGet package or as a Visual Studio extension.
-

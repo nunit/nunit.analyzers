@@ -5,8 +5,6 @@ VisualStudioVersion = 17.2.32210.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nunit.analyzers", "nunit.analyzers\nunit.analyzers.csproj", "{74151914-3C12-4EAC-8FD5-5766EBEA35A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nunit.analyzers.vsix", "nunit.analyzers.vsix\nunit.analyzers.vsix.csproj", "{5D87311B-74DE-4DF9-BCC3-E14D8EE4E7B0}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nunit.analyzers.tests", "nunit.analyzers.tests\nunit.analyzers.tests.csproj", "{070974CB-B483-4347-BA5A-53ED977E639C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documentation", "documentation", "{2F501E14-35D4-432A-9F93-810A0AAEA128}"
