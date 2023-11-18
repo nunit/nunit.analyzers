@@ -42,13 +42,21 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
 
         protected override void AnalyzeAssertInvocation(Version nunitVersion, OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            if (nunitVersion.Major >= 4)
+            if (nunitVersion.Major < 4)
             {
-                // Too late, this won't work as the method with the `params` parameter doesn't exists
-                // and won't be resolved by the compiler.
-                return;
+                AnalyzeNUnit3AssertInvocation(context, assertOperation);
             }
+            else
+            {
+                AnalyzeNUnit4AssertInvocation(context, assertOperation);
+            }
+        }
 
+        /// <summary>
+        /// This looks to see if the `params` overload is called.
+        /// </summary>
+        private static void AnalyzeNUnit3AssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
+        {
             int lastParameterIndex = assertOperation.TargetMethod.Parameters.Length - 1;
             if (lastParameterIndex > 0 && assertOperation.TargetMethod.Parameters[lastParameterIndex].IsParams)
             {
@@ -57,21 +65,10 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
                 {
                     string methodName = assertOperation.TargetMethod.Name;
 
-                    if (!ObsoleteParamsMethods.Contains(methodName))
+                    if (ObsoleteParamsMethods.Contains(methodName))
                     {
-                        return;
+                        ReportDiagnostic(context, assertOperation, methodName, lastParameterIndex - 1);
                     }
-
-                    int minimumNumberOfArguments = lastParameterIndex - 1;
-
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        updateStringFormatToInterpolatableString,
-                        assertOperation.Syntax.GetLocation(),
-                        new Dictionary<string, string?>
-                        {
-                            [AnalyzerPropertyKeys.ModelName] = methodName,
-                            [AnalyzerPropertyKeys.MinimumNumberOfArguments] = minimumNumberOfArguments.ToString(CultureInfo.InvariantCulture),
-                        }.ToImmutableDictionary()));
                 }
             }
 
@@ -86,6 +83,61 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
                 // If it is a reference to an array variable, it is also no good.
                 return argument.ArgumentKind == ArgumentKind.Explicit;
             }
+        }
+
+        /// <summary>
+        /// This looks to see if the `CallerMemberExpression` parameters are explicitly specified.
+        /// </summary>
+        private static void AnalyzeNUnit4AssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
+        {
+            string methodName = assertOperation.TargetMethod.Name;
+
+            if (methodName != NUnitFrameworkConstants.NameOfAssertThat)
+            {
+                // Only Assert.That has CallerMemberExpression that could be accidentally used as format paramaters
+                return;
+            }
+
+            // Find the 'message' parameter.
+            ImmutableArray<IParameterSymbol> parameters = assertOperation.TargetMethod.Parameters;
+            int formatParameterIndex = 1;
+            for (;  formatParameterIndex < parameters.Length; formatParameterIndex++)
+            {
+                IParameterSymbol parameter = parameters[formatParameterIndex];
+                if (parameter.IsOptional)
+                {
+                    if (parameter.Name == "message")
+                        break;
+
+                    // Overload with FormattableString or Func<string> overload
+                    return;
+                }
+            }
+
+            ImmutableArray<IArgumentOperation> arguments = assertOperation.Arguments;
+            if (arguments.Length > formatParameterIndex && arguments[formatParameterIndex + 1].ArgumentKind == ArgumentKind.Explicit)
+            {
+                // The argument after the message is explicitly specified
+                // Most likely the user thought it was using a format specification with a parameter.
+                // Or it copied code from some NUnit 3.x source into an NUNit 4 project.
+                ReportDiagnostic(context, assertOperation, methodName, formatParameterIndex);
+            }
+        }
+
+        private static void ReportDiagnostic(
+            OperationAnalysisContext context,
+            IInvocationOperation assertOperation,
+            string methodName,
+            int minimumNumberOfArguments)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(
+                updateStringFormatToInterpolatableString,
+                assertOperation.Syntax.GetLocation(),
+                new Dictionary<string, string?>
+                {
+                    [AnalyzerPropertyKeys.ModelName] = methodName,
+                    [AnalyzerPropertyKeys.MinimumNumberOfArguments] = minimumNumberOfArguments.ToString(CultureInfo.InvariantCulture),
+                }.ToImmutableDictionary()));
         }
     }
 }

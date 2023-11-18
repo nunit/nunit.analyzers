@@ -1,5 +1,3 @@
-#if !NUNIT4
-
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -25,6 +23,25 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
             Assert.That(ids, Is.EquivalentTo(new[] { AnalyzerIdentifiers.UpdateStringFormatToInterpolatableString }));
         }
 
+#if NUNIT4
+        [Test]
+        public void AccidentallyUseFormatSpecification()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [TestCase(""NUnit 4.0"", ""NUnit 3.14"")]
+        public void AssertSomething(string actual, string expected)
+        {
+            ↓Assert.That(actual, Is.EqualTo(expected).IgnoreCase, ""Expected '{0}', but got: {1}"", expected, actual);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [TestCase(""NUnit 4.0"", ""NUnit 3.14"")]
+        public void AssertSomething(string actual, string expected)
+        {
+            Assert.That(actual, Is.EqualTo(expected).IgnoreCase, $""Expected '{expected}', but got: {actual}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+#else
         [TestCase(NUnitFrameworkConstants.NameOfAssertIgnore)]
         public void ConvertWhenNoMinimumParameters(string method)
         {
@@ -107,6 +124,7 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
+#endif
+
     }
 }
-#endif

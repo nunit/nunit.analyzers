@@ -12,9 +12,7 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
     public sealed class UpdateStringFormatToInterpolatableStringAnalyzerTests
     {
         private readonly DiagnosticAnalyzer analyzer = new UpdateStringFormatToInterpolatableStringAnalyzer();
-#if !NUNIT4
         private readonly ExpectedDiagnostic diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.UpdateStringFormatToInterpolatableString);
-#endif
 
         private static IEnumerable<string> NoArgumentsAsserts { get; } = new[]
         {
@@ -92,7 +90,6 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
-#if !NUNIT4
         [Test]
         public void AnalyzeAssertBoolWhenFormatAndArgumentsAreUsed()
         {
@@ -101,7 +98,6 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
             ");
             RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }
-#endif
 
         [Test]
         public void AnalyzeAssertBoolWhenFormattableStringIsUsed()
@@ -130,6 +126,19 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
                 Assert.That(pi, Is.EqualTo(3.1415).Within(0.0001), ""Message"");
             ");
             RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeAssertThatWhenFormatAndStringArgumentsAreUsed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [TestCase(""NUnit 4.0"", ""NUnit 3.14"")]
+        public void AssertSomething(string actual, string expected)
+        {
+            ↓Assert.That(actual, Is.EqualTo(expected).IgnoreCase, ""Expected '{0}', but got: {1}"", expected, actual);
+        }");
+
+            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }
 
 #if !NUNIT4
