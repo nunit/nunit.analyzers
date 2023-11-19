@@ -12,12 +12,13 @@
 
 ## Description
 
-Consider using the constraint model, `Assert.That(actual, Is.GreaterThan(expected))`, instead of the classic model, `ClassicAssert.Greater(actual, expected)`.
+Consider using the constraint model, `Assert.That(actual, Is.GreaterThan(expected))`, instead of the classic model,
+`ClassicAssert.Greater(actual, expected)`.
 
 ## Motivation
 
-The assert `ClassicAssert.Greater` from the classic Assert model makes it easy to confuse the `expected` and the `actual` argument,
-so this analyzer marks usages of `ClassicAssert.Greater`.
+The assert `ClassicAssert.Greater` from the classic Assert model makes it easy to confuse the `expected` and the `actual`
+argument, so this analyzer marks usages of `ClassicAssert.Greater`.
 
 ```csharp
 [Test]
@@ -45,7 +46,8 @@ public void Test()
 
 ### Via ruleset file
 
-Configure the severity per project, for more info see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+Configure the severity per project, for more info see
+[MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
 ### Via .editorconfig file
 

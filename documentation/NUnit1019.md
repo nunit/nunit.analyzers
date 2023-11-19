@@ -36,10 +36,11 @@ public class AnalyzeWhenSourceDoesProvideIEnumerable
 
 ### Explanation
 
-In the sample above, the source specified by `TestCaseSource` - the field `testCases` - does not return an `I(Async)Enumerable` or a type that implements `I(Async)Enumerable`,
-instead it returns an `int`.
+In the sample above, the source specified by `TestCaseSource` - the field `testCases` - does not return an
+`I(Async)Enumerable` or a type that implements `I(Async)Enumerable`, instead it returns an `int`.
 
-However, sources specified by `TestCaseSource` [must return an `I(Async)Enumerable` or a type that implements `I(Async)Enumerable`.](https://github.com/nunit/docs/wiki/TestCaseSource-Attribute).
+However, sources specified by `TestCaseSource`
+[must return an `I(Async)Enumerable` or a type that implements `I(Async)Enumerable`.](https://github.com/nunit/docs/wiki/TestCaseSource-Attribute).
 
 ### Fix
 
@@ -62,7 +63,8 @@ public class AnalyzeWhenSourceDoesProvideIEnumerable
 
 ### Via ruleset file
 
-Configure the severity per project, for more info see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+Configure the severity per project, for more info see
+[MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
 ### Via .editorconfig file
 

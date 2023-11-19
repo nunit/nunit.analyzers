@@ -12,12 +12,13 @@
 
 ## Description
 
-Consider using the constraint model, `Assert.That(actual, Is.SameAs(expected))`, instead of the classic model, `ClassicAssert.AreSame(expected, actual)`.
+Consider using the constraint model, `Assert.That(actual, Is.SameAs(expected))`, instead of the classic model,
+`ClassicAssert.AreSame(expected, actual)`.
 
 ## Motivation
 
-The assert `ClassicAssert.AreSame` from the classic Assert model makes it easy to confuse the `expected` and the `actual` argument,
-so this analyzer marks usages of `ClassicAssert.AreSame`.
+The assert `ClassicAssert.AreSame` from the classic Assert model makes it easy to confuse the `expected` and the
+`actual` argument, so this analyzer marks usages of `ClassicAssert.AreSame`.
 
 ```csharp
 [Test]
@@ -29,7 +30,7 @@ public void Test()
 
 ## How to fix violations
 
-The analyzer comes with a code fix that will replace `ClassicAssert.AreSame(expected, actual)` with
+The analyzer comes with a code fix that will replace `ClassicAssert.AreSame(expected, actual)` with 
 `Assert.That(actual, Is.SameAs(expected))`. So the code block above will be changed into.
 
 ```csharp
@@ -45,7 +46,8 @@ public void Test()
 
 ### Via ruleset file
 
-Configure the severity per project, for more info see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+Configure the severity per project, for more info see
+[MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
 ### Via .editorconfig file
 

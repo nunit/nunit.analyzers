@@ -16,8 +16,11 @@ Field/Property is Disposed in TearDown or OneTimeTearDown method
 
 ## Motivation
 
-The Roslyn analyzer fires [CA1001](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1001)
-for classes that have [`IDisposable`](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable) members, but itself is not `IDisposable`.
+The Roslyn analyzer fires
+[CA1001](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1001)
+for classes that have
+[`IDisposable`](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable) members, but itself is not
+`IDisposable`.
 
 Many NUnit tests initialize fields in tests or a `SetUp` method and then `Dispose` them in the `TearDown` method.
 

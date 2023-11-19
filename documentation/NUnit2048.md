@@ -12,12 +12,13 @@
 
 ## Description
 
-Consider using the constraint model, `Assert.That(actual, {0}(expected))`, instead of the classic model, `StringAssert.{1}(expected, actual)`.
+Consider using the constraint model, `Assert.That(actual, {0}(expected))`, instead of the classic model,
+`StringAssert.{1}(expected, actual)`.
 
 ## Motivation
 
-The classic Assert model contains less flexibility than the constraint model and makes it easy to mix the `expected` and the `actual` parameter,
-so this analyzer marks usages of all `StringAssert` methods from the classic Assert model.
+The classic Assert model contains less flexibility than the constraint model and makes it easy to mix the `expected` and
+the `actual` parameter, so this analyzer marks usages of all `StringAssert` methods from the classic Assert model.
 
 ```csharp
 [Test]
@@ -63,7 +64,8 @@ public void Test()
 
 ### Via ruleset file
 
-Configure the severity per project, for more info see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+Configure the severity per project, for more info see
+[MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
 ### Via .editorconfig file
 

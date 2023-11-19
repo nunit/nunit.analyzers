@@ -12,12 +12,13 @@
 
 ## Description
 
-Consider using the constraint model, `Assert.That(actual, Is.Not.SameAs(expected))`, instead of the classic model, `ClassicAssert.AreNotSame(expected, actual)`.
+Consider using the constraint model, `Assert.That(actual, Is.Not.SameAs(expected))`, instead of the classic model,
+`ClassicAssert.AreNotSame(expected, actual)`.
 
 ## Motivation
 
-The assert `ClassicAssert.AreNotSame` from the classic Assert model makes it easy to confuse the `expected` and the `actual` argument,
-so this analyzer marks usages of `ClassicAssert.AreNotSame`.
+The assert `ClassicAssert.AreNotSame` from the classic Assert model makes it easy to confuse the `expected` and the
+`actual` argument, so this analyzer marks usages of `ClassicAssert.AreNotSame`.
 
 ```csharp
 [Test]
@@ -45,7 +46,8 @@ public void Test()
 
 ### Via ruleset file
 
-Configure the severity per project, for more info see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+Configure the severity per project, for more info see
+[MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
 ### Via .editorconfig file
 

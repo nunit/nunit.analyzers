@@ -44,7 +44,8 @@ public class MyTestClass
 
 In the sample above, `DivideCases` is not a `static` field.
 
-However, sources specified by `TestCaseSource` [must be `static`](https://github.com/nunit/docs/wiki/TestCaseSource-Attribute).
+However, sources specified by `TestCaseSource`
+[must be `static`](https://github.com/nunit/docs/wiki/TestCaseSource-Attribute).
 
 ### Fix
 
@@ -73,7 +74,8 @@ public class MyTestClass
 
 ### Via ruleset file
 
-Configure the severity per project, for more info see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+Configure the severity per project, for more info see
+[MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
 ### Via .editorconfig file
 
