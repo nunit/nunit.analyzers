@@ -14,8 +14,10 @@
 
 This rule check diagnostics reported by the CS8618 compiler error:
 
-* `CS8618: Non-nullable field '_name_' must contain a non-null value when exiting constructor. Consider declaring the field as nullable.`
-* `CS8618: Non-nullable property '_Name_' must contain a non-null value when exiting constructor. Consider declaring the property as nullable.`
+* `CS8618: Non-nullable field '_name_' must contain a non-null value when exiting constructor. Consider declaring the
+field as nullable.`
+* `CS8618: Non-nullable property '_Name_' must contain a non-null value when exiting constructor. Consider declaring the
+property as nullable.`
 
 If the violating field/property is set in the `SetUp` or `OneTimeSetUp` method. The rule suppresses the error.
 This allows for non-nullable fields/properties to be used in a `TestFixture`.
