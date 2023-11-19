@@ -1,4 +1,4 @@
-## Overview of implemented NUnit diagnostics and code fixes
+# Overview of implemented NUnit diagnostics and code fixes
 
 In the tables below we use the following symbols:
 
@@ -13,7 +13,7 @@ The severity of a diagnostic can the one of the following (in increasing severit
 * :warning: - indicates a severity of **Warning**
 * :exclamation: - indicates a severity of **Error**
 
-### Structure Rules (NUnit1001 - )
+## Structure Rules (NUnit1001 - )
 
 Rules which enforce structural requirements on the test code.
 
@@ -52,7 +52,7 @@ Rules which enforce structural requirements on the test code.
 | [NUnit1031](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1031.md) | The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method | :white_check_mark: | :exclamation: | :x: |
 | [NUnit1032](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1032.md) | An IDisposable field/property should be Disposed in a TearDown method | :white_check_mark: | :exclamation: | :x: |
 
-### Assertion Rules (NUnit2001 - )
+## Assertion Rules (NUnit2001 - )
 
 Rules which improve assertions in the test code.
 
@@ -109,7 +109,7 @@ Rules which improve assertions in the test code.
 | [NUnit2049](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2049.md) | Consider using Assert.That(...) instead of CollectionAssert(...) | :white_check_mark: | :warning: | :white_check_mark: |
 | [NUnit2050](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2050.md) | NUnit 4 no longer supports string.Format specification | :white_check_mark: | :exclamation: | :white_check_mark: |
 
-### Suppressor Rules (NUnit3001 - )
+## Suppressor Rules (NUnit3001 - )
 
 Rules which suppress compiler errors based on context. Note that these rules are only available in the .NET Standard 2.0
 builds (version 3.0.0 and above) which require Visual Studio 2019.

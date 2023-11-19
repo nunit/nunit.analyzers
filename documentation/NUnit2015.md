@@ -30,7 +30,7 @@ public void Test()
 
 ## How to fix violations
 
-The analyzer comes with a code fix that will replace `ClassicAssert.AreSame(expected, actual)` with 
+The analyzer comes with a code fix that will replace `ClassicAssert.AreSame(expected, actual)` with
 `Assert.That(actual, Is.SameAs(expected))`. So the code block above will be changed into.
 
 ```csharp
