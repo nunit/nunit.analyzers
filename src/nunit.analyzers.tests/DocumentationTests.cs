@@ -152,11 +152,12 @@ namespace NUnit.Analyzers.Tests
                               .ToString(CultureInfo.InvariantCulture)
                               .Split('\n')
                               .First();
-            var actualRaw =
+            var actualRawLines =
                 descriptorInfo.DocumentationFile.AllLines
                               .SkipWhile(l => !l.StartsWith("## Description", StringComparison.OrdinalIgnoreCase))
-                              .Skip(1)
-                              .First(l => !string.IsNullOrWhiteSpace(l));
+                              .Skip(2)
+                              .TakeWhile(l => !string.IsNullOrWhiteSpace(l));
+            var actualRaw = string.Join(" ", actualRawLines);
             var actual = Replace(actualRaw, "`", string.Empty);
 
             DumpIfRequested(expected);
