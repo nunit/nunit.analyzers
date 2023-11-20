@@ -1,5 +1,6 @@
 # NUnit2028
 
+<!-- markdownlint-disable-next-line MD013 -->
 ## Consider using Assert.That(actual, Is.GreaterThanOrEqualTo(expected)) instead of ClassicAssert.GreaterOrEqual(actual, expected)
 
 | Topic    | Value
