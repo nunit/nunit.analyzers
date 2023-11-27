@@ -4,7 +4,7 @@ This release adds a couple of improvements to the analyzers:
 * Check that users don't accidentally specify CallerArgumentExpression parameters
 * Relax analyzers for added support for IAsyncEnumerable on *Source attributes
 
-These improvements extends the functionality in the beta hat added support for NUnit 4 and
+These improvements extend the functionality in the beta that added support for NUnit 4 and
 for migrating to NUnit 4.
 
 The release contains contributions from the following users (in alphabetical order):
