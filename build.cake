@@ -14,8 +14,8 @@ var isNetstandard16Build = targetFramework == "netstandard1.6";
 var isNetstandard20Build = targetFramework == "netstandard2.0";
 
 var version = isNetstandard20Build
-    ? "3.10.0"
-    : "2.10.0";
+    ? "4.0.0"
+    : "2.11.0";
 
 var isAppveyor = BuildSystem.IsRunningOnAppVeyor;
 var dbgSuffix = configuration == "Debug" ? "-dbg" : "";
