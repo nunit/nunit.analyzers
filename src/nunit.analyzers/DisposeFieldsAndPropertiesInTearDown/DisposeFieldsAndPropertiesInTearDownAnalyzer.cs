@@ -575,6 +575,12 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 InvocationExpressionSyntax invocationExpression,
                 [NotNullWhen(true)] out IMethodSymbol? calledMethod)
             {
+                if (this.Model.SyntaxTree != invocationExpression.SyntaxTree)
+                {
+                    calledMethod = null;
+                    return false;
+                }
+
                 calledMethod = this.Model.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
                 return calledMethod is not null &&
                     SymbolEqualityComparer.Default.Equals(calledMethod.ContainingType, this.type);

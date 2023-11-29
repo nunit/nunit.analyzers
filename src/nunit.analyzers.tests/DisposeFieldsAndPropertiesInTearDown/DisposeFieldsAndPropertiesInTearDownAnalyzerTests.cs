@@ -916,5 +916,44 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             Assert.That(DisposeFieldsAndPropertiesInTearDownAnalyzer.EarlyOutCount, Is.GreaterThan(earlyOutCount));
         }
 
+        [Test]
+        public void DoesNotThrowExceptionsWhenUsingPartialClasses()
+        {
+            var testCodePart1 = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+        public partial class TestFixture
+        {{
+            private const double Tolerance = 1E-10;
+
+            private static IDisposable? Property {{ get; set; }}
+
+            [SetUp]
+            public void SetUp()
+            {{
+                Property = new DummyDisposable();
+            }}
+
+            [TearDown]
+            public void TearDown()
+            {{
+                Property?.Dispose();
+            }}
+
+            private static void SomeAsserts() => throw new InvalidOperationException();
+
+            {DummyDisposable}
+        }}");
+
+            var testCodePart2 = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        public partial class TestFixture
+        {
+            [Test]
+	        public void SomeTest()
+	        {
+		        SomeAsserts();
+	        }
+        }");
+
+            RoslynAssert.Valid(analyzer, testCodePart1, testCodePart2);
+        }
     }
 }
