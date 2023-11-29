@@ -879,5 +879,42 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+        [Test]
+        public void EarlyOutForNonSetableFieldsAndProperties()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        public partial class TestFixture
+        {
+            public const double ToleranceConstant = 1E-10;
+
+            public static readonly double ToleranceReadOnlyField = 1E-10;
+
+            public static double ToleranceExpressionProperty => 1E-10;
+
+            public static double ToleranceReadOnlyProperty { get; } = 1E-10;
+
+            public static object ToleranceGetOnlyExpressionProperty
+            {
+                get => 1E-10;
+            }
+
+            public static object ToleranceGetOnlyProperty
+            {
+                get
+                {
+                    return 1E-10;
+                }
+            }
+
+            [Test]
+            public void SomeTest() => throw new NotImplementedException();
+        }");
+
+            int earlyOutCount = DisposeFieldsAndPropertiesInTearDownAnalyzer.EarlyOutCount;
+            RoslynAssert.Valid(analyzer, testCode);
+            Assert.That(DisposeFieldsAndPropertiesInTearDownAnalyzer.EarlyOutCount, Is.GreaterThan(earlyOutCount));
+        }
+
     }
 }
