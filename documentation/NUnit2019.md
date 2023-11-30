@@ -12,7 +12,8 @@
 
 ## Description
 
-Consider using the constraint model, `Assert.That(expr, Is.Not.Null)`, instead of the classic model, `ClassicAssert.IsNotNull(expr)`.
+Consider using the constraint model, `Assert.That(expr, Is.Not.Null)`, instead of the classic model,
+`ClassicAssert.IsNotNull(expr)`.
 
 ## Motivation
 
@@ -47,7 +48,8 @@ public void Test()
 
 ### Via ruleset file
 
-Configure the severity per project, for more info see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+Configure the severity per project, for more info see
+[MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
 ### Via .editorconfig file
 

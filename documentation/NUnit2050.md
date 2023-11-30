@@ -16,12 +16,14 @@ Replace format specification with interpolated string.
 
 ## Motivation
 
-In order to get better failure messages, NUnit4 uses [`CallerArgumentExpression`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.callerargumentexpressionattribute?view=net-7.0)
+In order to get better failure messages, NUnit4 uses
+[`CallerArgumentExpression`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.compilerservices.callerargumentexpressionattribute?view=net-7.0)
 to include the expression passed in for the _actual_ and _constraint_ parameters.
 These are parameters automatically supplied by the compiler.
 
-To facilitate this, we needed to drop support for [composite formatting](https://learn.microsoft.com/en-us/dotnet/standard/base-types/composite-formatting)
-All NUnit4 asserts only allow a single *message* parameter which can be either a simple string literal
+To facilitate this, we needed to drop support for
+[composite formatting](https://learn.microsoft.com/en-us/dotnet/standard/base-types/composite-formatting)
+All NUnit4 asserts only allow a single _message_ parameter which can be either a simple string literal
 or a [interpolatable string](https://learn.microsoft.com/en-us/dotnet/csharp/tutorials/string-interpolation)
 
 This analyzer needs to be run when still building against NUnit3 as otherwise your code won't compile.
@@ -30,7 +32,7 @@ into an interpolated string.
 
 Once you moved to NUnit4 the analyzer has some limited functionality as there are a few
 cases where your NUnit3 code will compile on NUnit4, but not the way you want it.
-Here what you think are parameters to a format specification are actually interpreted as 
+Here what you think are parameters to a format specification are actually interpreted as
 the _actual_ and _constraint_ expression strings.
 Unfortunately you only find that out when the test fails, which could be never.
 
@@ -48,7 +50,7 @@ public void MustBeMultipleOf3(int value)
 
 Will fail with the following message:
 
-```
+```plaintext
 Expected value (4) to be multiple of 3
 Expected: 0
 But was:  1
@@ -73,7 +75,8 @@ Expected: 0
 But was:  1
 ```
 
-As the `[CallerMemberExpression]` parameters are `string`, some of NUnit 3.x code compiles, but when failing show the wrong message:
+As the `[CallerMemberExpression]` parameters are `string`, some of NUnit 3.x code compiles, but when failing show the
+wrong message:
 
 ```csharp
 [TestCase("NUnit 4", "NUnit 3")]
@@ -85,7 +88,7 @@ public void TestMessage(string actual, string expected)
 
 When using NUnit3, this results in:
 
-```
+```plaintext
   Expected 'NUnit 3', but got: 'NUnit 4'
   String lengths are both 7. Strings differ at index 6.
   Expected: "NUnit 3"
@@ -95,7 +98,7 @@ When using NUnit3, this results in:
 
 But when using NUnit4, we get:
 
-```
+```plaintext
  Message: 
   Expected '{0}', but got: '{1}'
 Assert.That(NUnit 3, NUnit 4)
@@ -105,8 +108,8 @@ Assert.That(NUnit 3, NUnit 4)
   -----------------^
 ```
 
-Where the format string is treated as the _message_ and its arguments are interpreted as the _actual_ and _expected_ expressions!
-After applying the code fix the code looks like:
+Where the format string is treated as the _message_ and its arguments are interpreted as the _actual_ and _expected_
+expressions! After applying the code fix the code looks like:
 
 ```csharp
 [TestCase("NUnit 4", "NUnit 3")]
@@ -118,7 +121,7 @@ public void TestMessage(string actual, string expected)
 
 and the output:
 
-```
+```plaintext
  Message: 
   Expected 'NUnit 3', but got: 'NUnit 4'
 Assert.That(actual, Is.EqualTo(expected))
@@ -133,7 +136,8 @@ Assert.That(actual, Is.EqualTo(expected))
 
 ### Via ruleset file
 
-Configure the severity per project, for more info see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+Configure the severity per project, for more info see
+[MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
 ### Via .editorconfig file
 

@@ -26,7 +26,8 @@ var bar = new Bar();
 Assert.That(foo, Is.EqualTo(bar));
 ```
 
-There is no way that instances of types `Foo` and `Bar` could be considered equal, therefore such assertion will always fail.
+There is no way that instances of types `Foo` and `Bar` could be considered equal, therefore such assertion will always
+fail.
 
 ## How to fix violations
 
@@ -37,7 +38,8 @@ Fix your assertion (i.e. fix actual or expected value, or choose another constra
 
 ### Via ruleset file
 
-Configure the severity per project, for more info see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+Configure the severity per project, for more info see
+[MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
 ### Via .editorconfig file
 

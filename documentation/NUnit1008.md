@@ -16,7 +16,8 @@ Specifying ParallelScope.Self on assembly level has no effect.
 
 ## Motivation
 
-Bring developers' attention to a scenario in which they may believe they are parallelizing something when in fact they are not and their efforts will have no effect.
+Bring developers' attention to a scenario in which they may believe they are parallelizing something when in fact they
+are not and their efforts will have no effect.
 
 ## How to fix violations
 
@@ -30,7 +31,8 @@ In `AssemblyInfo.cs`:
 
 ### Explanation
 
-`ParallelScope.Self` [only applies to classes and methods](https://github.com/nunit/docs/wiki/Parallelizable-Attribute), not to assemblies.
+`ParallelScope.Self` [only applies to classes and methods](https://github.com/nunit/docs/wiki/Parallelizable-Attribute),
+not to assemblies.
 
 ### Fix
 
@@ -51,7 +53,8 @@ Or:
 
 ### Via ruleset file
 
-Configure the severity per project, for more info see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+Configure the severity per project, for more info see
+[MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
 ### Via .editorconfig file
 

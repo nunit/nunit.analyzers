@@ -133,14 +133,29 @@ namespace NUnit.Analyzers.Tests
         [TestCaseSource(nameof(RulesWithDocs))]
         public void EnsureThatTitleIsAsExpected(BaseInfo info)
         {
-            var expected = new[] { "", $"## {info.Title}" };
+            int emptyLines = 0;
             var actual = info
                 .DocumentationFile.AllLines
                 .Skip(1)
                 .Select(l => Replace(l, @"\<", "<"))
-                .Take(2);
+                .TakeWhile(l =>
+                {
+                    if (string.IsNullOrWhiteSpace(l))
+                    {
+                        emptyLines++;
+                    }
 
-            Assert.That(actual, Is.EqualTo(expected));
+                    return emptyLines < 2;
+                })
+                .ToList();
+
+            Assert.That(actual.Count, Is.EqualTo(2).Or.EqualTo(3));
+            Assert.That(actual[0], Is.EqualTo(""));
+            Assert.That(actual[actual.Count - 1], Is.EqualTo($"## {info.Title}"));
+            if (actual.Count == 3)
+            {
+                Assert.That(actual[1], Is.EqualTo("<!-- markdownlint-disable-next-line MD013 -->"));
+            }
         }
 
         [TestCaseSource(nameof(DescriptorsWithDocs))]
@@ -152,11 +167,12 @@ namespace NUnit.Analyzers.Tests
                               .ToString(CultureInfo.InvariantCulture)
                               .Split('\n')
                               .First();
-            var actualRaw =
+            var actualRawLines =
                 descriptorInfo.DocumentationFile.AllLines
                               .SkipWhile(l => !l.StartsWith("## Description", StringComparison.OrdinalIgnoreCase))
-                              .Skip(1)
-                              .First(l => !string.IsNullOrWhiteSpace(l));
+                              .Skip(2)
+                              .TakeWhile(l => !string.IsNullOrWhiteSpace(l));
+            var actualRaw = string.Join(" ", actualRawLines);
             var actual = Replace(actualRaw, "`", string.Empty);
 
             DumpIfRequested(expected);
@@ -397,7 +413,8 @@ ADD HOW TO FIX VIOLATIONS HERE
 
 ### Via ruleset file
 
-Configure the severity per project, for more info see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+Configure the severity per project, for more info see
+[MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
 ### Via .editorconfig file
 

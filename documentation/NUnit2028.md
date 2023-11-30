@@ -1,5 +1,6 @@
 # NUnit2028
 
+<!-- markdownlint-disable-next-line MD013 -->
 ## Consider using Assert.That(actual, Is.GreaterThanOrEqualTo(expected)) instead of ClassicAssert.GreaterOrEqual(actual, expected)
 
 | Topic    | Value
@@ -12,12 +13,13 @@
 
 ## Description
 
-Consider using the constraint model, `Assert.That(actual, Is.GreaterThanOrEqualTo(expected))`, instead of the classic model, `ClassicAssert.GreaterOrEqual(actual, expected)`.
+Consider using the constraint model, `Assert.That(actual, Is.GreaterThanOrEqualTo(expected))`, instead of the classic
+model, `ClassicAssert.GreaterOrEqual(actual, expected)`.
 
 ## Motivation
 
-The assert `ClassicAssert.GreaterOrEqual` from the classic Assert model makes it easy to confuse the `expected` and the `actual` argument,
-so this analyzer marks usages of `ClassicAssert.GreaterOrEqual`.
+The assert `ClassicAssert.GreaterOrEqual` from the classic Assert model makes it easy to confuse the `expected` and the
+`actual` argument, so this analyzer marks usages of `ClassicAssert.GreaterOrEqual`.
 
 ```csharp
 [Test]
@@ -45,7 +47,8 @@ public void Test()
 
 ### Via ruleset file
 
-Configure the severity per project, for more info see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+Configure the severity per project, for more info see
+[MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
 ### Via .editorconfig file
 
