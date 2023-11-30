@@ -45,7 +45,7 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
             {
                 if (method.IsTestRelatedMethod(context.Compilation))
                     hasTestMethods = true;
-                else if (IsPublicOrInternalMethod(method) && !IsDisposeMethod(method))
+                else if (IsPublicOrInternalMethod(method) && !IsOverride(method) && !IsDisposeMethod(method))
                     publicNonTestMethods.Add(method);
             }
 
@@ -74,13 +74,13 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
             }
         }
 
+        private static bool IsOverride(IMethodSymbol method)
+        {
+            return method.IsOverride;
+        }
+
         private static bool IsDisposeMethod(IMethodSymbol method)
         {
-            if (method.OverriddenMethod is not null)
-            {
-                return IsDisposeMethod(method.OverriddenMethod);
-            }
-
             return method.IsInterfaceImplementation("System.IDisposable");
         }
     }

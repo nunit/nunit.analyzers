@@ -172,5 +172,21 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenMethodIsBaseClassOverride()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        public sealed class MyTestClass
+        {
+            [Test]
+            public void TestMethod() { }
+
+            public override string ToString() => ""My Test Class"";
+        }
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
     }
 }
