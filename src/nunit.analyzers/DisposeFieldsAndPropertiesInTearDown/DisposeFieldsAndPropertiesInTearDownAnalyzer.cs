@@ -115,6 +115,9 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
             foreach (var property in propertyDeclarations)
             {
+                if (property.ExplicitInterfaceSpecifier is not null)
+                    continue;
+
                 if (property.Initializer is not null)
                 {
                     if (NeedsDisposal(model, property.Initializer.Value))

@@ -1013,5 +1013,43 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
 
             RoslynAssert.Valid(analyzer, testCodePart1, testCodePart2);
         }
+
+        [Test]
+        public void DoesNotThrowExceptionsWhenUsingExplicitProperties()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        [TestFixture]
+        public abstract class Test : IDataProvider
+        {
+            private DataReader DataReader;
+
+            DataReader IDataProvider.DataReader
+            {
+                get => DataReader;
+                set => DataReader = value;
+            }
+
+            protected Test() => DataReader = new DataReader(this);
+
+            [OneTimeSetUp]
+            public void SetListener() => throw new NotImplementedException();
+        }
+
+        public interface IDataProvider
+        {
+            DataReader DataReader
+            {
+                get;
+                set;
+            }
+        }
+
+        public sealed class DataReader
+        {
+            public DataReader(IDataProvider provider) => throw new NotImplementedException();
+        }");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
     }
 }
