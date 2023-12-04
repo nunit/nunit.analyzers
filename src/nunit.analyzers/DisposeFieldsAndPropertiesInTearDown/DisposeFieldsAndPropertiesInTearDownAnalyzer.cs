@@ -85,6 +85,10 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                                                        .OfType<PropertyDeclarationSyntax>()
                                                        .Where(x => x.AccessorList is not null);
 
+            bool hasConstructors = classDeclaration.Members
+                                                   .OfType<ConstructorDeclarationSyntax>()
+                                                   .Any();
+
             HashSet<string> symbolsWithDisposableInitializers = new();
 
             Dictionary<string, SyntaxNode> symbols = new();
@@ -98,13 +102,11 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                         {
                             symbolsWithDisposableInitializers.Add(field.Identifier.Text);
                             symbols.Add(field.Identifier.Text, field);
-                        }
-                        else if (CanBeAssignedTo(fieldDeclaration))
-                        {
-                            symbols.Add(field.Identifier.Text, field);
+                            continue;
                         }
                     }
-                    else
+
+                    if (CanBeAssignedTo(fieldDeclaration, hasConstructors))
                     {
                         symbols.Add(field.Identifier.Text, field);
                     }
@@ -118,10 +120,12 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                     if (NeedsDisposal(model, property.Initializer.Value))
                     {
                         symbolsWithDisposableInitializers.Add(property.Identifier.Text);
+                        symbols.Add(property.Identifier.Text, property);
+                        continue;
                     }
                 }
 
-                if (CanBeAssignedTo(property))
+                if (CanBeAssignedTo(property, hasConstructors))
                 {
                     symbols.Add(property.Identifier.Text, property);
                 }
@@ -174,16 +178,19 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 NUnitFrameworkConstants.NameOfTearDownAttribute, otherMethods, tearDownMethods);
         }
 
-        private static bool CanBeAssignedTo(FieldDeclarationSyntax declaration)
+        private static bool CanBeAssignedTo(FieldDeclarationSyntax declaration, bool hasConstructors)
         {
-            return !declaration.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.ConstKeyword) || modifier.IsKind(SyntaxKind.ReadOnlyKeyword));
+            return !declaration.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.ConstKeyword)) &&
+                (!declaration.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.ReadOnlyKeyword)) || hasConstructors);
         }
 
-        private static bool CanBeAssignedTo(PropertyDeclarationSyntax declaration)
+        private static bool CanBeAssignedTo(PropertyDeclarationSyntax declaration, bool hasConstructors)
         {
             AccessorListSyntax? accessorList = declaration.AccessorList;
-            return accessorList is not null &&
-                accessorList.Accessors.Any(accessor => accessor.IsKind(SyntaxKind.SetAccessorDeclaration));
+            if (accessorList is null)
+                return false;           // Expression body property
+
+            return hasConstructors || accessorList.Accessors.Any(accessor => accessor.IsKind(SyntaxKind.SetAccessorDeclaration));
         }
 
         private static bool HasAttribute(IMethodSymbol method, string attributeName)

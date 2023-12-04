@@ -226,6 +226,26 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         }
 
         [Test]
+        public void AnalyzeWhenReadOnlyFieldSetInConstructorIsNotDisposed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private readonly object? ↓field;
+
+        public TestClass() => field = new DummyDisposable();
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            Assert.That(field, Is.Not.Null);
+        }}
+
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void FieldConditionallyAssignedInCalledLocalMethod()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
@@ -528,7 +548,25 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         }
 
         [Test]
-        public void AnalyzeWhenPropertydSetInConstructorIsNotDisposed()
+        public void AnalyzeWhenReadOnlyPropertyWithInitializerIsNotDisposed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        ↓protected object? Property {{ get; }} = new DummyDisposable();
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            Assert.That(Property, Is.Not.Null);
+        }}
+
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenPropertySetInConstructorIsNotDisposed()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         ↓protected object? Property {{ get; private set; }}
@@ -539,6 +577,26 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         public void TearDownMethod()
         {{
             Property = null;
+        }}
+
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenReadOnlyPropertySetInConstructorIsNotDisposed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        ↓protected object? Property {{ get; }}
+
+        public TestClass() => Property = new DummyDisposable();
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            Assert.That(Property, Is.Not.Null);
         }}
 
         {DummyDisposable}
