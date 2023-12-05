@@ -44,6 +44,8 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(fieldIsNotDisposedInTearDown);
 
+        internal static int EarlyOutCount { get; private set; }
+
         public override void Initialize(AnalysisContext context)
         {
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
@@ -72,41 +74,70 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             if (typeSymbol.IsInstancePerTestCaseFixture(context.Compilation) ||
                 !typeSymbol.IsTestFixture(context.Compilation))
             {
-                // CA1001 should picked this up. Assuming it is enabled.
+                // CA1001 should pick this up. Assuming it is enabled.
                 return;
             }
 
             var fieldDeclarations = classDeclaration.Members
-                                                    .OfType<FieldDeclarationSyntax>()
-                                                    .Select(x => x.Declaration)
-                                                    .SelectMany(x => x.Variables);
+                                                    .OfType<FieldDeclarationSyntax>();
 
             var propertyDeclarations = classDeclaration.Members
                                                        .OfType<PropertyDeclarationSyntax>()
                                                        .Where(x => x.AccessorList is not null);
 
+            bool hasConstructors = classDeclaration.Members
+                                                   .OfType<ConstructorDeclarationSyntax>()
+                                                   .Any();
+
             HashSet<string> symbolsWithDisposableInitializers = new();
 
             Dictionary<string, SyntaxNode> symbols = new();
-            foreach (var field in fieldDeclarations)
+            foreach (var fieldDeclaration in fieldDeclarations)
             {
-                symbols.Add(field.Identifier.Text, field);
-                if (field.Initializer is not null && NeedsDisposal(model, field.Initializer.Value))
+                foreach (var field in fieldDeclaration.Declaration.Variables)
                 {
-                    symbolsWithDisposableInitializers.Add(field.Identifier.Text);
+                    if (field.Initializer is not null)
+                    {
+                        if (NeedsDisposal(model, field.Initializer.Value))
+                        {
+                            symbolsWithDisposableInitializers.Add(field.Identifier.Text);
+                            symbols.Add(field.Identifier.Text, field);
+                            continue;
+                        }
+                    }
+
+                    if (CanBeAssignedTo(fieldDeclaration, hasConstructors))
+                    {
+                        symbols.Add(field.Identifier.Text, field);
+                    }
                 }
             }
 
             foreach (var property in propertyDeclarations)
             {
-                symbols.Add(property.Identifier.Text, property);
-                if (property.Initializer is not null && NeedsDisposal(model, property.Initializer.Value))
-                    symbolsWithDisposableInitializers.Add(property.Identifier.Text);
+                if (property.ExplicitInterfaceSpecifier is not null)
+                    continue;
+
+                if (property.Initializer is not null)
+                {
+                    if (NeedsDisposal(model, property.Initializer.Value))
+                    {
+                        symbolsWithDisposableInitializers.Add(property.Identifier.Text);
+                        symbols.Add(property.Identifier.Text, property);
+                        continue;
+                    }
+                }
+
+                if (CanBeAssignedTo(property, hasConstructors))
+                {
+                    symbols.Add(property.Identifier.Text, property);
+                }
             }
 
             if (symbols.Count == 0)
             {
                 // No fields or properties to consider.
+                EarlyOutCount++;
                 return;
             }
 
@@ -148,6 +179,21 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             // If the field is disposed in the method itself, why is it a field?
             AnalyzeAssignedButNotDisposed(context, symbols, parameters,
                 NUnitFrameworkConstants.NameOfTearDownAttribute, otherMethods, tearDownMethods);
+        }
+
+        private static bool CanBeAssignedTo(FieldDeclarationSyntax declaration, bool hasConstructors)
+        {
+            return !declaration.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.ConstKeyword)) &&
+                (!declaration.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.ReadOnlyKeyword)) || hasConstructors);
+        }
+
+        private static bool CanBeAssignedTo(PropertyDeclarationSyntax declaration, bool hasConstructors)
+        {
+            AccessorListSyntax? accessorList = declaration.AccessorList;
+            if (accessorList is null)
+                return false;           // Expression body property
+
+            return hasConstructors || accessorList.Accessors.Any(accessor => accessor.IsKind(SyntaxKind.SetAccessorDeclaration));
         }
 
         private static bool HasAttribute(IMethodSymbol method, string attributeName)
@@ -539,6 +585,12 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 InvocationExpressionSyntax invocationExpression,
                 [NotNullWhen(true)] out IMethodSymbol? calledMethod)
             {
+                if (this.Model.SyntaxTree != invocationExpression.SyntaxTree)
+                {
+                    calledMethod = null;
+                    return false;
+                }
+
                 calledMethod = this.Model.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
                 return calledMethod is not null &&
                     SymbolEqualityComparer.Default.Equals(calledMethod.ContainingType, this.type);

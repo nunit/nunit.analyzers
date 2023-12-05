@@ -226,6 +226,26 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         }
 
         [Test]
+        public void AnalyzeWhenReadOnlyFieldSetInConstructorIsNotDisposed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private readonly object? ↓field;
+
+        public TestClass() => field = new DummyDisposable();
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            Assert.That(field, Is.Not.Null);
+        }}
+
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void FieldConditionallyAssignedInCalledLocalMethod()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
@@ -528,7 +548,25 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         }
 
         [Test]
-        public void AnalyzeWhenPropertydSetInConstructorIsNotDisposed()
+        public void AnalyzeWhenReadOnlyPropertyWithInitializerIsNotDisposed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        ↓protected object? Property {{ get; }} = new DummyDisposable();
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            Assert.That(Property, Is.Not.Null);
+        }}
+
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenPropertySetInConstructorIsNotDisposed()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         ↓protected object? Property {{ get; private set; }}
@@ -539,6 +577,26 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         public void TearDownMethod()
         {{
             Property = null;
+        }}
+
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenReadOnlyPropertySetInConstructorIsNotDisposed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        ↓protected object? Property {{ get; }}
+
+        public TestClass() => Property = new DummyDisposable();
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            Assert.That(Property, Is.Not.Null);
         }}
 
         {DummyDisposable}
@@ -876,6 +934,120 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             {DummyDisposable}
         }}
         ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void EarlyOutForNonSetableFieldsAndProperties()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        public partial class TestFixture
+        {
+            public const double ToleranceConstant = 1E-10;
+
+            public static readonly double ToleranceReadOnlyField = 1E-10;
+
+            public static double ToleranceExpressionProperty => 1E-10;
+
+            public static double ToleranceReadOnlyProperty { get; } = 1E-10;
+
+            public static object ToleranceGetOnlyExpressionProperty
+            {
+                get => 1E-10;
+            }
+
+            public static object ToleranceGetOnlyProperty
+            {
+                get
+                {
+                    return 1E-10;
+                }
+            }
+
+            [Test]
+            public void SomeTest() => throw new NotImplementedException();
+        }");
+
+            int earlyOutCount = DisposeFieldsAndPropertiesInTearDownAnalyzer.EarlyOutCount;
+            RoslynAssert.Valid(analyzer, testCode);
+            Assert.That(DisposeFieldsAndPropertiesInTearDownAnalyzer.EarlyOutCount, Is.GreaterThan(earlyOutCount));
+        }
+
+        [Test]
+        public void DoesNotThrowExceptionsWhenUsingPartialClasses()
+        {
+            var testCodePart1 = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+        public partial class TestFixture
+        {{
+            private const double Tolerance = 1E-10;
+
+            private static IDisposable? Property {{ get; set; }}
+
+            [SetUp]
+            public void SetUp()
+            {{
+                Property = new DummyDisposable();
+            }}
+
+            [TearDown]
+            public void TearDown()
+            {{
+                Property?.Dispose();
+            }}
+
+            private static void SomeAsserts() => throw new InvalidOperationException();
+
+            {DummyDisposable}
+        }}");
+
+            var testCodePart2 = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        public partial class TestFixture
+        {
+            [Test]
+	        public void SomeTest()
+	        {
+		        SomeAsserts();
+	        }
+        }");
+
+            RoslynAssert.Valid(analyzer, testCodePart1, testCodePart2);
+        }
+
+        [Test]
+        public void DoesNotThrowExceptionsWhenUsingExplicitProperties()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        [TestFixture]
+        public abstract class Test : IDataProvider
+        {
+            private DataReader DataReader;
+
+            DataReader IDataProvider.DataReader
+            {
+                get => DataReader;
+                set => DataReader = value;
+            }
+
+            protected Test() => DataReader = new DataReader(this);
+
+            [OneTimeSetUp]
+            public void SetListener() => throw new NotImplementedException();
+        }
+
+        public interface IDataProvider
+        {
+            DataReader DataReader
+            {
+                get;
+                set;
+            }
+        }
+
+        public sealed class DataReader
+        {
+            public DataReader(IDataProvider provider) => throw new NotImplementedException();
+        }");
 
             RoslynAssert.Valid(analyzer, testCode);
         }
