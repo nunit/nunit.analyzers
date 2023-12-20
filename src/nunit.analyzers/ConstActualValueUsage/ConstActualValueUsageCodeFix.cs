@@ -126,26 +126,24 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                 if (constraintExpression is null)
                     return false;
 
-                expectedArgument = constraintExpression.ArgumentList.Arguments.FirstOrDefault()?.Expression;
-
-                if (expectedArgument is null)
-                    return false;
-
-                if (constraintExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression
-                    && SupportedIsConstraints.Contains(memberAccessExpression.Name.ToString()))
+                if (!IsSupportedIsConstraint(ref constraintExpression, out var memberAccessExpression))
                 {
-                    var expressionString = memberAccessExpression.Expression.ToString();
+                    return false;
+                }
 
-                    // e.g. Is.EqualTo or Is.Not.EqualTo
-                    if (expressionString == NUnitFrameworkConstants.NameOfIs
-                        || expressionString == $"{NUnitFrameworkConstants.NameOfIs}.{NUnitFrameworkConstants.NameOfIsNot}")
-                    {
-                        return true;
-                    }
+                var expressionString = memberAccessExpression.Expression.ToString();
 
+                // e.g. Is.EqualTo or Is.Not.EqualTo
+                if (expressionString != NUnitFrameworkConstants.NameOfIs
+                    && expressionString != $"{NUnitFrameworkConstants.NameOfIs}.{NUnitFrameworkConstants.NameOfIsNot}")
+                {
                     // other cases are not supported
                     return false;
                 }
+
+                expectedArgument = constraintExpression.ArgumentList.Arguments.FirstOrDefault()?.Expression;
+
+                return expectedArgument is not null;
             }
 
             return false;
@@ -155,6 +153,32 @@ namespace NUnit.Analyzers.ConstActualValueUsage
         {
             return (methodSymbol.ContainingType.IsClassicAssert() || methodSymbol.ContainingType.IsAssert()) &&
                 SupportedClassicAsserts.Contains(methodSymbol.Name);
+        }
+
+        private static bool IsSupportedIsConstraint(ref InvocationExpressionSyntax invocationExpression, [NotNullWhen(true)]out MemberAccessExpressionSyntax? memberAccessExpression)
+        {
+            if (invocationExpression.Expression is not MemberAccessExpressionSyntax mae)
+            {
+                memberAccessExpression = null;
+                return false;
+            }
+
+            memberAccessExpression = mae;
+
+            if (memberAccessExpression.Name.ToString() == NUnitFrameworkConstants.NameOfEqualConstraintWithin)
+            {
+                // e.g. Is.EqualTo(1).Within(1) or Is.Not.EqualTo(1).Within(1)
+                if (memberAccessExpression.Expression is not InvocationExpressionSyntax ies
+                    || ies.Expression is not MemberAccessExpressionSyntax left)
+                {
+                    return false;
+                }
+
+                memberAccessExpression = left;
+                invocationExpression = ies;
+            }
+
+            return SupportedIsConstraints.Contains(memberAccessExpression.Name.ToString());
         }
 
         private static bool IsSupportedStringAssert(IMethodSymbol methodSymbol)
