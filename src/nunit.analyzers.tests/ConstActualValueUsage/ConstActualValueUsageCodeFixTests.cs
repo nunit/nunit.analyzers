@@ -45,6 +45,27 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
         }
 
+        [TestCase(nameof(ClassicAssert.AreEqual))]
+        public void LiteralArgumentIsProvidedForClassicAssertWithDeltaCodeFix(string classicAssertMethod)
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                public void Test()
+                {{
+                    int expected = 5;
+                    ClassicAssert.{classicAssertMethod}(expected, ↓1, double.Epsilon);
+                }}");
+
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                public void Test()
+                {{
+                    int expected = 5;
+                    ClassicAssert.{classicAssertMethod}(1, expected, double.Epsilon);
+                }}");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+                fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
+        }
+
         [Test]
         public void LiteralNamedArgumentIsProvidedForAreEqualCodeFix()
         {
@@ -86,6 +107,27 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 {{
                     var expected = ""abc"";
                     Assert.That(expected, Is.{isConstraint}(""a""));
+                }}");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+                fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
+        }
+
+        [Test]
+        public void LiteralArgumentIsProvidedForAssertThatWithinCodeFix()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                public void Test()
+                {{
+                    double expected = 5d;
+                    Assert.That(↓1d, Is.EqualTo(expected).Within(double.Epsilon));
+                }}");
+
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                public void Test()
+                {{
+                    double expected = 5d;
+                    Assert.That(expected, Is.EqualTo(1d).Within(double.Epsilon));
                 }}");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
