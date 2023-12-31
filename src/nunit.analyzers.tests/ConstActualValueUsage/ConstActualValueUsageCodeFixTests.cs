@@ -52,14 +52,14 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {{
                     int expected = 5;
-                    ClassicAssert.{classicAssertMethod}(expected, ↓1, 1);
+                    ClassicAssert.{classicAssertMethod}(expected, ↓1, double.Epsilon);
                 }}");
 
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
                 public void Test()
                 {{
                     int expected = 5;
-                    ClassicAssert.{classicAssertMethod}(1, expected, 1);
+                    ClassicAssert.{classicAssertMethod}(1, expected, double.Epsilon);
                 }}");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,

@@ -157,25 +157,23 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
         private static bool IsSupportedIsConstraint(ref InvocationExpressionSyntax invocationExpression, [NotNullWhen(true)]out MemberAccessExpressionSyntax? memberAccessExpression)
         {
-            if (invocationExpression.Expression is not MemberAccessExpressionSyntax mae)
+            memberAccessExpression = invocationExpression.Expression as MemberAccessExpressionSyntax;
+            if (memberAccessExpression is null)
             {
-                memberAccessExpression = null;
                 return false;
             }
-
-            memberAccessExpression = mae;
 
             if (memberAccessExpression.Name.ToString() == NUnitFrameworkConstants.NameOfEqualConstraintWithin)
             {
                 // e.g. Is.EqualTo(1).Within(1) or Is.Not.EqualTo(1).Within(1)
-                if (memberAccessExpression.Expression is not InvocationExpressionSyntax ies
-                    || ies.Expression is not MemberAccessExpressionSyntax left)
+                if (memberAccessExpression.Expression is not InvocationExpressionSyntax innerInvocationExpression
+                    || innerInvocationExpression.Expression is not MemberAccessExpressionSyntax left)
                 {
                     return false;
                 }
 
                 memberAccessExpression = left;
-                invocationExpression = ies;
+                invocationExpression = innerInvocationExpression;
             }
 
             return SupportedIsConstraints.Contains(memberAccessExpression.Name.ToString());
