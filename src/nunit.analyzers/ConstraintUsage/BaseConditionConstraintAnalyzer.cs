@@ -30,11 +30,7 @@ namespace NUnit.Analyzers.ConstraintUsage
 
         protected static bool IsRefStruct(IOperation operation)
         {
-#if NETSTANDARD2_0_OR_GREATER
             return operation.Type?.TypeKind == TypeKind.Struct && operation.Type.IsRefLikeType;
-#else
-            return false;
-#endif
         }
 
         protected static bool IsBinaryOperationNotUsingRefStructOperands(IOperation actual, BinaryOperatorKind binaryOperator)

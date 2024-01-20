@@ -9,7 +9,7 @@ This is a suite of analyzers that target the NUnit testing framework. Right now,
 
 ## Download ##
 
-The latest stable release of the NUnit Analyzers is [available on NuGet](https://www.nuget.org/packages/NUnit.Analyzers/) or can be [downloaded from GitHub](https://github.com/nunit/nunit.analyzers/releases). Note that for Visual Studio 2017 one must use versions below 3.0. Version 3.0 and upwards require Visual Studio 2019, these versions also enables supression of compiler errors such as errors arising from nullable reference types.
+The latest stable release of the NUnit Analyzers is [available on NuGet](https://www.nuget.org/packages/NUnit.Analyzers/) or can be [downloaded from GitHub](https://github.com/nunit/nunit.analyzers/releases). Note that for Visual Studio 2017 one must use versions below 3.0 - note that these versions are no longer updated, so version 2.10.0 is the last version that works in Visual Studio 2017. Version 3.0 and upwards require Visual Studio 2019 (version 16.3) or newer, these versions also enables supression of compiler errors such as errors arising from nullable reference types.
 
 Prerelease nuget packages can be found on [MyGet](https://www.myget.org/feed/nunit-analyzers/package/nuget/NUnit.Analyzers). Please try out the package and report bugs and feature requests.
 

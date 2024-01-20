@@ -40,11 +40,9 @@ Note that by contributing to NUnit.Analyzers, you assert that:
 
 ## Building the Project
 
-First, make sure you have the right tools and templates on your machine. You'll need **Visual Studio 2017** or **Visual Studio 2019** and the **.NET Compiler Platform SDK**. The **.NET Compiler Platform SDK** can be installed via the **Visual Studio Installer**. Either 
-* check the **Visual Studio extension development** workload; open the **Visual Studio extension development** node in the summary tree to the right; and check the box for **.NET Compiler Platform SDK** (last under the optional components), or
-* select the **Individual components** tab and check the box for **.NET Compiler Platform SDK** (at the top under the Compilers, build tools, and runtimes section).
+First, make sure you have the right tools and templates on your machine. You'll need **Visual Studio 2019 version 16.3** (or newer) and the **.NET Compiler Platform SDK**. The **.NET Compiler Platform SDK** can be installed via the **Visual Studio Installer** under the **Individual components** tab and check the box for **.NET Compiler Platform SDK** (at the top of the **Compilers, build tools, and runtimes** section).
 
-The project can now be built from within **Visual Studio 2017** or **Visual Studio 2019**, or by using the **Cake** script in the root folder.
+The project can now be built from within **Visual Studio**, or by using the **Cake** script in the root folder.
 
 ### Building using Visual Studio
 
@@ -53,4 +51,3 @@ From Visual Studio one can debug the analyzers by adding a small test that illus
 ### Building using Cake
 
 The command `.\build.ps1` will restore the packages necessary to build the solution, build the projects, and then run the tests. The script can also build the projects in **Release** mode using the option `--configuration=Release` or create NuGet Packages using the option `--target=Pack`. This will create a NuGet package under `package\Debug\` (for a `Debug` build) and the file will be named `NUnit.Analyzers.***.nupkg` where `***` depends upon the build type (`Debug` vs. `Release`) and the version. The NuGet package can then be referenced from another project.
-You need to use the `--targetFramework=netstandard1.6` option to build a analyzer version for `netstandard1.6` (VS 2017), this version will not include the new DiagnosticSuppressor rules (NUnit3001-) as these require `netstandard2.0`.

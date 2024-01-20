@@ -14,14 +14,12 @@ before_build:
   - cmd: dotnet --version
 
 build_script:
-  - ps: .\build.ps1 --target="Appveyor" --configuration="Release" --targetFramework="netstandard1.6"
   - ps: .\build.ps1 --target="Appveyor" --configuration="Release" --targetFramework="netstandard2.0"
 
 # disable built-in tests.
 test: off
 
 artifacts:
-  - path: 'package\Release\netstandard1.6\NUnit.Analyzers*.nupkg'
   - path: 'package\Release\netstandard2.0\NUnit.Analyzers*.nupkg'
 
 deploy:

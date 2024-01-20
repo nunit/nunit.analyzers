@@ -78,17 +78,12 @@ namespace NUnit.Analyzers.Extensions
             if (argumentValue is null)
             {
                 if (
-#if NETSTANDARD1_6
-                    target.IsReferenceType
-#else
                     (target.IsReferenceType && (target.NullableAnnotation != NullableAnnotation.NotAnnotated || suppressNullableWarning))
-#endif
                     || target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
                 {
                     return true;
                 }
 
-#if !NETSTANDARD1_6
                 if (typeParameter is not null)
                 {
                     if (typeParameter.HasValueTypeConstraint ||
@@ -101,7 +96,6 @@ namespace NUnit.Analyzers.Extensions
                     // Either no constraint or class?
                     return true;
                 }
-#endif
             }
             else
             {

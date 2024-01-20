@@ -1,5 +1,3 @@
-#if !NETSTANDARD1_6
-
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -60,5 +58,3 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         }
     }
 }
-
-#endif

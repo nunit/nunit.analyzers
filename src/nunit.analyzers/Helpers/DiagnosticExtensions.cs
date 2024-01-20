@@ -1,5 +1,3 @@
-#if !NETSTANDARD1_6
-
 using System;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
@@ -16,5 +14,3 @@ namespace NUnit.Analyzers.Helpers
         }
     }
 }
-
-#endif

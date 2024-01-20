@@ -10,12 +10,7 @@ var targetFramework = Argument("targetFramework", "netstandard2.0");
 // SET PACKAGE VERSION
 //////////////////////////////////////////////////////////////////////
 
-var isNetstandard16Build = targetFramework == "netstandard1.6";
-var isNetstandard20Build = targetFramework == "netstandard2.0";
-
-var version = isNetstandard20Build
-    ? "4.0.0"
-    : "2.11.0";
+var version = "4.0.0";
 
 var isAppveyor = BuildSystem.IsRunningOnAppVeyor;
 var dbgSuffix = configuration == "Debug" ? "-dbg" : "";
@@ -59,11 +54,6 @@ Setup(context =>
         if (tag.IsTag)
         {
             var tagName = tag.Name;
-            if (isNetstandard16Build && tagName.StartsWith("3"))
-            {
-                tagName = '2' + tagName.Substring(1);
-            }
-
             packageVersion = tagName;
             packageVersionString = tagName;
         }

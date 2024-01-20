@@ -15,9 +15,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class DisposeFieldsAndPropertiesInTearDownAnalyzer : DiagnosticAnalyzer
     {
-#if NETSTANDARD2_0_OR_GREATER
         private static readonly char[] AdditionalDisposalMethodsSeparators = { ',', ';', ' ' };
-#endif
 
         // Methods that are considered to be Dispoing an instance.
         private static readonly ImmutableHashSet<string> StandardDisposeMethods = ImmutableHashSet.Create(
@@ -143,7 +141,6 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
             ImmutableHashSet<string> disposeMethods = StandardDisposeMethods;
 
-#if NETSTANDARD2_0_OR_GREATER
             // Are there any additional methods configured that are considered Dispose Methods
             // e.g. DisposeIfDisposeable or Release
             AnalyzerConfigOptions options = context.Options.AnalyzerConfigOptionsProvider.GetOptions(classDeclaration.SyntaxTree);
@@ -151,7 +148,6 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             {
                 disposeMethods = disposeMethods.Union(value.Split(AdditionalDisposalMethodsSeparators, StringSplitOptions.RemoveEmptyEntries));
             }
-#endif
 
             HashSet<string> symbolNames = new(symbols.Keys);
 
@@ -542,14 +538,12 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
         private static string? GetIdentifier(ExpressionSyntax expression)
         {
-#if NETSTANDARD2_0_OR_GREATER
             // Account for 'Release(field!)'
             if (expression is PostfixUnaryExpressionSyntax postfixUnaryExpression &&
                 postfixUnaryExpression.IsKind(SyntaxKind.SuppressNullableWarningExpression))
             {
                 expression = postfixUnaryExpression.Operand;
             }
-#endif
 
             if (expression is IdentifierNameSyntax identifierName)
             {
