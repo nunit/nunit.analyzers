@@ -536,6 +536,79 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
 
+#if NUNIT4
+        [Test]
+        public void WhenTestMethodHasImplicitlySuppliedCancellationTokenParameter()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [Test]
+        [CancelAfter(50)]
+        public async Task InfiniteLoopWith50msCancelAfter(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+            }
+        }", "using System.Threading;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenSimpleTestMethodHasParameterSuppliedByValuesAndCancelAfterAttributes()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+    [Test]
+    [CancelAfter(10)]
+    public void M([Values(1, 2, 3)] int p, CancellationToken cancellationToken)
+    {
+        if (cancellationToken.IsCancellationRequested)
+            Assert.Ignore(""Cancelled"");
+        Assert.That(p, Is.EqualTo(42));
+    }", "using System.Threading;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void WhenTestMethodHasNoImplicitlySuppliedCancellationTokenParameter()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [Test]
+        [CancelAfter(50)]
+        public async Task InfiniteLoopWith50msCancelAfter()
+        {
+            CancellationToken cancellationToken = TestContext.CurrentContext.CancellationToken;
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+            }
+        }", "using System.Threading;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void WhenTestMethodHasCancellationTokenParameter()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+               AnalyzerIdentifiers.SimpleTestMethodHasParameters);
+
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [↓Test]
+        public async Task InfiniteLoopWith50msCancelAfter(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+            }
+        }", "using System.Threading;");
+
+            var message = "The test method has '1' parameter(s), but only '0' argument(s) are supplied by attributes";
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+        }
+#endif
+
         [Test]
         public void AnalyzeWhenSimpleTestMethodHasParameterWithOutSuppliedValues()
         {

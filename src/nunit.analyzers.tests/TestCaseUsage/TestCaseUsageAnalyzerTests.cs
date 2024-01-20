@@ -755,5 +755,60 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     }");
             RoslynAssert.Valid(this.analyzer, testCode);
         }
+
+#if NUNIT4
+        [Test]
+        public void AnalyzeWhenTestMethodHasImplicitlySuppliedCancellationTokenParameter()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+    [TestCase(100)]
+    [CancelAfter(50)]
+    public async Task InfiniteLoopWithCancelAfter(int delayInMs, CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            await Task.Delay(delayInMs, cancellationToken).ConfigureAwait(false);
+        }
+        }", "using System.Threading;");
+
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenTestMethodHasNoImplicitlySuppliedCancellationTokenParameter()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [TestCase(100)]
+        [CancelAfter(50)]
+        public async Task InfiniteLoopWith50msCancelAfter(int delayInMs)
+        {
+            CancellationToken cancellationToken = TestContext.CurrentContext.CancellationToken;
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(delayInMs, cancellationToken).ConfigureAwait(false);
+            }
+        }", "using System.Threading;");
+
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void WhenTestMethodHasCancellationTokenParameter()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [↓TestCase(100)]
+        public async Task InfiniteLoopWith50msCancelAfter(int delayInMs, CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(delayInMs, cancellationToken).ConfigureAwait(false);
+            }
+        }", "using System.Threading;");
+
+            RoslynAssert.Diagnostics(this.analyzer,
+                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseNotEnoughArgumentsUsage),
+                testCode);
+        }
+#endif
     }
 }

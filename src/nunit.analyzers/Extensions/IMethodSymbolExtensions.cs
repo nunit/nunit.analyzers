@@ -15,7 +15,9 @@ namespace NUnit.Analyzers.Extensions
         /// and the last is the <see langword="params" /> count.
         /// </returns>
         internal static (uint requiredParameters, uint optionalParameters, uint paramsCount) GetParameterCounts(
-            this IMethodSymbol @this)
+            this IMethodSymbol @this,
+            bool hasCancelAfterAttribute,
+            INamedTypeSymbol? cancellationTokenType)
         {
             var parameters = @this.Parameters;
 
@@ -37,6 +39,15 @@ namespace NUnit.Analyzers.Extensions
                 {
                     requiredParameters++;
                 }
+            }
+
+            var hasCancellationToken = parameters.Length > 0 &&
+                                       SymbolEqualityComparer.Default.Equals(parameters[parameters.Length - 1].Type, cancellationTokenType);
+            if (hasCancelAfterAttribute && hasCancellationToken)
+            {
+                // This parameter is optional, it not specified it will be supplied by NUnit.
+                optionalParameters++;
+                requiredParameters--;
             }
 
             return (requiredParameters, optionalParameters, paramsParameters);

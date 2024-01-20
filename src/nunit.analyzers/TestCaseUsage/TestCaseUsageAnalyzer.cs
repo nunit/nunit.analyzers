@@ -52,16 +52,25 @@ namespace NUnit.Analyzers.TestCaseUsage
             if (testCaseType is null)
                 return;
 
-            context.RegisterSymbolAction(symbolContext => AnalyzeMethod(symbolContext, testCaseType), SymbolKind.Method);
+            INamedTypeSymbol? cancelAfterType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfCancelAfterAttribute);
+            INamedTypeSymbol? cancellationTokenType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfCancellationToken);
+
+            context.RegisterSymbolAction(symbolContext => AnalyzeMethod(symbolContext, testCaseType, cancelAfterType, cancellationTokenType), SymbolKind.Method);
         }
 
-        private static void AnalyzeMethod(SymbolAnalysisContext context, INamedTypeSymbol testCaseType)
+        private static void AnalyzeMethod(
+            SymbolAnalysisContext context,
+            INamedTypeSymbol testCaseType,
+            INamedTypeSymbol? cancelAfterType,
+            INamedTypeSymbol? cancellationTokenType)
         {
             var methodSymbol = (IMethodSymbol)context.Symbol;
 
-            var attributes = methodSymbol.GetAttributes();
-            if (attributes.Length == 0)
+            var methodAttributes = methodSymbol.GetAttributes();
+            if (methodAttributes.Length == 0)
                 return;
+
+            var hasCancelAfterAttribute = methodAttributes.Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
 
             var testCaseAttributes = methodSymbol.GetAttributes()
                 .Where(a => a.ApplicationSyntaxReference is not null
@@ -72,7 +81,7 @@ namespace NUnit.Analyzers.TestCaseUsage
                 context.CancellationToken.ThrowIfCancellationRequested();
 
                 var (methodRequiredParameters, methodOptionalParameters, methodParamsParameters) =
-                    methodSymbol.GetParameterCounts();
+                    methodSymbol.GetParameterCounts(hasCancelAfterAttribute, cancellationTokenType);
 
                 var attributePositionalArguments = attribute.ConstructorArguments.AdjustArguments();
 

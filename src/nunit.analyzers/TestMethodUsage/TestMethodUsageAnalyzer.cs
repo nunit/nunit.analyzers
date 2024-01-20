@@ -89,50 +89,64 @@ namespace NUnit.Analyzers.TestMethodUsage
             if (testCaseType is null || testType is null)
                 return;
 
-            context.RegisterSymbolAction(symbolContext => AnalyzeMethod(symbolContext, testCaseType, testType), SymbolKind.Method);
+            INamedTypeSymbol? cancelAfterType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfCancelAfterAttribute);
+            INamedTypeSymbol? cancellationTokenType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfCancellationToken);
+
+            context.RegisterSymbolAction(symbolContext => AnalyzeMethod(symbolContext, testCaseType, testType, cancelAfterType, cancellationTokenType), SymbolKind.Method);
         }
 
-        private static void AnalyzeMethod(SymbolAnalysisContext context, INamedTypeSymbol testCaseType, INamedTypeSymbol testType)
+        private static void AnalyzeMethod(
+            SymbolAnalysisContext context,
+            INamedTypeSymbol testCaseType,
+            INamedTypeSymbol testType,
+            INamedTypeSymbol? cancelAfterType,
+            INamedTypeSymbol? cancellationTokenType)
         {
             var methodSymbol = (IMethodSymbol)context.Symbol;
 
             var methodAttributes = methodSymbol.GetAttributes();
 
-            foreach (var attribute in methodAttributes)
+            // Check Expected Result for TestCases (should this be moved to TestCaseUsageAnalyzer)
+            foreach (var testCaseAttribute in methodAttributes.Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, testCaseType)))
             {
-                if (attribute.AttributeClass is null)
-                    continue;
+                context.CancellationToken.ThrowIfCancellationRequested();
 
-                var isTestCaseAttribute = SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, testCaseType);
-                var isTestAttribute = SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, testType);
+                AnalyzeExpectedResult(context, testCaseAttribute, methodSymbol);
+            }
 
-                if (isTestCaseAttribute
-                    || (isTestAttribute && !HasITestBuilderAttribute(context.Compilation, methodAttributes)))
+            var hasITestBuilderAttribute = HasITestBuilderAttribute(context.Compilation, methodAttributes);
+
+            if (!hasITestBuilderAttribute)
+            {
+                var testAttribute = methodAttributes.SingleOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, testType));
+                var hasCancelAfterAttribute = methodAttributes.Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
+
+                if (testAttribute is not null)
                 {
                     context.CancellationToken.ThrowIfCancellationRequested();
 
-                    AnalyzeExpectedResult(context, attribute, methodSymbol);
+                    AnalyzeExpectedResult(context, testAttribute, methodSymbol);
                 }
 
-                var isSimpleTestBulderAttribute = attribute.DerivesFromISimpleTestBuilder(context.Compilation);
+                var simpleTestBuilderAttribute = methodAttributes.FirstOrDefault(a => a.DerivesFromISimpleTestBuilder(context.Compilation));
 
-                if (isSimpleTestBulderAttribute)
+                if (simpleTestBuilderAttribute is not null)
                 {
                     var parameters = methodSymbol.Parameters;
                     var testMethodParameters = parameters.Length;
-                    var hasITestBuilderAttribute = HasITestBuilderAttribute(context.Compilation, methodAttributes);
                     var parametersMarkedWithIParameterDataSourceAttribute =
                         parameters.Count(p => HasIParameterDataSourceAttribute(context.Compilation, p.GetAttributes()));
-
-                    if (testMethodParameters > 0 &&
-                        !hasITestBuilderAttribute &&
-                        parametersMarkedWithIParameterDataSourceAttribute < testMethodParameters)
+                    var hasCancellationToken = parameters.Length > 0 &&
+                        SymbolEqualityComparer.Default.Equals(parameters[parameters.Length - 1].Type, cancellationTokenType);
+                    int implicitParameters = hasCancelAfterAttribute && hasCancellationToken ? 1 : 0;
+                    if (testMethodParameters > implicitParameters &&
+                        parametersMarkedWithIParameterDataSourceAttribute + implicitParameters < testMethodParameters)
                     {
                         context.ReportDiagnostic(Diagnostic.Create(
                             simpleTestHasParameters,
-                            attribute.ApplicationSyntaxReference.GetLocation(),
+                            simpleTestBuilderAttribute.ApplicationSyntaxReference.GetLocation(),
                             testMethodParameters,
-                            parametersMarkedWithIParameterDataSourceAttribute));
+                            parametersMarkedWithIParameterDataSourceAttribute + implicitParameters));
                     }
                 }
             }

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Framework;
 
@@ -22,8 +23,8 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         public void Foo(int a1, int a2, int a3, string b1 = ""b1"", string b2 = ""b2"", params char[] c) { }
     }
 }";
-            var method = await GetMethodSymbolAsync(testCode).ConfigureAwait(false);
-            var (requiredParameters, optionalParameters, paramsCount) = method.GetParameterCounts();
+            var (method, _) = await GetMethodSymbolAsync(testCode).ConfigureAwait(false);
+            var (requiredParameters, optionalParameters, paramsCount) = method.GetParameterCounts(false, null);
 
             Assert.Multiple(() =>
             {
@@ -33,18 +34,45 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
             });
         }
 
-        private static async Task<IMethodSymbol> GetMethodSymbolAsync(string code)
+        [Test]
+        public async Task GetParameterCountsWithCancellationToken([Values] bool hasCancelAfter)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModel(code).ConfigureAwait(false);
+            var testCode = @"
+using System.Threading;
 
-            MethodDeclarationSyntax methodDeclaration = rootAndModel.Node
+namespace NUnit.Analyzers.Tests.Targets.Extensions
+{
+    public sealed class IMethodSymbolExtensionsTestsGetParameterCounts
+    {
+        public void Foo(int a1, int a2, int a3, CancellationToken cancellationToken) { }
+    }
+}";
+            var (method, compilation) = await GetMethodSymbolAsync(testCode).ConfigureAwait(false);
+            INamedTypeSymbol? cancellationTokenType = compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfCancellationToken);
+
+            var (requiredParameters, optionalParameters, paramsCount) = method.GetParameterCounts(hasCancelAfter, cancellationTokenType);
+            int adjustment = hasCancelAfter ? 0 : 1;
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(requiredParameters, Is.EqualTo(3 + adjustment), nameof(requiredParameters));
+                Assert.That(optionalParameters, Is.EqualTo(1 - adjustment), nameof(optionalParameters));
+                Assert.That(paramsCount, Is.EqualTo(0), nameof(paramsCount));
+            });
+        }
+
+        private static async Task<(IMethodSymbol MethodSymbol, Compilation Compilation)> GetMethodSymbolAsync(string code)
+        {
+            var rootCompilationAndModel = await TestHelpers.GetRootCompilationAndModel(code).ConfigureAwait(false);
+
+            MethodDeclarationSyntax methodDeclaration = rootCompilationAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>().Single()
                 .DescendantNodes().OfType<MethodDeclarationSyntax>().Single();
-            IMethodSymbol? methodSymbol = rootAndModel.Model.GetDeclaredSymbol(methodDeclaration);
+            IMethodSymbol? methodSymbol = rootCompilationAndModel.Model.GetDeclaredSymbol(methodDeclaration);
 
             Assert.That(methodSymbol, Is.Not.Null, $"Cannot find symbol for {methodDeclaration.Identifier}");
 
-            return methodSymbol;
+            return (methodSymbol!, rootCompilationAndModel.Compilation);
         }
     }
 }

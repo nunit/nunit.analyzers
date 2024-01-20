@@ -149,6 +149,9 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfFixtureLifeCycleAttribute = "NUnit.Framework.FixtureLifeCycleAttribute";
         public const string FullNameOfLifeCycle = "NUnit.Framework.LifeCycle";
 
+        public const string FullNameOfCancelAfterAttribute = "NUnit.Framework.CancelAfterAttribute";
+        public const string FullNameOfCancellationToken = "System.Threading.CancellationToken";
+
         public const string NameOfConstraint = "Constraint";
 
         public const string FullNameOfSameAsConstraint = "NUnit.Framework.Constraints.SameAsConstraint";
@@ -179,6 +182,8 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfOneTimeTearDownAttribute = "OneTimeTearDownAttribute";
         public const string NameOfSetUpAttribute = "SetUpAttribute";
         public const string NameOfTearDownAttribute = "TearDownAttribute";
+
+        public const string NameOfCancelAfterAttribute = "CancelAfterAttribute";
 
         public const string NameOfExpectedResult = "ExpectedResult";
 
