@@ -40,11 +40,9 @@ Note that by contributing to NUnit.Analyzers, you assert that:
 
 ## Building the Project
 
-First, make sure you have the right tools and templates on your machine. You'll need **Visual Studio 2019 version 16.3** (or newer) and the **.NET Compiler Platform SDK**. The **.NET Compiler Platform SDK** can be installed via the **Visual Studio Installer**. Either
-* check the **Visual Studio extension development** workload; open the **Visual Studio extension development** node in the summary tree to the right; and check the box for **.NET Compiler Platform SDK** (last under the optional components), or
-* select the **Individual components** tab and check the box for **.NET Compiler Platform SDK** (at the top under the Compilers, build tools, and runtimes section).
+First, make sure you have the right tools and templates on your machine. You'll need **Visual Studio 2019 version 16.3** (or newer) and the **.NET Compiler Platform SDK**. The **.NET Compiler Platform SDK** can be installed via the **Visual Studio Installer** under the **Individual components** tab and check the box for **.NET Compiler Platform SDK** (at the top of the **Compilers, build tools, and runtimes** section).
 
-The project can now be built from within **Visual Studio 2019**, or by using the **Cake** script in the root folder.
+The project can now be built from within **Visual Studio**, or by using the **Cake** script in the root folder.
 
 ### Building using Visual Studio
 
