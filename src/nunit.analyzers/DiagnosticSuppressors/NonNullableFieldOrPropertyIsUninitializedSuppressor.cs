@@ -1,5 +1,3 @@
-#if !NETSTANDARD1_6
-
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -279,5 +277,3 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         }
     }
 }
-
-#endif

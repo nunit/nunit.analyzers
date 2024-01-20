@@ -51,11 +51,7 @@ namespace NUnit.Analyzers.Extensions
 
         public static bool IsSuppressNullableWarning(this ExpressionSyntax expression)
         {
-#if NETSTANDARD1_6
-            return false;
-#else
             return expression.IsKind(Microsoft.CodeAnalysis.CSharp.SyntaxKind.SuppressNullableWarningExpression);
-#endif
         }
     }
 }
