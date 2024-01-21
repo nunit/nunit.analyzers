@@ -148,18 +148,29 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
     {
+        Information("Testing against NUnit 3.xx");
         DotNetTest(TEST_PROJECT, new DotNetTestSettings
         {
             Configuration = configuration,
             Loggers = new string[] { "trx" },
-            VSTestReportPath = "TestResult.xml",
+            VSTestReportPath = "TestResult-NUnit3.xml",
+            MSBuildSettings = new DotNetMSBuildSettings().WithProperty("NUnitVersion", "3")
+        });
+        Information("Testing against NUnit 4.xx");
+        DotNetTest(TEST_PROJECT, new DotNetTestSettings
+        {
+            Configuration = configuration,
+            Loggers = new string[] { "trx" },
+            VSTestReportPath = "TestResult-NUnit4.xml",
+            MSBuildSettings = new DotNetMSBuildSettings().WithProperty("NUnitVersion", "4")
         });
     })
     .Finally(() =>
     {
         if (AppVeyor.IsRunningOnAppVeyor)
         {
-            AppVeyor.UploadTestResults("TestResult.xml", AppVeyorTestResultsType.MSTest);
+            AppVeyor.UploadTestResults("TestResult-NUnit3.xml", AppVeyorTestResultsType.MSTest);
+            AppVeyor.UploadTestResults("TestResult-NUnit4.xml", AppVeyorTestResultsType.MSTest);
         }
     });
 
