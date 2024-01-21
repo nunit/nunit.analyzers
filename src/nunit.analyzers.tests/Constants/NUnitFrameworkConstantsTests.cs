@@ -165,9 +165,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfSetUpAttribute), nameof(SetUpAttribute)),
             (nameof(NUnitFrameworkConstants.NameOfTearDownAttribute), nameof(TearDownAttribute)),
 
-#if NUNIT4
             (nameof(NUnitFrameworkConstants.NameOfCancelAfterAttribute), nameof(CancelAfterAttribute)),
-#endif
 
             (nameof(NUnitFrameworkConstants.NameOfExpectedResult), nameof(TestAttribute.ExpectedResult)),
 
@@ -206,10 +204,8 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.FullNameOfFixtureLifeCycleAttribute), typeof(FixtureLifeCycleAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfLifeCycle), typeof(LifeCycle)),
 
-#if NUNIT4
             (nameof(NUnitFrameworkConstants.FullNameOfCancelAfterAttribute), typeof(CancelAfterAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfCancellationToken), typeof(CancellationToken)),
-#endif
 
             (nameof(NUnitFrameworkConstants.FullNameOfSameAsConstraint), typeof(SameAsConstraint)),
             (nameof(NUnitFrameworkConstants.FullNameOfSomeItemsConstraint), typeof(SomeItemsConstraint)),
