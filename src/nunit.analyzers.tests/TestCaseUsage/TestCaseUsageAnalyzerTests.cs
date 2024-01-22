@@ -758,18 +758,39 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
 
 #if NUNIT4
         [Test]
-        public void AnalyzeWhenTestMethodHasImplicitlySuppliedCancellationTokenParameter()
+        public void AnalyzeWhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnMethod()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-    [TestCase(100)]
-    [CancelAfter(50)]
-    public async Task InfiniteLoopWithCancelAfter(int delayInMs, CancellationToken cancellationToken)
-    {
-        while (!cancellationToken.IsCancellationRequested)
+        [TestCase(100)]
+        [CancelAfter(50)]
+        public async Task InfiniteLoopWithCancelAfter(int delayInMs, CancellationToken cancellationToken)
         {
-            await Task.Delay(delayInMs, cancellationToken).ConfigureAwait(false);
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(delayInMs, cancellationToken).ConfigureAwait(false);
+            }
+            }", "using System.Threading;");
+
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
-        }", "using System.Threading;");
+
+        [Test]
+        public void AnalyzeWhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnClass()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    [CancelAfter(50)]
+    public class TestClass
+    {
+        [TestCase(100)]
+        public async Task InfiniteLoopWithCancelAfter(int delayInMs, CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(delayInMs, cancellationToken).ConfigureAwait(false);
+            }
+        }
+    }", "using System.Threading;");
 
             RoslynAssert.Valid(this.analyzer, testCode);
         }

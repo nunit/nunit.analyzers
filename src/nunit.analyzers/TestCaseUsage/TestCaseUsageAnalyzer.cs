@@ -70,9 +70,10 @@ namespace NUnit.Analyzers.TestCaseUsage
             if (methodAttributes.Length == 0)
                 return;
 
-            var hasCancelAfterAttribute = methodAttributes.Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
+            var hasCancelAfterAttribute = methodAttributes.Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType)) ||
+                methodSymbol.ContainingType.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
 
-            var testCaseAttributes = methodSymbol.GetAttributes()
+            var testCaseAttributes = methodAttributes
                 .Where(a => a.ApplicationSyntaxReference is not null
                     && SymbolEqualityComparer.Default.Equals(a.AttributeClass, testCaseType));
 

@@ -119,7 +119,8 @@ namespace NUnit.Analyzers.TestMethodUsage
             if (!hasITestBuilderAttribute)
             {
                 var testAttribute = methodAttributes.SingleOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, testType));
-                var hasCancelAfterAttribute = methodAttributes.Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
+                var hasCancelAfterAttribute = methodAttributes.Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType)) ||
+                    methodSymbol.ContainingType.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
 
                 if (testAttribute is not null)
                 {

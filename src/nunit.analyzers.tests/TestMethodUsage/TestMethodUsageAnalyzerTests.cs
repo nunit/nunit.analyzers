@@ -538,7 +538,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
 
 #if NUNIT4
         [Test]
-        public void WhenTestMethodHasImplicitlySuppliedCancellationTokenParameter()
+        public void WhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnMethod()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         [Test]
@@ -550,6 +550,27 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                 await Task.Delay(100, cancellationToken).ConfigureAwait(false);
             }
         }", "using System.Threading;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void WhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnClass()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    [CancelAfter(50)]
+    public class TestClass
+    {
+        [Test]
+        public async Task InfiniteLoopWith50msCancelAfter(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
+            }
+        }
+    }", "using System.Threading;");
 
             RoslynAssert.Valid(analyzer, testCode);
         }

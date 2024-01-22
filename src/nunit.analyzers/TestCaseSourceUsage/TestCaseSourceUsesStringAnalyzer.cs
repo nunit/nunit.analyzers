@@ -245,7 +245,8 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                         IMethodSymbol? testMethod = context.SemanticModel.GetDeclaredSymbol(testMethodDeclaration);
                         if (testMethod is not null)
                         {
-                            var hasCancelAfterAttribute = testMethod.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
+                            var hasCancelAfterAttribute = testMethod.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType)) ||
+                                testMethod.ContainingType.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
 
                             var (methodRequiredParameters, methodOptionalParameters, methodParamsParameters) = testMethod.GetParameterCounts(hasCancelAfterAttribute, cancellationTokenType);
 

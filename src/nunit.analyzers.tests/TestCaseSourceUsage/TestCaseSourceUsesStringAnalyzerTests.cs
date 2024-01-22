@@ -708,7 +708,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
 #if NUNIT4
         [Test]
-        public void AnalyzeWhenNumberOfParametersMatchExcludingImplicitSuppliedCancellationToken()
+        public void AnalyzeWhenNumberOfParametersMatchExcludingImplicitSuppliedCancellationTokenDueToCancelAfterOnMethod()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     [TestFixture]
@@ -716,6 +716,33 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     {
         [TestCaseSource(nameof(TestData), new object[] { 1, 3, 5 })]
         [CancelAfter(10)]
+        public void ShortName(int number, CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                Assert.Ignore(""Cancelled"");
+            Assert.That(number, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData(int first, int second, int third)
+        {
+            yield return first;
+            yield return second;
+            yield return third;
+        }
+    }", additionalUsings: "using System.Collections.Generic;using System.Threading;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNumberOfParametersMatchExcludingImplicitSuppliedCancellationTokenDueToCancelAfterOnClass()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    [CancelAfter(100)]
+    public class AnalyzeWhenNumberOfParametersMatch
+    {
+        [TestCaseSource(nameof(TestData), new object[] { 1, 3, 5 })]
         public void ShortName(int number, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
