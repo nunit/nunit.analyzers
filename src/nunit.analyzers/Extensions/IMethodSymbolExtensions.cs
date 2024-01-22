@@ -10,10 +10,16 @@ namespace NUnit.Analyzers.Extensions
         /// Gets the parameters into required, optional, and params counts.
         /// </summary>
         /// <param name="this">The <see cref="IMethodSymbol"/> reference to get parameters from.</param>
+        /// <param name="hasCancelAfterAttribute"><see langword="true"/> if <paramref name="this"/> has a <c>CancelAfterAttribute</c>.</param>
+        /// <param name="cancellationTokenType">The symbol reference for <see cref="System.Threading.CancellationToken"/>.</param>
         /// <returns>
         /// The first count is the required parameters, the second is the optional count,
         /// and the last is the <see langword="params" /> count.
         /// </returns>
+        /// <remarks>
+        /// When the <c>CancelAfterAttribute</c> is in play and the last parameter has type <see cref="System.Threading.CancellationToken"/>
+        /// this parameter is optional, if not supplied by the user it will be supplied by NUnit.
+        /// </remarks>
         internal static (uint requiredParameters, uint optionalParameters, uint paramsCount) GetParameterCounts(
             this IMethodSymbol @this,
             bool hasCancelAfterAttribute,
@@ -45,7 +51,7 @@ namespace NUnit.Analyzers.Extensions
                                        SymbolEqualityComparer.Default.Equals(parameters[parameters.Length - 1].Type, cancellationTokenType);
             if (hasCancelAfterAttribute && hasCancellationToken)
             {
-                // This parameter is optional, it not specified it will be supplied by NUnit.
+                // This parameter is optional, if not specified it will be supplied by NUnit.
                 optionalParameters++;
                 requiredParameters--;
             }

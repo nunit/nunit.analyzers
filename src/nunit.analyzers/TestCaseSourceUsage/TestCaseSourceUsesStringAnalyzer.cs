@@ -247,7 +247,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                         {
                             var hasCancelAfterAttribute = testMethod.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
 
-                            var (methodRequiredParameters, methodOptionalParameters, methodParamsParameters) = testMethod.GetParameterCounts(true, cancellationTokenType);
+                            var (methodRequiredParameters, methodOptionalParameters, methodParamsParameters) = testMethod.GetParameterCounts(hasCancelAfterAttribute, cancellationTokenType);
 
                             if (elementType.SpecialType != SpecialType.System_String && (elementType.SpecialType == SpecialType.System_Object || elementType.IsIEnumerable(out _) ||
                                 IsOrDerivesFrom(elementType, context.SemanticModel.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseParameters))))
