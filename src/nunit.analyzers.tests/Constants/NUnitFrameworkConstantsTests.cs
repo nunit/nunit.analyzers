@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
@@ -164,6 +165,8 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfSetUpAttribute), nameof(SetUpAttribute)),
             (nameof(NUnitFrameworkConstants.NameOfTearDownAttribute), nameof(TearDownAttribute)),
 
+            (nameof(NUnitFrameworkConstants.NameOfCancelAfterAttribute), nameof(CancelAfterAttribute)),
+
             (nameof(NUnitFrameworkConstants.NameOfExpectedResult), nameof(TestAttribute.ExpectedResult)),
 
             (nameof(NUnitFrameworkConstants.NameOfConstraintExpressionAnd), nameof(EqualConstraint.And)),
@@ -200,6 +203,9 @@ namespace NUnit.Analyzers.Tests.Constants
 
             (nameof(NUnitFrameworkConstants.FullNameOfFixtureLifeCycleAttribute), typeof(FixtureLifeCycleAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfLifeCycle), typeof(LifeCycle)),
+
+            (nameof(NUnitFrameworkConstants.FullNameOfCancelAfterAttribute), typeof(CancelAfterAttribute)),
+            (nameof(NUnitFrameworkConstants.FullNameOfCancellationToken), typeof(CancellationToken)),
 
             (nameof(NUnitFrameworkConstants.FullNameOfSameAsConstraint), typeof(SameAsConstraint)),
             (nameof(NUnitFrameworkConstants.FullNameOfSomeItemsConstraint), typeof(SomeItemsConstraint)),

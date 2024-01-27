@@ -640,7 +640,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     [TestFixture]
     public class AnalyzeWhenNumberOfParametersOfTestIsNotEvidentFromTestSource
     {
-        [Explicit(""The code is wrong, but it is too complext for the analyzer to detect this."")]
+        [Explicit(""The code is wrong, but it is too complex for the analyzer to detect this."")]
         [TestCaseSource(nameof(TestData))]
         public void ShortName(int n)
         {
@@ -705,5 +705,90 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+#if NUNIT4
+        [Test]
+        public void AnalyzeWhenNumberOfParametersMatchExcludingImplicitSuppliedCancellationTokenDueToCancelAfterOnMethod()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersMatch
+    {
+        [TestCaseSource(nameof(TestData), new object[] { 1, 3, 5 })]
+        [CancelAfter(10)]
+        public void ShortName(int number, CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                Assert.Ignore(""Cancelled"");
+            Assert.That(number, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData(int first, int second, int third)
+        {
+            yield return first;
+            yield return second;
+            yield return third;
+        }
+    }", additionalUsings: "using System.Collections.Generic;using System.Threading;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNumberOfParametersMatchExcludingImplicitSuppliedCancellationTokenDueToCancelAfterOnClass()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    [CancelAfter(100)]
+    public class AnalyzeWhenNumberOfParametersMatch
+    {
+        [TestCaseSource(nameof(TestData), new object[] { 1, 3, 5 })]
+        public void ShortName(int number, CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                Assert.Ignore(""Cancelled"");
+            Assert.That(number, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData(int first, int second, int third)
+        {
+            yield return first;
+            yield return second;
+            yield return third;
+        }
+    }", additionalUsings: "using System.Collections.Generic;using System.Threading;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpectedNoImplicitSuppliedCancellationToken()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected
+    {
+        [TestCaseSource(↓nameof(TestData), new object[] { 1 })]
+        public void ShortName(CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                Assert.Ignore(""Cancelled"");
+        }
+
+        static IEnumerable<int> TestData()
+        {
+            yield return 1;
+            yield return 2;
+            yield return 3;
+        }
+    }", additionalUsings: "using System.Collections.Generic;using System.Threading;");
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
+                .WithMessage("The TestCaseSource provides '1' parameter(s), but the target method expects '0' parameter(s)");
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+#endif
     }
 }

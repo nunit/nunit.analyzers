@@ -121,10 +121,17 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 return;
             }
 
-            context.RegisterSyntaxNodeAction(syntaxContext => AnalyzeAttribute(syntaxContext, testCaseSourceAttribute), SyntaxKind.Attribute);
+            INamedTypeSymbol? cancelAfterType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfCancelAfterAttribute);
+            INamedTypeSymbol? cancellationTokenType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfCancellationToken);
+
+            context.RegisterSyntaxNodeAction(syntaxContext => AnalyzeAttribute(syntaxContext, testCaseSourceAttribute, cancelAfterType, cancellationTokenType), SyntaxKind.Attribute);
         }
 
-        private static void AnalyzeAttribute(SyntaxNodeAnalysisContext context, INamedTypeSymbol testCaseSourceAttribute)
+        private static void AnalyzeAttribute(
+            SyntaxNodeAnalysisContext context,
+            INamedTypeSymbol testCaseSourceAttribute,
+            INamedTypeSymbol? cancelAfterType,
+            INamedTypeSymbol? cancellationTokenType)
         {
             var attributeInfo = SourceHelpers.GetSourceAttributeInformation(
                 context,
@@ -238,7 +245,10 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                         IMethodSymbol? testMethod = context.SemanticModel.GetDeclaredSymbol(testMethodDeclaration);
                         if (testMethod is not null)
                         {
-                            var (methodRequiredParameters, methodOptionalParameters, methodParamsParameters) = testMethod.GetParameterCounts();
+                            var hasCancelAfterAttribute = testMethod.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType)) ||
+                                testMethod.ContainingType.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
+
+                            var (methodRequiredParameters, methodOptionalParameters, methodParamsParameters) = testMethod.GetParameterCounts(hasCancelAfterAttribute, cancellationTokenType);
 
                             if (elementType.SpecialType != SpecialType.System_String && (elementType.SpecialType == SpecialType.System_Object || elementType.IsIEnumerable(out _) ||
                                 IsOrDerivesFrom(elementType, context.SemanticModel.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseParameters))))
@@ -258,7 +268,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                             }
                             else
                             {
-                                if (methodRequiredParameters + methodOptionalParameters != 1)
+                                if (methodRequiredParameters + methodOptionalParameters != (hasCancelAfterAttribute ? 2 : 1))
                                 {
                                     context.ReportDiagnostic(Diagnostic.Create(
                                             mismatchInNumberOfTestMethodParameters,

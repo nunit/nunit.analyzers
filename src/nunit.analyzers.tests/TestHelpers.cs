@@ -56,7 +56,7 @@ namespace NUnit.Analyzers.Tests
         internal static Task Suppressed(DiagnosticAnalyzer analyzer, DiagnosticSuppressor suppressor, string code, Settings? settings = null)
             => SuppressedOrNot(analyzer, suppressor, code, true, settings);
 
-        internal static async Task<(SyntaxNode Node, SemanticModel Model)> GetRootAndModel(string code)
+        internal static (SyntaxTree Tree, Compilation Compilation) GetTreeAndCompilation(string code)
         {
             var tree = CSharpSyntaxTree.ParseText(code);
 
@@ -65,10 +65,23 @@ namespace NUnit.Analyzers.Tests
                 references: Settings.Default.MetadataReferences,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
+            return (tree, compilation);
+        }
+
+        internal static async Task<(SyntaxNode Node, Compilation Compilation, SemanticModel Model)> GetRootCompilationAndModel(string code)
+        {
+            (SyntaxTree tree, Compilation compilation) = GetTreeAndCompilation(code);
             var model = compilation.GetSemanticModel(tree);
             var root = await tree.GetRootAsync().ConfigureAwait(false);
 
-            return (root, model);
+            return (root, compilation, model);
+        }
+
+        internal static async Task<(SyntaxNode Node, SemanticModel Model)> GetRootAndModel(string code)
+        {
+            (SyntaxNode node, _, SemanticModel model) = await GetRootCompilationAndModel(code).ConfigureAwait(false);
+
+            return (node, model);
         }
     }
 }
