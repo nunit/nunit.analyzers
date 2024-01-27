@@ -135,7 +135,8 @@ Task("Build")
             NoRestore = true,
             MSBuildSettings = new DotNetMSBuildSettings
             {
-                Version = packageVersion
+                Version = packageVersion,
+                FileVersion = packageVersion,
             }
         });
     });
@@ -154,7 +155,11 @@ Task("Test")
             Configuration = configuration,
             Loggers = new string[] { "trx" },
             VSTestReportPath = "TestResult-NUnit3.xml",
-            MSBuildSettings = new DotNetMSBuildSettings().WithProperty("NUnitVersion", "3")
+            MSBuildSettings = new DotNetMSBuildSettings
+            {
+                Version = packageVersion,
+                FileVersion = packageVersion,
+            }.WithProperty("NUnitVersion", "3")
         });
         Information("Testing against NUnit 4.xx");
         DotNetTest(TEST_PROJECT, new DotNetTestSettings
@@ -162,7 +167,11 @@ Task("Test")
             Configuration = configuration,
             Loggers = new string[] { "trx" },
             VSTestReportPath = "TestResult-NUnit4.xml",
-            MSBuildSettings = new DotNetMSBuildSettings().WithProperty("NUnitVersion", "4")
+            MSBuildSettings = new DotNetMSBuildSettings
+            {
+                Version = packageVersion,
+                FileVersion = packageVersion,
+            }.WithProperty("NUnitVersion", "4")
         });
     })
     .Finally(() =>
@@ -190,7 +199,8 @@ Task("Pack")
             Properties = new Dictionary<string, string>()
             {
                 {"Configuration", configuration},
-                {"TargetFramework", targetFramework }
+                {"TargetFramework", targetFramework },
+                { "NoBuild", "true" }
             }
         });
     });
