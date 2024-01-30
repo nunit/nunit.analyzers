@@ -762,6 +762,33 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
+        public void AnalyzeWhenNumberOfParametersMatchNoImplicitlySuppliedCancellationTokenParameter()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersMatch
+    {
+        [TestCaseSource(nameof(TestData), new object[] { 1, 3, 5 })]
+        [CancelAfter(10)]
+        public void ShortName(int number)
+        {
+            if (TestContext.CurrentContext.CancellationToken.IsCancellationRequested)
+                Assert.Ignore(""Cancelled"");
+            Assert.That(number, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData(int first, int second, int third)
+        {
+            yield return first;
+            yield return second;
+            yield return third;
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpectedNoImplicitSuppliedCancellationToken()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"

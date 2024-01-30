@@ -268,13 +268,13 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                             }
                             else
                             {
-                                if (methodRequiredParameters + methodOptionalParameters != (hasCancelAfterAttribute ? 2 : 1))
+                                if (methodRequiredParameters != 1)
                                 {
                                     context.ReportDiagnostic(Diagnostic.Create(
                                             mismatchInNumberOfTestMethodParameters,
                                             syntaxNode.GetLocation(),
                                             1,
-                                            methodRequiredParameters + methodOptionalParameters));
+                                            methodRequiredParameters));
                                 }
                                 else
                                 {
