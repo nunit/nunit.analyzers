@@ -1,4 +1,22 @@
-﻿NUnit Analyzers 4.0 - January 27, 2024
+﻿NUnit Analyzers 4.0.1 - February 1, 2024
+
+Small release that fixes a problem with the 4.0 release when combining `TestCaseSource` and `CancelAfter`.
+
+The release contains contributions from the following users (in alphabetical order):
+* manfred-brands
+* mikkelbu
+* richardissimo
+
+Issues Resolved
+
+Bugs
+* #685 error NUnit1029: The TestCaseSource provides '1' parameter(s), but the Test method expects '1' parameter(s)
+
+Tooling, Process, and Documentation
+* #684 chore: bump-version 
+
+
+NUnit Analyzers 4.0 - January 27, 2024
 
 Version 4 of the NUnit analyzers drops the support for older releases of Visual Studio. I.e.
 releases of Visual Studio that are older than Visual Studio 2019 16.3. In addition, this release
