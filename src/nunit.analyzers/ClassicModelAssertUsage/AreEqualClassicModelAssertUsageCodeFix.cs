@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
             if (hasToleranceValue)
             {
-                // The tolerance argument should be renamed from delta to amount but with the model constraint it the
+                // The tolerance argument should be renamed from 'delta' to 'amount' but with the model constraint the
                 // argument is moved to Within which makes it way more explicit so we can just drop the name colon.
                 var toleranceArgumentNoColon = arguments[2].WithNameColon(null);
 
