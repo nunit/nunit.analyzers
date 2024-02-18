@@ -24,12 +24,8 @@ namespace NUnit.Analyzers.ConstraintUsage
         private static (ExpressionSyntax? actual, ExpressionSyntax? expected) GetActualExpected(SyntaxNode conditionNode)
         {
             if (conditionNode is BinaryExpressionSyntax binaryExpression &&
-                (binaryExpression.IsKind(SyntaxKind.EqualsExpression) ||
-                 binaryExpression.IsKind(SyntaxKind.NotEqualsExpression) ||
-                 binaryExpression.IsKind(SyntaxKind.IsExpression) ||
-                 binaryExpression.IsKind(SyntaxKind.IsPatternExpression)))
+                (binaryExpression.IsKind(SyntaxKind.EqualsExpression) || binaryExpression.IsKind(SyntaxKind.NotEqualsExpression)))
             {
-                // TODO we should handle is different
                 return (binaryExpression.Left, binaryExpression.Right);
             }
             else
