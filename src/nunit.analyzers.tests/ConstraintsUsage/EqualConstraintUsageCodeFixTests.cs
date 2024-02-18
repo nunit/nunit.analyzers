@@ -28,6 +28,20 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         }
 
         [Test]
+        public void FixesEqualsOperatorWithNull()
+        {
+            var code = TestUtility.WrapInTestMethod(@"
+            var actual = ""abc"";
+            Assert.That(actual == null);");
+
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+            var actual = ""abc"";
+            Assert.That(actual, Is.Null);");
+
+            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+        }
+
+        [Test]
         public void FixesNotEqualsOperator()
         {
             var code = TestUtility.WrapInTestMethod(@"

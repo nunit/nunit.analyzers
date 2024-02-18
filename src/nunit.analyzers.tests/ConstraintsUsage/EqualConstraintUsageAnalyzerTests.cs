@@ -21,6 +21,13 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualConstraintUsage,
                 string.Format(CultureInfo.InvariantCulture, EqualConstraintUsageConstants.Message, "Is.Not.EqualTo"));
 
+        private static readonly ExpectedDiagnostic isNullDiagnostic =
+            ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualConstraintUsage,
+                string.Format(CultureInfo.InvariantCulture, EqualConstraintUsageConstants.Message, "Is.Null"));
+        private static readonly ExpectedDiagnostic isNotNullDiagnostic =
+            ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualConstraintUsage,
+                string.Format(CultureInfo.InvariantCulture, EqualConstraintUsageConstants.Message, "Is.Not.Null"));
+
         [Test]
         public void AnalyzeWhenEqualsOperatorUsed()
         {
@@ -31,6 +38,28 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
 
+        [Theory]
+        [TestCase("actual", "null")]
+        [TestCase("null", "actual")]
+        public void AnalyzeWhenEqualsOperatorUsedForNull(string leftOperand, string rightOperand)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var actual = ""abc"";
+                Assert.That(↓{leftOperand} == {rightOperand});");
+
+            RoslynAssert.Diagnostics(analyzer, isNullDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenPatternOperatorUsed()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = ""abc"";
+                Assert.That(↓actual is null);");
+
+            RoslynAssert.Diagnostics(analyzer, isNullDiagnostic, testCode);
+        }
+
         [Test]
         public void AnalyzeWhenNotEqualsOperatorUsed()
         {
@@ -39,6 +68,28 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(↓actual != ""bcd"");");
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
+        }
+
+        [Theory]
+        [TestCase("actual", "null")]
+        [TestCase("null", "actual")]
+        public void AnalyzeWhenNotEqualsOperatorUsedForNull(string leftOperand, string rightOperand)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var actual = ""abc"";
+                Assert.That(↓{leftOperand} != {rightOperand});");
+
+            RoslynAssert.Diagnostics(analyzer, isNotNullDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNegatedPatternOperatorUsed()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = ""abc"";
+                Assert.That(↓actual is not null);");
+
+            RoslynAssert.Diagnostics(analyzer, isNotNullDiagnostic, testCode);
         }
 
         [Test]
@@ -52,6 +103,16 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         }
 
         [Test]
+        public void AnalyzeWhenEqualsInstanceMethodUsedWithNullParameter()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = ""abc"";
+                Assert.That(↓actual.Equals(null));");
+
+            RoslynAssert.Diagnostics(analyzer, isNullDiagnostic, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenNegatedEqualsInstanceMethodUsed()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
@@ -59,6 +120,16 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(↓!actual.Equals(""bcd""));");
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenNegatedEqualsInstanceMethodUsedWithNullParameter()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = ""abc"";
+                Assert.That(↓!actual.Equals(null));");
+
+            RoslynAssert.Diagnostics(analyzer, isNotNullDiagnostic, testCode);
         }
 
         [Test]
@@ -71,6 +142,18 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
 
+        [Theory]
+        [TestCase("actual", "null")]
+        [TestCase("null", "actual")]
+        public void AnalyzeWhenEqualsStaticMethodUsedForNull(string leftOperand, string rightOperand)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var actual = ""abc"";
+                Assert.That(↓Equals({leftOperand}, {rightOperand}));");
+
+            RoslynAssert.Diagnostics(analyzer, isNullDiagnostic, testCode);
+        }
+
         [Test]
         public void AnalyzeWhenNegatedEqualsStaticMethodUsed()
         {
@@ -79,6 +162,18 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 Assert.That(↓!Equals(actual,""abc""));");
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
+        }
+
+        [Theory]
+        [TestCase("actual", "null")]
+        [TestCase("null", "actual")]
+        public void AnalyzeWhenNegatedEqualsStaticMethodUsedForNull(string leftOperand, string rightOperand)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var actual = ""abc"";
+                Assert.That(↓!Equals({leftOperand}, {rightOperand}));");
+
+            RoslynAssert.Diagnostics(analyzer, isNotNullDiagnostic, testCode);
         }
 
         [Test]

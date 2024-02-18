@@ -33,12 +33,45 @@ namespace NUnit.Analyzers.ConstraintUsage
             return operation.Type?.TypeKind == TypeKind.Struct && operation.Type.IsRefLikeType;
         }
 
-        protected static bool IsBinaryOperationNotUsingRefStructOperands(IOperation actual, BinaryOperatorKind binaryOperator)
+        protected static bool IsBinaryOperationNotUsingRefStructOperands(
+            IOperation actual,
+            BinaryOperatorKind binaryOperator,
+            out bool atLeastOneOperandIsNull)
         {
-            return actual is IBinaryOperation binaryOperation &&
-                binaryOperation.OperatorKind == binaryOperator &&
-                !IsRefStruct(binaryOperation.LeftOperand) &&
+            atLeastOneOperandIsNull = false;
+
+            var binaryOperation = actual as IBinaryOperation;
+
+            if (binaryOperation is null || binaryOperation.OperatorKind != binaryOperator)
+            {
+                return false;
+            }
+
+            var x = !IsRefStruct(binaryOperation.LeftOperand) &&
                 !IsRefStruct(binaryOperation.RightOperand);
+
+            if (!x)
+            {
+                return x;
+            }
+
+            atLeastOneOperandIsNull = IsOperationWithNullConstant(binaryOperation.LeftOperand)
+                || IsOperationWithNullConstant(binaryOperation.RightOperand);
+
+            return x;
+        }
+
+        protected static bool IsPatternOperationWithConstantNull(IOperation actual)
+        {
+            return actual is IIsPatternOperation isPatternOperation &&
+                IsConstantPatternWithNull(isPatternOperation.Pattern);
+        }
+
+        protected static bool IsNegatedPatternOperationWithConstantNull(IOperation actual)
+        {
+            return actual is IIsPatternOperation isPatternOperation1 &&
+                isPatternOperation1.Pattern is INegatedPatternOperation negatedPattern &&
+                IsConstantPatternWithNull(negatedPattern.Pattern);
         }
 
         protected virtual (DiagnosticDescriptor? descriptor, string? suggestedConstraint, bool swapOperands) GetDiagnosticDataWithPossibleSwapOperands(
@@ -107,6 +140,21 @@ namespace NUnit.Analyzers.ConstraintUsage
                 var diagnostic = Diagnostic.Create(descriptor, actual.Syntax.GetLocation(), properties.ToImmutable(), suggestedConstraint);
                 context.ReportDiagnostic(diagnostic);
             }
+        }
+
+        protected static bool IsOperationWithNullConstant(IOperation operation)
+        {
+            return operation is IConversionOperation conversionOperation &&
+                conversionOperation.Operand is ILiteralOperation operand &&
+                operand.ConstantValue.HasValue &&
+                operand.ConstantValue.Value is null;
+        }
+
+        private static bool IsConstantPatternWithNull(IPatternOperation operation)
+        {
+            return operation is IConstantPatternOperation constantPattern &&
+                constantPattern.Value.ConstantValue.HasValue &&
+                constantPattern.Value.ConstantValue.Value is null;
         }
 
         private static bool IsPrefixNotOperation(IOperation operation, [NotNullWhen(true)] out IOperation? operand)
