@@ -55,6 +55,12 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             // Now, replace the arguments.
             List<ArgumentSyntax> arguments = invocationNode.ArgumentList.Arguments.ToList();
 
+            // Remove null message to avoid ambiguous calls.
+            if (arguments.Count == 3 && arguments[2].Expression.Kind() == SyntaxKind.NullLiteralExpression)
+            {
+                arguments.RemoveAt(2);
+            }
+
             // See if we need to cast the arguments when they were using a specific classic overload.
             arguments[0] = CastIfNecessary(arguments[0]);
             if (arguments.Count > 1)
