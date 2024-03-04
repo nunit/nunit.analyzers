@@ -137,6 +137,22 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
+        public void VerifyAreEqualFixWhenToleranceExistsWithNullMessage()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            ↓ClassicAssert.AreEqual(2d, 3d, 0.1, null);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(3d, Is.EqualTo(2d).Within(0.1));
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
         public void VerifyAreEqualFixWhenToleranceExistsWithMessageAndParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
