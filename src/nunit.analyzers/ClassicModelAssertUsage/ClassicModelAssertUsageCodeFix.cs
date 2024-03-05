@@ -66,6 +66,12 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             else
                 this.UpdateArguments(diagnostic, arguments, typeArguments);
 
+            // Remove null message to avoid ambiguous calls.
+            if (arguments.Count == 3 && arguments[2].Expression.IsKind(SyntaxKind.NullLiteralExpression))
+            {
+                arguments.RemoveAt(2);
+            }
+
             // Do the format spec, params to formattable string conversion
             CodeFixHelper.UpdateStringFormatToFormattableString(arguments, this.MinimumNumberOfParameters);
 

@@ -57,6 +57,22 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
+        public void VerifyAreEqualFixWithNullMessage()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            ↓ClassicAssert.AreEqual(2d, 3d, null);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(3d, Is.EqualTo(2d));
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
         public void VerifyAreEqualFixWithMessageAndParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
@@ -116,6 +132,22 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void TestMethod()
         {
             Assert.That(3d, Is.EqualTo(2d).Within(0.0000001d), ""message"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyAreEqualFixWhenToleranceExistsWithNullMessage()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            ↓ClassicAssert.AreEqual(2d, 3d, 0.1, null);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(3d, Is.EqualTo(2d).Within(0.1));
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
