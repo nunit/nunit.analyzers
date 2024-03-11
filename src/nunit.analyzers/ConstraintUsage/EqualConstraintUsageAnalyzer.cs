@@ -42,6 +42,12 @@ namespace NUnit.Analyzers.ConstraintUsage
                 shouldReport = true;
                 negated = !negated;
             }
+            else if (actual is IIsPatternOperation isPatternOperation)
+            {
+                shouldReport = true;
+                if (isPatternOperation.Pattern is INegatedPatternOperation)
+                    negated = true;
+            }
 
             if (shouldReport)
             {

@@ -42,6 +42,26 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         }
 
         [Test]
+        public void AnalyzeWhenIsOperatorUsed()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = ""abc"";
+                Assert.That(↓actual is ""abc"");");
+
+            RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsNotOperatorUsed()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var actual = ""abc"";
+                Assert.That(↓actual is not ""bcd"");");
+
+            RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenEqualsInstanceMethodUsed()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
