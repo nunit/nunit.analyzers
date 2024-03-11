@@ -56,6 +56,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase("ClassicAssert.NotNull(s)")]
         [TestCase("ClassicAssert.IsNotNull(s)")]
         [TestCase("Assert.That(s, Is.Not.Null)")]
+        [TestCase("Assume.That(s, Is.Not.Null)")]
         public void WithLocalValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
@@ -75,6 +76,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase("ClassicAssert.NotNull(s)")]
         [TestCase("ClassicAssert.IsNotNull(s)")]
         [TestCase("Assert.That(s, Is.Not.Null)")]
+        [TestCase("Assume.That(s, Is.Not.Null)")]
         public void WithFieldValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
@@ -391,6 +393,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase("Assert.That(nullable.HasValue)")]
         [TestCase("Assert.That(nullable.HasValue, Is.True)")]
         [TestCase("Assert.That(nullable, Is.Not.Null)")]
+        [TestCase("Assume.That(nullable, Is.Not.Null)")]
         public void NullableWithValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
