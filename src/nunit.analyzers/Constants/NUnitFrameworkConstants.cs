@@ -182,6 +182,8 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfOneTimeTearDownAttribute = "OneTimeTearDownAttribute";
         public const string NameOfSetUpAttribute = "SetUpAttribute";
         public const string NameOfTearDownAttribute = "TearDownAttribute";
+        public const string NameOfTestFixtureSetUpAttribute = "TestFixtureSetUpAttribute";
+        public const string NameOfTestFixtureTearDownAttribute = "TestFixtureTearDownAttribute";
 
         public const string NameOfCancelAfterAttribute = "CancelAfterAttribute";
 
@@ -201,9 +203,9 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfEqualConstraintWithin = "Within";
         public const string NameOfEqualConstraintAsCollection = "AsCollection";
 
-        public const string NUnitFrameworkAssemblyName = "nunit.framework";
+        public const string NUnitFrameworkAssemblyName = "NUnit.Framework";
 
-        public const string NUnitFrameworkLegacyAssemblyName = "nunit.framework.legacy";
+        public const string NUnitFrameworkLegacyAssemblyName = "NUnit.Framework.Legacy";
         public const string NameOfClassicAssert = "ClassicAssert";
     }
 }

@@ -26,7 +26,8 @@ namespace NUnit.Analyzers.Extensions
 
         public static bool IsTestMethodAttribute(this AttributeData @this, Compilation compilation)
         {
-            return @this.DerivesFromITestBuilder(compilation) ||
+            return @this.IsTestAttribute() ||
+                   @this.DerivesFromITestBuilder(compilation) ||
                    @this.DerivesFromISimpleTestBuilder(compilation);
         }
 
@@ -40,7 +41,9 @@ namespace NUnit.Analyzers.Extensions
             return attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeOneTimeSetUpAttribute, compilation)
                 || attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeOneTimeTearDownAttribute, compilation)
                 || attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeSetUpAttribute, compilation)
-                || attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeTearDownAttribute, compilation);
+                || attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeTearDownAttribute, compilation)
+                || attributeType.Name.Equals(NUnitFrameworkConstants.NameOfTestFixtureSetUpAttribute, System.StringComparison.Ordinal)
+                || attributeType.Name.Equals(NUnitFrameworkConstants.NameOfTestFixtureTearDownAttribute, System.StringComparison.Ordinal);
         }
 
         public static bool IsFixtureLifeCycleAttribute(this AttributeData @this, Compilation compilation)
@@ -112,6 +115,19 @@ namespace NUnit.Analyzers.Extensions
                 return false;
 
             return attributeData.AttributeClass.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, interfaceType));
+        }
+
+        private static bool IsTestAttribute(this AttributeData @this)
+        {
+            var attributeClassString = @this.AttributeClass?.ToString();
+            if (attributeClassString is not null)
+            {
+                return attributeClassString.Equals(NUnitFrameworkConstants.FullNameOfTypeTestAttribute, System.StringComparison.Ordinal) ||
+                       attributeClassString.Equals(NUnitFrameworkConstants.FullNameOfTypeTestCaseAttribute, System.StringComparison.Ordinal) ||
+                       attributeClassString.Equals(NUnitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute, System.StringComparison.Ordinal);
+            }
+
+            return false;
         }
     }
 }

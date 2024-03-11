@@ -10,7 +10,7 @@ namespace NUnit.Analyzers
         {
             INamedTypeSymbol containingType = invocationOperation.TargetMethod.ContainingType;
 
-            return hasClassicAssert ? containingType.IsClassicAssert() : containingType.IsAssert();
+            return containingType.IsAssert();
         }
     }
 }
