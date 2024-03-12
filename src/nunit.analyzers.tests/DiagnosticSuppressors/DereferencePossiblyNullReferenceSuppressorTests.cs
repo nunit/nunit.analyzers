@@ -1017,7 +1017,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     return str.Inner; // warning: possible null reference return
                 }
 
-                private record HasString(string? Inner);
+                private sealed class HasString
+                {
+                    public HasString(string? inner)
+                    {                   
+                        Inner = inner;
+                    }
+
+                    public string? Inner { get; }
+                }
             ");
 
             RoslynAssert.Suppressed(suppressor,
