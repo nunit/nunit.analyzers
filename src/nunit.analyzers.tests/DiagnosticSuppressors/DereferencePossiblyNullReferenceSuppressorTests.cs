@@ -997,5 +997,40 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
                 testCode);
         }
+
+        [Test]
+        public void TestNullSuppressionOperator()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [TestCase(default(string))]
+                public void Test(string ?possibleNullString)
+                {
+                    HasString str = new(possibleNullString);
+
+                    string nonNullString = GetStringSuppress(str);
+                    Assert.That(nonNullString, Is.Not.Null);
+                }
+
+                private static string GetStringSuppress(HasString? str) // argument is nullable
+                {
+                    Assert.That(str!.Inner, Is.Not.Null);
+                    return str.Inner; // warning: possible null reference return
+                }
+
+                private sealed class HasString
+                {
+                    public HasString(string? inner)
+                    {                   
+                        Inner = inner;
+                    }
+
+                    public string? Inner { get; }
+                }
+            ");
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8603"]),
+                testCode);
+        }
     }
 }

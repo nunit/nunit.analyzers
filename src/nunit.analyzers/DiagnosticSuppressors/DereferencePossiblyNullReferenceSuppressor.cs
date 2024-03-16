@@ -407,6 +407,12 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
         private static bool CoveredBy(string assertedNotNull, string possibleNullReference)
         {
+            int exclamation = assertedNotNull.IndexOf('!');
+            if (exclamation >= 0)
+            {
+                assertedNotNull = assertedNotNull.Replace("!", string.Empty);
+            }
+
             if (possibleNullReference == assertedNotNull)
             {
                 return true;
