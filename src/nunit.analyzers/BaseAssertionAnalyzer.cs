@@ -38,7 +38,7 @@ namespace NUnit.Analyzers
             if (context.Operation is not IInvocationOperation invocationOperation)
                 return;
 
-            if (!this.IsAssert(nunitVersion.Major >= 2, invocationOperation))
+            if (!this.IsAssert(nunitVersion.Major >= 4, invocationOperation))
                 return;
 
             context.CancellationToken.ThrowIfCancellationRequested();
