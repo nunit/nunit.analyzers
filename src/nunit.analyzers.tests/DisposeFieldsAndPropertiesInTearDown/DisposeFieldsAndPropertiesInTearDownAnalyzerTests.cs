@@ -14,6 +14,15 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             public void Dispose() {}
         }";
 
+        private const string DummyExplicitDisposable = @"
+        sealed class DummyExplicitDisposable : IAnotherInterface, IDisposable
+        {
+            void IDisposable.Dispose() {}
+        }
+        public interface IAnotherInterface
+        {
+        }";
+
         // CA2000 allows transfer of ownership using ICollection<IDisposable>.Add
         private const string Disposer = @"
         private sealed class Disposer : IDisposable
@@ -109,6 +118,29 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         }}
 
         {DummyDisposable}
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenExplicitlyInterfaceImplementedDisposableFieldSetInConstructorIsDisposedInOneTimeTearDownMethod()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private IAnotherInterface field;
+
+        public TestClass()
+        {{
+            field = new DummyExplicitDisposable();
+        }}
+
+        [OneTimeTearDown]
+        public void TearDownMethod()
+        {{
+            ((IDisposable)field).Dispose();
+        }}
+
+        {DummyExplicitDisposable}
         ");
 
             RoslynAssert.Valid(analyzer, testCode);
@@ -1005,10 +1037,10 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         public partial class TestFixture
         {
             [Test]
-	        public void SomeTest()
-	        {
-		        SomeAsserts();
-	        }
+            public void SomeTest()
+            {
+                SomeAsserts();
+            }
         }");
 
             RoslynAssert.Valid(analyzer, testCodePart1, testCodePart2);
