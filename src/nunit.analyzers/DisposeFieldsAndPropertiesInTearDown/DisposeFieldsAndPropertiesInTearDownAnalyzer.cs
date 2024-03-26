@@ -554,6 +554,13 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             {
                 return memberAccessExpression.Name.Identifier.Text;
             }
+            else if (expression is ParenthesizedExpressionSyntax { Expression: CastExpressionSyntax { Expression: IdentifierNameSyntax castIdentifierNameSyntax, Type: IdentifierNameSyntax
+                     {
+                         Identifier.Text: "IDisposable"
+                     } } })
+            {
+                return castIdentifierNameSyntax.Identifier.Text;
+            }
 
             return null;
         }
