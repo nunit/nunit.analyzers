@@ -304,8 +304,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsValidatedNotNullByExpression(string possibleNullReference, ExpressionSyntax expression)
         {
             // Check if this is an Assert for the same symbol
-            if (AssertHelper.IsAssert(expression, out string member, out ArgumentListSyntax? argumentList) ||
-                AssertHelper.IsClassicAssert(expression, out member, out argumentList))
+            if (AssertHelper.IsAssertClassicAssertOrAssume(expression, out string member, out ArgumentListSyntax? argumentList))
             {
                 string firstArgument = argumentList.Arguments.First().Expression.ToString();
 
@@ -408,6 +407,12 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
         private static bool CoveredBy(string assertedNotNull, string possibleNullReference)
         {
+            int exclamation = assertedNotNull.IndexOf('!');
+            if (exclamation >= 0)
+            {
+                assertedNotNull = assertedNotNull.Replace("!", string.Empty);
+            }
+
             if (possibleNullReference == assertedNotNull)
             {
                 return true;

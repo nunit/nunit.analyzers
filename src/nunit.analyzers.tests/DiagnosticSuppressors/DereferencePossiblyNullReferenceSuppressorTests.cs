@@ -56,6 +56,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase("ClassicAssert.NotNull(s)")]
         [TestCase("ClassicAssert.IsNotNull(s)")]
         [TestCase("Assert.That(s, Is.Not.Null)")]
+        [TestCase("Assume.That(s, Is.Not.Null)")]
         public void WithLocalValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
@@ -75,6 +76,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase("ClassicAssert.NotNull(s)")]
         [TestCase("ClassicAssert.IsNotNull(s)")]
         [TestCase("Assert.That(s, Is.Not.Null)")]
+        [TestCase("Assume.That(s, Is.Not.Null)")]
         public void WithFieldValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
@@ -391,6 +393,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase("Assert.That(nullable.HasValue)")]
         [TestCase("Assert.That(nullable.HasValue, Is.True)")]
         [TestCase("Assert.That(nullable, Is.Not.Null)")]
+        [TestCase("Assume.That(nullable, Is.Not.Null)")]
         public void NullableWithValidAssert(string assert)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
@@ -992,6 +995,41 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             RoslynAssert.Suppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
+        [Test]
+        public void TestNullSuppressionOperator()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [TestCase(default(string))]
+                public void Test(string ?possibleNullString)
+                {
+                    HasString str = new(possibleNullString);
+
+                    string nonNullString = GetStringSuppress(str);
+                    Assert.That(nonNullString, Is.Not.Null);
+                }
+
+                private static string GetStringSuppress(HasString? str) // argument is nullable
+                {
+                    Assert.That(str!.Inner, Is.Not.Null);
+                    return str.Inner; // warning: possible null reference return
+                }
+
+                private sealed class HasString
+                {
+                    public HasString(string? inner)
+                    {                   
+                        Inner = inner;
+                    }
+
+                    public string? Inner { get; }
+                }
+            ");
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8603"]),
                 testCode);
         }
     }

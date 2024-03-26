@@ -59,6 +59,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfThrowsTargetInvocationException = "TargetInvocationException";
 
         public const string NameOfAssert = "Assert";
+        public const string NameOfAssume = "Assume";
 
         public const string NameOfAssertPass = "Pass";
         public const string NameOfAssertFail = "Fail";

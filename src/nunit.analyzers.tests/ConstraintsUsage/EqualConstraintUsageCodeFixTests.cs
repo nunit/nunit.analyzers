@@ -42,6 +42,76 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         }
 
         [Test]
+        public void FixesIsOperator()
+        {
+            var code = TestUtility.WrapInTestMethod(@"
+            var actual = ""abc"";
+            Assert.That(actual is ""abc"");");
+
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+            var actual = ""abc"";
+            Assert.That(actual, Is.EqualTo(""abc""));");
+
+            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void FixesIsNotOperator()
+        {
+            var code = TestUtility.WrapInTestMethod(@"
+            var actual = ""abc"";
+            Assert.That(actual is not ""abc"");");
+
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+            var actual = ""abc"";
+            Assert.That(actual, Is.Not.EqualTo(""abc""));");
+
+            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void FixesComplexIsOperator()
+        {
+            var code = TestUtility.WrapInTestMethod(@"
+            var actual = ""abc"";
+            Assert.That(actual is ""abc"" or ""def"");");
+
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+            var actual = ""abc"";
+            Assert.That(actual, Is.EqualTo(""abc"").Or.EqualTo(""def""));");
+
+            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void FixesComplexIsNotOperator()
+        {
+            var code = TestUtility.WrapInTestMethod(@"
+            var actual = ""abc"";
+            Assert.That(actual is not ""abc"" and not ""def"");");
+
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+            var actual = ""abc"";
+            Assert.That(actual, Is.Not.EqualTo(""abc"").And.Not.EqualTo(""def""));");
+
+            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void FixesComplexRelationalIsOperator()
+        {
+            var code = TestUtility.WrapInTestMethod(@"
+            double actual = 1.234;
+            Assert.That(actual is > 1 and <= 2 or 3 or > 4);");
+
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+            double actual = 1.234;
+            Assert.That(actual, Is.GreaterThan(1).And.LessThanOrEqualTo(2).Or.EqualTo(3).Or.GreaterThan(4));");
+
+            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+        }
+
+        [Test]
         public void FixesEqualsInstanceMethod()
         {
             var code = TestUtility.WrapInTestMethod(@"

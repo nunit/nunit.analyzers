@@ -1,4 +1,37 @@
-﻿NUnit Analyzers 4.0.1 - February 1, 2024
+﻿NUnit Analyzers 4.1 - March 16, 2024
+
+This release of the Analyzers extends the suppression of nullable warnings to also respect assumptions - 
+expressed via `Assume.That`. Also nullable warnings are suppressed even in the context of the 
+null-forgiving operator `!`, and NUnit2010 is extended to also cover `is` pattern expressions - e.g.
+`is null` and more general integer patterns as `is < 0 or >= 1`.
+
+The release contains contributions from the following users (in alphabetical order):
+* lahma
+* manfred-brands
+* mikkelbu
+* RenderMichael
+* TheBigNeo
+* verdie-g
+
+Issues Resolved
+
+Features and Enhancements
+* #693 Possibly Null Reference Warning should be suppressed for Assume
+* #691 Extent rule NUnit2010 to detect 'is null'
+* #679 Null suppression doesn't work when the body has a null suppression
+
+Bugs
+* #700 CodeFix for Assert with null message causes ambiguous code.
+* #689 Incorrect constraint model transformation for named parameters
+
+Tooling, Process, and Documentation
+* #697 chore: Bump NUnit to version 4.1.0 
+* #694 Switch to using license expression 
+* #690 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.8.0 to 17.9.0
+* #687 chore: Update release notes
+
+
+NUnit Analyzers 4.0.1 - February 1, 2024
 
 Small release that fixes a problem with the 4.0 release when combining `TestCaseSource` and `CancelAfter`.
 

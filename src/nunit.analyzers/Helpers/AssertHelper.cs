@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -123,25 +124,29 @@ namespace NUnit.Analyzers.Helpers
                                     out string member,
                                     [NotNullWhen(true)] out ArgumentListSyntax? argumentList)
         {
-            return IsAssert(expression, NUnitFrameworkConstants.NameOfAssert, out member, out argumentList);
+            return IsAssert(expression, x => x is NUnitFrameworkConstants.NameOfAssert, out member, out argumentList);
         }
 
-        public static bool IsClassicAssert(ExpressionSyntax? expression,
+        public static bool IsAssertClassicAssertOrAssume(ExpressionSyntax? expression,
                                            out string member,
                                            [NotNullWhen(true)] out ArgumentListSyntax? argumentList)
         {
-            return IsAssert(expression, NUnitFrameworkConstants.NameOfClassicAssert, out member, out argumentList);
+            return IsAssert(expression,
+                            x => x is NUnitFrameworkConstants.NameOfAssert
+                                   or NUnitFrameworkConstants.NameOfClassicAssert
+                                   or NUnitFrameworkConstants.NameOfAssume,
+                            out member, out argumentList);
         }
 
         private static bool IsAssert(ExpressionSyntax? expression,
-                                     string nameOfAssert,
+                                     Func<string, bool> isNameOfAssert,
                                      out string member,
                                      [NotNullWhen(true)] out ArgumentListSyntax? argumentList)
         {
             if (expression is InvocationExpressionSyntax invocationExpression &&
                 invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
                 memberAccessExpression.Expression is IdentifierNameSyntax identifierName &&
-                identifierName.Identifier.Text == nameOfAssert)
+                isNameOfAssert(identifierName.Identifier.Text))
             {
                 member = memberAccessExpression.Name.Identifier.Text;
                 argumentList = invocationExpression.ArgumentList;

@@ -10,7 +10,7 @@ var targetFramework = Argument("targetFramework", "netstandard2.0");
 // SET PACKAGE VERSION
 //////////////////////////////////////////////////////////////////////
 
-var version = "4.1.0";
+var version = "4.2.0";
 
 var isAppveyor = BuildSystem.IsRunningOnAppVeyor;
 var dbgSuffix = configuration == "Debug" ? "-dbg" : "";
