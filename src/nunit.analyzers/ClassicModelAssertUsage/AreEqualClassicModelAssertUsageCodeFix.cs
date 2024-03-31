@@ -18,6 +18,15 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
         protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
         {
+            // If named parameters are used, we can't assume that the first argument is the expected one and the second is the actual.
+            // Therefore, start by finding the expected argument and the actual argument.
+            var expectedPosition = arguments.FindIndex(arg => arg.NameColon?.Name.Identifier.Text == NUnitFrameworkConstants.NameOfExpectedParameter);
+            var actualPosition = arguments.FindIndex(arg => arg.NameColon?.Name.Identifier.Text == NUnitFrameworkConstants.NameOfActualParameter);
+
+            // If named arguments are not used, the first argument is expected, and the second is actual.
+            var expectedArgument = expectedPosition != -1 ? arguments[expectedPosition] : arguments[0];
+            var actualArgument = actualPosition != -1 ? arguments[actualPosition] : arguments[1];
+
             // Note that if there's a 3rd argument and it's a double,
             // it has to be added to the "Is.EqualTo(1st argument)" with ".Within(3rd argument)"
             var equalToInvocationNode = SyntaxFactory.InvocationExpression(
@@ -26,7 +35,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsEqualTo)))
                 .WithArgumentList(SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SingletonSeparatedList(arguments[0])));
+                    SyntaxFactory.SingletonSeparatedList(expectedArgument)));
 
             var hasToleranceValue = diagnostic.Properties[AnalyzerPropertyKeys.HasToleranceValue] == true.ToString();
 
@@ -49,6 +58,16 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
             // Then we have to remove the 1st argument because that's now in the "Is.EqualTo()"
             arguments.RemoveAt(0);
+
+            // If the now-first argument had a named parameter, we need to make sure it's actual.
+            if (arguments[0].NameColon?.Name.Identifier.Text is { } parameterName
+                && parameterName != NUnitFrameworkConstants.NameOfActualParameter)
+            {
+                arguments[0] = SyntaxFactory.Argument(
+                    SyntaxFactory.NameColon(NUnitFrameworkConstants.NameOfActualParameter),
+                    actualArgument.RefKindKeyword,
+                    actualArgument.Expression);
+            }
 
             // ... and if the 3rd argument was a double, that has to go too.
             if (hasToleranceValue)
