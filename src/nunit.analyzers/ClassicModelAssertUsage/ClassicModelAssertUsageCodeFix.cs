@@ -60,9 +60,13 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             if (arguments.Count > 1)
                 arguments[1] = CastIfNecessary(arguments[1]);
 
+            var argumentNamesToArguments = arguments.ToDictionary(
+                argument => GetParameterName(argument),
+                argument => argument);
+
             // Do the rule specific conversion
             if (typeArguments is null)
-                this.UpdateArguments(diagnostic, arguments);
+                arguments = this.UpdateArguments(diagnostic, argumentNamesToArguments);
             else
                 this.UpdateArguments(diagnostic, arguments, typeArguments);
 
@@ -101,6 +105,16 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                     argument.Expression));
             }
 
+            string GetParameterName(ArgumentSyntax argument)
+            {
+                if (argument.NameColon?.Name.Identifier.Text is { } argumentName)
+                    return argumentName;
+
+                var methodSymbol = (IMethodSymbol)semanticModel.GetSymbolInfo(invocationNode).Symbol!;
+                var index = invocationNode.ArgumentList.Arguments.IndexOf(argument);
+                return methodSymbol!.Parameters[index].Name;
+            }
+
             string? GetUserDefinedImplicitTypeConversion(ExpressionSyntax expression)
             {
                 var typeInfo = semanticModel.GetTypeInfo(expression, context.CancellationToken);
@@ -119,6 +133,13 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
                 return convertedType.ToString();
             }
+        }
+
+        protected virtual List<ArgumentSyntax> UpdateArguments(
+            Diagnostic diagnostic,
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
+        {
+            throw new NotImplementedException($"Class must override {nameof(UpdateArguments)}");
         }
 
         protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments, TypeArgumentListSyntax typeArguments)
