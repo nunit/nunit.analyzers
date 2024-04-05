@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
@@ -17,7 +16,9 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(AnalyzerIdentifiers.AreEqualUsage);
 
-        protected override List<ArgumentSyntax> UpdateArguments(Diagnostic diagnostic, IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
+        protected override (ArgumentSyntax ActualArgument, ArgumentSyntax ConstraintArgument) UpdateArguments(
+            Diagnostic diagnostic,
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
             var expectedArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfExpectedParameter];
             var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter];
@@ -50,18 +51,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         SyntaxFactory.SingletonSeparatedList(toleranceArgumentNoColon)));
             }
 
-            var arguments = new List<ArgumentSyntax>() { actualArgument, SyntaxFactory.Argument(equalToInvocationNode) };
-            var handledParameterNames = new[]
-            {
-                NUnitFrameworkConstants.NameOfExpectedParameter,
-                NUnitFrameworkConstants.NameOfActualParameter,
-                NameOfDeltaParameter,
-            };
-            return arguments
-                .Concat(argumentNamesToArguments
-                    .Where(kvp => !handledParameterNames.Contains(kvp.Key))
-                    .Select(kvp => kvp.Value))
-                .ToList();
+            return (actualArgument, SyntaxFactory.Argument(equalToInvocationNode));
         }
     }
 }

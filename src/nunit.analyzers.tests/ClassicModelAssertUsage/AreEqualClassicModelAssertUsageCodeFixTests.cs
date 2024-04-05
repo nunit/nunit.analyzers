@@ -43,11 +43,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyAreEqualFixWhenToleranceExistsWithNamedArgumentButInNonstandardOrder()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             ↓ClassicAssert.AreEqual(delta: 0.0000001d, actual: 3d, expected: 2d);
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -59,11 +59,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyAreEqualFixWithNamedParametersInNonstandardOrder()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             ↓ClassicAssert.AreEqual(actual: 3d, expected: 2d);
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -117,6 +117,24 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             Assert.That(3d, Is.EqualTo(2d), $""message-id: {Guid.NewGuid()}"");
         }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyAreEqualFixWithMessageAnd2ParamsInNonstandardOrder()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var actual = 3d;
+            ↓ClassicAssert.AreEqual(delta: 0.0000001d, expected: 2d, actual: actual, args: new[] { ""Guid.NewGuid()"", Guid.NewGuid().ToString() }, message: ""message-id: {0}, {1}"");
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var actual = 3d;
+            Assert.That(actual: actual, Is.EqualTo(expected: 2d).Within(0.0000001d), $""message-id: {""Guid.NewGuid()""}, {Guid.NewGuid().ToString() }"");
+        }"); // TODO: Fix whitespace
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -196,6 +214,22 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void TestMethod()
         {
             Assert.That(3d, Is.EqualTo(2d).Within(0.0000001d), $""message-id: {Guid.NewGuid()}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyAreEqualFixWhenToleranceExistsWithMessageAndParamsLiteralExpressionSyntax()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            ↓ClassicAssert.AreEqual(2d, 3d, 0.0000001d, ""message-id: {0}"", ""mystring"");
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(3d, Is.EqualTo(2d).Within(0.0000001d), $""message-id: {""mystring""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

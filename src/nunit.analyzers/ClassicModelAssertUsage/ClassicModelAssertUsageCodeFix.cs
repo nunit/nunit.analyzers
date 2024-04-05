@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
 
@@ -52,34 +54,65 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             if (newInvocationNode is null)
                 return;
 
+            var methodSymbol = (IMethodSymbol)semanticModel.GetSymbolInfo(invocationNode).Symbol!;
+
+            Dictionary<string, ArgumentSyntax> argumentNamesToArguments = new();
+            const string NameOfArgsParameter = "args";
+
+            // There can be 0 to any number of message and parameters.
+            List<ArgumentSyntax> messageAndParams = new();
+            var arguments = invocationNode.ArgumentList.Arguments.ToList();
+            for (var i = 0; i < arguments.Count; ++i)
+            {
+                var argument = arguments[i];
+                if (i < methodSymbol.Parameters.Length
+                    && (argument.NameColon?.Name.Identifier.Text ?? methodSymbol.Parameters[i].Name) is { } argumentName
+                    && argumentName is not (NUnitFrameworkConstants.NameOfMessageParameter or NameOfArgsParameter))
+                {
+                    // See if we need to cast the arguments when they were using a specific classic overload.
+                    argumentNamesToArguments[argumentName] =
+                        argumentName is NUnitFrameworkConstants.NameOfExpectedParameter or NUnitFrameworkConstants.NameOfActualParameter
+                            ? CastIfNecessary(argument)
+                            : argument;
+                }
+                else
+                {
+                    messageAndParams.Add(argument);
+                }
+            }
+
+            // Remove null message to avoid ambiguous calls.
+            if (argumentNamesToArguments.TryGetValue(NUnitFrameworkConstants.NameOfMessageParameter, out var messageArgument)
+                && messageArgument.Expression.IsKind(SyntaxKind.NullLiteralExpression))
+            {
+                argumentNamesToArguments.Remove(NUnitFrameworkConstants.NameOfMessageParameter);
+            }
+
             // Now, replace the arguments.
-            List<ArgumentSyntax> arguments = invocationNode.ArgumentList.Arguments.ToList();
-
-            // See if we need to cast the arguments when they were using a specific classic overload.
-            arguments[0] = CastIfNecessary(arguments[0]);
-            if (arguments.Count > 1)
-                arguments[1] = CastIfNecessary(arguments[1]);
-
-            var argumentNamesToArguments = arguments.ToDictionary(
-                argument => GetParameterName(argument),
-                argument => argument);
+            List<ArgumentSyntax> newArguments = new();
+            ArgumentSyntax actualArgument, constraintArgument;
 
             // Do the rule specific conversion
             if (typeArguments is null)
-                arguments = this.UpdateArguments(diagnostic, argumentNamesToArguments);
+            {
+                (actualArgument, constraintArgument) = this.UpdateArguments(diagnostic, argumentNamesToArguments);
+                newArguments.Add(actualArgument);
+                newArguments.Add(constraintArgument);
+                if (CodeFixHelper.GetInterpolatedMessageArgumentOrDefault(messageAndParams) is { } interpolatedMessageArgument)
+                {
+                    newArguments.Add(interpolatedMessageArgument);
+                }
+            }
             else
+            {
                 this.UpdateArguments(diagnostic, arguments, typeArguments);
 
-            // Remove null message to avoid ambiguous calls.
-            if (arguments.Count == 3 && arguments[2].Expression.IsKind(SyntaxKind.NullLiteralExpression))
-            {
-                arguments.RemoveAt(2);
+                // Do the format spec, params to formattable string conversion
+                CodeFixHelper.UpdateStringFormatToFormattableString(arguments, this.MinimumNumberOfParameters);
+                newArguments = arguments;
             }
 
-            // Do the format spec, params to formattable string conversion
-            CodeFixHelper.UpdateStringFormatToFormattableString(arguments, this.MinimumNumberOfParameters);
-
-            var newArgumentsList = invocationNode.ArgumentList.WithArguments(arguments);
+            var newArgumentsList = invocationNode.ArgumentList.WithArguments(newArguments);
             newInvocationNode = newInvocationNode.WithArgumentList(newArgumentsList);
 
             context.CancellationToken.ThrowIfCancellationRequested();
@@ -105,16 +138,6 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                     argument.Expression));
             }
 
-            string GetParameterName(ArgumentSyntax argument)
-            {
-                if (argument.NameColon?.Name.Identifier.Text is { } argumentName)
-                    return argumentName;
-
-                var methodSymbol = (IMethodSymbol)semanticModel.GetSymbolInfo(invocationNode).Symbol!;
-                var index = invocationNode.ArgumentList.Arguments.IndexOf(argument);
-                return methodSymbol!.Parameters[index].Name;
-            }
-
             string? GetUserDefinedImplicitTypeConversion(ExpressionSyntax expression)
             {
                 var typeInfo = semanticModel.GetTypeInfo(expression, context.CancellationToken);
@@ -135,7 +158,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             }
         }
 
-        protected virtual List<ArgumentSyntax> UpdateArguments(
+        protected virtual (ArgumentSyntax ActualArgument, ArgumentSyntax ConstraintArgument) UpdateArguments(
             Diagnostic diagnostic,
             IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {

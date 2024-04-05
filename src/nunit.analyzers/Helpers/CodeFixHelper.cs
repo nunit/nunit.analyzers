@@ -41,6 +41,42 @@ namespace NUnit.Analyzers.Helpers
         /// </summary>
         /// <param name="arguments">The arguments passed to the 'Assert' method. </param>
         /// <param name="minimumNumberOfArguments">The argument needed for the actual method, any more are assumed messages.</param>
+        public static ArgumentSyntax? GetInterpolatedMessageArgumentOrDefault(List<ArgumentSyntax> messageAndParams)
+        {
+            if (messageAndParams.Count == 0)
+                return null;
+
+            var messageArgument = messageAndParams.SingleOrDefault(a => a.NameColon?.Name.Identifier.Text == NUnitFrameworkConstants.NameOfMessageParameter)
+                ?? messageAndParams.First();
+            var formatSpecificationArgument = messageArgument.Expression;
+            if (formatSpecificationArgument.IsKind(SyntaxKind.NullLiteralExpression))
+                return null;
+
+            // We only support converting if the format specification is a constant string.
+            if (messageAndParams.Count == 1 || formatSpecificationArgument is not LiteralExpressionSyntax literalExpression)
+                return messageAndParams[0];
+
+            var formatSpecification = literalExpression.Token.ValueText;
+
+            // var formatArgumentExpressions = new List<ExpressionSyntax>(capacity: messageAndParams.Count - 1);
+            var argsExpression = messageAndParams.Single(a => a != messageArgument).Expression;
+            var formatArgumentExpressions = argsExpression is ImplicitArrayCreationExpressionSyntax args
+                ? args.Initializer.Expressions.ToArray()
+                : new[] { argsExpression };
+
+            var interpolatedStringContent = UpdateStringFormatToFormattableString(formatSpecification, formatArgumentExpressions);
+            var interpolatedString = SyntaxFactory.InterpolatedStringExpression(
+                SyntaxFactory.Token(SyntaxKind.InterpolatedStringStartToken),
+                SyntaxFactory.List(interpolatedStringContent));
+            return SyntaxFactory.Argument(interpolatedString);
+        }
+
+        /// <summary>
+        /// This is assumed to be arguments for an 'Assert.That(actual, constraint, "...: {0} - {1}", param0, param1)`
+        /// which needs converting into 'Assert.That(actual, constraint, $"...: {param0} - {param1}").
+        /// </summary>
+        /// <param name="arguments">The arguments passed to the 'Assert' method. </param>
+        /// <param name="minimumNumberOfArguments">The argument needed for the actual method, any more are assumed messages.</param>
         public static void UpdateStringFormatToFormattableString(List<ArgumentSyntax> arguments, int minimumNumberOfArguments = 2)
         {
             int firstParamsArgument = minimumNumberOfArguments + 1;

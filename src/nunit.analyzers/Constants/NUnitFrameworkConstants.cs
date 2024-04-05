@@ -192,6 +192,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfConditionParameter = "condition";
         public const string NameOfExpectedParameter = "expected";
         public const string NameOfExpressionParameter = "expression";
+        public const string NameOfMessageParameter = "message";
 
         public const string NameOfConstraintExpressionAnd = "And";
         public const string NameOfConstraintExpressionOr = "Or";
