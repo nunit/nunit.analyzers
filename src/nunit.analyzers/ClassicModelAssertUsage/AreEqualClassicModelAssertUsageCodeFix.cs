@@ -34,12 +34,10 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                     SyntaxFactory.SingletonSeparatedList(expectedArgument)));
 
             const string NameOfDeltaParameter = "delta";
-            var hasToleranceValue = diagnostic.Properties[AnalyzerPropertyKeys.HasToleranceValue] == true.ToString();
-            if (hasToleranceValue)
+            if (argumentNamesToArguments.TryGetValue(NameOfDeltaParameter, out var toleranceArgument))
             {
                 // The tolerance argument should be renamed from 'delta' to 'amount' but with the model constraint the
                 // argument is moved to Within which makes it way more explicit so we can just drop the name colon.
-                var toleranceArgument = argumentNamesToArguments[NameOfDeltaParameter];
                 var toleranceArgumentNoColon = toleranceArgument.WithNameColon(null);
 
                 equalToInvocationNode = SyntaxFactory.InvocationExpression(
