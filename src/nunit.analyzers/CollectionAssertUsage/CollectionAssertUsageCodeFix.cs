@@ -49,7 +49,7 @@ namespace NUnit.Analyzers.CollectionAssertUsage
                 { NameOfCollectionAssertIsSupersetOf, new Constraints(NameOfIs, default(string), NameOfIsSupersetOf) },
             }.ToImmutableDictionary();
 
-        private static readonly ImmutableDictionary<string, string> CollectionAssertToFirstParameterName =
+        internal static readonly ImmutableDictionary<string, string> CollectionAssertToFirstParameterName =
             new Dictionary<string, string>()
             {
                 { NameOfCollectionAssertAllItemsAreNotNull, NameOfCollectionParameter },
@@ -70,7 +70,7 @@ namespace NUnit.Analyzers.CollectionAssertUsage
                 { NameOfCollectionAssertIsSupersetOf, NameOfSupersetParameter },
             }.ToImmutableDictionary();
 
-        private static readonly ImmutableDictionary<string, string> CollectionAssertToSecondParameterName =
+        internal static readonly ImmutableDictionary<string, string> CollectionAssertToSecondParameterName =
             new Dictionary<string, string>()
             {
                 { NameOfCollectionAssertAreEqual, NameOfActualParameter },
@@ -128,24 +128,27 @@ namespace NUnit.Analyzers.CollectionAssertUsage
 
             if (CollectionAssertToParameterlessConstraints.TryGetValue(methodName, out Constraints? constraints))
             {
+                var actualArgument = firstArgument.WithNameColon(null);
                 var constraintArgument = Argument(constraints.CreateConstraint());
-                return (firstArgument, constraintArgument);
+                return (actualArgument, constraintArgument);
             }
             else if (CollectionAssertToOneSwappedParameterConstraints.TryGetValue(methodName, out constraints))
             {
                 var secondParameterName = CollectionAssertToSecondParameterName[methodName];
                 var secondArgument = argumentNamesToArguments[secondParameterName];
+                var actualArgument = secondArgument.WithNameColon(null);
 
-                var constraintArgument = Argument(constraints.CreateConstraint(firstArgument));
-                return (secondArgument, constraintArgument);
+                var constraintArgument = Argument(constraints.CreateConstraint(firstArgument.WithNameColon(null)));
+                return (actualArgument, constraintArgument);
             }
             else if (CollectionAssertToOneUnswappedParameterConstraints.TryGetValue(methodName, out constraints))
             {
                 var secondParameterName = CollectionAssertToSecondParameterName[methodName];
                 var secondArgument = argumentNamesToArguments[secondParameterName];
-                var constraintArgument = Argument(constraints.CreateConstraint(secondArgument));
+                var constraintArgument = Argument(constraints.CreateConstraint(secondArgument.WithNameColon(null)));
 
-                return (firstArgument, constraintArgument);
+                var actualArgument = firstArgument.WithNameColon(null);
+                return (actualArgument, constraintArgument);
             }
             else
             {
