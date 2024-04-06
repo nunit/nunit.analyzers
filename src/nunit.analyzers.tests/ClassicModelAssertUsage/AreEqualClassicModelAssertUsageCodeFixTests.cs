@@ -134,7 +134,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var actual = 3d;
             Assert.That(actual: actual, Is.EqualTo(expected: 2d).Within(0.0000001d), $""message-id: {""Guid.NewGuid()""}, {Guid.NewGuid().ToString() }"");
-        }"); // TODO: Fix whitespace
+        }"); // TODO: Fix trailing trivia if possible
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 

@@ -16,15 +16,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(AnalyzerIdentifiers.AreEqualUsage);
 
-        protected override (ArgumentSyntax ActualArgument, ArgumentSyntax ConstraintArgument) UpdateArguments(
+        protected override (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
             Diagnostic diagnostic,
             IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
             var expectedArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfExpectedParameter];
-            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter];
-
-            // Note that if there's a 3rd argument and it's a double,
-            // it has to be added to the "Is.EqualTo(1st argument)" with ".Within(3rd argument)"
             var equalToInvocationNode = SyntaxFactory.InvocationExpression(
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
@@ -33,8 +29,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 .WithArgumentList(SyntaxFactory.ArgumentList(
                     SyntaxFactory.SingletonSeparatedList(expectedArgument)));
 
-            const string NameOfDeltaParameter = "delta";
-            if (argumentNamesToArguments.TryGetValue(NameOfDeltaParameter, out var toleranceArgument))
+            // The tolerance argument has to be added to the "Is.EqualTo(expected)" as ".Within(tolerance)"
+            if (argumentNamesToArguments.TryGetValue(NUnitFrameworkConstants.NameOfDeltaParameter, out var toleranceArgument))
             {
                 // The tolerance argument should be renamed from 'delta' to 'amount' but with the model constraint the
                 // argument is moved to Within which makes it way more explicit so we can just drop the name colon.
@@ -49,6 +45,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         SyntaxFactory.SingletonSeparatedList(toleranceArgumentNoColon)));
             }
 
+            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter];
             return (actualArgument, SyntaxFactory.Argument(equalToInvocationNode));
         }
     }

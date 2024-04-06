@@ -16,19 +16,22 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(AnalyzerIdentifiers.LessOrEqualUsage);
 
-        protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
+        protected override (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
+            Diagnostic diagnostic,
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
-            arguments.Insert(2, SyntaxFactory.Argument(
+            var arg2 = argumentNamesToArguments[NUnitFrameworkConstants.NameOfArg2Parameter];
+            var constraintArgument = SyntaxFactory.Argument(
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo)))
                 .WithArgumentList(SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SingletonSeparatedList(arguments[1])))));
+                    SyntaxFactory.SingletonSeparatedList(arg2))));
 
-            // Then we have to remove the 2nd argument because that's now in the "Is.LessThanOrEqualTo()"
-            arguments.RemoveAt(1);
+            var arg1 = argumentNamesToArguments[NUnitFrameworkConstants.NameOfArg1Parameter];
+            return (arg1, constraintArgument);
         }
     }
 }

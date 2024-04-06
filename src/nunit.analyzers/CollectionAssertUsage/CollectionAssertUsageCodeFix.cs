@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Composition;
@@ -48,47 +49,55 @@ namespace NUnit.Analyzers.CollectionAssertUsage
                 { NameOfCollectionAssertIsSupersetOf, new Constraints(NameOfIs, default(string), NameOfIsSupersetOf) },
             }.ToImmutableDictionary();
 
+        private static readonly ImmutableDictionary<string, string> CollectionAssertToFirstParameterName =
+            new Dictionary<string, string>()
+            {
+                { NameOfCollectionAssertAllItemsAreNotNull, NameOfCollectionParameter },
+                { NameOfCollectionAssertAllItemsAreUnique, NameOfCollectionParameter },
+                { NameOfCollectionAssertIsEmpty, NameOfCollectionParameter },
+                { NameOfCollectionAssertIsNotEmpty, NameOfCollectionParameter },
+                { NameOfCollectionAssertIsOrdered, NameOfCollectionParameter },
+                { NameOfCollectionAssertAreEqual, NameOfExpectedParameter },
+                { NameOfCollectionAssertAreEquivalent, NameOfExpectedParameter },
+                { NameOfCollectionAssertAreNotEqual, NameOfExpectedParameter },
+                { NameOfCollectionAssertAreNotEquivalent, NameOfExpectedParameter },
+                { NameOfCollectionAssertAllItemsAreInstancesOfType, NameOfCollectionParameter },
+                { NameOfCollectionAssertContains, NameOfCollectionParameter },
+                { NameOfCollectionAssertDoesNotContain, NameOfCollectionParameter },
+                { NameOfCollectionAssertIsNotSubsetOf, NameOfSubsetParameter },
+                { NameOfCollectionAssertIsSubsetOf, NameOfSubsetParameter },
+                { NameOfCollectionAssertIsNotSupersetOf, NameOfSupersetParameter },
+                { NameOfCollectionAssertIsSupersetOf, NameOfSupersetParameter },
+            }.ToImmutableDictionary();
+
+        private static readonly ImmutableDictionary<string, string> CollectionAssertToSecondParameterName =
+            new Dictionary<string, string>()
+            {
+                { NameOfCollectionAssertAreEqual, NameOfActualParameter },
+                { NameOfCollectionAssertAreEquivalent, NameOfActualParameter },
+                { NameOfCollectionAssertAreNotEqual, NameOfActualParameter },
+                { NameOfCollectionAssertAreNotEquivalent, NameOfActualParameter },
+                { NameOfCollectionAssertAllItemsAreInstancesOfType, NameOfExpectedTypeParameter },
+                { NameOfCollectionAssertContains, NameOfActualParameter },
+                { NameOfCollectionAssertDoesNotContain, NameOfActualParameter },
+                { NameOfCollectionAssertIsNotSubsetOf, NameOfSupersetParameter },
+                { NameOfCollectionAssertIsSubsetOf, NameOfSupersetParameter },
+                { NameOfCollectionAssertIsNotSupersetOf, NameOfSubsetParameter },
+                { NameOfCollectionAssertIsSupersetOf, NameOfSubsetParameter },
+            }.ToImmutableDictionary();
+
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
             AnalyzerIdentifiers.CollectionAssertUsage);
 
-        protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
+        protected override (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
+            Diagnostic diagnostic,
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
-            string methodName = diagnostic.Properties[AnalyzerPropertyKeys.ModelName]!;
+            var (actualArgument, constraintArgument) = GetActualAndConstraintArguments(diagnostic, argumentNamesToArguments);
 
-            int comparerParameterIndex = diagnostic.Properties[AnalyzerPropertyKeys.ComparerParameterIndex] switch
+            if (argumentNamesToArguments.TryGetValue(NameOfComparerParameter, out ArgumentSyntax? comparerArgument))
             {
-                "2" => 2,
-                "1" => 1,
-                _ => 0,
-            };
-
-            ArgumentSyntax? comparerArgument = null;
-            if (comparerParameterIndex > 0)
-            {
-                // Remember 'comparer' parameter to be added as an 'Using' suffix.
-                comparerArgument = arguments[comparerParameterIndex];
-                arguments.RemoveAt(comparerParameterIndex);
-            }
-
-            if (CollectionAssertToParameterlessConstraints.TryGetValue(methodName, out Constraints? constraints))
-            {
-                arguments.Insert(1, Argument(constraints.CreateConstraint()));
-            }
-            else if (CollectionAssertToOneSwappedParameterConstraints.TryGetValue(methodName, out constraints))
-            {
-                arguments.Insert(2, Argument(constraints.CreateConstraint(arguments[0])));
-
-                // Then we have to remove the 1st argument because that's now in the "constaint"
-                arguments.RemoveAt(0);
-            }
-            else if (CollectionAssertToOneUnswappedParameterConstraints.TryGetValue(methodName, out constraints))
-            {
-                arguments[1] = Argument(constraints.CreateConstraint(arguments[1]));
-            }
-
-            if (comparerArgument is not null)
-            {
-                ExpressionSyntax expression = arguments[1].Expression;
+                ExpressionSyntax expression = constraintArgument.Expression;
 
                 // We need to drop the 'AsCollection' when using an IComparer.
                 if (expression is MemberAccessExpressionSyntax memberAccessExpression &&
@@ -97,13 +106,50 @@ namespace NUnit.Analyzers.CollectionAssertUsage
                     expression = memberAccessExpression.Expression;
                 }
 
-                arguments[1] = Argument(
+                constraintArgument = Argument(
                     InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             expression,
                             IdentifierName(NameOfEqualConstraintUsing)),
                         ArgumentList(SingletonSeparatedList(comparerArgument))));
+            }
+
+            return (actualArgument, constraintArgument);
+        }
+
+        private static (ArgumentSyntax actualArgument, ArgumentSyntax constraintArgument) GetActualAndConstraintArguments(
+            Diagnostic diagnostic,
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
+        {
+            var methodName = diagnostic.Properties[AnalyzerPropertyKeys.ModelName]!;
+            var firstParameterName = CollectionAssertToFirstParameterName[methodName];
+            var firstArgument = argumentNamesToArguments[firstParameterName];
+
+            if (CollectionAssertToParameterlessConstraints.TryGetValue(methodName, out Constraints? constraints))
+            {
+                var constraintArgument = Argument(constraints.CreateConstraint());
+                return (firstArgument, constraintArgument);
+            }
+            else if (CollectionAssertToOneSwappedParameterConstraints.TryGetValue(methodName, out constraints))
+            {
+                var secondParameterName = CollectionAssertToSecondParameterName[methodName];
+                var secondArgument = argumentNamesToArguments[secondParameterName];
+
+                var constraintArgument = Argument(constraints.CreateConstraint(firstArgument));
+                return (secondArgument, constraintArgument);
+            }
+            else if (CollectionAssertToOneUnswappedParameterConstraints.TryGetValue(methodName, out constraints))
+            {
+                var secondParameterName = CollectionAssertToSecondParameterName[methodName];
+                var secondArgument = argumentNamesToArguments[secondParameterName];
+                var constraintArgument = Argument(constraints.CreateConstraint(secondArgument));
+
+                return (firstArgument, constraintArgument);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Unknown method name: {methodName}");
             }
         }
     }

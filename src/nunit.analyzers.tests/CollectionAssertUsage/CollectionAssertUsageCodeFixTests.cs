@@ -196,19 +196,10 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
 
         private static string GetAdjustedTwoCollectionConstraint(string method)
         {
-            string actualArgument;
-            string constraintArgument;
-
-            if (CollectionAssertUsageCodeFix.CollectionAssertToOneUnswappedParameterConstraints.ContainsKey(method))
-            {
-                actualArgument = "collection1";
-                constraintArgument = "collection2";
-            }
-            else
-            {
-                actualArgument = "collection2";
-                constraintArgument = "collection1";
-            }
+            (string actualArgument, string constraintArgument) =
+                CollectionAssertUsageCodeFix.CollectionAssertToOneUnswappedParameterConstraints.ContainsKey(method)
+                    ? ("collection1", "collection2")
+                    : ("collection2", "collection1");
 
             string constraint = CollectionAssertUsageAnalyzer.TwoCollectionParameterAsserts[method]
                                                              .Replace("expected", constraintArgument);

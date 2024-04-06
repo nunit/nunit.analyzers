@@ -42,22 +42,19 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             var diagnostic = context.Diagnostics.First();
             var node = root.FindNode(diagnostic.Location.SourceSpan);
             var invocationNode = node as InvocationExpressionSyntax;
-
             if (invocationNode is null)
                 return;
 
             var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);
+            if (semanticModel is null)
+                return;
 
             // Replace the original ClassicAssert.<Method> invocation name into Assert.That
             var newInvocationNode = invocationNode.UpdateClassicAssertToAssertThat(out TypeArgumentListSyntax? typeArguments);
-
             if (newInvocationNode is null)
                 return;
 
-            var methodSymbol = (IMethodSymbol)semanticModel.GetSymbolInfo(invocationNode).Symbol!;
-
-            var (argumentNamesToArguments, args) = SplitUpNamedParametersAndArgs();
-            var arguments = invocationNode.ArgumentList.Arguments.ToList();
+            var (argumentNamesToArguments, args) = SplitUpOtherParametersAndParamParameter(semanticModel, invocationNode);
 
             // Remove null message to avoid ambiguous calls.
             if (argumentNamesToArguments.TryGetValue(NUnitFrameworkConstants.NameOfMessageParameter, out ArgumentSyntax? messageArgument)
@@ -70,24 +67,16 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             List<ArgumentSyntax> newArguments = new();
 
             // Do the rule specific conversion
-            if (typeArguments is null)
-            {
-                var (actualArgument, constraintArgument) = this.UpdateArguments(diagnostic, argumentNamesToArguments);
-                newArguments.Add(actualArgument);
+            var (actualArgument, constraintArgument) = typeArguments is null
+                ? this.ConstructActualAndConstraintArguments(diagnostic, argumentNamesToArguments)
+                : this.ConstructActualAndConstraintArguments(diagnostic, argumentNamesToArguments, typeArguments);
+            newArguments.Add(actualArgument);
+            if (constraintArgument is not null)
                 newArguments.Add(constraintArgument);
-                if (CodeFixHelper.GetInterpolatedMessageArgumentOrDefault(messageArgument, args) is ArgumentSyntax interpolatedMessageArgument)
-                {
-                    newArguments.Add(interpolatedMessageArgument);
-                }
-            }
-            else
-            {
-                this.UpdateArguments(diagnostic, arguments, typeArguments);
 
-                // Do the format spec, params to formattable string conversion
-                CodeFixHelper.UpdateStringFormatToFormattableString(arguments, this.MinimumNumberOfParameters);
-                newArguments = arguments;
-            }
+            // Do the format spec, params to formattable string conversion
+            if (CodeFixHelper.GetInterpolatedMessageArgumentOrDefault(messageArgument, args) is ArgumentSyntax interpolatedMessageArgument)
+                newArguments.Add(interpolatedMessageArgument);
 
             var newArgumentsList = invocationNode.ArgumentList.WithArguments(newArguments);
             newInvocationNode = newInvocationNode.WithArgumentList(newArgumentsList);
@@ -100,10 +89,14 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 CodeAction.Create(
                     this.Title,
                     _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
-                    this.Title), diagnostic);
+                    this.Title),
+                diagnostic);
 
-            (Dictionary<string, ArgumentSyntax> argumentNamesToArguments, List<ArgumentSyntax> args) SplitUpNamedParametersAndArgs()
+            (Dictionary<string, ArgumentSyntax> argumentNamesToArguments, List<ArgumentSyntax> args) SplitUpOtherParametersAndParamParameter(
+                SemanticModel semanticModel,
+                InvocationExpressionSyntax invocationNode)
             {
+                var methodSymbol = (IMethodSymbol)semanticModel.GetSymbolInfo(invocationNode).Symbol!;
                 Dictionary<string, ArgumentSyntax> argumentNamesToArguments = new();
 
                 // There can be 0 to any number of arguments mapped to args.
@@ -118,10 +111,9 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         && argumentName != NUnitFrameworkConstants.NameOfArgsParameter)
                     {
                         // See if we need to cast the arguments when they were using a specific classic overload.
-                        argumentNamesToArguments[argumentName] =
-                            argumentName is NUnitFrameworkConstants.NameOfExpectedParameter or NUnitFrameworkConstants.NameOfActualParameter
-                                ? CastIfNecessary(argument)
-                                : argument;
+                        argumentNamesToArguments[argumentName] = argumentName is NUnitFrameworkConstants.NameOfMessageParameter
+                            ? argument
+                            : CastIfNecessary(argument);
                     }
                     else
                     {
@@ -134,7 +126,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
             ArgumentSyntax CastIfNecessary(ArgumentSyntax argument)
             {
-                string? implicitTypeConversion = GetUserDefinedImplicitTypeConversion(argument.Expression);
+                string? implicitTypeConversion = GetUserDefinedImplicitTypeConversionOrDefault(argument.Expression);
                 if (implicitTypeConversion is null)
                     return argument;
 
@@ -145,7 +137,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                     argument.Expression));
             }
 
-            string? GetUserDefinedImplicitTypeConversion(ExpressionSyntax expression)
+            string? GetUserDefinedImplicitTypeConversionOrDefault(ExpressionSyntax expression)
             {
                 var typeInfo = semanticModel.GetTypeInfo(expression, context.CancellationToken);
                 var convertedType = typeInfo.ConvertedType;
@@ -165,21 +157,16 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             }
         }
 
-        protected virtual (ArgumentSyntax ActualArgument, ArgumentSyntax ConstraintArgument) UpdateArguments(
+        // ConstraintArgument is nullable because Assert.True and Assert.IsTrue are transformed into Assert.That without a constraint.
+        protected virtual (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
             Diagnostic diagnostic,
-            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
-        {
-            throw new NotImplementedException($"Class must override {nameof(UpdateArguments)}");
-        }
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments) =>
+            throw new NotImplementedException($"Class must override {nameof(ConstructActualAndConstraintArguments)}");
 
-        protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments, TypeArgumentListSyntax typeArguments)
-        {
-            throw new InvalidOperationException($"Class must override {nameof(UpdateArguments)} accepting {nameof(TypeArgumentListSyntax)}");
-        }
-
-        protected virtual void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
-        {
-            throw new InvalidOperationException($"Class must override {nameof(UpdateArguments)}");
-        }
+        protected virtual (ArgumentSyntax ActualArgument, ArgumentSyntax ConstraintArgument) ConstructActualAndConstraintArguments(
+            Diagnostic diagnostic,
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments,
+            TypeArgumentListSyntax typeArguments) =>
+            throw new InvalidOperationException($"Class must override {nameof(ConstructActualAndConstraintArguments)} accepting {nameof(TypeArgumentListSyntax)}");
     }
 }

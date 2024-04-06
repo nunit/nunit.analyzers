@@ -16,19 +16,22 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(AnalyzerIdentifiers.AreSameUsage);
 
-        protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
+        protected override (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
+            Diagnostic diagnostic,
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
-            arguments.Insert(2, SyntaxFactory.Argument(
+            var expectedArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfExpectedParameter];
+            var constraintArgument = SyntaxFactory.Argument(
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsSameAs)))
                 .WithArgumentList(SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SingletonSeparatedList(arguments[0])))));
+                    SyntaxFactory.SingletonSeparatedList(expectedArgument))));
 
-            // Then we have to remove the 1st argument because that's now in the "Is.SameAs()"
-            arguments.RemoveAt(0);
+            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter];
+            return (actualArgument, constraintArgument);
         }
     }
 }

@@ -189,11 +189,23 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfExpectedResult = "ExpectedResult";
 
         public const string NameOfActualParameter = "actual";
+        public const string NameOfADoubleParameter = "aDouble";
+        public const string NameOfAnObjectParameter = "anObject";
+        public const string NameOfArg1Parameter = "arg1";
+        public const string NameOfArg2Parameter = "arg2";
+        public const string NameOfArgsParameter = "args";
+        public const string NameOfAStringParameter = "aString";
+        public const string NameOfCollectionParameter = "collection";
+        public const string NameOfComparerParameter = "comparer";
         public const string NameOfConditionParameter = "condition";
+        public const string NameOfDeltaParameter = "delta";
         public const string NameOfExpectedParameter = "expected";
+        public const string NameOfExpectedTypeParameter = "expectedType";
         public const string NameOfExpressionParameter = "expression";
         public const string NameOfMessageParameter = "message";
-        public const string NameOfArgsParameter = "args";
+        public const string NameOfPatternParameter = "pattern";
+        public const string NameOfSubsetParameter = "subset";
+        public const string NameOfSupersetParameter = "superset";
 
         public const string NameOfConstraintExpressionAnd = "And";
         public const string NameOfConstraintExpressionOr = "Or";

@@ -17,16 +17,20 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
             AnalyzerIdentifiers.NotZeroUsage);
 
-        protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
+        protected override (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
+            Diagnostic diagnostic,
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
-            arguments.Insert(1, SyntaxFactory.Argument(
+            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter];
+            var constraintArgument = SyntaxFactory.Argument(
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsNot)),
-                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsZero))));
+                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsZero)));
+            return (actualArgument, constraintArgument);
         }
     }
 }
