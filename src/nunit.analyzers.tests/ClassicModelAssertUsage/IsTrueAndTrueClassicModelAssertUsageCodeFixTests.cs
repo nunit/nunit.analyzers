@@ -93,7 +93,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
-            Assert.That(actual: true, Is.True, $""{""first""}, {""second"" }"");
+            Assert.That(actual: true, Is.True, $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
@@ -171,7 +171,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void TestMethod()
         {
             MyBool x = true;
-            Assert.That((bool)x, Is.True, $""{""first""}, {""second"" }"");
+            Assert.That((bool)x, Is.True, $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

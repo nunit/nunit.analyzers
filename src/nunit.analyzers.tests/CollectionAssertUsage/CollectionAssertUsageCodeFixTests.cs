@@ -72,7 +72,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@$"
             var collection = new[] {{ 1, 2, 3 }};
-            Assert.That(collection, {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}, $""{{""first""}}, {{""second"" }}"");
+            Assert.That(collection, {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}, $""{{""first""}}, {{""second""}}"");
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
@@ -154,7 +154,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             var fixedCode = TestUtility.WrapInTestMethod(@$"
             var collection1 = new[] {{ 1, 2, 3 }};
             var collection2 = new[] {{ 2, 4, 6 }};
-            Assert.That({GetAdjustedTwoCollectionConstraint(method)}, $""{{""first""}}, {{""second"" }}"");
+            Assert.That({GetAdjustedTwoCollectionConstraint(method)}, $""{{""first""}}, {{""second""}}"");
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
@@ -238,7 +238,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             var fixedCode = TestUtility.WrapInTestMethod(@$"
             var collection = new[] {{ typeof(byte), typeof(char) }};
             var expected = typeof(byte);
-            Assert.That(collection, {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}, $""{{""first""}}, {{""second"" }}"");
+            Assert.That(collection, {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}, $""{{""first""}}, {{""second""}}"");
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }

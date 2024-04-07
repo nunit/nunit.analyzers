@@ -107,7 +107,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var expected = new object();
             var actual = new object();
 
-            Assert.That(actual: actual, Is.Not.SameAs(expected: expected), $""{""first""}, {""second"" }"");
+            Assert.That(actual: actual, Is.Not.SameAs(expected: expected), $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

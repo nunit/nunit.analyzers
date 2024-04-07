@@ -61,7 +61,9 @@ namespace NUnit.Analyzers.Helpers
                 ? argsArrayExpression.Initializer.Expressions.ToArray()
                 : new[] { argsExpression };
 
-            var interpolatedStringContent = UpdateStringFormatToFormattableString(formatSpecification, formatArgumentExpressions);
+            var interpolatedStringContent = UpdateStringFormatToFormattableString(
+                formatSpecification,
+                formatArgumentExpressions.Select(e => e.WithoutTrivia()).ToArray());
             var interpolatedString = SyntaxFactory.InterpolatedStringExpression(
                 SyntaxFactory.Token(SyntaxKind.InterpolatedStringStartToken),
                 SyntaxFactory.List(interpolatedStringContent));
