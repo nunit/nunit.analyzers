@@ -89,5 +89,27 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }");
             RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
+
+        [Test]
+        public void VerifyContainsFixWithMessageAndParamsInNonstandardOrder()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var instance = new object();
+            var collection = Array.Empty<object>();
+
+            ↓ClassicAssert.Contains(args: new[] { ""first"", ""second"" }, actual: collection, message: ""{0}, {1}"", expected: instance);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var instance = new object();
+            var collection = Array.Empty<object>();
+
+            Assert.That(actual: collection, Does.Contain(expected: instance), $""{""first""}, {""second"" }"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
     }
 }

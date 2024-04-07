@@ -27,13 +27,13 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyIsNotEmptyFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             var collection = Array.Empty<object>();
 
             ↓ClassicAssert.IsNotEmpty(collection);
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -47,13 +47,13 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyIsNotEmptyFixWithMessage()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             var collection = Array.Empty<object>();
 
             ↓ClassicAssert.IsNotEmpty(collection, ""message"");
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -67,19 +67,39 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyIsNotEmptyFixWithMessageAndParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             var collection = Array.Empty<object>();
 
-            ↓ClassicAssert.IsNotEmpty(collection, ""message-id: {{0}}"", Guid.NewGuid());
-        }}");
+            ↓ClassicAssert.IsNotEmpty(collection, ""message-id: {0}"", Guid.NewGuid());
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
             var collection = Array.Empty<object>();
 
             Assert.That(collection, Is.Not.Empty, $""message-id: {Guid.NewGuid()}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyIsNotEmptyFixWithMessageAndParamsInNonstandardOrder()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var collection = Array.Empty<object>();
+
+            ↓ClassicAssert.IsNotEmpty(args: new[] { ""first"", ""second"" }, collection: collection, message: ""{0}, {1}"");
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var collection = Array.Empty<object>();
+
+            Assert.That(actual: collection, Is.Not.Empty, $""{""first""}, {""second"" }"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
@@ -116,6 +136,42 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             MyString s = ""Hello NUnit"";
             Assert.That((string)s, Is.Not.Empty);
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyIsNotEmptyWithImplicitTypeConversionFixInNonstandardOrder()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        private struct MyString
+        {
+            private readonly string _value;
+
+            public MyString(string value) => _value = value;
+
+            public static implicit operator string(MyString value) => value._value;
+            public static implicit operator MyString(string value) => new MyString(value);
+        }
+        public void TestMethod()
+        {
+            MyString s = ""Hello NUnit"";
+            ↓ClassicAssert.IsNotEmpty(args: new[] { ""first"", ""second"" }, aString: s, message: ""{0}, {1}"");
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        private struct MyString
+        {
+            private readonly string _value;
+
+            public MyString(string value) => _value = value;
+
+            public static implicit operator string(MyString value) => value._value;
+            public static implicit operator MyString(string value) => new MyString(value);
+        }
+        public void TestMethod()
+        {
+            MyString s = ""Hello NUnit"";
+            Assert.That((string)s, Is.Not.Empty, $""{""first""}, {""second"" }"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

@@ -233,7 +233,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             var code = TestUtility.WrapInTestMethod(@$"
             var collection = new[] {{ typeof(byte), typeof(char) }};
             var expected = typeof(byte);
-            ↓CollectionAssert.{method}({secondParameterName}: expected, args: new[] {{ ""first"", ""second"" }}, collection: collection, message: ""{{0}}, {{1}}"");
+            ↓CollectionAssert.{method}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", {secondParameterName}: expected, collection: collection);
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@$"
             var collection = new[] {{ typeof(byte), typeof(char) }};

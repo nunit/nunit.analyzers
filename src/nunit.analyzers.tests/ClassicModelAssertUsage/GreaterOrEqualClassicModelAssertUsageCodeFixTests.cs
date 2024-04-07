@@ -27,11 +27,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyGreaterOrEqualFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             ↓ClassicAssert.GreaterOrEqual(2d, 3d);
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -43,11 +43,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyGreaterOrEqualFixWithMessage()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             ↓ClassicAssert.GreaterOrEqual(2d, 3d, ""message"");
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -59,15 +59,31 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyGreaterOrEqualFixWithMessageAndParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
-            ↓ClassicAssert.GreaterOrEqual(2d, 3d, ""message-id: {{0}}"", Guid.NewGuid());
-        }}");
+        {
+            ↓ClassicAssert.GreaterOrEqual(2d, 3d, ""message-id: {0}"", Guid.NewGuid());
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
             Assert.That(2d, Is.GreaterThanOrEqualTo(3d), $""message-id: {Guid.NewGuid()}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyGreaterOrEqualFixWithMessageAndParamsInNonstandardOrder()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            ↓ClassicAssert.GreaterOrEqual(args: new[] { ""first"", ""second"" }, arg2: 3d, message: ""{0}, {1}"", arg1: 2d);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(actual: 2d, Is.GreaterThanOrEqualTo(expected: 3d), $""{""first""}, {""second"" }"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
@@ -158,6 +174,44 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             float x = 1;
             MyFloat y = 2;
             Assert.That(x, Is.GreaterThanOrEqualTo((float)y));
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyGreaterOrEqualWithImplicitConversionFixInNonstandardOrder()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        private struct MyFloat
+        {
+            private readonly float _value;
+
+            public MyFloat(float value) => _value = value;
+
+            public static implicit operator float(MyFloat value) => value._value;
+            public static implicit operator MyFloat(float value) => new MyFloat(value);
+        }
+        public void TestMethod()
+        {
+            MyFloat x = 1;
+            MyFloat y = 2;
+            ↓ClassicAssert.GreaterOrEqual(args: new[] { ""first"", ""second"" }, message: ""{0}, {1}"", arg2: y, arg1: x);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        private struct MyFloat
+        {
+            private readonly float _value;
+
+            public MyFloat(float value) => _value = value;
+
+            public static implicit operator float(MyFloat value) => value._value;
+            public static implicit operator MyFloat(float value) => new MyFloat(value);
+        }
+        public void TestMethod()
+        {
+            MyFloat x = 1;
+            MyFloat y = 2;
+            Assert.That((float)x, Is.GreaterThanOrEqualTo((float)y), $""{""first""}, {""second"" }"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

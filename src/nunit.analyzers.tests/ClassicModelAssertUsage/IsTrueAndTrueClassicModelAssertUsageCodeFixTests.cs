@@ -81,6 +81,25 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
         [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
         [TestCase("True", AnalyzerIdentifiers.TrueUsage)]
+        public void VerifyIsTrueAndTrueFixesWithMessageAndParamsInNonstandardOrder(string assertion, string diagnosticId)
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            ↓ClassicAssert.{assertion}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", condition: true);
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(actual: true, Is.True, $""{""first""}, {""second"" }"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
+        [TestCase("True", AnalyzerIdentifiers.TrueUsage)]
         public void VerifyIsTrueAndTrueWithImplicitTypeConversionFixes(string assertion, string diagnosticId)
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
@@ -114,6 +133,45 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             MyBool x = true;
             Assert.That((bool)x, Is.True);
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
+        [TestCase("True", AnalyzerIdentifiers.TrueUsage)]
+        public void VerifyIsTrueAndTrueWithImplicitTypeConversionFixesInNonstandardOrder(string assertion, string diagnosticId)
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private struct MyBool
+        {{
+            private readonly bool _value;
+
+            public MyBool(bool value) => _value = value;
+
+            public static implicit operator bool(MyBool value) => value._value;
+            public static implicit operator MyBool(bool value) => new MyBool(value);
+        }}
+        public void TestMethod()
+        {{
+            MyBool x = true;
+            ↓ClassicAssert.{assertion}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", condition: x);
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        private struct MyBool
+        {
+            private readonly bool _value;
+
+            public MyBool(bool value) => _value = value;
+
+            public static implicit operator bool(MyBool value) => value._value;
+            public static implicit operator MyBool(bool value) => new MyBool(value);
+        }
+        public void TestMethod()
+        {
+            MyBool x = true;
+            Assert.That((bool)x, Is.True, $""{""first""}, {""second"" }"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

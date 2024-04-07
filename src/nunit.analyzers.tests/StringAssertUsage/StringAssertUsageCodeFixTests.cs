@@ -24,7 +24,7 @@ namespace NUnit.Analyzers.Tests.StringAssertUsage
             ↓StringAssert.{method}(""expected"", ""actual"");
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@$"
-            Assert.That(""actual"", {GetAdjustedConstraint(method)});
+            Assert.That(""actual"", {GetAdjustedConstraint(method, useNamedParameter: false)});
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
@@ -36,7 +36,7 @@ namespace NUnit.Analyzers.Tests.StringAssertUsage
             ↓StringAssert.{method}(""expected"", ""actual"", ""message"");
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@$"
-            Assert.That(""actual"", {GetAdjustedConstraint(method)}, ""message"");
+            Assert.That(""actual"", {GetAdjustedConstraint(method, useNamedParameter: false)}, ""message"");
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
@@ -48,15 +48,29 @@ namespace NUnit.Analyzers.Tests.StringAssertUsage
             ↓StringAssert.{method}(""expected"", ""actual"", ""Because of {{0}}"", ""message"");
             ");
             var fixedCode = TestUtility.WrapInTestMethod(@$"
-            Assert.That(""actual"", {GetAdjustedConstraint(method)}, $""Because of {{""message""}}"");
+            Assert.That(""actual"", {GetAdjustedConstraint(method, useNamedParameter: false)}, $""Because of {{""message""}}"");
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
-        private static string GetAdjustedConstraint(string method)
+        [TestCaseSource(nameof(StringAsserts))]
+        public void AnalyzeWhenFormatAndArgumentsAreUsedOutOfOrder(string method)
         {
+            var firstParameterName = StringAssertUsageCodeFix.StringAssertToExpectedParameterName[method];
+            var code = TestUtility.WrapInTestMethod(@$"
+		    ↓StringAssert.{method}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", actual: ""actual"", {firstParameterName}: ""expected"");");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            Assert.That(actual: ""actual"", {GetAdjustedConstraint(method, useNamedParameter: true)}, $""{{""first""}}, {{""second"" }}"");");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        private static string GetAdjustedConstraint(string method, bool useNamedParameter)
+        {
+            var expectedParameterName = StringAssertUsageCodeFix.StringAssertToExpectedParameterName[method];
             return StringAssertUsageAnalyzer.StringAssertToConstraint[method]
-                                            .Replace("expected", "\"expected\"");
+                .Replace(
+                    "expected",
+                    useNamedParameter ? $"{expectedParameterName}: \"expected\"" : "\"expected\"");
         }
     }
 }

@@ -16,6 +16,21 @@ namespace NUnit.Analyzers.StringAssertUsage
     [Shared]
     internal class StringAssertUsageCodeFix : ClassicModelAssertUsageCodeFix
     {
+        internal static readonly ImmutableDictionary<string, string> StringAssertToExpectedParameterName =
+            new Dictionary<string, string>()
+            {
+                { NameOfStringAssertContains, NameOfExpectedParameter },
+                { NameOfStringAssertDoesNotContain, NameOfExpectedParameter },
+                { NameOfStringAssertStartsWith, NameOfExpectedParameter },
+                { NameOfStringAssertDoesNotStartWith, NameOfExpectedParameter },
+                { NameOfStringAssertEndsWith, NameOfExpectedParameter },
+                { NameOfStringAssertDoesNotEndWith, NameOfExpectedParameter },
+                { NameOfStringAssertAreEqualIgnoringCase, NameOfExpectedParameter },
+                { NameOfStringAssertAreNotEqualIgnoringCase, NameOfExpectedParameter },
+                { NameOfStringAssertIsMatch, NameOfPatternParameter },
+                { NameOfStringAssertDoesNotMatch, NameOfPatternParameter },
+            }.ToImmutableDictionary();
+
         private static readonly ImmutableDictionary<string, Constraints> StringAssertToConstraints =
             new Dictionary<string, Constraints>
             {
@@ -29,21 +44,6 @@ namespace NUnit.Analyzers.StringAssertUsage
                 { NameOfStringAssertAreNotEqualIgnoringCase, new Constraints(NameOfIs, NameOfIsNot, NameOfIsEqualTo, NameOfEqualConstraintIgnoreCase) },
                 { NameOfStringAssertIsMatch, new Constraints(NameOfDoes, default(string), NameOfDoesMatch) },
                 { NameOfStringAssertDoesNotMatch, new Constraints(NameOfDoes, NameOfDoesNot, NameOfDoesMatch) },
-            }.ToImmutableDictionary();
-
-        private static readonly ImmutableDictionary<string, string> StringAssertToExpectedParameterName =
-            new Dictionary<string, string>()
-            {
-                { NameOfStringAssertContains, NameOfExpectedParameter },
-                { NameOfStringAssertDoesNotContain, NameOfExpectedParameter },
-                { NameOfStringAssertStartsWith, NameOfExpectedParameter },
-                { NameOfStringAssertDoesNotStartWith, NameOfExpectedParameter },
-                { NameOfStringAssertEndsWith, NameOfExpectedParameter },
-                { NameOfStringAssertDoesNotEndWith, NameOfExpectedParameter },
-                { NameOfStringAssertAreEqualIgnoringCase, NameOfExpectedParameter },
-                { NameOfStringAssertAreNotEqualIgnoringCase, NameOfExpectedParameter },
-                { NameOfStringAssertIsMatch, NameOfPatternParameter },
-                { NameOfStringAssertDoesNotMatch, NameOfPatternParameter },
             }.ToImmutableDictionary();
 
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(

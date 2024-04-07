@@ -21,6 +21,9 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
             var arg2 = argumentNamesToArguments[NUnitFrameworkConstants.NameOfArg2Parameter];
+            var expectedArgumentNameColon = arg2.NameColon is null
+                ? null
+                : SyntaxFactory.NameColon(NUnitFrameworkConstants.NameOfExpectedParameter);
             var constraintArgument = SyntaxFactory.Argument(
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
@@ -28,10 +31,15 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo)))
                 .WithArgumentList(SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SingletonSeparatedList(arg2))));
+                    SyntaxFactory.SingletonSeparatedList(
+                        arg2.WithNameColon(expectedArgumentNameColon)))));
 
-            var arg1 = argumentNamesToArguments[NUnitFrameworkConstants.NameOfArg1Parameter];
-            return (arg1, constraintArgument);
+            var arg1Argument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfArg1Parameter];
+            var actualArgumentNameColon = arg1Argument.NameColon is null
+                ? null
+                : SyntaxFactory.NameColon(NUnitFrameworkConstants.NameOfActualParameter);
+            var actualArgument = arg1Argument.WithNameColon(actualArgumentNameColon);
+            return (actualArgument, constraintArgument);
         }
     }
 }
