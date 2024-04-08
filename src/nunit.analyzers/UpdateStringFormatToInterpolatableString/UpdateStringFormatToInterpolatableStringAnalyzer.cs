@@ -37,7 +37,8 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
 
         protected override bool IsAssert(bool hasClassicAssert, IInvocationOperation invocationOperation)
         {
-            return invocationOperation.TargetMethod.ContainingType.IsAssert();
+            INamedTypeSymbol containingType = invocationOperation.TargetMethod.ContainingType;
+            return containingType.IsAssert() || containingType.IsAssume();
         }
 
         protected override void AnalyzeAssertInvocation(Version nunitVersion, OperationAnalysisContext context, IInvocationOperation assertOperation)
