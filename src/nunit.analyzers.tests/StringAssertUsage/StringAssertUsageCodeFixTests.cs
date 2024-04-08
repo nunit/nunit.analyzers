@@ -66,11 +66,13 @@ namespace NUnit.Analyzers.Tests.StringAssertUsage
 
         private static string GetAdjustedConstraint(string method, bool useNamedParameter)
         {
+            const string Expected = "expected";
+
             var expectedParameterName = StringAssertUsageCodeFix.StringAssertToExpectedParameterName[method];
             return StringAssertUsageAnalyzer.StringAssertToConstraint[method]
                 .Replace(
-                    "expected",
-                    useNamedParameter ? $"{expectedParameterName}: \"expected\"" : "\"expected\"");
+                    Expected,
+                    useNamedParameter ? $"{expectedParameterName}: \"{Expected}\"" : $"\"{Expected}\"");
         }
     }
 }

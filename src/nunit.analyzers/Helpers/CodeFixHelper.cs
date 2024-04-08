@@ -55,11 +55,10 @@ namespace NUnit.Analyzers.Helpers
                 return messageArgument;
 
             var formatSpecification = literalExpression.Token.ValueText;
-
-            var argsExpression = args.Single(a => a != messageArgument).Expression;
-            var formatArgumentExpressions = argsExpression is ImplicitArrayCreationExpressionSyntax argsArrayExpression
-                ? argsArrayExpression.Initializer.Expressions.ToArray()
-                : new[] { argsExpression };
+            var formatArgumentExpressions =
+                (args.Count == 1 && args[0].Expression is ImplicitArrayCreationExpressionSyntax argsArrayExpression)
+                    ? argsArrayExpression.Initializer.Expressions
+                    : args.Select(x => x.Expression);
 
             var interpolatedStringContent = UpdateStringFormatToFormattableString(
                 formatSpecification,

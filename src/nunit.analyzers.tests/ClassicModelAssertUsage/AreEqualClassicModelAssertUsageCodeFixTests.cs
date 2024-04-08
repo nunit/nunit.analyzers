@@ -139,6 +139,24 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
+        public void VerifyAreEqualFixWithMessageAnd2ParamsInStandardOrder()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var actual = 3d;
+            ↓ClassicAssert.AreEqual(expected: 2d, actual: actual, delta: 0.0000001d, ""message-id: {0}, {1}"", ""Guid.NewGuid()"", Guid.NewGuid());
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var actual = 3d;
+            Assert.That(actual: actual, Is.EqualTo(expected: 2d).Within(0.0000001d), $""message-id: {""Guid.NewGuid()""}, {Guid.NewGuid()}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
         public void VerifyAreEqualFixWhenToleranceExists()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"

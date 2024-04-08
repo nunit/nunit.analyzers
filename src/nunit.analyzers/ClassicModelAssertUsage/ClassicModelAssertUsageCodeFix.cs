@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -54,14 +53,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             if (newInvocationNode is null)
                 return;
 
-            var (argumentNamesToArguments, args) = SplitUpOtherParametersAndParamParameter(semanticModel, invocationNode);
+            var methodSymbol = semanticModel.GetSymbolInfo(invocationNode).Symbol as IMethodSymbol;
+            if (methodSymbol is null)
+                return;
 
-            // Remove null message to avoid ambiguous calls.
-            if (argumentNamesToArguments.TryGetValue(NUnitFrameworkConstants.NameOfMessageParameter, out ArgumentSyntax? messageArgument)
-                && messageArgument.Expression.IsKind(SyntaxKind.NullLiteralExpression))
-            {
-                argumentNamesToArguments.Remove(NUnitFrameworkConstants.NameOfMessageParameter);
-            }
+            var (argumentNamesToArguments, args) = SplitUpOtherParametersAndParamParameter(methodSymbol, invocationNode);
 
             // Now, replace the arguments.
             List<ArgumentSyntax> newArguments = new();
@@ -75,6 +71,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 newArguments.Add(constraintArgument);
 
             // Do the format spec, params to formattable string conversion
+            argumentNamesToArguments.TryGetValue(NUnitFrameworkConstants.NameOfMessageParameter, out ArgumentSyntax? messageArgument);
             if (CodeFixHelper.GetInterpolatedMessageArgumentOrDefault(messageArgument, args) is ArgumentSyntax interpolatedMessageArgument)
                 newArguments.Add(interpolatedMessageArgument);
 
@@ -93,10 +90,9 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 diagnostic);
 
             (Dictionary<string, ArgumentSyntax> argumentNamesToArguments, List<ArgumentSyntax> args) SplitUpOtherParametersAndParamParameter(
-                SemanticModel semanticModel,
+                IMethodSymbol methodSymbol,
                 InvocationExpressionSyntax invocationNode)
             {
-                var methodSymbol = (IMethodSymbol)semanticModel.GetSymbolInfo(invocationNode).Symbol!;
                 Dictionary<string, ArgumentSyntax> argumentNamesToArguments = new();
 
                 // There can be 0 to any number of arguments mapped to args.

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
@@ -25,7 +26,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             protected override (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
                 Diagnostic diagnostic,
                 IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments) =>
-                (default!, default);
+                throw new NotImplementedException();
         }
     }
 }
