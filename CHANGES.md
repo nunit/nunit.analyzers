@@ -1,4 +1,4 @@
-﻿NUnit Analyzers 4.1 - March 16, 2024
+﻿# NUnit Analyzers 4.1 - March 16, 2024
 
 This release of the Analyzers extends the suppression of nullable warnings to also respect assumptions - 
 expressed via `Assume.That`. Also nullable warnings are suppressed even in the context of the 
@@ -6,12 +6,12 @@ null-forgiving operator `!`, and NUnit2010 is extended to also cover `is` patter
 `is null` and more general integer patterns as `is < 0 or >= 1`.
 
 The release contains contributions from the following users (in alphabetical order):
-* lahma
-* manfred-brands
-* mikkelbu
-* RenderMichael
-* TheBigNeo
-* verdie-g
+* @lahma
+* @manfred-brands
+* @mikkelbu
+* @RenderMichael
+* @TheBigNeo
+* @verdie-g
 
 Issues Resolved
 
@@ -31,14 +31,14 @@ Tooling, Process, and Documentation
 * #687 chore: Update release notes
 
 
-NUnit Analyzers 4.0.1 - February 1, 2024
+# NUnit Analyzers 4.0.1 - February 1, 2024
 
 Small release that fixes a problem with the 4.0 release when combining `TestCaseSource` and `CancelAfter`.
 
 The release contains contributions from the following users (in alphabetical order):
-* manfred-brands
-* mikkelbu
-* richardissimo
+* @manfred-brands
+* @mikkelbu
+* @richardissimo
 
 Issues Resolved
 
@@ -49,7 +49,7 @@ Tooling, Process, and Documentation
 * #684 chore: bump-version 
 
 
-NUnit Analyzers 4.0 - January 27, 2024
+# NUnit Analyzers 4.0 - January 27, 2024
 
 Version 4 of the NUnit analyzers drops the support for older releases of Visual Studio. I.e.
 releases of Visual Studio that are older than Visual Studio 2019 16.3. In addition, this release
@@ -58,14 +58,14 @@ that was introduced in NUnit 4, and extends the codefix for NUnit2007 to also wo
 .Within is used.
 
 The release contains contributions from the following users (in alphabetical order):
-* Abrynos
-* gfoidl
-* Laniusexcubitor
-* MaceWindu
-* manfred-brands
-* mikkelbu
-* RenderMichael
-* SeanKilleen
+* @Abrynos
+* @gfoidl
+* @Laniusexcubitor
+* @MaceWindu
+* @manfred-brands
+* @mikkelbu
+* @RenderMichael
+* @SeanKilleen
 
 Issues Resolved
 
@@ -89,7 +89,7 @@ Tooling, Process, and Documentation
 * #508 Restore "File version" and "Product version" in analyzer dlls
 
 
-NUnit Analyzers 3.10 (and 2.10) - November 27, 2023
+# NUnit Analyzers 3.10 (and 2.10) - November 27, 2023
 
 This release adds a couple of improvements to the analyzers: 
 * Check that users don't accidentally specify CallerArgumentExpression parameters
@@ -99,9 +99,9 @@ These improvements extend the functionality in the beta that added support for N
 for migrating to NUnit 4.
 
 The release contains contributions from the following users (in alphabetical order):
-* manfred-brands
-* mikkelbu
-* stevenaw
+* @manfred-brands
+* @mikkelbu
+* @stevenaw
 
 Issues Resolved
 
@@ -115,7 +115,7 @@ Tooling, Process, and Documentation
 * #429 Drop the VSIX project
 
 
-NUnit Analyzers 3.10-beta1 (and 2.10-beta1) - November 17, 2023
+# NUnit Analyzers 3.10-beta1 (and 2.10-beta1) - November 17, 2023
 
 This beta adds support for the upcoming NUnit 4 - see pull request #612 - which solves the following issues
 * #620 Make Classic Conversion rule for CollectionAssert improvement
@@ -131,10 +131,10 @@ https://docs.nunit.org/articles/nunit/Towards-NUnit4.html. The analyzers can hel
 classic assert and fix the assert messages.
 
 The release contains contributions from the following users (in alphabetical order):
-* CollinAlpert
-* manfred-brands
-* mikkelbu
-* OsirisTerje
+* @CollinAlpert
+* @manfred-brands
+* @mikkelbu
+* @OsirisTerje
 
 Issues Resolved
 
@@ -156,18 +156,18 @@ Tooling, Process, and Documentation
 * #633 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.7.2 to 17.8.0
 
 
-NUnit Analyzers 3.9 (and 2.9) - October 27, 2023
+# NUnit Analyzers 3.9 (and 2.9) - October 27, 2023
 
 This release contains bugfixes to NUnit2045 - Use Assert.Multiple - and NUnit1032 - 
 An IDisposable field/property should be Disposed in a TearDown method - and corrects
 a StackOverflowException when tests calls methods recursively.
 
 The release contains contributions from the following users (in alphabetical order):
-* andrewimcclement
-* manfred-brands
-* mikkelbu
-* NottsColin
-* RenderMichael
+* @andrewimcclement
+* @manfred-brands
+* @mikkelbu
+* @NottsColin
+* @RenderMichael
 
 Issues Resolved
 
@@ -177,18 +177,18 @@ Bugs
 * #602 Bug: StackOverflowException when test calls recursive method in 3.7.
 
 
-NUnit Analyzers 3.8 (and 2.8) - September 25, 2023
+# NUnit Analyzers 3.8 (and 2.8) - September 25, 2023
 
 This release contains a fix to the WithinUsageAnalyzer and handling of false duplicates when
 combining NUnit1032 - An IDisposable field/property should be Disposed in a TearDown method -
 with LifeCycle.InstancePerTestCase.
 
 The release contains contributions from the following users (in alphabetical order):
-* andrewimcclement
-* fredjeronimo
-* HenryZhang-ZHY
-* manfred-brands
-* mikkelbu
+* @andrewimcclement
+* @fredjeronimo
+* @HenryZhang-ZHY
+* @manfred-brands
+* @mikkelbu
 
 Issues Resolved
 
@@ -202,7 +202,7 @@ Tooling, Process, and Documentation
 * #598 Update NUnit1032.md to fix typo Dipose -> Dispose.
 
 
-NUnit Analyzers 3.7 (and 2.7) - September 16, 2023
+# NUnit Analyzers 3.7 (and 2.7) - September 16, 2023
 
 This release contains a lot of improvements and corrections to the supression of non-nullable fields and properties
 that are assigned in setup methods (and not in constructors). We have also added suppression of:
@@ -211,20 +211,20 @@ that are assigned in setup methods (and not in constructors). We have also added
 
 The release also contain some improvements to the performance of the analyzers by avoid repeated calls to 
 GetTypeByMetadataName. Also ValuesAttribute is now also handled by the analyzer in a similar manner as TestCaseAttribute.
-Most of the work done in this release have either been driven by or made by manfred-brands.
+Most of the work done in this release have either been driven by or made by @manfred-brands.
 
 The release contains contributions from the following users (in alphabetical order):
-* 333fred
-* Corniel
-* andrewimcclement
-* IlIlIllIllI
-* jhinder
-* MaceWindu
-* manfred-brands
-* mikkelbu
-* RenderMichael
-* SeanKilleen
-* stevenaw
+* @333fred
+* @Corniel
+* @andrewimcclement
+* @IlIlIllIllI
+* @jhinder
+* @MaceWindu
+* @manfred-brands
+* @mikkelbu
+* @RenderMichael
+* @SeanKilleen
+* @stevenaw
 
 Issues Resolved
 
@@ -267,16 +267,16 @@ Tooling, Process, and Documentation
 * #531 Markdown fixes
 
 
-NUnit Analyzers 3.6.1 (and 2.6.1) - March 10, 2023
+# NUnit Analyzers 3.6.1 (and 2.6.1) - March 10, 2023
 
 This release of the NUnit Analyzers contain a single bug fix and some updates of dependencies.
 The bug fix removes a false positive from NUnit1030 - "The type of parameter provided by the TestCaseSource 
 does not match the type of the parameter in the Test method" - when using TestCaseParameters.
 
 The release contains contributions from the following users (in alphabetical order):
-* ehonda
-* manfred-brands
-* mikkelbu
+* @ehonda
+* @manfred-brands
+* @mikkelbu
 
 Issues Resolved
 
@@ -289,7 +289,7 @@ Tooling, Process, and Documentation
 * #522 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.4.1 to 17.5.0
 
 
-NUnit Analyzers 3.6 (and 2.6) - February 21, 2023
+# NUnit Analyzers 3.6 (and 2.6) - February 21, 2023
 
 This release of the NUnit Analyzers improves on the analysis of nullable reference types - in particular
 in case of null coalescing operator and tuple deconstruction assignments.
@@ -303,17 +303,17 @@ In addition, the release also contains some bug fixes to existing analyzers, and
 and status badge.
 
 The release contains contributions from the following users (in alphabetical order):
-* get-me-power
-* Hounsvad
-* JasonBock
-* manfred-brands
-* mikkelbu
-* nowsprinting
-* oskar
-* SeanKilleen
-* yaakov-h
+* @get-me-power
+* @Hounsvad
+* @JasonBock
+* @manfred-brands
+* @mikkelbu
+* @nowsprinting
+* @oskar
+* @SeanKilleen
+* @yaakov-h
 
-The majority of the code contributions were provided by manfred-brands.
+The majority of the code contributions were provided by @manfred-brands.
 
 Issues Resolved
 
@@ -340,12 +340,12 @@ Tooling, Process, and Documentation
 * #476 [add] GitHub Actions workflow for running test 
 
 
-NUnit Analyzers 3.5 (and 2.5) - October 23, 2022
+# NUnit Analyzers 3.5 (and 2.5) - October 23, 2022
 
 This release of the NUnit Analyzers only fixes the casing in a file name in the nuget file as nuget upload validation failed.
 
 The release contains contributions from the following users (in alphabetical order):
-* mikkelbu
+* @mikkelbu
 
 Issues Resolved
 
@@ -354,7 +354,7 @@ Tooling, Process, and Documentation
 * #483 chore: NuGet.org validation is case sensitive
 
 
-NUnit Analyzers 3.4 (and 2.4) - October 23, 2022
+# NUnit Analyzers 3.4 (and 2.4) - October 23, 2022
 
 This release of the NUnit Analyzers improves on false positives in the existing analyzers for:
 * NUnit2021 - "Incompatible types for EqualTo constraint"
@@ -368,9 +368,9 @@ In addition, the release also contains some bug fixes to existing analyzers.
 Moreover, several dependencies have been bumped in this release and the build process has been improved.
 
 The release contains contributions from the following users (in alphabetical order):
-* eatdrinksleepcode
-* manfred-brands
-* mikkelbu
+* @eatdrinksleepcode
+* @manfred-brands
+* @mikkelbu
 
 Issues Resolved
 
@@ -406,7 +406,7 @@ Tooling, Process, and Documentation
 * #272 Enforce coding standard more strictly
 
 
-NUnit Analyzers 3.3 (and 2.3) - January 8, 2022
+# NUnit Analyzers 3.3 (and 2.3) - January 8, 2022
 
 This release of the NUnit Analyzers adds a DiagnosticSuppressor for Nullable<T>, an analyzer and a code fix 
 for rewriting independent asserts into Assert.Multiple, and an analyzer and a code fix for replacing calls to
@@ -416,9 +416,9 @@ some bug fixes to existing analyzers.
 Moreover, several dependencies have been bumped in this release.
 
 The release contains contributions from the following users (in alphabetical order):
-* manfred-brands
-* mikkelbu
-* rprouse
+* @manfred-brands
+* @mikkelbu
+* @rprouse
 
 Issues Resolved
 
@@ -442,7 +442,7 @@ Tooling, Process, and Documentation
 * #381 Update Code of Conduct
 
 
-NUnit Analyzers 3.2 (and 2.2) - August 28, 2021
+# NUnit Analyzers 3.2 (and 2.2) - August 28, 2021
 
 This release of the NUnit Analyzers contains an improvement to the supression of 
 'Non-nullable field must contain a non-null value when exiting constructor (CS8618)'
@@ -451,8 +451,8 @@ when the field/property is initialized by a method called from a SetUp/OneTimeSe
 Moreover, several dependencies have been bumped in this release.
 
 The release contains contributions from the following users (in alphabetical order):
-* manfred-brands
-* mikkelbu
+* @manfred-brands
+* @mikkelbu
 
 Issues Resolved
 
@@ -469,7 +469,7 @@ Tooling, Process, and Documentation
 * #367 chore(deps): Bump Microsoft.CodeAnalysis.CSharp.CodeStyle from 3.8.0 to 3.9.0 in /src
 
 
-NUnit Analyzers 3.1 (and 2.1) - April 4, 2021
+# NUnit Analyzers 3.1 (and 2.1) - April 4, 2021
 
 This release of the NUnit Analyzers primarily contains improvements to the analysis of nullable reference types
 to handle even more cases.
@@ -478,8 +478,8 @@ The release also contain improvements when passing a non-lambda to Throws assert
 value is used with DelayedConstraint.
 
 The release contains contributions from the following users (in alphabetical order):
-* manfred-brands
-* mikkelbu
+* @manfred-brands
+* @mikkelbu
 
 Issues Resolved
 
@@ -509,7 +509,7 @@ Tooling, Process, and Documentation
 * #341 chore: Bump version to 3.1 (2.1)
 
 
-NUnit Analyzers 3.0 (and 2.0) - January 18, 2021
+# NUnit Analyzers 3.0 (and 2.0) - January 18, 2021
 
 This release of the NUnit Analyzers adds the possibility to suppress compiler errors based on context.
 Initially, we support the suppression of errors arising from nullable reference types (many thanks to
@@ -524,9 +524,9 @@ unless they require Roslyn functionality that is only available in the 3.x versi
 The release also contains some bugfixes to existing diagnostics.
 
 The release contains contributions from the following users (in alphabetical order):
-* Dreamescaper
-* manfred-brands
-* mikkelbu
+* @Dreamescaper
+* @manfred-brands
+* @mikkelbu
 
 Issues Resolved
 
@@ -549,7 +549,7 @@ Tooling, Process, and Documentation
 * #336 Create a .NETStandard2.0 release
 
 
-NUnit Analyzers 0.6 - November 24, 2020
+# NUnit Analyzers 0.6 - November 24, 2020
 
 This release of the NUnit Analyzers corrects several false positives from the analyzers.
 
@@ -558,9 +558,9 @@ us follow Roslyn best practices. The analyzer project is now multi-targeting to 
 us to better use Nullable Reference Types in the codebase.
 
 The release contains contributions from the following users (in alphabetical order):
-* Dreamescaper
-* manfred-brands
-* mikkelbu
+* @Dreamescaper
+* @manfred-brands
+* @mikkelbu
 
 Issues Resolved
 
@@ -579,7 +579,7 @@ Tooling, Process, and Documentation
 * #314 Add Microsoft.CodeAnalysis.Analyzers
 
 
-NUnit Analyzers 0.5 - September 30, 2020
+# NUnit Analyzers 0.5 - September 30, 2020
 
 This release of the NUnit Analyzers adds three new diagnostics. One for ensuring that only test methods
 are public in a test class, one disallowing the SameAs constraint on non-reference types, and one enforcing
@@ -594,10 +594,10 @@ configuration of the diagnostics using .editorconfig, and we have added StyleCop
 to enforce the coding standard.
 
 The release contains contributions from the following users (in alphabetical order):
-* Dreamescaper
-* jnm2
-* manfred-brands
-* mikkelbu
+* @Dreamescaper
+* @jnm2
+* @manfred-brands
+* @mikkelbu
 
 Issues Resolved
 
@@ -626,7 +626,7 @@ Tooling, Process, and Documentation
 * #296 fix: Make code compile in both targets
 
 
-NUnit Analyzers 0.4 - July 25, 2020
+# NUnit Analyzers 0.4 - July 25, 2020
 
 This release of the NUnit Analyzers adds 13 new diagnostics and codefixes for asserts in the classical model -
 e.g. Assert.Greater, Assert.IsNotEmpty, Assert.IsNotInstanceOf etc. We have also improved the handling of
@@ -637,8 +637,8 @@ TestAttribute and a TestCaseSourceAttribute/TestCaseAttribute. We have also adde
 to ensure that test methods are public.
 
 The release contains contributions from the following users (in alphabetical order):
-* manfred-brands
-* mikkelbu
+* @manfred-brands
+* @mikkelbu
 
 Issues Resolved
 
@@ -660,7 +660,7 @@ Process, documentation, and tooling
 * #261 Update .editorconfig to match overall code-style used
 
 
-NUnit Analyzers 0.3 - May 20, 2020
+# NUnit Analyzers 0.3 - May 20, 2020
 
 This release of the NUnit Analyzers improves the documentation of all the diagnostics.
 Furthermore, we have added the following analyzers and diagnostics:
@@ -670,9 +670,9 @@ Furthermore, we have added the following analyzers and diagnostics:
 * six new diagnostics to handle the full scope of the TestCaseSource attribute.
 
 The release contains contributions from the following users (in alphabetical order):
- * Dreamescaper
- * mikkelbu
- * SeanKilleen
+ * @Dreamescaper
+ * @mikkelbu
+ * @SeanKilleen
 
 Issues Resolved
 
@@ -703,7 +703,7 @@ Process, documentation, and tooling
 * #234 Improve every text: titles, messages, and descriptions of the analyzers and code-fixes
 
 
-NUnit Analyzers 0.2 - April 13, 2020
+# NUnit Analyzers 0.2 - April 13, 2020
 
 This is the initial release of the NUnit Analyzers. The release consists of analyzers
 and code fixes for:
@@ -717,16 +717,16 @@ The full list of analyzers can be found at https://github.com/nunit/nunit.analyz
 
 The release contains contributions from the following users (in alphabetical order):
 
- * 304NotModified
- * aolszowka
- * Dreamescaper
- * JasonBock
- * jcurl
- * JohanLarsson
- * MaximRouiller
- * mgyongyosi
- * mikkelbu
- * stevenaw
+ * @304NotModified
+ * @aolszowka
+ * @Dreamescaper
+ * @JasonBock
+ * @jcurl
+ * @JohanLarsson
+ * @MaximRouiller
+ * @mgyongyosi
+ * @mikkelbu
+ * @stevenaw
 
 Issues Resolved
 
