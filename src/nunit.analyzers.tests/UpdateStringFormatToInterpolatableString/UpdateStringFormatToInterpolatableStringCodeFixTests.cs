@@ -15,6 +15,12 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.UpdateStringFormatToInterpolatableString);
 
+        private static readonly string[] AssertAndAssume = new[]
+        {
+            NUnitFrameworkConstants.NameOfAssert,
+            NUnitFrameworkConstants.NameOfAssume,
+        };
+
         [Test]
         public void VerifyGetFixableDiagnosticIds()
         {
@@ -24,21 +30,21 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         }
 
 #if NUNIT4
-        [Test]
-        public void AccidentallyUseFormatSpecification()
+        [TestCaseSource(nameof(AssertAndAssume))]
+        public void AccidentallyUseFormatSpecification(string assertOrAssume)
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
         [TestCase(""NUnit 4.0"", ""NUnit 3.14"")]
-        public void AssertSomething(string actual, string expected)
-        {
-            ↓Assert.That(actual, Is.EqualTo(expected).IgnoreCase, ""Expected '{0}', but got: {1}"", expected, actual);
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void {assertOrAssume}Something(string actual, string expected)
+        {{
+            ↓{assertOrAssume}.That(actual, Is.EqualTo(expected).IgnoreCase, ""Expected '{{0}}', but got: {{1}}"", expected, actual);
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
         [TestCase(""NUnit 4.0"", ""NUnit 3.14"")]
-        public void AssertSomething(string actual, string expected)
-        {
-            Assert.That(actual, Is.EqualTo(expected).IgnoreCase, $""Expected '{expected}', but got: {actual}"");
-        }");
+        public void {assertOrAssume}Something(string actual, string expected)
+        {{
+            {assertOrAssume}.That(actual, Is.EqualTo(expected).IgnoreCase, $""Expected '{{expected}}', but got: {{actual}}"");
+        }}");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 #else
@@ -54,30 +60,30 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
-        [Test]
-        public void ConvertWhenMinimumParametersIsOne()
+        [TestCaseSource(nameof(AssertAndAssume))]
+        public void ConvertWhenMinimumParametersIsOne(string assertOrAssume)
         {
-            var code = TestUtility.WrapInTestMethod(@"
+            var code = TestUtility.WrapInTestMethod(@$"
                 const bool actual = false;
-                ↓Assert.That(actual, ""Expected actual value to be true, but was: {0}"", actual);
+                ↓{assertOrAssume}.That(actual, ""Expected actual value to be true, but was: {{0}}"", actual);
             ");
-            var fixedCode = TestUtility.WrapInTestMethod(@"
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
                 const bool actual = false;
-                Assert.That(actual, $""Expected actual value to be true, but was: {actual}"");
+                {assertOrAssume}.That(actual, $""Expected actual value to be true, but was: {{actual}}"");
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
-        [Test]
-        public void ConvertWhenMinimumParametersIsTwo()
+        [TestCaseSource(nameof(AssertAndAssume))]
+        public void ConvertWhenMinimumParametersIsTwo(string assertOrAssume)
         {
-            var code = TestUtility.WrapInTestMethod(@"
+            var code = TestUtility.WrapInTestMethod(@$"
                 const int actual = 42;
-                ↓Assert.That(actual, Is.EqualTo(42), ""Expected actual value to be 42, but was: {0} at time {1:HH:mm:ss}"", actual, DateTime.Now);
+                ↓{assertOrAssume}.That(actual, Is.EqualTo(42), ""Expected actual value to be 42, but was: {{0}} at time {{1:HH:mm:ss}}"", actual, DateTime.Now);
             ");
-            var fixedCode = TestUtility.WrapInTestMethod(@"
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
                 const int actual = 42;
-                Assert.That(actual, Is.EqualTo(42), $""Expected actual value to be 42, but was: {actual} at time {DateTime.Now:HH:mm:ss}"");
+                {assertOrAssume}.That(actual, Is.EqualTo(42), $""Expected actual value to be 42, but was: {{actual}} at time {{DateTime.Now:HH:mm:ss}}"");
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }

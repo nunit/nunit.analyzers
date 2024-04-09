@@ -14,6 +14,12 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         private readonly DiagnosticAnalyzer analyzer = new UpdateStringFormatToInterpolatableStringAnalyzer();
         private readonly ExpectedDiagnostic diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.UpdateStringFormatToInterpolatableString);
 
+        private static readonly string[] AssertAndAssume = new[]
+        {
+            NUnitFrameworkConstants.NameOfAssert,
+            NUnitFrameworkConstants.NameOfAssume,
+        };
+
         private static IEnumerable<string> NoArgumentsAsserts { get; } = new[]
         {
             NUnitFrameworkConstants.NameOfAssertPass,
@@ -72,93 +78,93 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
-        [Test]
-        public void AnalyzeAssertBoolWhenNoArgumentsAreUsed()
+        [TestCaseSource(nameof(AssertAndAssume))]
+        public void AnalyzeAssertOrAssumeBoolWhenNoArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
-                Assert.That(true);
+                {assertOrAssume}.That(true);
             ");
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
-        [Test]
-        public void AnalyzeAssertBoolWhenOnlyMessageArgumentIsUsed()
+        [TestCaseSource(nameof(AssertAndAssume))]
+        public void AnalyzeAssertOrAssumeBoolWhenOnlyMessageArgumentIsUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
-                Assert.That(false, ""Message"");
+                {assertOrAssume}.That(false, ""Message"");
             ");
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
-        [Test]
-        public void AnalyzeAssertBoolWhenFormatAndArgumentsAreUsed()
+        [TestCaseSource(nameof(AssertAndAssume))]
+        public void AnalyzeAssertOrAssumeBoolWhenFormatAndArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
-                ↓Assert.That(false, ""Method: {{0}}"", false.ToString());
+                ↓{assertOrAssume}.That(false, ""Method: {{0}}"", false.ToString());
             ");
             RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }
 
-        [Test]
-        public void AnalyzeAssertBoolWhenFormattableStringIsUsed()
+        [TestCaseSource(nameof(AssertAndAssume))]
+        public void AnalyzeAssertOrAssumeBoolWhenFormattableStringIsUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
-                Assert.That(false, $""Method: {{false}}"");
+                {assertOrAssume}.That(false, $""Method: {{false}}"");
             ");
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
-        [Test]
-        public void AnalyzeAssertThatWhenNoArgumentsAreUsed()
-        {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                double pi = 3.1415;
-                Assert.That(pi, Is.EqualTo(3.1415).Within(0.0001));
-            ");
-            RoslynAssert.Valid(this.analyzer, testCode);
-        }
-
-        [Test]
-        public void AnalyzeAssertThatWhenOnlyMessageArgumentIsUsed()
+        [TestCaseSource(nameof(AssertAndAssume))]
+        public void AnalyzeAssertOrAssumeThatWhenNoArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 double pi = 3.1415;
-                Assert.That(pi, Is.EqualTo(3.1415).Within(0.0001), ""Message"");
+                {assertOrAssume}.That(pi, Is.EqualTo(3.1415).Within(0.0001));
             ");
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
-        [Test]
-        public void AnalyzeAssertThatWhenFormatAndStringArgumentsAreUsed()
+        [TestCaseSource(nameof(AssertAndAssume))]
+        public void AnalyzeAssertOrAssumeThatWhenOnlyMessageArgumentIsUsed(string assertOrAssume)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                double pi = 3.1415;
+                {assertOrAssume}.That(pi, Is.EqualTo(3.1415).Within(0.0001), ""Message"");
+            ");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [TestCaseSource(nameof(AssertAndAssume))]
+        public void AnalyzeAssertOrAssumeThatWhenFormatAndStringArgumentsAreUsed(string assertOrAssume)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
         [TestCase(""NUnit 4.0"", ""NUnit 3.14"")]
-        public void AssertSomething(string actual, string expected)
-        {
-            ↓Assert.That(actual, Is.EqualTo(expected).IgnoreCase, ""Expected '{0}', but got: {1}"", expected, actual);
-        }");
+        public void {assertOrAssume}Something(string actual, string expected)
+        {{
+            ↓{assertOrAssume}.That(actual, Is.EqualTo(expected).IgnoreCase, ""Expected '{{0}}', but got: {{1}}"", expected, actual);
+        }}");
 
             RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }
 
 #if !NUNIT4
-        [Test]
-        public void AnalyzeAssertThatWhenFormatAndArgumentsAreUsed()
+        [TestCaseSource(nameof(AssertAndAssume))]
+        public void AnalyzeAssertOrAssumeThatWhenFormatAndArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 double pi = 3.1415;
-                ↓Assert.That(pi, Is.EqualTo(3.1415).Within(0.0001), ""Method: {{0}}"", pi);
+                ↓{assertOrAssume}.That(pi, Is.EqualTo(3.1415).Within(0.0001), ""Method: {{0}}"", pi);
             ");
             RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }
 #endif
 
-        [Test]
-        public void AnalyzeAssertThatWhenFormatStringIsUsed()
+        [TestCaseSource(nameof(AssertAndAssume))]
+        public void AnalyzeAssertOrAssumeThatWhenFormatStringIsUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 double pi = 3.1415;
-                Assert.That(pi, Is.EqualTo(3.1415).Within(0.0001), $""Method: {{pi}}"");
+                {assertOrAssume}.That(pi, Is.EqualTo(3.1415).Within(0.0001), $""Method: {{pi}}"");
             ");
             RoslynAssert.Valid(this.analyzer, testCode);
         }

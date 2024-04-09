@@ -26,6 +26,13 @@ namespace NUnit.Analyzers.Extensions
                    @this.Name is NUnitFrameworkConstants.NameOfAssert;
         }
 
+        internal static bool IsAssume(this ITypeSymbol? @this)
+        {
+            return @this is not null &&
+                   @this.ContainingAssembly.Name is NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
+                   @this.Name is NUnitFrameworkConstants.NameOfAssume;
+        }
+
         internal static bool IsClassicAssert(this ITypeSymbol? @this)
         {
             return @this is not null &&
