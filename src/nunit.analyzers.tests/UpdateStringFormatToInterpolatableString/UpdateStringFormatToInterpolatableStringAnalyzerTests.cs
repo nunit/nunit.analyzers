@@ -79,7 +79,7 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertBoolWhenNoArgumentsAreUsed(string assertOrAssume)
+        public void AnalyzeAssertOrAssumeBoolWhenNoArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 {assertOrAssume}.That(true);
@@ -88,7 +88,7 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertBoolWhenOnlyMessageArgumentIsUsed(string assertOrAssume)
+        public void AnalyzeAssertOrAssumeBoolWhenOnlyMessageArgumentIsUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 {assertOrAssume}.That(false, ""Message"");
@@ -97,7 +97,7 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertBoolWhenFormatAndArgumentsAreUsed(string assertOrAssume)
+        public void AnalyzeAssertOrAssumeBoolWhenFormatAndArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 ↓{assertOrAssume}.That(false, ""Method: {{0}}"", false.ToString());
@@ -106,7 +106,7 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertBoolWhenFormattableStringIsUsed(string assertOrAssume)
+        public void AnalyzeAssertOrAssumeBoolWhenFormattableStringIsUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 {assertOrAssume}.That(false, $""Method: {{false}}"");
@@ -115,7 +115,7 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertThatWhenNoArgumentsAreUsed(string assertOrAssume)
+        public void AnalyzeAssertOrAssumeThatWhenNoArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 double pi = 3.1415;
@@ -125,7 +125,7 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertThatWhenOnlyMessageArgumentIsUsed(string assertOrAssume)
+        public void AnalyzeAssertOrAssumeThatWhenOnlyMessageArgumentIsUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 double pi = 3.1415;
@@ -135,11 +135,11 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertThatWhenFormatAndStringArgumentsAreUsed(string assertOrAssume)
+        public void AnalyzeAssertOrAssumeThatWhenFormatAndStringArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
         [TestCase(""NUnit 4.0"", ""NUnit 3.14"")]
-        public void AssertSomething(string actual, string expected)
+        public void {assertOrAssume}Something(string actual, string expected)
         {{
             ↓{assertOrAssume}.That(actual, Is.EqualTo(expected).IgnoreCase, ""Expected '{{0}}', but got: {{1}}"", expected, actual);
         }}");
@@ -149,7 +149,7 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
 
 #if !NUNIT4
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertThatWhenFormatAndArgumentsAreUsed(string assertOrAssume)
+        public void AnalyzeAssertOrAssumeThatWhenFormatAndArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 double pi = 3.1415;
@@ -160,7 +160,7 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
 #endif
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertThatWhenFormatStringIsUsed(string assertOrAssume)
+        public void AnalyzeAssertOrAssumeThatWhenFormatStringIsUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 double pi = 3.1415;

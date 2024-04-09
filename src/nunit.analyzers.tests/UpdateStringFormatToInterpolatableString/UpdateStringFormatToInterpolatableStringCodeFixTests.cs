@@ -35,13 +35,13 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
         [TestCase(""NUnit 4.0"", ""NUnit 3.14"")]
-        public void AssertSomething(string actual, string expected)
+        public void {assertOrAssume}Something(string actual, string expected)
         {{
             ↓{assertOrAssume}.That(actual, Is.EqualTo(expected).IgnoreCase, ""Expected '{{0}}', but got: {{1}}"", expected, actual);
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
         [TestCase(""NUnit 4.0"", ""NUnit 3.14"")]
-        public void AssertSomething(string actual, string expected)
+        public void {assertOrAssume}Something(string actual, string expected)
         {{
             {assertOrAssume}.That(actual, Is.EqualTo(expected).IgnoreCase, $""Expected '{{expected}}', but got: {{actual}}"");
         }}");

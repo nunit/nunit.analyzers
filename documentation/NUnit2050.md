@@ -36,6 +36,18 @@ Here what you think are parameters to a format specification are actually interp
 the _actual_ and _constraint_ expression strings.
 Unfortunately you only find that out when the test fails, which could be never.
 
+The affected methods are:
+
+```csharp
+Assert.Pass
+Assert.Fail
+Assert.Warn
+Assert.Ignore
+Assert.Inconclusive
+Assert.That
+Assume.That
+```
+
 ## How to fix violations
 
 The following code, valid in NUnit3:
