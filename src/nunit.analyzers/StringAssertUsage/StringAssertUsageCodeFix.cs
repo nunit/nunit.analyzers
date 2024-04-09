@@ -57,10 +57,10 @@ namespace NUnit.Analyzers.StringAssertUsage
             var expectedParameterName = StringAssertToExpectedParameterName[methodName];
             var expectedArgument = argumentNamesToArguments[expectedParameterName];
             var constraints = StringAssertToConstraints[methodName];
-            var constraintArgument = Argument(constraints.CreateConstraint(expectedArgument));
+            var constraintArgument = Argument(constraints.CreateConstraint(expectedArgument.WithNameColon(null)));
 
             var actualArgument = argumentNamesToArguments[NameOfActualParameter];
-            return (actualArgument, constraintArgument);
+            return (actualArgument.WithNameColon(null), constraintArgument);
         }
     }
 }
