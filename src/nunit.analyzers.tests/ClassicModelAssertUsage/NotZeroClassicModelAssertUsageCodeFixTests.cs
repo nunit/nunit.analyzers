@@ -65,7 +65,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyNotZeroFixWithMessageAndParams()
+        public void VerifyNotZeroFixWithMessageAndOneArgumentForParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -85,7 +85,27 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyNotZeroFixWithMessageAndParamsInNonstandardOrder()
+        public void VerifyNotZeroFixWithMessageAndTwoArgumentsForParams()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expr = default(int);
+
+            ↓ClassicAssert.NotZero(expr, ""{0}, {1}"", ""first"", ""second"");
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expr = default(int);
+
+            Assert.That(expr, Is.Not.Zero, $""{""first""}, {""second""}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyNotZeroFixWithMessageAndArrayParamsInNonstandardOrder()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()

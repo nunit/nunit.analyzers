@@ -57,7 +57,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyLessFixWithMessageAndParams()
+        public void VerifyLessFixWithMessageAndOneArgumentForParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -73,7 +73,23 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyLessFixWithMessageAndParamsInNonstandardOrder()
+        public void VerifyLessFixWithMessageAndTwoArgumentsForParams()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            ↓ClassicAssert.Less(2d, 3d, ""{0}, {1}"", ""first"", ""second"");
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(2d, Is.LessThan(3d), $""{""first""}, {""second""}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyLessFixWithMessageAndArrayParamsInNonstandardOrder()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()

@@ -57,7 +57,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyGreaterFixWithMessageAndParams()
+        public void VerifyGreaterFixWithMessageAndOneArgumentForParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -73,7 +73,23 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyGreaterFixWithMessageAndParamsInNonstandardOrder()
+        public void VerifyGreaterFixWithMessageAndTwoArgumentsForParams()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            ↓ClassicAssert.Greater(2d, 3d, ""{0}, {1}"", ""first"", ""second"");
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(2d, Is.GreaterThan(3d), $""{""first""}, {""second""}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyGreaterFixWithMessageAndArrayParamsInNonstandardOrder()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -91,7 +107,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void CodeFixPreservesLineBreakBeforeMessage()
         {
-            var code = TestUtility.WrapInTestMethod($@"
+            var code = TestUtility.WrapInTestMethod(@"
             ClassicAssert.Greater(2d, 3d,
                 ""message"");");
 

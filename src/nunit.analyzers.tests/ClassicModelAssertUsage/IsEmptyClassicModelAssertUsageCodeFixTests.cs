@@ -65,7 +65,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyIsEmptyFixWithMessageAndParams()
+        public void VerifyIsEmptyFixWithMessageAndOneArgumentForParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -85,7 +85,27 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyIsEmptyFixWithMessageAndParamsInNonstandardOrder()
+        public void VerifyIsEmptyFixWithMessageAndTwoArgumentsForParams()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var collection = Array.Empty<object>();
+
+            ↓ClassicAssert.IsEmpty(collection, ""{0}, {1}"", ""first"", ""second"");
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var collection = Array.Empty<object>();
+
+            Assert.That(collection, Is.Empty, $""{""first""}, {""second""}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyIsEmptyFixWithMessageAndArrayParamsInNonstandardOrder()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()

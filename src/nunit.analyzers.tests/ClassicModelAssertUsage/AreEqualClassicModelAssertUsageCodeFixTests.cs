@@ -27,11 +27,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyAreEqualFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             ↓ClassicAssert.AreEqual(2d, 3d);
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -75,11 +75,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyAreEqualFixWithMessage()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             ↓ClassicAssert.AreEqual(2d, 3d, ""message"");
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -105,13 +105,13 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyAreEqualFixWithMessageAndParams()
+        public void VerifyAreEqualFixWithMessageAndOneArgumentForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
-            ↓ClassicAssert.AreEqual(2d, 3d, ""message-id: {{0}}"", Guid.NewGuid());
-        }}");
+        {
+            ↓ClassicAssert.AreEqual(2d, 3d, ""message-id: {0}"", Guid.NewGuid());
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -159,11 +159,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyAreEqualFixWhenToleranceExists()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             ↓ClassicAssert.AreEqual(2d, 3d, 0.0000001d);
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -175,11 +175,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyAreEqualFixWhenToleranceExistsWithNamedArgument()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             ↓ClassicAssert.AreEqual(expected: 2d, actual: 3d, delta: 0.0000001d);
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -191,11 +191,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyAreEqualFixWhenToleranceExistsWithMessage()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             ↓ClassicAssert.AreEqual(2d, 3d, 0.0000001d, ""message"");
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -221,13 +221,13 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyAreEqualFixWhenToleranceExistsWithMessageAndParams()
+        public void VerifyAreEqualFixWhenToleranceExistsWithMessageAndOneArgumentForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
-            ↓ClassicAssert.AreEqual(2d, 3d, 0.0000001d, ""message-id: {{0}}"", Guid.NewGuid());
-        }}");
+        {
+            ↓ClassicAssert.AreEqual(2d, 3d, 0.0000001d, ""message-id: {0}"", Guid.NewGuid());
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -237,17 +237,17 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyAreEqualFixWhenToleranceExistsWithMessageAndParamsLiteralExpressionSyntax()
+        public void VerifyAreEqualFixWhenToleranceExistsWithMessageAndTwoArgumentsForParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
-            ↓ClassicAssert.AreEqual(2d, 3d, 0.0000001d, ""message-id: {0}"", ""mystring"");
+            ↓ClassicAssert.AreEqual(2d, 3d, 0.0000001d, ""{0}, {1}"", ""first"", ""second"");
         }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
-            Assert.That(3d, Is.EqualTo(2d).Within(0.0000001d), $""message-id: {""mystring""}"");
+            Assert.That(3d, Is.EqualTo(2d).Within(0.0000001d), $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
@@ -255,7 +255,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void CodeFixPreservesLineBreakBeforeMessage()
         {
-            var code = TestUtility.WrapInTestMethod($@"
+            var code = TestUtility.WrapInTestMethod(@"
             ClassicAssert.AreEqual(2d, 3d, 0.0000001d,
                 ""message"");");
 

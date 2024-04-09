@@ -30,7 +30,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         }
 
         [TestCaseSource(nameof(OneCollectionParameterAsserts))]
-        public void AnalyzeOneCollectionWhenOnlyMessageArgumentsAreUsed(string method)
+        public void AnalyzeOneCollectionWhenOnlyMessageArgumentIsUsed(string method)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 var collection = new[] {{ 1, 2, 3 }};
@@ -40,11 +40,21 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         }
 
         [TestCaseSource(nameof(OneCollectionParameterAsserts))]
-        public void AnalyzeOneCollectionWhenFormatAndParamsArgumentsAreUsed(string method)
+        public void AnalyzeOneCollectionWhenFormatAndOneParamsArgumentAreUsed(string method)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 var collection = new[] {{ 1, 2, 3 }};
                 ↓CollectionAssert.{method}(collection, ""Because of {{0}}"", ""message"");
+            ");
+            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+        }
+
+        [TestCaseSource(nameof(OneCollectionParameterAsserts))]
+        public void AnalyzeOneCollectionWhenFormatAndTwoParamsArgumentsAreUsed(string method)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var collection = new[] {{ 1, 2, 3 }};
+                ↓CollectionAssert.{method}(collection, ""{{0}}, {{1}}"", ""first"", ""second"");
             ");
             RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }
@@ -61,7 +71,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         }
 
         [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
-        public void AnalyzeTwoCollectionWhenOnlyMessageArgumentsAreUsed(string method)
+        public void AnalyzeTwoCollectionWhenOnlyMessageArgumentIsUsed(string method)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 var collection1 = new[] {{ 1, 2, 3 }};
@@ -72,12 +82,23 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         }
 
         [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
-        public void AnalyzeTwoCollectionWhenFormatAndParamsArgumentsAreUsed(string method)
+        public void AnalyzeTwoCollectionWhenFormatAndOneParamsArgumentAreUsed(string method)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 var collection1 = new[] {{ 1, 2, 3 }};
                 var collection2 = new[] {{ 2, 4, 6 }};
                 ↓CollectionAssert.{method}(collection1, collection2, ""Because of {{0}}"", ""message"");
+            ");
+            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+        }
+
+        [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
+        public void AnalyzeTwoCollectionWhenFormatAndTwoParamsArgumentsAreUsed(string method)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var collection1 = new[] {{ 1, 2, 3 }};
+                var collection2 = new[] {{ 2, 4, 6 }};
+                ↓CollectionAssert.{method}(collection1, collection2, ""{{0}}, {{1}}"", ""first"", ""second"");
             ");
             RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }
@@ -115,7 +136,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         }
 
         [TestCaseSource(nameof(CollectionAndItemParameterAsserts))]
-        public void AnalyzeCollectionAndItemWhenOnlyMessageArgumentsAreUsed(string method)
+        public void AnalyzeCollectionAndItemWhenOnlyMessageArgumentIsUsed(string method)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 var collection = new[] {{ typeof(byte), typeof(char) }};
@@ -125,11 +146,21 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         }
 
         [TestCaseSource(nameof(CollectionAndItemParameterAsserts))]
-        public void AnalyzeCollectionAndItemWhenFormatAndParamsArgumentsAreUsed(string method)
+        public void AnalyzeCollectionAndItemWhenFormatAndOneParamsArgumentAreUsed(string method)
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 var collection = new[] {{ typeof(byte), typeof(char) }};
                 ↓CollectionAssert.{method}(collection, typeof(byte), ""Because of {{0}}"", ""message"");
+            ");
+            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+        }
+
+        [TestCaseSource(nameof(CollectionAndItemParameterAsserts))]
+        public void AnalyzeCollectionAndItemWhenFormatAndTwoParamsArgumentsAreUsed(string method)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var collection = new[] {{ typeof(byte), typeof(char) }};
+                ↓CollectionAssert.{method}(collection, typeof(byte), ""{{0}}, {{1}}"", ""first"", ""second"");
             ");
             RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }

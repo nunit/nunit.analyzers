@@ -69,7 +69,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyIsInstanceOfFixWithMessageAndParams()
+        public void VerifyIsInstanceOfFixWithMessageAndOneArgumentForParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -91,7 +91,29 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyIsInstanceOfFixWithMessageAndParamsInNonstandardOrder()
+        public void VerifyIsInstanceOfFixWithMessageAndTwoArgumentsForParams()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expected = typeof(int);
+            var actual = 42;
+
+            ↓ClassicAssert.IsInstanceOf(expected, actual, ""{0}, {1}"", ""first"", ""second"");
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expected = typeof(int);
+            var actual = 42;
+
+            Assert.That(actual, Is.InstanceOf(expected), $""{""first""}, {""second""}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyIsInstanceOfFixWithMessageAndArrayParamsInNonstandardOrder()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
@@ -239,7 +261,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyIsInstanceOfGenericFixWithMessageAndParams()
+        public void VerifyIsInstanceOfGenericFixWithMessageAndOneArgumentForParams()
         {
             var code = TestUtility.WrapInTestMethod(@"
             var actual = 42;
@@ -253,7 +275,21 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyIsInstanceOfGenericFixWithMessageAndParamsInNonstandardOrder()
+        public void VerifyIsInstanceOfGenericFixWithMessageAndTwoArgumentsForParams()
+        {
+            var code = TestUtility.WrapInTestMethod(@"
+            var actual = 42;
+
+            ↓ClassicAssert.IsInstanceOf<int>(actual, ""{0}, {1}"", ""first"", ""second"");");
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+            var actual = 42;
+
+            Assert.That(actual, Is.InstanceOf<int>(), $""{""first""}, {""second""}"");");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyIsInstanceOfGenericFixWithMessageAndArrayParamsInNonstandardOrder()
         {
             var code = TestUtility.WrapInTestMethod(@"
             var actual = 42;

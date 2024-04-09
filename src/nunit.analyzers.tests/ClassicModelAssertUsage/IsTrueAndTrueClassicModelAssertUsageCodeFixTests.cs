@@ -62,7 +62,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
         [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
         [TestCase("True", AnalyzerIdentifiers.TrueUsage)]
-        public void VerifyIsTrueAndTrueFixesWithMessageAndParams(string assertion, string diagnosticId)
+        public void VerifyIsTrueAndTrueFixesWithMessageAndOneArgumentForParams(string assertion, string diagnosticId)
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
@@ -81,7 +81,26 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
         [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
         [TestCase("True", AnalyzerIdentifiers.TrueUsage)]
-        public void VerifyIsTrueAndTrueFixesWithMessageAndParamsInNonstandardOrder(string assertion, string diagnosticId)
+        public void VerifyIsTrueAndTrueFixesWithMessageAndTwoArgumentsForParams(string assertion, string diagnosticId)
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            ↓ClassicAssert.{assertion}(true, ""{{0}}, {{1}}"", ""first"", ""second"");
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(true, Is.True, $""{""first""}, {""second""}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [TestCase("IsTrue", AnalyzerIdentifiers.IsTrueUsage)]
+        [TestCase("True", AnalyzerIdentifiers.TrueUsage)]
+        public void VerifyIsTrueAndTrueFixesWithMessageAndArrayParamsInNonstandardOrder(string assertion, string diagnosticId)
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
