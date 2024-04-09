@@ -99,7 +99,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var collection = Array.Empty<object>();
 
-            Assert.That(actual: collection, Is.Not.Empty, $""{""first""}, {""second""}"");
+            Assert.That(collection, Is.Not.Empty, $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

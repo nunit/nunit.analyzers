@@ -37,10 +37,6 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
             var expectedArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfExpectedParameter];
-            var expectedArgumentNameColon = expectedArgument.NameColon is null
-                ? null
-                : SyntaxFactory.NameColon(NUnitFrameworkConstants.NameOfExpectedTypeParameter);
-
             var constraintArgument = SyntaxFactory.Argument(
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
@@ -49,13 +45,10 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsInstanceOf)))
                 .WithArgumentList(SyntaxFactory.ArgumentList(
                     SyntaxFactory.SingletonSeparatedList(
-                        expectedArgument.WithNameColon(expectedArgumentNameColon)))));
+                        expectedArgument.WithNameColon(null)))));
 
             var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter];
-            var actualArgumentNameColon = actualArgument.NameColon is null
-                ? null
-                : SyntaxFactory.NameColon(NUnitFrameworkConstants.NameOfActualParameter);
-            return (actualArgument.WithNameColon(actualArgumentNameColon), constraintArgument);
+            return (actualArgument.WithNameColon(null), constraintArgument);
         }
     }
 }

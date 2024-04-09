@@ -99,7 +99,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expr = double.NaN;
 
-            Assert.That(actual: expr, Is.NaN, $""{""first""}, {""second""}"");
+            Assert.That(expr, Is.NaN, $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

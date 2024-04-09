@@ -23,16 +23,12 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
             var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfConditionParameter];
-            var actualArgumentNameColon = actualArgument.NameColon is null
-                ? null
-                : SyntaxFactory.NameColon(NUnitFrameworkConstants.NameOfActualParameter);
-
             var constraintArgument = SyntaxFactory.Argument(
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsFalse)));
-            return (actualArgument.WithNameColon(actualArgumentNameColon), constraintArgument);
+            return (actualArgument.WithNameColon(null), constraintArgument);
         }
     }
 }

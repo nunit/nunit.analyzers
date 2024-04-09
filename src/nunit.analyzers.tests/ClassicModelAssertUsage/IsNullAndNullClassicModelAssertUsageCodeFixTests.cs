@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void TestMethod()
         {
             object? obj = null;
-            Assert.That(actual: obj, Is.Null, $""{""first""}, {""second""}"");
+            Assert.That(obj, Is.Null, $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

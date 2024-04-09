@@ -24,9 +24,6 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             var actualArgument = argumentNamesToArguments.TryGetValue(NUnitFrameworkConstants.NameOfCollectionParameter, out var collectionArgument)
                 ? collectionArgument
                 : argumentNamesToArguments[NUnitFrameworkConstants.NameOfAStringParameter];
-            var actualArgumentNameColon = actualArgument.NameColon is null
-                ? null
-                : SyntaxFactory.NameColon(NUnitFrameworkConstants.NameOfActualParameter);
 
             var constraintArgument = SyntaxFactory.Argument(
                 SyntaxFactory.MemberAccessExpression(
@@ -36,7 +33,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsNot)),
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsEmpty)));
-            return (actualArgument.WithNameColon(actualArgumentNameColon), constraintArgument);
+            return (actualArgument.WithNameColon(null), constraintArgument);
         }
     }
 }

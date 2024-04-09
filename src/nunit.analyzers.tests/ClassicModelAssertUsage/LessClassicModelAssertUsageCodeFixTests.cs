@@ -83,7 +83,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
-            Assert.That(actual: 2d, Is.LessThan(expected: 3d), $""{""first""}, {""second""}"");
+            Assert.That(2d, Is.LessThan(3d), $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
