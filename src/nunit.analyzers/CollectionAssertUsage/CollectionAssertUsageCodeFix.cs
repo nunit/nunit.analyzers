@@ -124,31 +124,27 @@ namespace NUnit.Analyzers.CollectionAssertUsage
         {
             var methodName = diagnostic.Properties[AnalyzerPropertyKeys.ModelName]!;
             var firstParameterName = CollectionAssertToFirstParameterName[methodName];
-            var firstArgument = argumentNamesToArguments[firstParameterName];
+            var firstArgument = argumentNamesToArguments[firstParameterName].WithNameColon(null);
 
             if (CollectionAssertToParameterlessConstraints.TryGetValue(methodName, out Constraints? constraints))
             {
-                var actualArgument = firstArgument.WithNameColon(null);
                 var constraintArgument = Argument(constraints.CreateConstraint());
-                return (actualArgument, constraintArgument);
+                return (firstArgument, constraintArgument);
             }
             else if (CollectionAssertToOneSwappedParameterConstraints.TryGetValue(methodName, out constraints))
             {
                 var secondParameterName = CollectionAssertToSecondParameterName[methodName];
-                var secondArgument = argumentNamesToArguments[secondParameterName];
-                var actualArgument = secondArgument.WithNameColon(null);
-
-                var constraintArgument = Argument(constraints.CreateConstraint(firstArgument.WithNameColon(null)));
-                return (actualArgument, constraintArgument);
+                var secondArgument = argumentNamesToArguments[secondParameterName].WithNameColon(null);
+                var constraintArgument = Argument(constraints.CreateConstraint(firstArgument));
+                return (secondArgument, constraintArgument);
             }
             else if (CollectionAssertToOneUnswappedParameterConstraints.TryGetValue(methodName, out constraints))
             {
                 var secondParameterName = CollectionAssertToSecondParameterName[methodName];
-                var secondArgument = argumentNamesToArguments[secondParameterName];
-                var constraintArgument = Argument(constraints.CreateConstraint(secondArgument.WithNameColon(null)));
+                var secondArgument = argumentNamesToArguments[secondParameterName].WithNameColon(null);
+                var constraintArgument = Argument(constraints.CreateConstraint(secondArgument));
 
-                var actualArgument = firstArgument.WithNameColon(null);
-                return (actualArgument, constraintArgument);
+                return (firstArgument, constraintArgument);
             }
             else
             {

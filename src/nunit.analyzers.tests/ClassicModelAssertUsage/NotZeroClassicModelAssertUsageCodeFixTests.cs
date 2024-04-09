@@ -119,7 +119,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expr = default(int);
 
-            Assert.That(actual: expr, Is.Not.Zero, $""{""first""}, {""second""}"");
+            Assert.That(expr, Is.Not.Zero, $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

@@ -20,7 +20,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             Diagnostic diagnostic,
             IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
-            var arg2Argument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfArg2Parameter];
+            var arg2Argument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfArg2Parameter].WithNameColon(null);
             var constraintArgument = SyntaxFactory.Argument(
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
@@ -28,12 +28,10 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsGreaterThan)))
                 .WithArgumentList(SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SingletonSeparatedList(
-                        arg2Argument.WithNameColon(null)))));
+                    SyntaxFactory.SingletonSeparatedList(arg2Argument))));
 
-            var arg1Argument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfArg1Parameter];
-            var actualArgument = arg1Argument.WithNameColon(null);
-            return (actualArgument, constraintArgument);
+            var arg1Argument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfArg1Parameter].WithNameColon(null);
+            return (arg1Argument, constraintArgument);
         }
     }
 }

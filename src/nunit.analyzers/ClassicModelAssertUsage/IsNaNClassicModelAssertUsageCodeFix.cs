@@ -21,13 +21,13 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             Diagnostic diagnostic,
             IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
-            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfADoubleParameter];
+            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfADoubleParameter].WithNameColon(null);
             var constraintArgument = SyntaxFactory.Argument(
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsNaN)));
-            return (actualArgument.WithNameColon(null), constraintArgument);
+            return (actualArgument, constraintArgument);
         }
     }
 }

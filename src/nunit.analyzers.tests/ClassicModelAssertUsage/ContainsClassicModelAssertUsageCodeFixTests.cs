@@ -129,7 +129,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var instance = new object();
             var collection = Array.Empty<object>();
 
-            Assert.That(actual: collection, Does.Contain(expected: instance), $""{""first""}, {""second""}"");
+            Assert.That(collection, Does.Contain(instance), $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

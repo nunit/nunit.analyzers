@@ -55,12 +55,12 @@ namespace NUnit.Analyzers.StringAssertUsage
         {
             var methodName = diagnostic.Properties[AnalyzerPropertyKeys.ModelName]!;
             var expectedParameterName = StringAssertToExpectedParameterName[methodName];
-            var expectedArgument = argumentNamesToArguments[expectedParameterName];
+            var expectedArgument = argumentNamesToArguments[expectedParameterName].WithNameColon(null);
             var constraints = StringAssertToConstraints[methodName];
-            var constraintArgument = Argument(constraints.CreateConstraint(expectedArgument.WithNameColon(null)));
+            var constraintArgument = Argument(constraints.CreateConstraint(expectedArgument));
 
-            var actualArgument = argumentNamesToArguments[NameOfActualParameter];
-            return (actualArgument.WithNameColon(null), constraintArgument);
+            var actualArgument = argumentNamesToArguments[NameOfActualParameter].WithNameColon(null);
+            return (actualArgument, constraintArgument);
         }
     }
 }

@@ -298,7 +298,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var fixedCode = TestUtility.WrapInTestMethod(@"
             var actual = 42;
 
-            Assert.That(actual: actual, Is.Not.InstanceOf<int>(), $""{""first""}, {""second""}"");");
+            Assert.That(actual, Is.Not.InstanceOf<int>(), $""{""first""}, {""second""}"");");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }

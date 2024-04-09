@@ -31,8 +31,8 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsNot)),
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsNull)));
 
-            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfAnObjectParameter];
-            return (actualArgument.WithNameColon(null), constraintArgument);
+            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfAnObjectParameter].WithNameColon(null);
+            return (actualArgument, constraintArgument);
         }
     }
 }

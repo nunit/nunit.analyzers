@@ -25,13 +25,14 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             var actualArgument = argumentNamesToArguments.TryGetValue(NUnitFrameworkConstants.NameOfCollectionParameter, out var collectionArgument)
                 ? collectionArgument
                 : argumentNamesToArguments[NUnitFrameworkConstants.NameOfAStringParameter];
+            actualArgument = actualArgument.WithNameColon(null);
 
             var constraintArgument = SyntaxFactory.Argument(
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsEmpty)));
-            return (actualArgument.WithNameColon(null), constraintArgument);
+            return (actualArgument, constraintArgument);
         }
     }
 }
