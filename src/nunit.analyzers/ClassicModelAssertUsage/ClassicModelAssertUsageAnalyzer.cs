@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.Helpers;
 using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
 
 namespace NUnit.Analyzers.ClassicModelAssertUsage
@@ -236,23 +237,15 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            var methodSymbol = assertOperation.TargetMethod;
+            string methodName = assertOperation.TargetMethod.Name;
 
-            if (ClassicModelAssertUsageAnalyzer.NameToDescriptor.TryGetValue(methodSymbol.Name, out DiagnosticDescriptor? descriptor))
+            if (ClassicModelAssertUsageAnalyzer.NameToDescriptor.TryGetValue(methodName, out DiagnosticDescriptor? descriptor))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     descriptor,
                     assertOperation.Syntax.GetLocation(),
-                    ClassicModelAssertUsageAnalyzer.GetProperties(methodSymbol)));
+                    DiagnosticsHelper.GetProperties(methodName, assertOperation.Arguments)));
             }
-        }
-
-        private static ImmutableDictionary<string, string?> GetProperties(IMethodSymbol invocationSymbol)
-        {
-            return new Dictionary<string, string?>
-            {
-                [AnalyzerPropertyKeys.ModelName] = invocationSymbol.Name,
-            }.ToImmutableDictionary();
         }
     }
 }

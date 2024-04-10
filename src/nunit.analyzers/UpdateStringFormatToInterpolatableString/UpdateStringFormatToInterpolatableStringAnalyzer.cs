@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
+using NUnit.Analyzers.Helpers;
 
 namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
 {
@@ -68,7 +69,8 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
 
                     if (ObsoleteParamsMethods.Contains(methodName))
                     {
-                        ReportDiagnostic(context, assertOperation, methodName, lastParameterIndex - 1);
+                        bool argsIsArray = DiagnosticsHelper.LastArgumentIsNonParamsArray(assertOperation.Arguments);
+                        ReportDiagnostic(context, assertOperation, methodName, lastParameterIndex - 1, argsIsArray);
                     }
                 }
             }
@@ -121,7 +123,7 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
                 // The argument after the message is explicitly specified
                 // Most likely the user thought it was using a format specification with a parameter.
                 // Or it copied code from some NUnit 3.x source into an NUNit 4 project.
-                ReportDiagnostic(context, assertOperation, methodName, formatParameterIndex);
+                ReportDiagnostic(context, assertOperation, methodName, formatParameterIndex, false);
             }
         }
 
@@ -129,7 +131,8 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
             OperationAnalysisContext context,
             IInvocationOperation assertOperation,
             string methodName,
-            int minimumNumberOfArguments)
+            int minimumNumberOfArguments,
+            bool argsIsArray)
         {
             context.ReportDiagnostic(Diagnostic.Create(
                 updateStringFormatToInterpolatableString,
@@ -138,6 +141,7 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
                 {
                     [AnalyzerPropertyKeys.ModelName] = methodName,
                     [AnalyzerPropertyKeys.MinimumNumberOfArguments] = minimumNumberOfArguments.ToString(CultureInfo.InvariantCulture),
+                    [AnalyzerPropertyKeys.ArgsIsArray] = argsIsArray ? "ArgsIsArray" : string.Empty,
                 }.ToImmutableDictionary()));
         }
     }

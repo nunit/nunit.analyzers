@@ -54,6 +54,34 @@ namespace NUnit.Analyzers.Tests.StringAssertUsage
         }
 
         [TestCaseSource(nameof(StringAsserts))]
+        public void AnalyzeWhenFormatAndArgsArrayAreUsed(string method)
+        {
+            var code = TestUtility.WrapInTestMethod(@$"
+            object[] args = {{ ""message"" }};
+            ↓StringAssert.{method}(""expected"", ""actual"", ""Because of {{0}}"", args);
+            ");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            object[] args = {{ ""message"" }};
+            Assert.That(""actual"", {GetAdjustedConstraint(method)}, () => string.Format(""Because of {{0}}"", args));
+            ");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [TestCaseSource(nameof(StringAsserts))]
+        public void AnalyzeWhenFormatVariableAndArgumentsAreUsed(string method)
+        {
+            var code = TestUtility.WrapInTestMethod(@$"
+            ↓StringAssert.{method}(""expected"", ""actual"", GetLocalizedFormatSpecification(), ""message"");
+            static string GetLocalizedFormatSpecification() => ""Because of {{0}}"";
+            ");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            Assert.That(""actual"", {GetAdjustedConstraint(method)}, () => string.Format(GetLocalizedFormatSpecification(), ""message""));
+            static string GetLocalizedFormatSpecification() => ""Because of {{0}}"";
+            ");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [TestCaseSource(nameof(StringAsserts))]
         public void AnalyzeWhenFormatAndArgumentsAreUsedOutOfOrder(string method)
         {
             var firstParameterName = StringAssertUsageCodeFix.StringAssertToExpectedParameterName[method];
