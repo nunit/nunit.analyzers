@@ -67,26 +67,16 @@ namespace NUnit.Analyzers.CollectionAssertUsage
                 TwoCollectionParameterAsserts.TryGetValue(methodSymbol.Name, out constraint) ||
                 CollectionAndItemParameterAsserts.TryGetValue(methodSymbol.Name, out constraint))
             {
-                var parameters = methodSymbol.Parameters;
-                string comparerParameterIndex = parameters.Length > 1 && IsIComparer(parameters[1]) ? "1" :
-                                               (parameters.Length > 2 && IsIComparer(parameters[2]) ? "2" : "0");
-
                 context.ReportDiagnostic(Diagnostic.Create(
                     collectionAssertDescriptor,
                     assertOperation.Syntax.GetLocation(),
                     new Dictionary<string, string?>
                     {
                         [AnalyzerPropertyKeys.ModelName] = methodSymbol.Name,
-                        [AnalyzerPropertyKeys.ComparerParameterIndex] = comparerParameterIndex,
                     }.ToImmutableDictionary(),
                     constraint,
                     methodSymbol.Name));
             }
-        }
-
-        private static bool IsIComparer(IParameterSymbol parameterSymbol)
-        {
-            return parameterSymbol.Type.Name == "IComparer";
         }
     }
 }
