@@ -74,7 +74,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             bool argsIsArray = !string.IsNullOrEmpty(diagnostic.Properties[AnalyzerPropertyKeys.ArgsIsArray]);
 
             argumentNamesToArguments.TryGetValue(NUnitFrameworkConstants.NameOfMessageParameter, out ArgumentSyntax? messageArgument);
-            if (CodeFixHelper.GetInterpolatedMessageArgumentOrDefault(argsIsArray, messageArgument, args) is ArgumentSyntax interpolatedMessageArgument)
+            if (CodeFixHelper.GetInterpolatedMessageArgumentOrDefault(false, argsIsArray, messageArgument, args) is ArgumentSyntax interpolatedMessageArgument)
                 newArguments.Add(interpolatedMessageArgument);
 
             var newArgumentsList = invocationNode.ArgumentList.WithArguments(newArguments);

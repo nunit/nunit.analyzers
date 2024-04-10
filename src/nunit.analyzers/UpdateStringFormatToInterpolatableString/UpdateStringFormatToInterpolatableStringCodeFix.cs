@@ -53,7 +53,7 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
             var minimumNumberOfArguments = int.Parse(diagnostic.Properties[AnalyzerPropertyKeys.MinimumNumberOfArguments]!, CultureInfo.InvariantCulture);
             bool argsIsArray = !string.IsNullOrEmpty(diagnostic.Properties[AnalyzerPropertyKeys.ArgsIsArray]);
 
-            CodeFixHelper.UpdateStringFormatToFormattableString(arguments, minimumNumberOfArguments, argsIsArray);
+            CodeFixHelper.UpdateStringFormatToFormattableString(argsIsArray, arguments, minimumNumberOfArguments);
 
             var newArgumentsList = invocationNode.ArgumentList.WithArguments(arguments);
             var newInvocationNode = invocationNode.WithArgumentList(newArgumentsList);
