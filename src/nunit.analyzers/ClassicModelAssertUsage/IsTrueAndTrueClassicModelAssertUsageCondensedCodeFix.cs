@@ -27,7 +27,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             Diagnostic diagnostic,
             IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
-            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfConditionParameter];
+            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfConditionParameter].WithNameColon(null);
             return (actualArgument, null); // The condensed form doesn't have the constraint argument.
         }
     }

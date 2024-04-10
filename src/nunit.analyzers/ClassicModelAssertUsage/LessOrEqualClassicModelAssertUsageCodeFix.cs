@@ -28,8 +28,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo)))
                 .WithArgumentList(SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SingletonSeparatedList(
-                        arg2Argument))));
+                    SyntaxFactory.SingletonSeparatedList(arg2Argument))));
 
             var arg1Argument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfArg1Parameter].WithNameColon(null);
             return (arg1Argument, constraintArgument);

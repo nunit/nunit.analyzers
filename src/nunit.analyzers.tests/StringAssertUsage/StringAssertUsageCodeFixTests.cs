@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.Tests.StringAssertUsage
         {
             var firstParameterName = StringAssertUsageCodeFix.StringAssertToExpectedParameterName[method];
             var code = TestUtility.WrapInTestMethod(@$"
-		    ↓StringAssert.{method}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", actual: ""actual"", {firstParameterName}: ""expected"");");
+            ↓StringAssert.{method}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", actual: ""actual"", {firstParameterName}: ""expected"");");
             var fixedCode = TestUtility.WrapInTestMethod(@$"
             Assert.That(""actual"", {GetAdjustedConstraint(method)}, $""{{""first""}}, {{""second""}}"");");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
