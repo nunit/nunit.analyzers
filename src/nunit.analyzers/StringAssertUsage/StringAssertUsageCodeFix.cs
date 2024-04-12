@@ -16,6 +16,21 @@ namespace NUnit.Analyzers.StringAssertUsage
     [Shared]
     internal class StringAssertUsageCodeFix : ClassicModelAssertUsageCodeFix
     {
+        internal static readonly ImmutableDictionary<string, string> StringAssertToExpectedParameterName =
+            new Dictionary<string, string>()
+            {
+                { NameOfStringAssertContains, NameOfExpectedParameter },
+                { NameOfStringAssertDoesNotContain, NameOfExpectedParameter },
+                { NameOfStringAssertStartsWith, NameOfExpectedParameter },
+                { NameOfStringAssertDoesNotStartWith, NameOfExpectedParameter },
+                { NameOfStringAssertEndsWith, NameOfExpectedParameter },
+                { NameOfStringAssertDoesNotEndWith, NameOfExpectedParameter },
+                { NameOfStringAssertAreEqualIgnoringCase, NameOfExpectedParameter },
+                { NameOfStringAssertAreNotEqualIgnoringCase, NameOfExpectedParameter },
+                { NameOfStringAssertIsMatch, NameOfPatternParameter },
+                { NameOfStringAssertDoesNotMatch, NameOfPatternParameter },
+            }.ToImmutableDictionary();
+
         private static readonly ImmutableDictionary<string, Constraints> StringAssertToConstraints =
             new Dictionary<string, Constraints>
             {
@@ -34,16 +49,18 @@ namespace NUnit.Analyzers.StringAssertUsage
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(
             AnalyzerIdentifiers.StringAssertUsage);
 
-        protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
+        protected override (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
+            Diagnostic diagnostic,
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
-            string methodName = diagnostic.Properties[AnalyzerPropertyKeys.ModelName]!;
-            if (StringAssertToConstraints.TryGetValue(methodName, out Constraints? constraints))
-            {
-                arguments.Insert(2, Argument(constraints.CreateConstraint(arguments[0])));
+            var methodName = diagnostic.Properties[AnalyzerPropertyKeys.ModelName]!;
+            var expectedParameterName = StringAssertToExpectedParameterName[methodName];
+            var expectedArgument = argumentNamesToArguments[expectedParameterName].WithNameColon(null);
+            var constraints = StringAssertToConstraints[methodName];
+            var constraintArgument = Argument(constraints.CreateConstraint(expectedArgument));
 
-                // Then we have to remove the 1st argument because that's now in the "constaint"
-                arguments.RemoveAt(0);
-            }
+            var actualArgument = argumentNamesToArguments[NameOfActualParameter].WithNameColon(null);
+            return (actualArgument, constraintArgument);
         }
     }
 }

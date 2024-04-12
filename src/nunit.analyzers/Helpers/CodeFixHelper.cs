@@ -39,6 +39,40 @@ namespace NUnit.Analyzers.Helpers
         /// This is assumed to be arguments for an 'Assert.That(actual, constraint, "...: {0} - {1}", param0, param1)`
         /// which needs converting into 'Assert.That(actual, constraint, $"...: {param0} - {param1}").
         /// </summary>
+        /// <param name="messageArgument">The argument that corresponds to the composite format string.</param>
+        /// <param name="args">The list of arguments that correspond to format items.</param>
+        public static ArgumentSyntax? GetInterpolatedMessageArgumentOrDefault(ArgumentSyntax? messageArgument, List<ArgumentSyntax> args)
+        {
+            if (messageArgument is null)
+                return null;
+
+            var formatSpecificationArgument = messageArgument.Expression;
+            if (formatSpecificationArgument.IsKind(SyntaxKind.NullLiteralExpression))
+                return null;
+
+            // We only support converting if the format specification is a constant string.
+            if (args.Count == 0 || formatSpecificationArgument is not LiteralExpressionSyntax literalExpression)
+                return messageArgument;
+
+            var formatSpecification = literalExpression.Token.ValueText;
+            var formatArgumentExpressions =
+                (args.Count == 1 && args[0].Expression is ImplicitArrayCreationExpressionSyntax argsArrayExpression)
+                    ? argsArrayExpression.Initializer.Expressions
+                    : args.Select(x => x.Expression);
+
+            var interpolatedStringContent = UpdateStringFormatToFormattableString(
+                formatSpecification,
+                formatArgumentExpressions.Select(e => e.WithoutTrivia()).ToArray());
+            var interpolatedString = SyntaxFactory.InterpolatedStringExpression(
+                SyntaxFactory.Token(SyntaxKind.InterpolatedStringStartToken),
+                SyntaxFactory.List(interpolatedStringContent));
+            return SyntaxFactory.Argument(interpolatedString);
+        }
+
+        /// <summary>
+        /// This is assumed to be arguments for an 'Assert.That(actual, constraint, "...: {0} - {1}", param0, param1)`
+        /// which needs converting into 'Assert.That(actual, constraint, $"...: {param0} - {param1}").
+        /// </summary>
         /// <param name="arguments">The arguments passed to the 'Assert' method. </param>
         /// <param name="minimumNumberOfArguments">The argument needed for the actual method, any more are assumed messages.</param>
         public static void UpdateStringFormatToFormattableString(List<ArgumentSyntax> arguments, int minimumNumberOfArguments = 2)

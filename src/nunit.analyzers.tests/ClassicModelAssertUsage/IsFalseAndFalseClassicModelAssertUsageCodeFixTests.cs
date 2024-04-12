@@ -62,7 +62,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
         [TestCase("IsFalse", AnalyzerIdentifiers.IsFalseUsage)]
         [TestCase("False", AnalyzerIdentifiers.FalseUsage)]
-        public void VerifyIsFalseAndFalseFixesWithMessageAndParams(string assertion, string diagnosticId)
+        public void VerifyIsFalseAndFalseFixesWithMessageAndOneArgumentForParams(string assertion, string diagnosticId)
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
@@ -75,6 +75,44 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void TestMethod()
         {
             Assert.That(false, Is.False, $""message-id: {Guid.NewGuid()}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [TestCase("IsFalse", AnalyzerIdentifiers.IsFalseUsage)]
+        [TestCase("False", AnalyzerIdentifiers.FalseUsage)]
+        public void VerifyIsFalseAndFalseFixesWithMessageAndTwoArgumentsForParams(string assertion, string diagnosticId)
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            ↓ClassicAssert.{assertion}(false, ""{{0}}, {{1}}"", ""first"", ""second"");
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(false, Is.False, $""{""first""}, {""second""}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [TestCase("IsFalse", AnalyzerIdentifiers.IsFalseUsage)]
+        [TestCase("False", AnalyzerIdentifiers.FalseUsage)]
+        public void VerifyIsFalseAndFalseFixesWithMessageAndArrayParamsInNonstandardOrder(string assertion, string diagnosticId)
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            ↓ClassicAssert.{assertion}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", condition: false);
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            Assert.That(false, Is.False, $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

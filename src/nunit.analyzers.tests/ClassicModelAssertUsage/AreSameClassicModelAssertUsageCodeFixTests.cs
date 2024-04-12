@@ -27,14 +27,14 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyAreSameFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             var expected = new object();
             var actual = new object();
 
             ↓ClassicAssert.AreSame(expected, actual);
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -49,14 +49,14 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyAreSameFixWithMessage()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             var expected = new object();
             var actual = new object();
 
             ↓ClassicAssert.AreSame(expected, actual, ""message"");
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -69,16 +69,16 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyAreSameFixWithMessageAndParams()
+        public void VerifyAreSameFixWithMessageAndOneArgumentForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             var expected = new object();
             var actual = new object();
 
-            ↓ClassicAssert.AreSame(expected, actual, ""message-id: {{0}}"", Guid.NewGuid());
-        }}");
+            ↓ClassicAssert.AreSame(expected, actual, ""message-id: {0}"", Guid.NewGuid());
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -86,6 +86,50 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var actual = new object();
 
             Assert.That(actual, Is.SameAs(expected), $""message-id: {Guid.NewGuid()}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyAreSameFixWithMessageAndTwoArgumentsForParams()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expected = new object();
+            var actual = new object();
+
+            ↓ClassicAssert.AreSame(expected, actual, ""{0}, {1}"", ""first"", ""second"");
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expected = new object();
+            var actual = new object();
+
+            Assert.That(actual, Is.SameAs(expected), $""{""first""}, {""second""}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyAreSameFixWithMessageAndArrayParamsInNonstandardOrder()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expected = new object();
+            var actual = new object();
+
+            ↓ClassicAssert.AreSame(args: new[] { ""first"", ""second"" }, actual: actual, message: ""{0}, {1}"", expected: expected);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expected = new object();
+            var actual = new object();
+
+            Assert.That(actual, Is.SameAs(expected), $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

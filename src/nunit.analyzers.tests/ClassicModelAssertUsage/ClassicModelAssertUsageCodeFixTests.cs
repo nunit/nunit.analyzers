@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
@@ -22,9 +23,10 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray<string>.Empty;
 
-            protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
-            {
-            }
+            protected override (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
+                Diagnostic diagnostic,
+                IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments) =>
+                throw new NotImplementedException();
         }
     }
 }

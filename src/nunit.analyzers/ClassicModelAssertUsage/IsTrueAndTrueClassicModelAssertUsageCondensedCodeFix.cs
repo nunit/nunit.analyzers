@@ -23,9 +23,12 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
 
         protected override string Title => base.Title + Suffix;
 
-        protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
+        protected override (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
+            Diagnostic diagnostic,
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
-            // Nothing to do
+            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfConditionParameter].WithNameColon(null);
+            return (actualArgument, null); // The condensed form doesn't have the constraint argument.
         }
     }
 }

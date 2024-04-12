@@ -16,9 +16,12 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
     {
         public override ImmutableArray<string> FixableDiagnosticIds { get; } = ImmutableArray.Create(AnalyzerIdentifiers.AreNotEqualUsage);
 
-        protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
+        protected override (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
+            Diagnostic diagnostic,
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
-            arguments.Insert(2, SyntaxFactory.Argument(
+            var expectedArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfExpectedParameter].WithNameColon(null);
+            var constraintArgument = SyntaxFactory.Argument(
                 SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
@@ -28,10 +31,10 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                             SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsNot)),
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsEqualTo)))
                     .WithArgumentList(SyntaxFactory.ArgumentList(
-                        SyntaxFactory.SingletonSeparatedList(arguments[0])))));
+                        SyntaxFactory.SingletonSeparatedList(expectedArgument))));
 
-            // Then we have to remove the 1st argument because that's now in the "Is.EqualTo()"
-            arguments.RemoveAt(0);
+            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter].WithNameColon(null);
+            return (actualArgument, constraintArgument);
         }
     }
 }

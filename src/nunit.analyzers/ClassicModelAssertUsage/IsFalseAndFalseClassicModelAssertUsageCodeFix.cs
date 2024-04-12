@@ -18,13 +18,17 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             AnalyzerIdentifiers.IsFalseUsage,
             AnalyzerIdentifiers.FalseUsage);
 
-        protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
+        protected override (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
+            Diagnostic diagnostic,
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
-            arguments.Insert(1, SyntaxFactory.Argument(
+            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfConditionParameter].WithNameColon(null);
+            var constraintArgument = SyntaxFactory.Argument(
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
-                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsFalse))));
+                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsFalse)));
+            return (actualArgument, constraintArgument);
         }
     }
 }

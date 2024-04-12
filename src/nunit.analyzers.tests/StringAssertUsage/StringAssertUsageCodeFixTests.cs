@@ -53,10 +53,19 @@ namespace NUnit.Analyzers.Tests.StringAssertUsage
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
-        private static string GetAdjustedConstraint(string method)
+        [TestCaseSource(nameof(StringAsserts))]
+        public void AnalyzeWhenFormatAndArgumentsAreUsedOutOfOrder(string method)
         {
-            return StringAssertUsageAnalyzer.StringAssertToConstraint[method]
-                                            .Replace("expected", "\"expected\"");
+            var firstParameterName = StringAssertUsageCodeFix.StringAssertToExpectedParameterName[method];
+            var code = TestUtility.WrapInTestMethod(@$"
+            ↓StringAssert.{method}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", actual: ""actual"", {firstParameterName}: ""expected"");");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            Assert.That(""actual"", {GetAdjustedConstraint(method)}, $""{{""first""}}, {{""second""}}"");");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
+
+        private static string GetAdjustedConstraint(string method) =>
+            StringAssertUsageAnalyzer.StringAssertToConstraint[method]
+                .Replace("expected", "\"expected\"");
     }
 }

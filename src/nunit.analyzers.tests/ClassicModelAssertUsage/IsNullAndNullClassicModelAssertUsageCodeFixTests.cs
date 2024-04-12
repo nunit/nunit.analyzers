@@ -66,7 +66,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
         [TestCase("IsNull", AnalyzerIdentifiers.IsNullUsage)]
         [TestCase("Null", AnalyzerIdentifiers.NullUsage)]
-        public void VerifyIsNullAndNullFixesWithMessageAndParams(string assertion, string diagnosticId)
+        public void VerifyIsNullAndNullFixesWithMessageAndOneArgumentForParams(string assertion, string diagnosticId)
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
@@ -81,6 +81,48 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             object? obj = null;
             Assert.That(obj, Is.Null, $""message-id: {Guid.NewGuid()}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [TestCase("IsNull", AnalyzerIdentifiers.IsNullUsage)]
+        [TestCase("Null", AnalyzerIdentifiers.NullUsage)]
+        public void VerifyIsNullAndNullFixesWithMessageAndTwoArgumentsForParams(string assertion, string diagnosticId)
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            object? obj = null;
+            ↓ClassicAssert.{assertion}(obj, ""{{0}}, {{1}}"", ""first"", ""second"");
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            object? obj = null;
+            Assert.That(obj, Is.Null, $""{""first""}, {""second""}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [TestCase("IsNull", AnalyzerIdentifiers.IsNullUsage)]
+        [TestCase("Null", AnalyzerIdentifiers.NullUsage)]
+        public void VerifyIsNullAndNullFixesWithMessageAndArrayParamsInNonstandardOrder(string assertion, string diagnosticId)
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            object? obj = null;
+            ↓ClassicAssert.{assertion}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", anObject: obj);
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            object? obj = null;
+            Assert.That(obj, Is.Null, $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

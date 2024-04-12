@@ -18,13 +18,18 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             AnalyzerIdentifiers.IsTrueUsage,
             AnalyzerIdentifiers.TrueUsage);
 
-        protected override void UpdateArguments(Diagnostic diagnostic, List<ArgumentSyntax> arguments)
+        protected override (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
+            Diagnostic diagnostic,
+            IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
-            arguments.Insert(1, SyntaxFactory.Argument(
+            var constraintArgument = SyntaxFactory.Argument(
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
-                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsTrue))));
+                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsTrue)));
+
+            var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfConditionParameter].WithNameColon(null);
+            return (actualArgument, constraintArgument);
         }
     }
 }

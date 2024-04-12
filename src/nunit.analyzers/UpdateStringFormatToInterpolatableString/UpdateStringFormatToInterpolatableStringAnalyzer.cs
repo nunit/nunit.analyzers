@@ -107,7 +107,7 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
                 IParameterSymbol parameter = parameters[formatParameterIndex];
                 if (parameter.IsOptional)
                 {
-                    if (parameter.Name == "message")
+                    if (parameter.Name == NUnitFrameworkConstants.NameOfMessageParameter)
                         break;
 
                     // Overload with FormattableString or Func<string> overload

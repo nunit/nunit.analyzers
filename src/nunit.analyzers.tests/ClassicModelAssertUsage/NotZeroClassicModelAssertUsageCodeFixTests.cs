@@ -27,13 +27,13 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyNotZeroFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             var expr = default(int);
 
             ↓ClassicAssert.NotZero(expr);
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -47,13 +47,13 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyNotZeroFixWithMessage()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             var expr = default(int);
 
             ↓ClassicAssert.NotZero(expr, ""message"");
-        }}");
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
@@ -65,21 +65,61 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyNotZeroFixWithMessageAndParams()
+        public void VerifyNotZeroFixWithMessageAndOneArgumentForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
-        {{
+        {
             var expr = default(int);
 
-            ↓ClassicAssert.NotZero(expr, ""message-id: {{0}}"", Guid.NewGuid());
-        }}");
+            ↓ClassicAssert.NotZero(expr, ""message-id: {0}"", Guid.NewGuid());
+        }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void TestMethod()
         {
             var expr = default(int);
 
             Assert.That(expr, Is.Not.Zero, $""message-id: {Guid.NewGuid()}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyNotZeroFixWithMessageAndTwoArgumentsForParams()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expr = default(int);
+
+            ↓ClassicAssert.NotZero(expr, ""{0}, {1}"", ""first"", ""second"");
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expr = default(int);
+
+            Assert.That(expr, Is.Not.Zero, $""{""first""}, {""second""}"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyNotZeroFixWithMessageAndArrayParamsInNonstandardOrder()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expr = default(int);
+
+            ↓ClassicAssert.NotZero(args: new[] { ""first"", ""second"" }, message: ""{0}, {1}"", actual: expr);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expr = default(int);
+
+            Assert.That(expr, Is.Not.Zero, $""{""first""}, {""second""}"");
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

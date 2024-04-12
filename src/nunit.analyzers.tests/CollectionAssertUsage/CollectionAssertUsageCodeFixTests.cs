@@ -36,7 +36,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         }
 
         [TestCaseSource(nameof(OneCollectionParameterAsserts))]
-        public void AnalyzeOneCollectionWhenOnlyMessageArgumentsAreUsed(string method)
+        public void AnalyzeOneCollectionWhenOnlyMessageArgumentIsUsed(string method)
         {
             var code = TestUtility.WrapInTestMethod(@$"
             var collection = new[] {{ 1, 2, 3 }};
@@ -50,7 +50,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         }
 
         [TestCaseSource(nameof(OneCollectionParameterAsserts))]
-        public void AnalyzeOneCollectionWhenFormatAndParamsArgumentsAreUsed(string method)
+        public void AnalyzeOneCollectionWhenFormatAndOneParamsArgumentAreUsed(string method)
         {
             var code = TestUtility.WrapInTestMethod(@$"
             var collection = new[] {{ 1, 2, 3 }};
@@ -59,6 +59,34 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             var fixedCode = TestUtility.WrapInTestMethod(@$"
             var collection = new[] {{ 1, 2, 3 }};
             Assert.That(collection, {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}, $""Because of {{""message""}}"");
+            ");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [TestCaseSource(nameof(OneCollectionParameterAsserts))]
+        public void AnalyzeOneCollectionWhenFormatAndTwoParamsArgumentsAreUsed(string method)
+        {
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ 1, 2, 3 }};
+            ↓CollectionAssert.{method}(collection, ""{{0}}, {{1}}"", ""first"", ""second"");
+            ");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ 1, 2, 3 }};
+            Assert.That(collection, {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}, $""{{""first""}}, {{""second""}}"");
+            ");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [TestCaseSource(nameof(OneCollectionParameterAsserts))]
+        public void AnalyzeOneCollectionWhenFormatAndParamsArgumentsAreUsedOutOfOrder(string method)
+        {
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ 1, 2, 3 }};
+            ↓CollectionAssert.{method}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", collection: collection);
+            ");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ 1, 2, 3 }};
+            Assert.That(collection, {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}, $""{{""first""}}, {{""second""}}"");
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
@@ -96,7 +124,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         }
 
         [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
-        public void AnalyzeTwoCollectionWhenOnlyMessageArgumentsAreUsed(string method)
+        public void AnalyzeTwoCollectionWhenOnlyMessageArgumentIsUsed(string method)
         {
             var code = TestUtility.WrapInTestMethod(@$"
             var collection1 = new[] {{ 1, 2, 3 }};
@@ -112,7 +140,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         }
 
         [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
-        public void AnalyzeTwoCollectionWhenFormatAndParamsArgumentsAreUsed(string method)
+        public void AnalyzeTwoCollectionWhenFormatAndOneParamsArgumentAreUsed(string method)
         {
             var code = TestUtility.WrapInTestMethod(@$"
             var collection1 = new[] {{ 1, 2, 3 }};
@@ -123,6 +151,40 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             var collection1 = new[] {{ 1, 2, 3 }};
             var collection2 = new[] {{ 2, 4, 6 }};
             Assert.That({GetAdjustedTwoCollectionConstraint(method)}, $""Because of {{""message""}}"");
+            ");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
+        public void AnalyzeTwoCollectionWhenFormatAndTwoParamsArgumentsAreUsed(string method)
+        {
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            ↓CollectionAssert.{method}(collection1, collection2, ""{{0}}, {{1}}"", ""first"", ""second"");
+            ");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            Assert.That({GetAdjustedTwoCollectionConstraint(method)}, $""{{""first""}}, {{""second""}}"");
+            ");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
+        public void AnalyzeTwoCollectionWhenFormatAndParamsArgumentsAreUsedOutOfOrder(string method)
+        {
+            var firstParameterName = CollectionAssertUsageCodeFix.CollectionAssertToFirstParameterName[method];
+            var secondParameterName = CollectionAssertUsageCodeFix.CollectionAssertToSecondParameterName[method];
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            ↓CollectionAssert.{method}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", {secondParameterName}: collection2, {firstParameterName}: collection1);
+            ");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            Assert.That({GetAdjustedTwoCollectionConstraint(method)}, $""{{""first""}}, {{""second""}}"");
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
@@ -163,7 +225,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         }
 
         [TestCaseSource(nameof(CollectionAndItemParameterAsserts))]
-        public void AnalyzeCollectionAndItemWhenOnlyMessageArgumentsAreUsed(string method)
+        public void AnalyzeCollectionAndItemWhenOnlyMessageArgumentIsUsed(string method)
         {
             var code = TestUtility.WrapInTestMethod(@$"
             var collection = new[] {{ typeof(byte), typeof(char) }};
@@ -179,7 +241,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         }
 
         [TestCaseSource(nameof(CollectionAndItemParameterAsserts))]
-        public void AnalyzeCollectionAndItemWhenFormatAndParamsArgumentsAreUsed(string method)
+        public void AnalyzeCollectionAndItemWhenFormatAndOneParamsArgumentAreUsed(string method)
         {
             var code = TestUtility.WrapInTestMethod(@$"
             var collection = new[] {{ typeof(byte), typeof(char) }};
@@ -194,21 +256,45 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
+        [TestCaseSource(nameof(CollectionAndItemParameterAsserts))]
+        public void AnalyzeCollectionAndItemWhenFormatAndTwoParamsArgumentsAreUsed(string method)
+        {
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ typeof(byte), typeof(char) }};
+            var expected = typeof(byte);
+            ↓CollectionAssert.{method}(collection, expected, ""{{0}}, {{1}}"", ""first"", ""second"");
+            ");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ typeof(byte), typeof(char) }};
+            var expected = typeof(byte);
+            Assert.That(collection, {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}, $""{{""first""}}, {{""second""}}"");
+            ");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [TestCaseSource(nameof(CollectionAndItemParameterAsserts))]
+        public void AnalyzeCollectionAndItemWhenFormatAndParamsArgumentsAreUsedOutOfOrder(string method)
+        {
+            var secondParameterName = CollectionAssertUsageCodeFix.CollectionAssertToSecondParameterName[method];
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ typeof(byte), typeof(char) }};
+            var expected = typeof(byte);
+            ↓CollectionAssert.{method}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", {secondParameterName}: expected, collection: collection);
+            ");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ typeof(byte), typeof(char) }};
+            var expected = typeof(byte);
+            Assert.That(collection, {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}, $""{{""first""}}, {{""second""}}"");
+            ");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
         private static string GetAdjustedTwoCollectionConstraint(string method)
         {
-            string actualArgument;
-            string constraintArgument;
-
-            if (CollectionAssertUsageCodeFix.CollectionAssertToOneUnswappedParameterConstraints.ContainsKey(method))
-            {
-                actualArgument = "collection1";
-                constraintArgument = "collection2";
-            }
-            else
-            {
-                actualArgument = "collection2";
-                constraintArgument = "collection1";
-            }
+            (string actualArgument, string constraintArgument) =
+                CollectionAssertUsageCodeFix.CollectionAssertToOneUnswappedParameterConstraints.ContainsKey(method)
+                    ? ("collection1", "collection2")
+                    : ("collection2", "collection1");
 
             string constraint = CollectionAssertUsageAnalyzer.TwoCollectionParameterAsserts[method]
                                                              .Replace("expected", constraintArgument);
