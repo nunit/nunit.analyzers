@@ -39,8 +39,8 @@ namespace NUnit.Analyzers.Helpers
         /// This is assumed to be arguments for an 'Assert.That(actual, constraint, "...: {0} - {1}", param0, param1)`
         /// which needs converting into 'Assert.That(actual, constraint, $"...: {param0} - {param1}").
         /// </summary>
-        /// <param name="arguments">The arguments passed to the 'Assert' method. </param>
-        /// <param name="minimumNumberOfArguments">The argument needed for the actual method, any more are assumed messages.</param>
+        /// <param name="messageArgument">The argument that corresponds to the composite format string.</param>
+        /// <param name="args">The list of arguments that correspond to format items.</param>
         public static ArgumentSyntax? GetInterpolatedMessageArgumentOrDefault(ArgumentSyntax? messageArgument, List<ArgumentSyntax> args)
         {
             if (messageArgument is null)
