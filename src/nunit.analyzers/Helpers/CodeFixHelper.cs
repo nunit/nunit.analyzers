@@ -162,7 +162,7 @@ namespace NUnit.Analyzers.Helpers
                                           .OfType<ConditionalExpressionSyntax>()
                                           .Any())
                         {
-                            // Colon is not allowed in an Interpolation, wrap expression in parenthesis: (expession).
+                            // Colon is not allowed in an Interpolation, wrap expression in parenthesis: (expression).
                             formatArgument = SyntaxFactory.ParenthesizedExpression(formatArgument);
                         }
 
