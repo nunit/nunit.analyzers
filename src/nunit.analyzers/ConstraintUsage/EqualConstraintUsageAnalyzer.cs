@@ -79,14 +79,35 @@ namespace NUnit.Analyzers.ConstraintUsage
 
             var methodSymbol = invocation.TargetMethod;
 
-            return methodSymbol is not null
+            if (methodSymbol is not null
                 && !methodSymbol.IsStatic
                 && methodSymbol.Parameters.Length == 1
                 && methodSymbol.Name == nameof(object.Equals)
                 && invocation.Arguments.Length == 1
                 && !IsRefStruct(invocation.Arguments[0])
                 && invocation.Instance is not null
-                && !IsRefStruct(invocation.Instance);
+                && !IsRefStruct(invocation.Instance))
+            {
+                // Not all Equals qualify
+                if (methodSymbol.Parameters[0].Type.SpecialType == SpecialType.System_Object)
+                {
+                    // object.Equals(object)
+                    return true;
+                }
+
+                foreach (var implementedInterface in methodSymbol.ContainingType.Interfaces)
+                {
+                    if (implementedInterface.TypeArguments.Length == 1
+                        && implementedInterface.Name == "IEquatable"
+                        && SymbolEqualityComparer.Default.Equals(implementedInterface.TypeArguments[0], invocation.Arguments[0].Parameter?.Type))
+                    {
+                        // IEquality<T>.Equals(T)
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

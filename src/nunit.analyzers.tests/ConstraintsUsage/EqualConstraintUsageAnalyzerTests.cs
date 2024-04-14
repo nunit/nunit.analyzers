@@ -305,5 +305,108 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             RoslynAssert.Valid(analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
         }
+
+        [Test]
+        public void EqualsMethodButClassDoesNotImplementIEqualityInterface()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class TestClass
+    {
+        [Test]
+        public void TestMethod()
+        {
+            Foo expected = new Foo();
+            Foo actual = new Foo();
+            Assert.That(actual.Equals(expected), Is.True);
+        }
+
+        private sealed class Foo
+        {
+            public bool Equals(Foo other) => true;
+        }
+    }");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void EqualsMethodAndClassDoesImplementIEqualityInterface()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class TestClass
+    {
+        [Test]
+        public void TestMethod()
+        {
+            Foo expected = new Foo();
+            Foo actual = new Foo();
+            Assert.That(actual.Equals(expected), Is.True);
+        }
+
+        private sealed class Foo : IEquatable<Foo>
+        {
+            public bool Equals(Foo? other) => true;
+        }
+    }");
+
+            RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
+        }
+
+        [Test]
+        public void EqualsMethodOnObject()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class TestClass
+    {
+        [Test]
+        public void TestMethod()
+        {
+            object expected = new Foo();
+            Foo actual = new Foo();
+            Assert.That(actual.Equals(expected), Is.True);
+        }
+
+        private sealed class Foo : IEquatable<Foo>
+        {
+            public bool Equals(Foo? other) => true;
+        }
+    }");
+
+            RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
+        }
+
+        [Test]
+        public void EqualsMethodButClassDoesNotImplementIEqualityInterfaceForOtherClass()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class TestClass
+    {
+        [Test]
+        public void FooIsMyFriend()
+        {
+            Friend expected = new Friend();
+            Foo actual = new Foo();
+            Assert.That(actual.Equals(expected), Is.True);
+        }
+
+        private sealed class Foo : IEquatable<Foo>
+        {
+            public bool Equals(Foo? other) => true;
+            public bool Equals(Friend? other) => true;
+        }
+
+        private sealed class Friend : IEquatable<Friend>
+        {
+            public bool Equals(Friend? other) => true;
+            public bool Equals(Foo? other) => true;
+        }
+    }");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
     }
 }
