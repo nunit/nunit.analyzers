@@ -130,6 +130,22 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
+
+        [Test]
+        public void TestConditionalExpressionArgument()
+        {
+            var code = TestUtility.WrapInTestMethod(@"
+                string? someValue = ""Value"";
+                ↓Assert.Pass(""Value is {0}"", someValue is null ? ""null"" : someValue);
+            ");
+
+            var fixedCode = TestUtility.WrapInTestMethod(@"
+                string? someValue = ""Value"";
+                Assert.Pass($""Value is {(someValue is null ? ""null"" : someValue)}"");
+            ");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
 #endif
 
     }
