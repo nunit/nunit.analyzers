@@ -9,7 +9,7 @@ namespace NUnit.Analyzers.Helpers
     {
         public static bool LastArgumentIsNonParamsArray(ImmutableArray<IArgumentOperation> arguments)
         {
-            // Find out of the 'params' argument is an existing array and not one created from a params creation.
+            // Find out if the 'params' argument is an existing array and not one created from a params creation.
             return arguments[arguments.Length - 1].ArgumentKind != ArgumentKind.ParamArray;
         }
 

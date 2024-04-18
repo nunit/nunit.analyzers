@@ -260,7 +260,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void Test(object actual, object expected)
         {
             object[] args = { expected, actual };
-            ClassicAssert.AreEqual(expected, actual, ""Expected: {0} Got: {1}"", args);
+            ↓ClassicAssert.AreEqual(expected, actual, ""Expected: {0} Got: {1}"", args);
         }");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         [TestCase(3.0, 3)]
@@ -279,7 +279,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [TestCase(3.0, 3)]
         public void Test(object actual, object expected)
         {
-            ClassicAssert.AreEqual(expected, actual, GetLocalizedFormatSpecification(), expected, actual);
+            ↓ClassicAssert.AreEqual(expected, actual, GetLocalizedFormatSpecification(), expected, actual);
         }
         private static string GetLocalizedFormatSpecification() => ""Expected: {0} Got: {1}"";
         ");

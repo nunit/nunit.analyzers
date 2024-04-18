@@ -123,7 +123,7 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
                 // The argument after the message is explicitly specified
                 // Most likely the user thought it was using a format specification with a parameter.
                 // Or it copied code from some NUnit 3.x source into an NUNit 4 project.
-                ReportDiagnostic(context, assertOperation, methodName, formatParameterIndex, false);
+                ReportDiagnostic(context, assertOperation, methodName, formatParameterIndex, argsIsArray: false);
             }
         }
 

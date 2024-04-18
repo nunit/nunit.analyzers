@@ -38,13 +38,13 @@ namespace NUnit.Analyzers.Helpers
         /// <summary>
         /// This is assumed to be arguments for an 'Assert.That(actual, constraint, "...: {0} - {1}", param0, param1)`
         /// which needs converting into 'Assert.That(actual, constraint, $"...: {param0} - {param1}").
-        /// Unless we cannot, in which case we create 'string.Format(specification, args)'.
+        /// Unless we cannot, in which case we create '() => string.Format(specification, args)'.
         /// </summary>
-        /// <param name="unconditional">If the message is not conditional on the test outcome.</param>
-        /// <param name="argsIsArray">The params args is passed as an array iso individual parameters.</param>
         /// <param name="messageArgument">The argument that corresponds to the composite format string.</param>
         /// <param name="args">The list of arguments that correspond to format items.</param>
-        public static ArgumentSyntax? GetInterpolatedMessageArgumentOrDefault(bool unconditional, bool argsIsArray, ArgumentSyntax? messageArgument, List<ArgumentSyntax> args)
+        /// <param name="unconditional">If the message is not conditional on the test outcome.</param>
+        /// <param name="argsIsArray">The params args is passed as an array instead of individual parameters.</param>
+        public static ArgumentSyntax? GetInterpolatedMessageArgumentOrDefault(ArgumentSyntax? messageArgument, List<ArgumentSyntax> args, bool unconditional, bool argsIsArray)
         {
             if (messageArgument is null)
                 return null;
@@ -86,15 +86,7 @@ namespace NUnit.Analyzers.Helpers
                     .WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(
                         args.Select(x => x.WithNameColon(null)).Prepend(messageArgument))));
 
-                if (unconditional)
-                {
-                    return SyntaxFactory.Argument(stringFormat);
-                }
-                else
-                {
-                    var stringFormatLambda = SyntaxFactory.ParenthesizedLambdaExpression(stringFormat);
-                    return SyntaxFactory.Argument(stringFormatLambda);
-                }
+                return SyntaxFactory.Argument(unconditional ? stringFormat : SyntaxFactory.ParenthesizedLambdaExpression(stringFormat));
             }
 
             var formatSpecification = literalExpression.Token.ValueText;
@@ -114,17 +106,17 @@ namespace NUnit.Analyzers.Helpers
         /// </summary>
         /// <param name="arguments">The arguments passed to the 'Assert' method. </param>
         /// <param name="minimumNumberOfArguments">The argument needed for the actual method, any more are assumed messages.</param>
-        public static void UpdateStringFormatToFormattableString(bool argsIsArray, List<ArgumentSyntax> arguments, int minimumNumberOfArguments)
+        public static void UpdateStringFormatToFormattableString(List<ArgumentSyntax> arguments, int minimumNumberOfArguments, bool argsIsArray)
         {
             // If only 1 extra argument is passed, it must be a non-formattable message.
             if (arguments.Count <= minimumNumberOfArguments + 1)
                 return;
 
             ArgumentSyntax? message = GetInterpolatedMessageArgumentOrDefault(
-                minimumNumberOfArguments == 0,
-                argsIsArray,
                 arguments[minimumNumberOfArguments],
-                arguments.Skip(minimumNumberOfArguments + 1).ToList());
+                arguments.Skip(minimumNumberOfArguments + 1).ToList(),
+                unconditional: minimumNumberOfArguments == 0,
+                argsIsArray);
 
             var nextArgument = minimumNumberOfArguments;
             if (message is not null)
