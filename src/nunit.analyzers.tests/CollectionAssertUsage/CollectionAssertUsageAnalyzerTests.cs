@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
-using NUnit.Analyzers.ClassicModelAssertUsage;
 using NUnit.Analyzers.CollectionAssertUsage;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;

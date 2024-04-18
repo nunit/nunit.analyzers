@@ -13,6 +13,10 @@ namespace NUnit.Analyzers.Extensions
             this ArgumentListSyntax @this,
             IEnumerable<ArgumentSyntax> newArguments)
         {
+            using var enumerator = newArguments.GetEnumerator();
+            if (!enumerator.MoveNext())
+                return @this;
+
             var originalArguments = @this.Arguments;
             var originalSeparators = originalArguments.GetSeparators().ToArray();
 
@@ -29,10 +33,12 @@ namespace NUnit.Analyzers.Extensions
             // or any of the original separators had a trailing newline.
             var shouldAddTrailingNewlineAfterComma = TryGetFirstEndOfLineTrivia(@this.OpenParenToken, originalSeparators, out var trailingTrivia);
 
-            var nodesAndTokens = new List<SyntaxNodeOrToken> { newArguments.First() };
+            var nodesAndTokens = new List<SyntaxNodeOrToken> { enumerator.Current };
 
-            foreach (var newArgument in newArguments.Skip(1))
+            while (enumerator.MoveNext())
             {
+                var newArgument = enumerator.Current;
+
                 // If argument is not replaced - take original separator. Otherwise - comma
                 var oldIndex = originalArguments.IndexOf(newArgument);
                 var separator = originalSeparators.ElementAtOrDefault(oldIndex - 1);

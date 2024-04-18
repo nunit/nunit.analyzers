@@ -28,12 +28,14 @@ var PACKAGE_DIR = PROJECT_DIR + "package/" + configuration;
 
 var ANALYZERS_TESTS_OUTPUT_DIR = SRC_DIR + "nunit.analyzers.tests/bin/";
 var ANALYZERS_OUTPUT_DIR = SRC_DIR + "nunit.analyzers/bin/";
+var CODEFIXES_OUTPUT_DIR = SRC_DIR + "nunit.analyzers.codefixes/bin/";
 
 // Solution
 var SOLUTION_FILE = PROJECT_DIR + "src/nunit.analyzers.sln";
 
 // Projects
 var ANALYZER_PROJECT = SRC_DIR + "nunit.analyzers/nunit.analyzers.csproj";
+var CODEFIXES_PROJECT = SRC_DIR + "nunit.analyzers.codefixes/nunit.analyzers.codefixes.csproj";
 var TEST_PROJECT = SRC_DIR + "nunit.analyzers.tests/nunit.analyzers.tests.csproj";
 
 // Package sources for nuget restore
@@ -103,6 +105,7 @@ Task("Clean")
     .Does(() =>
     {
         CleanDirectory(ANALYZERS_TESTS_OUTPUT_DIR);
+        CleanDirectory(CODEFIXES_OUTPUT_DIR);
         CleanDirectory(ANALYZERS_OUTPUT_DIR);
     });
 
@@ -128,7 +131,7 @@ Task("Build")
     .IsDependentOn("RestorePackages")
     .Does(() =>
     {
-        DotNetBuild(ANALYZER_PROJECT, new DotNetBuildSettings
+        var buildSettings = new DotNetBuildSettings
         {
             Configuration = configuration,
             Verbosity = DotNetVerbosity.Minimal,
@@ -138,7 +141,9 @@ Task("Build")
                 Version = packageVersion,
                 FileVersion = packageVersion,
             }
-        });
+        };
+        DotNetBuild(ANALYZER_PROJECT, buildSettings);
+        DotNetBuild(CODEFIXES_PROJECT, buildSettings);
     });
 
 //////////////////////////////////////////////////////////////////////
@@ -192,7 +197,7 @@ Task("Pack")
     .IsDependentOn("Build")
     .Does(() =>
     {
-        NuGetPack("./src/nunit.analyzers/nunit.analyzers.nuspec", new NuGetPackSettings()
+        NuGetPack("./src/nunit.analyzers.nuspec", new NuGetPackSettings()
         {
             Version = packageVersionString,
             OutputDirectory = PACKAGE_DIR + "/" + targetFramework,

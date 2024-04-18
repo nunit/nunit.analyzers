@@ -6,6 +6,8 @@
     <Company>NUnit Project</Company>
     <Product>NUnit Analyzers</Product>
     <Copyright>Copyright © 2018-2025 NUnit project</Copyright>
+    <!-- https://docs.microsoft.com/en-us/nuget/reference/nuspec#developmentdependency -->
+    <developmentDependency>true</developmentDependency>
   </PropertyGroup>
     
   <PropertyGroup>
@@ -14,16 +16,24 @@
     <LangVersion>preview</LangVersion>
     <!-- Counter intuitive, but this only enabled the pre-shipped analyzer, we configure them below -->
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-    <AnalysisLevel>5</AnalysisLevel>
-    <NoWarn>$(NoWarn);CA1014</NoWarn>
+    <AnalysisLevel>8</AnalysisLevel>
+    <NoWarn>$(NoWarn);CA1014;CS1591</NoWarn>
   </PropertyGroup>
 
+  <PropertyGroup>
+      <!--
+      No we shouldn't create documentation files for analyzers, but it is needed
+      to enable IDE0005 (Remove unnecessary usings/imports) on build (https://github.com/dotnet/roslyn/issues/41640)
+      -->
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers.Unstable" Version="1.2.0.556" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="3.11.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.10.0" PrivateAssets="all" />
     <PackageReference Include="CSharpIsNullAnalyzer" Version="0.1.593" PrivateAssets="all" />
   </ItemGroup>
 
@@ -39,6 +49,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="nunit.analyzers.tests" />
+    <InternalsVisibleTo Include="nunit.analyzers.codefixes" />
   </ItemGroup>
 
 </Project>

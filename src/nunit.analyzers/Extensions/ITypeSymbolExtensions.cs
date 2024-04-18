@@ -185,6 +185,7 @@ namespace NUnit.Analyzers.Extensions
         /// <summary>
         /// Return value indicates whether type implements IEnumerable interface.
         /// </summary>
+        /// <param name="this">The <see cref="ITypeSymbol"/> to check.</param>
         /// <param name="elementType">Contains IEnumerable generic argument, or null, if type implements
         /// only non-generic IEnumerable interface, or no IEnumerable interface at all.</param>
         internal static bool IsIEnumerable(this ITypeSymbol @this, out ITypeSymbol? elementType)
@@ -219,6 +220,7 @@ namespace NUnit.Analyzers.Extensions
         /// <summary>
         /// Return value indicates whether type implements I(Async)Enumerable{T} interface.
         /// </summary>
+        /// <param name="this">The <see cref="ITypeSymbol"/> to check.</param>
         /// <param name="elementType">Contains I(Async)Enumerable generic argument, or null, if type implements
         /// only non-generic IEnumerable interface, or no I(Async)Enumerable interface at all.</param>
         internal static bool IsIEnumerableOrIAsyncEnumerable(this ITypeSymbol @this, out ITypeSymbol? elementType)

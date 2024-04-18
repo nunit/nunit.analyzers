@@ -11,7 +11,7 @@ namespace NUnit.Analyzers.Helpers
     internal static class NUnitEqualityComparerHelper
     {
         /// <summary>
-        /// Returns true if it is possible that <see cref="NUnit.Framework.Constraints.NUnitEqualityComparer.AreEqual"/>
+        /// Returns true if it is possible that "NUnit.Framework.Constraints.NUnitEqualityComparer.AreEqual"
         /// returns true for given argument types.
         /// False otherwise.
         /// </summary>

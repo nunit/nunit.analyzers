@@ -19,7 +19,8 @@ namespace NUnit.Analyzers.Tests
                 .WithMetadataReferences(MetadataReferences.Transitive(typeof(Assert), typeof(ClassicAssert)))
                 .WithParseOption(new CSharpParseOptions(LanguageVersion.Preview).WithPreprocessorSymbols("NUNIT4"));
 #else
-                .WithMetadataReferences(MetadataReferences.Transitive(typeof(Assert)));
+                .WithMetadataReferences(MetadataReferences.Transitive(typeof(Assert)))
+                .WithParseOption(new CSharpParseOptions(LanguageVersion.Preview).WithPreprocessorSymbols("NUNIT3"));
 #endif
         }
     }

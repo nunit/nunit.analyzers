@@ -32,7 +32,8 @@ namespace NUnit.Analyzers.Tests
             Assert.That(suppressor.SupportedSuppressions.Select(x => x.SuppressedDiagnosticId), Does.Contain(id));
 
             settings ??= Settings.Default;
-            settings = settings.WithCompilationOptions(Settings.Default.CompilationOptions.WithWarningOrError(analyzer.SupportedDiagnostics));
+            settings = settings.WithCompilationOptions(Settings.Default.CompilationOptions.WithWarningOrError(analyzer.SupportedDiagnostics))
+                               .WithAnalyzerConfig($"dotnet_diagnostic.{id}.severity = error");
 
             Compilation compilation = CreateCompilation(code, settings);
 

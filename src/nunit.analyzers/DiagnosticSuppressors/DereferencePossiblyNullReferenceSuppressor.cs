@@ -188,7 +188,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         /// <remarks>
         /// We only try to detect simple cases where the operands being tested for <see langword="null"/> is one of the operands being returned:
         /// <code>variable is not null ? variable : otherExpression</code>
-        /// </para>
+        /// <para />
         /// We recognize the 'is' pattern operations and normal equality.
         /// </remarks>
         /// <param name="conditionalExpression">Conditional expression to investigate.</param>
