@@ -107,6 +107,7 @@ namespace NUnit.Analyzers.Helpers
         /// </summary>
         /// <param name="arguments">The arguments passed to the 'Assert' method. </param>
         /// <param name="minimumNumberOfArguments">The argument needed for the actual method, any more are assumed messages.</param>
+        /// <param name="argsIsArray">The params args is passed as an array instead of individual parameters.</param>
         public static void UpdateStringFormatToFormattableString(List<ArgumentSyntax> arguments, int minimumNumberOfArguments, bool argsIsArray)
         {
             // If only 1 extra argument is passed, it must be a non-formattable message.
