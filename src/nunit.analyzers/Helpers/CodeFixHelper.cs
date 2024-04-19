@@ -38,27 +38,58 @@ namespace NUnit.Analyzers.Helpers
         /// <summary>
         /// This is assumed to be arguments for an 'Assert.That(actual, constraint, "...: {0} - {1}", param0, param1)`
         /// which needs converting into 'Assert.That(actual, constraint, $"...: {param0} - {param1}").
+        /// Unless we cannot, in which case we create '() => string.Format(specification, args)'.
         /// </summary>
         /// <param name="messageArgument">The argument that corresponds to the composite format string.</param>
         /// <param name="args">The list of arguments that correspond to format items.</param>
-        public static ArgumentSyntax? GetInterpolatedMessageArgumentOrDefault(ArgumentSyntax? messageArgument, List<ArgumentSyntax> args)
+        /// <param name="unconditional">If the message is not conditional on the test outcome.</param>
+        /// <param name="argsIsArray">The params args is passed as an array instead of individual parameters.</param>
+        public static ArgumentSyntax? GetInterpolatedMessageArgumentOrDefault(ArgumentSyntax? messageArgument, List<ArgumentSyntax> args, bool unconditional, bool argsIsArray)
         {
             if (messageArgument is null)
                 return null;
+
+            messageArgument = messageArgument.WithNameColon(null);
 
             var formatSpecificationArgument = messageArgument.Expression;
             if (formatSpecificationArgument.IsKind(SyntaxKind.NullLiteralExpression))
                 return null;
 
-            // We only support converting if the format specification is a constant string.
-            if (args.Count == 0 || formatSpecificationArgument is not LiteralExpressionSyntax literalExpression)
+            // No arguments, nothing to convert. Just a message.
+            if (args.Count == 0)
                 return messageArgument;
 
+            IEnumerable<ExpressionSyntax>? formatArgumentExpressions;
+            if (args.Count == 1 && args[0].Expression is ImplicitArrayCreationExpressionSyntax implicitArrayCreation)
+            {
+                // Even though the argument is an array, it is an inline array creation we can work with.
+                formatArgumentExpressions = implicitArrayCreation.Initializer.Expressions;
+                argsIsArray = false;
+            }
+            else
+            {
+                formatArgumentExpressions = args.Select(x => x.Expression);
+            }
+
+            // We cannot convert to an interpolated string if:
+            // - The format specification is not a literal we can analyze.
+            // - The 'args' argument is a real array instead of a list of params array.
+            // If this is the case convert code to use () => string.Format(format, args)
+            if (formatSpecificationArgument is not LiteralExpressionSyntax literalExpression || argsIsArray)
+            {
+                var stringFormat = SyntaxFactory.InvocationExpression(
+                    SyntaxFactory.MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        SyntaxFactory.PredefinedType(
+                            SyntaxFactory.Token(SyntaxKind.StringKeyword)),
+                        SyntaxFactory.IdentifierName(nameof(string.Format))))
+                    .WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(
+                        args.Select(x => x.WithNameColon(null)).Prepend(messageArgument))));
+
+                return SyntaxFactory.Argument(unconditional ? stringFormat : SyntaxFactory.ParenthesizedLambdaExpression(stringFormat));
+            }
+
             var formatSpecification = literalExpression.Token.ValueText;
-            var formatArgumentExpressions =
-                (args.Count == 1 && args[0].Expression is ImplicitArrayCreationExpressionSyntax argsArrayExpression)
-                    ? argsArrayExpression.Initializer.Expressions
-                    : args.Select(x => x.Expression);
 
             var interpolatedStringContent = UpdateStringFormatToFormattableString(
                 formatSpecification,
@@ -75,42 +106,26 @@ namespace NUnit.Analyzers.Helpers
         /// </summary>
         /// <param name="arguments">The arguments passed to the 'Assert' method. </param>
         /// <param name="minimumNumberOfArguments">The argument needed for the actual method, any more are assumed messages.</param>
-        public static void UpdateStringFormatToFormattableString(List<ArgumentSyntax> arguments, int minimumNumberOfArguments = 2)
+        public static void UpdateStringFormatToFormattableString(List<ArgumentSyntax> arguments, int minimumNumberOfArguments, bool argsIsArray)
         {
-            int firstParamsArgument = minimumNumberOfArguments + 1;
-
             // If only 1 extra argument is passed, it must be a non-formattable message.
-            if (arguments.Count <= firstParamsArgument)
+            if (arguments.Count <= minimumNumberOfArguments + 1)
                 return;
 
-            ExpressionSyntax formatSpecificationArgument = arguments[minimumNumberOfArguments].Expression;
-            if (formatSpecificationArgument is not LiteralExpressionSyntax literalExpression)
+            ArgumentSyntax? message = GetInterpolatedMessageArgumentOrDefault(
+                arguments[minimumNumberOfArguments],
+                arguments.Skip(minimumNumberOfArguments + 1).ToList(),
+                unconditional: minimumNumberOfArguments == 0,
+                argsIsArray);
+
+            var nextArgument = minimumNumberOfArguments;
+            if (message is not null)
             {
-                // We only support converting if the format specification is a constant string.
-                return;
+                arguments[minimumNumberOfArguments] = message;
+                nextArgument++;
             }
 
-            string formatSpecification = literalExpression.Token.ValueText;
-
-            int formatArgumentCount = arguments.Count - firstParamsArgument;
-            ExpressionSyntax[] formatArguments = new ExpressionSyntax[formatArgumentCount];
-            for (int i = 0; i < formatArgumentCount; i++)
-            {
-                formatArguments[i] = arguments[firstParamsArgument + i].Expression;
-            }
-
-            IEnumerable<InterpolatedStringContentSyntax> interpolatedStringContent =
-                UpdateStringFormatToFormattableString(formatSpecification, formatArguments);
-
-            InterpolatedStringExpressionSyntax interpolatedString = SyntaxFactory.InterpolatedStringExpression(
-                SyntaxFactory.Token(SyntaxKind.InterpolatedStringStartToken),
-                SyntaxFactory.List(interpolatedStringContent));
-
-            // Replace format specification argument with interpolated string.
-            arguments[minimumNumberOfArguments] = SyntaxFactory.Argument(interpolatedString);
-
-            // Delete params arguments.
-            var nextArgument = minimumNumberOfArguments + 1;
+            // Delete remaining arguments.
             arguments.RemoveRange(nextArgument, arguments.Count - nextArgument);
         }
 

@@ -172,6 +172,42 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         }
 
         [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
+        public void AnalyzeTwoCollectionWhenFormatAndArgsArrayAreUsed(string method)
+        {
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            var args = new[] {{ ""first"", ""second"" }};
+            ↓CollectionAssert.{method}(collection1, collection2, ""{{0}}, {{1}}"", args);
+            ");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            var args = new[] {{ ""first"", ""second"" }};
+            Assert.That({GetAdjustedTwoCollectionConstraint(method)}, () => string.Format(""{{0}}, {{1}}"", args));
+            ");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
+        public void AnalyzeTwoCollectionWhenFormatVariableAndTwoParamsArgumentsAreUsed(string method)
+        {
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            const string formatSpecification = ""{{0}}, {{1}}"";
+            ↓CollectionAssert.{method}(collection1, collection2, formatSpecification, ""first"", ""second"");
+            ");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            const string formatSpecification = ""{{0}}, {{1}}"";
+            Assert.That({GetAdjustedTwoCollectionConstraint(method)}, () => string.Format(formatSpecification, ""first"", ""second""));
+            ");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
         public void AnalyzeTwoCollectionWhenFormatAndParamsArgumentsAreUsedOutOfOrder(string method)
         {
             var firstParameterName = CollectionAssertUsageCodeFix.CollectionAssertToFirstParameterName[method];

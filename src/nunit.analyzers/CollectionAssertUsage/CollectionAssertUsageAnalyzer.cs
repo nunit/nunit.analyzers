@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
+using NUnit.Analyzers.Helpers;
 using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
 
 namespace NUnit.Analyzers.CollectionAssertUsage
@@ -61,21 +62,18 @@ namespace NUnit.Analyzers.CollectionAssertUsage
 
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            var methodSymbol = assertOperation.TargetMethod;
+            string methodName = assertOperation.TargetMethod.Name;
 
-            if (OneCollectionParameterAsserts.TryGetValue(methodSymbol.Name, out string? constraint) ||
-                TwoCollectionParameterAsserts.TryGetValue(methodSymbol.Name, out constraint) ||
-                CollectionAndItemParameterAsserts.TryGetValue(methodSymbol.Name, out constraint))
+            if (OneCollectionParameterAsserts.TryGetValue(methodName, out string? constraint) ||
+                TwoCollectionParameterAsserts.TryGetValue(methodName, out constraint) ||
+                CollectionAndItemParameterAsserts.TryGetValue(methodName, out constraint))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     collectionAssertDescriptor,
                     assertOperation.Syntax.GetLocation(),
-                    new Dictionary<string, string?>
-                    {
-                        [AnalyzerPropertyKeys.ModelName] = methodSymbol.Name,
-                    }.ToImmutableDictionary(),
+                    DiagnosticsHelper.GetProperties(methodName, assertOperation.Arguments),
                     constraint,
-                    methodSymbol.Name));
+                    methodName));
             }
         }
     }

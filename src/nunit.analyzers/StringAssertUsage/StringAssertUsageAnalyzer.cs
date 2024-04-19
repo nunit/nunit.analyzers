@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
+using NUnit.Analyzers.Helpers;
 using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
 
 namespace NUnit.Analyzers.StringAssertUsage
@@ -45,19 +46,16 @@ namespace NUnit.Analyzers.StringAssertUsage
 
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            var methodSymbol = assertOperation.TargetMethod;
+            string methodName = assertOperation.TargetMethod.Name;
 
-            if (StringAssertToConstraint.TryGetValue(methodSymbol.Name, out string? constraint))
+            if (StringAssertToConstraint.TryGetValue(methodName, out string? constraint))
             {
                 context.ReportDiagnostic(Diagnostic.Create(
                     stringAssertDescriptor,
                     assertOperation.Syntax.GetLocation(),
-                    new Dictionary<string, string?>
-                    {
-                        [AnalyzerPropertyKeys.ModelName] = methodSymbol.Name,
-                    }.ToImmutableDictionary(),
+                    DiagnosticsHelper.GetProperties(methodName, assertOperation.Arguments),
                     constraint,
-                    methodSymbol.Name));
+                    methodName));
             }
         }
     }

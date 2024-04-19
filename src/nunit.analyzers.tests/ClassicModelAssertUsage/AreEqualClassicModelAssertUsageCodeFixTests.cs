@@ -253,6 +253,48 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
+        public void VerifyAreEqualFixWhenWithMessageAndArgsArray()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [TestCase(3.0, 3)]
+        public void Test(object actual, object expected)
+        {
+            object[] args = { expected, actual };
+            ↓ClassicAssert.AreEqual(expected, actual, ""Expected: {0} Got: {1}"", args);
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [TestCase(3.0, 3)]
+        public void Test(object actual, object expected)
+        {
+            object[] args = { expected, actual };
+            Assert.That(actual, Is.EqualTo(expected), () => string.Format(""Expected: {0} Got: {1}"", args));
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void VerifyAreEqualFixWhenWithMessageVariable()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [TestCase(3.0, 3)]
+        public void Test(object actual, object expected)
+        {
+            ↓ClassicAssert.AreEqual(expected, actual, GetLocalizedFormatSpecification(), expected, actual);
+        }
+        private static string GetLocalizedFormatSpecification() => ""Expected: {0} Got: {1}"";
+        ");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [TestCase(3.0, 3)]
+        public void Test(object actual, object expected)
+        {
+            Assert.That(actual, Is.EqualTo(expected), () => string.Format(GetLocalizedFormatSpecification(), expected, actual));
+        }
+        private static string GetLocalizedFormatSpecification() => ""Expected: {0} Got: {1}"";
+        ");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
         public void CodeFixPreservesLineBreakBeforeMessage()
         {
             var code = TestUtility.WrapInTestMethod(@"
