@@ -22,9 +22,9 @@ to include the expression passed in for the _actual_ and _constraint_ parameters
 These are parameters automatically supplied by the compiler.
 
 To facilitate this, we needed to drop support for
-[composite formatting](https://learn.microsoft.com/en-us/dotnet/standard/base-types/composite-formatting)
+[composite formatting](https://learn.microsoft.com/en-us/dotnet/standard/base-types/composite-formatting).
 All NUnit4 asserts only allow a single _message_ parameter which can be either a simple string literal
-or a [interpolatable string](https://learn.microsoft.com/en-us/dotnet/csharp/tutorials/string-interpolation)
+or a [interpolatable string](https://learn.microsoft.com/en-us/dotnet/csharp/tutorials/string-interpolation).
 
 This analyzer needs to be run when still building against NUnit3 as otherwise your code won't compile.
 When usages of the new methods with `params` are detected, the associated CodeFix will convert the format specification
@@ -111,7 +111,7 @@ When using NUnit3, this results in:
 But when using NUnit4, we get:
 
 ```plaintext
- Message: 
+ Message:
   Expected '{0}', but got: '{1}'
 Assert.That(NUnit 3, NUnit 4)
   String lengths are both 7. Strings differ at index 6.
@@ -134,7 +134,7 @@ public void TestMessage(string actual, string expected)
 and the output:
 
 ```plaintext
- Message: 
+ Message:
   Expected 'NUnit 3', but got: 'NUnit 4'
 Assert.That(actual, Is.EqualTo(expected))
   String lengths are both 7. Strings differ at index 6.
