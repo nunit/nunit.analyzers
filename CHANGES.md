@@ -1,4 +1,36 @@
-﻿# NUnit Analyzers 4.1 - March 16, 2024
+﻿# NUnit Analyzers 4.2 - April 24, 2024
+
+This release of the Analyzers extends NUnit2050 to also cover `Assume` and Nunit1032 to consider dispose of a type 
+having explicit interface implementation. Furthermore, named parameters are now handled correctly codefixes for 
+classical asserts, and NUnit2010 improves the logic for determining `Equals` methods.
+
+The release contains contributions from the following users (in alphabetical order):
+* @Bartleby2718
+* @hazzik
+* @maettu-this
+* @manfred-brands
+* @matode
+* @mikkelbu
+
+Issues Resolved
+
+Features and Enhancements
+* #731 Add test for wrapping conditional expression in parenthesis for NUnit2050
+* #720 Replace UpdateStringFormatToFormattableString with String.Format
+* #719 NUnit2050 should cover Assume
+* #710 Nunit1032 - consider dispose of a type having explicit interface implementation
+
+Bugs
+* #728 NUnit2010 - do not consider Equals call if it doesn't override Object.Equals
+* #712 [bug] Code fix for NUnit2005 does not correctly fix Assert.AreEqual if named parameters are used in unexpected order
+
+Tooling, Process, and Documentation
+* #733 Missing full stops added to NUnit2050
+* #722 Use Markdown for CHANGES
+* #708 chore: bump-version
+
+
+# NUnit Analyzers 4.1 - March 16, 2024
 
 This release of the Analyzers extends the suppression of nullable warnings to also respect assumptions - 
 expressed via `Assume.That`. Also nullable warnings are suppressed even in the context of the 
