@@ -43,7 +43,7 @@ public void Test()
     string expected = "...";
     Assert.That(actual, Does.EndWith(expected));
 }
-
+```
 <!-- start generated config severity -->
 ## Configure severity
 
