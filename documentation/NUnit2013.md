@@ -44,6 +44,7 @@ public void Test()
     Assert.That(actual, Does.EndWith(expected));
 }
 ```
+
 <!-- start generated config severity -->
 ## Configure severity
 
