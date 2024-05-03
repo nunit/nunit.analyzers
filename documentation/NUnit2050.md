@@ -43,7 +43,8 @@ Assume.That
 ```
 
 Once you moved to NUnit4 the analyzer has some limited functionality as there are a few
-cases with `Assert.That` where your NUnit3 code will compile on NUnit4, but not the way you want it.
+cases with `Assert.That` or `Assume.That` where your NUnit3 code will compile on NUnit4,
+but not the way you want it.
 Here what you think are parameters to a format specification are actually interpreted as
 the _actual_ and _constraint_ expression strings.
 Unfortunately you only find that out when the test fails, which could be never.
