@@ -30,12 +30,6 @@ This analyzer needs to be run when still building against NUnit3 as otherwise yo
 When usages of the new methods with `params` are detected, the associated CodeFix will convert the format specification
 into an interpolated string.
 
-Once you moved to NUnit4 the analyzer has some limited functionality as there are a few
-cases where your NUnit3 code will compile on NUnit4, but not the way you want it.
-Here what you think are parameters to a format specification are actually interpreted as
-the _actual_ and _constraint_ expression strings.
-Unfortunately you only find that out when the test fails, which could be never.
-
 The affected methods are:
 
 ```csharp
@@ -47,6 +41,12 @@ Assert.Inconclusive
 Assert.That
 Assume.That
 ```
+
+Once you moved to NUnit4 the analyzer has some limited functionality as there are a few
+cases with `Assert.That` where your NUnit3 code will compile on NUnit4, but not the way you want it.
+Here what you think are parameters to a format specification are actually interpreted as
+the _actual_ and _constraint_ expression strings.
+Unfortunately you only find that out when the test fails, which could be never.
 
 ## How to fix violations
 
