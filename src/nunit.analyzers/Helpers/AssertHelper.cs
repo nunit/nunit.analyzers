@@ -144,20 +144,33 @@ namespace NUnit.Analyzers.Helpers
                                      [NotNullWhen(true)] out ArgumentListSyntax? argumentList)
         {
             if (expression is InvocationExpressionSyntax invocationExpression &&
-                invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
-                memberAccessExpression.Expression is IdentifierNameSyntax identifierName &&
-                isNameOfAssert(identifierName.Identifier.Text))
+                invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression)
             {
-                member = memberAccessExpression.Name.Identifier.Text;
-                argumentList = invocationExpression.ArgumentList;
-                return true;
+                SimpleNameSyntax? className = GetClassName(memberAccessExpression);
+
+                if (className is not null &&
+                    isNameOfAssert(className.Identifier.Text))
+                {
+                    member = memberAccessExpression.Name.Identifier.Text;
+                    argumentList = invocationExpression.ArgumentList;
+                    return true;
+                }
             }
-            else
-            {
-                member = string.Empty;
-                argumentList = null;
-                return false;
-            }
+
+            member = string.Empty;
+            argumentList = null;
+            return false;
+        }
+
+        private static SimpleNameSyntax? GetClassName(MemberAccessExpressionSyntax memberAccessExpression)
+        {
+            if (memberAccessExpression.Expression is MemberAccessExpressionSyntax nestedMemberAccessExpression)
+                return nestedMemberAccessExpression.Name;
+
+            if (memberAccessExpression.Expression is IdentifierNameSyntax identifierName)
+                return identifierName;
+
+            return null;
         }
     }
 }

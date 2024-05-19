@@ -1032,5 +1032,27 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8603"]),
                 testCode);
         }
+
+        [Test]
+        public void TestIssue739FullyQualified()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [Test]
+                public void T()
+                {
+                    object? x = null;
+                    NUnit.Framework.Assert.That(x, Is.Not.Null);
+                    M(x);
+                }
+
+                void M(object o)
+                {
+                }
+            ");
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8604"]),
+                testCode);
+        }
     }
 }
