@@ -63,8 +63,9 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             RoslynAssert.Valid(analyzer, testCode);
         }
 
-        [Test]
-        public void AnalyzeWhenFieldIsConditionallyDisposed()
+        [TestCase("IDisposable")]
+        [TestCase("System.IDisposable")]
+        public void AnalyzeWhenFieldIsConditionallyDisposedUsingIsIDisposable(string interfaceName)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         private object field = new DummyDisposable();
@@ -72,8 +73,27 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [OneTimeTearDown]
         public void TearDownMethod()
         {{
-            if (field is IDisposable disposable)
+            if (field is {interfaceName} disposable)
                 disposable.Dispose();
+        }}
+
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("IDisposable")]
+        [TestCase("System.IDisposable")]
+        public void AnalyzeWhenFieldIsConditionallyDisposedUsingAsIDisposable(string interfaceName)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private object field = new DummyDisposable();
+
+        [OneTimeTearDown]
+        public void TearDownMethod()
+        {{
+            (field as {interfaceName})?.Dispose();
         }}
 
         {DummyDisposable}
