@@ -480,8 +480,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                     //     disposable.Dispose();
                     if (ifStatement.Condition is IsPatternExpressionSyntax isPatternExpression &&
                         isPatternExpression.Pattern is DeclarationPatternSyntax declarationPattern &&
-                        declarationPattern.Type is IdentifierNameSyntax identifierName &&
-                        identifierName.Identifier.Text.EndsWith("Disposable", StringComparison.Ordinal) &&
+                        IsDisposable(declarationPattern.Type) &&
                         declarationPattern.Designation is SingleVariableDesignationSyntax singleVariableDesignation)
                     {
                         string? member = GetIdentifier(isPatternExpression.Expression);
@@ -555,17 +554,57 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 return memberAccessExpression.Name.Identifier.Text;
             }
 
-            // considering cast to IDisposable, e.g. in case of explicit interface implementation of IDisposable.Dispose()
-            else if (expression is ParenthesizedExpressionSyntax parenthesizedExpression &&
-                     parenthesizedExpression.Expression is CastExpressionSyntax castExpression &&
-                     castExpression.Expression is IdentifierNameSyntax castIdentifierName &&
-                     castExpression.Type is IdentifierNameSyntax typeIdentifierName &&
-                     typeIdentifierName.Identifier.Text.Equals("IDisposable", StringComparison.Ordinal))
+            // considering cast to I(Async)Disposable, e.g. in case of explicit interface implementation of IDisposable.Dispose()
+            // or in case of 'as IDisposable' or 'as IAsyncDisposable'
+            else if (expression is ParenthesizedExpressionSyntax parenthesizedExpression)
             {
-                return castIdentifierName.Identifier.Text;
+                IdentifierNameSyntax? memberIdentifierName = null;
+                ExpressionSyntax? typeExpression = null;
+
+                if (parenthesizedExpression.Expression is CastExpressionSyntax castExpression)
+                {
+                    memberIdentifierName = castExpression.Expression as IdentifierNameSyntax;
+                    typeExpression = castExpression.Type;
+                }
+                else if (parenthesizedExpression.Expression is BinaryExpressionSyntax binaryExpression &&
+                    binaryExpression.IsKind(SyntaxKind.AsExpression))
+                {
+                    memberIdentifierName = binaryExpression.Left as IdentifierNameSyntax;
+                    typeExpression = binaryExpression.Right;
+                }
+
+                if (memberIdentifierName is not null &&
+                    typeExpression is not null && IsDisposable(typeExpression))
+                {
+                    return memberIdentifierName.Identifier.Text;
+                }
             }
 
             return null;
+        }
+
+        private static bool IsDisposable(ExpressionSyntax typeExpression)
+        {
+            IdentifierNameSyntax? typeIdentifierName = null;
+
+            if (typeExpression is QualifiedNameSyntax qualifiedNameSyntax &&
+                qualifiedNameSyntax.Left is IdentifierNameSyntax systemName &&
+                systemName.Identifier.Text is "System")
+            {
+                typeIdentifierName = qualifiedNameSyntax.Right as IdentifierNameSyntax;
+            }
+            else if (typeExpression is IdentifierNameSyntax identifierNameSyntax)
+            {
+                typeIdentifierName = identifierNameSyntax;
+            }
+
+            if (typeIdentifierName is not null &&
+                typeIdentifierName.Identifier.Text is "IDisposable" or "IAsyncDisposable")
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private sealed class Parameters
