@@ -103,5 +103,47 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage
+                ? @",
+                ""message"""
+                : string.Empty;
+            var code = TestUtility.WrapInTestMethod($@"
+            ↓ClassicAssert.AreNotEqual(
+                2d,
+                3d{commaAndMessage});");
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(
+                3d,
+                Is.Not.EqualTo(2d){commaAndMessage});");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage
+                ? @",
+                ""message"""
+                : string.Empty;
+            var code = TestUtility.WrapInTestMethod($@"
+            ↓ClassicAssert.AreNotEqual(
+                2d,
+                3d{commaAndMessage}
+            );");
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(
+                3d,
+                Is.Not.EqualTo(2d){commaAndMessage}
+            );");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
     }
 }

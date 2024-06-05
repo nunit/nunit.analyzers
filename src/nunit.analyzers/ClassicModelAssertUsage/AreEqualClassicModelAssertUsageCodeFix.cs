@@ -42,11 +42,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         equalToInvocationNode,
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfEqualConstraintWithin)))
                     .WithArgumentList(SyntaxFactory.ArgumentList(
-                        SyntaxFactory.SingletonSeparatedList(toleranceArgumentNoColon)));
+                        SyntaxFactory.SingletonSeparatedList(toleranceArgumentNoColon.WithoutTrivia())));
             }
 
             var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter].WithNameColon(null);
-            return (actualArgument, SyntaxFactory.Argument(equalToInvocationNode));
+            return (actualArgument, SyntaxFactory.Argument(equalToInvocationNode).WithTriviaFrom(actualArgument));
         }
     }
 }

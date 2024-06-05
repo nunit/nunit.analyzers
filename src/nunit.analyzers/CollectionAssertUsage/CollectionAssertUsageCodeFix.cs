@@ -93,11 +93,12 @@ namespace NUnit.Analyzers.CollectionAssertUsage
             Diagnostic diagnostic,
             IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
-            var (actualArgument, constraintArgument) = GetActualAndConstraintArguments(diagnostic, argumentNamesToArguments);
+            var (actualArgument, originalConstraintArgument) = GetActualAndConstraintArguments(diagnostic, argumentNamesToArguments);
 
+            var newConstraintArgument = originalConstraintArgument;
             if (argumentNamesToArguments.TryGetValue(NameOfComparerParameter, out ArgumentSyntax? comparerArgument))
             {
-                ExpressionSyntax expression = constraintArgument.Expression;
+                ExpressionSyntax expression = originalConstraintArgument.Expression;
 
                 // We need to drop the 'AsCollection' when using an IComparer.
                 if (expression is MemberAccessExpressionSyntax memberAccessExpression &&
@@ -106,7 +107,7 @@ namespace NUnit.Analyzers.CollectionAssertUsage
                     expression = memberAccessExpression.Expression;
                 }
 
-                constraintArgument = Argument(
+                newConstraintArgument = Argument(
                     InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
@@ -115,7 +116,7 @@ namespace NUnit.Analyzers.CollectionAssertUsage
                         ArgumentList(SingletonSeparatedList(comparerArgument))));
             }
 
-            return (actualArgument, constraintArgument);
+            return (actualArgument.WithoutTrailingTrivia(), newConstraintArgument.WithTriviaFrom(actualArgument));
         }
 
         private static (ArgumentSyntax actualArgument, ArgumentSyntax constraintArgument) GetActualAndConstraintArguments(
@@ -142,7 +143,7 @@ namespace NUnit.Analyzers.CollectionAssertUsage
             {
                 var secondParameterName = CollectionAssertToSecondParameterName[methodName];
                 var secondArgument = argumentNamesToArguments[secondParameterName].WithNameColon(null);
-                var constraintArgument = Argument(constraints.CreateConstraint(secondArgument));
+                var constraintArgument = Argument(constraints.CreateConstraint(secondArgument.WithoutTrivia()));
 
                 return (firstArgument, constraintArgument);
             }

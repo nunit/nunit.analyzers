@@ -308,19 +308,46 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         }
 
         [Test]
-        public void CodeFixPreservesLineBreakBeforeMessage()
+        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
         {
-            var code = TestUtility.WrapInTestMethod(@"
+            var commaAndMessage = hasMessage
+                ? @",
+                ""message"""
+                : string.Empty;
+            var code = TestUtility.WrapInTestMethod($@"
             var actual = ""abc"";
+            ClassicAssert.False(
+                actual.Equals(""bcd""){commaAndMessage});");
 
-            ClassicAssert.False(actual.Equals(""bcd""),
-                ""Assertion message from new line"");");
-
-            var fixedCode = TestUtility.WrapInTestMethod(@"
+            var fixedCode = TestUtility.WrapInTestMethod($@"
             var actual = ""abc"";
+            Assert.That(
+                actual,
+                Is.Not.EqualTo(""bcd""){commaAndMessage});");
 
-            Assert.That(actual, Is.Not.EqualTo(""bcd""),
-                ""Assertion message from new line"");");
+            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage
+                ? @",
+                ""message"""
+                : string.Empty;
+            var code = TestUtility.WrapInTestMethod($@"
+            var actual = ""abc"";
+            Assert.That(
+                actual.Equals(""abc""),
+                Is.True{commaAndMessage}
+            );");
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            var actual = ""abc"";
+            Assert.That(
+                actual,
+                Is.EqualTo(""abc""){commaAndMessage}
+            );");
 
             RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }

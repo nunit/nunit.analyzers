@@ -295,15 +295,45 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void CodeFixPreservesLineBreakBeforeMessage()
+        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
         {
-            var code = TestUtility.WrapInTestMethod(@"
-            ClassicAssert.AreEqual(2d, 3d, 0.0000001d,
-                ""message"");");
+            var commaAndMessage = hasMessage
+                ? @",
+                ""message"""
+                : string.Empty;
+            var code = TestUtility.WrapInTestMethod($@"
+            ↓ClassicAssert.AreEqual(
+                2d,
+                3d,
+                0.0000001d{commaAndMessage});");
 
-            var fixedCode = TestUtility.WrapInTestMethod(@"
-            Assert.That(3d, Is.EqualTo(2d).Within(0.0000001d),
-                ""message"");");
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(
+                3d,
+                Is.EqualTo(2d).Within(0.0000001d){commaAndMessage});");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage
+                ? @",
+                ""message"""
+                : string.Empty;
+            var code = TestUtility.WrapInTestMethod($@"
+            ↓ClassicAssert.AreEqual(
+                2d,
+                3d,
+                0.0000001d{commaAndMessage}
+            );");
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(
+                3d,
+                Is.EqualTo(2d).Within(0.0000001d){commaAndMessage}
+            );");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

@@ -1,9 +1,12 @@
+using System.Collections.Generic;
+using System.Linq;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.ClassicModelAssertUsage;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 {
@@ -12,6 +15,12 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
     {
         private static readonly DiagnosticAnalyzer analyzer = new ClassicModelAssertUsageAnalyzer();
         private static readonly CodeFixProvider fix = new IsNullAndNullClassicModelAssertUsageCodeFix();
+        private static readonly Dictionary<string, string> diagnosticIdsToAssertions = new()
+        {
+            { AnalyzerIdentifiers.NullUsage, nameof(ClassicAssert.Null) },
+            { AnalyzerIdentifiers.IsNullUsage, nameof(ClassicAssert.IsNull) },
+        };
+        private static readonly string[] diagnosticIds = diagnosticIdsToAssertions.Keys.ToArray();
 
         [Test]
         public void VerifyGetFixableDiagnosticIds()
@@ -124,6 +133,68 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             object? obj = null;
             Assert.That(obj, Is.Null, $""{""first""}, {""second""}"");
         }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen(
+            [ValueSource(nameof(diagnosticIds))] string diagnosticId,
+            [Values] bool hasMessage)
+        {
+            var assertion = diagnosticIdsToAssertions[diagnosticId];
+            var commaAndMessage = hasMessage
+                ? @",
+                ""message"""
+                : string.Empty;
+            var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            object? obj = null;
+            ↓ClassicAssert.{assertion}(
+                obj{commaAndMessage});
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            object? obj = null;
+            Assert.That(
+                obj,
+                Is.Null{commaAndMessage});
+        }}");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen(
+            [ValueSource(nameof(diagnosticIds))] string diagnosticId,
+            [Values] bool hasMessage)
+        {
+            var assertion = diagnosticIdsToAssertions[diagnosticId];
+            var commaAndMessage = hasMessage
+                ? @",
+                ""message"""
+                : string.Empty;
+            var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            object? obj = null;
+            ↓ClassicAssert.{assertion}(
+                obj{commaAndMessage}
+            );
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            object? obj = null;
+            Assert.That(
+                obj,
+                Is.Null{commaAndMessage}
+            );
+        }}");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }

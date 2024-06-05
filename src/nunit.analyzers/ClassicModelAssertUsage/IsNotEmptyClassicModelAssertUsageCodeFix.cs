@@ -34,7 +34,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsNot)),
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsEmpty)));
-            return (actualArgument, constraintArgument);
+            return (actualArgument, constraintArgument.WithTriviaFrom(actualArgument));
         }
     }
 }

@@ -27,7 +27,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                     SyntaxKind.SimpleMemberAccessExpression,
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsNaN)));
-            return (actualArgument, constraintArgument);
+            return (actualArgument, constraintArgument.WithTriviaFrom(actualArgument));
         }
     }
 }

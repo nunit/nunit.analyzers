@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
 using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
@@ -73,7 +74,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             if (assertMethod is null)
                 return;
 
-            var newAssertNode = UpdateAssertNode(assertNode, assertMethod, actual, constraintExpression);
+            var newAssertNode = UpdateAssertNode(assertNode, conditionNode, assertMethod, actual, constraintExpression);
 
             if (newAssertNode is null)
                 return;
@@ -107,10 +108,10 @@ namespace NUnit.Analyzers.ConstraintUsage
 
             return SyntaxFactory.InvocationExpression(
                 SyntaxFactory.ParseExpression(constraintString),
-                SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(expected))));
+                SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(expected.WithoutTrivia()))));
         }
 
-        protected static InvocationExpressionSyntax? UpdateAssertNode(InvocationExpressionSyntax assertNode, IMethodSymbol assertMethod,
+        protected static InvocationExpressionSyntax? UpdateAssertNode(InvocationExpressionSyntax assertNode, ExpressionSyntax? conditionNode, IMethodSymbol assertMethod,
             ExpressionSyntax actual, ExpressionSyntax constraintExpression)
         {
             // Replace the original ClassicAssert.<Method> invocation name into Assert.That
@@ -126,13 +127,26 @@ namespace NUnit.Analyzers.ConstraintUsage
                 ? assertNode.ArgumentList.Arguments.Skip(2)
                 : assertNode.ArgumentList.Arguments.Skip(1);
 
+            var actualArgument = SyntaxFactory.Argument(actual);
+            var actualArgumentWithRightTrivia = conditionNode is not null
+                ? actualArgument.WithLeadingTrivia(conditionNode.GetLeadingTrivia()) // ignore the trailing trivia, as there is a following argument
+                : actualArgument;
+
+            var lastOriginalArgument = assertNode.ArgumentList.Arguments.Last();
+            var constraintArgument = SyntaxFactory.Argument(constraintExpression).WithTriviaFrom(lastOriginalArgument);
+            var constraintArgumentWithRightTrivia = remainingArguments.Any()
+                ? constraintArgument.WithoutTrailingTrivia() // remove the trailing trivia, as there is a following argument
+                : constraintArgument;
+
             var newArguments = new[]
             {
-                SyntaxFactory.Argument(actual),
-                SyntaxFactory.Argument(constraintExpression)
+                actualArgumentWithRightTrivia,
+                constraintArgumentWithRightTrivia
             }.Union(remainingArguments);
 
-            var newArgumentsList = assertNode.ArgumentList.WithArguments(newArguments);
+            var newArgumentsList = assertNode.ArgumentList
+                .WithArguments(newArguments)
+                .WithAdditionalAnnotations(Formatter.Annotation);
 
             return newAssertNode.WithArgumentList(newArgumentsList);
         }

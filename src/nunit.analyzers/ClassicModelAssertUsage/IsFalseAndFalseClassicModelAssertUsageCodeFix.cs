@@ -27,8 +27,12 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
-                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsFalse)));
-            return (actualArgument, constraintArgument);
+                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsFalse)))
+                .WithTriviaFrom(actualArgument);
+
+            // Swallow the trailing trivia of actualArgument because the comma should immediately follow it
+            // This also removes comments, but ignore them for now.
+            return (actualArgument.WithoutTrailingTrivia(), constraintArgument);
         }
     }
 }

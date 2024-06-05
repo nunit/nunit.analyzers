@@ -92,5 +92,54 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
         }
+
+        [TestCase(">=", "Is.LessThan")]
+        [TestCase(">", "Is.LessThanOrEqualTo")]
+        [TestCase("<=", "Is.GreaterThan")]
+        [TestCase("<", "Is.GreaterThanOrEqualTo")]
+        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen(string operatorToken, string constraint)
+        {
+            var code = TestUtility.WrapInTestMethod(@$"
+            int actual = 5;
+            Assert.That(
+                ↓actual {operatorToken} 9,
+                Is.False);");
+
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            int actual = 5;
+            Assert.That(
+                actual,
+                {constraint}(9));");
+
+            var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
+                string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
+
+            RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
+        }
+
+        [TestCase(">=", "Is.GreaterThanOrEqualTo")]
+        [TestCase(">", "Is.GreaterThan")]
+        [TestCase("<=", "Is.LessThanOrEqualTo")]
+        [TestCase("<", "Is.LessThan")]
+        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen(string operatorToken, string constraint)
+        {
+            var code = TestUtility.WrapInTestMethod(@$"
+            int actual = 5;
+            Assert.That(
+                ↓actual {operatorToken} 9
+            );");
+
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            int actual = 5;
+            Assert.That(
+                actual,
+                {constraint}(9)
+            );");
+
+            var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
+                string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
+
+            RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
+        }
     }
 }

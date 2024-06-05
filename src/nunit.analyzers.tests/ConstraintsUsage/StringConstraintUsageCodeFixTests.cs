@@ -121,5 +121,38 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
+
+        [TestCaseSource(nameof(NegativeAssertData))]
+        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen(string method, string analyzerId, string suggestedConstraint)
+        {
+            var code = TestUtility.WrapInTestMethod($@"
+            ClassicAssert.IsFalse(
+                ↓""abc"".{method}(""ab""));");
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(
+                ""abc"",
+                {suggestedConstraint}(""ab""));");
+
+            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+        }
+
+        [TestCaseSource(nameof(NegativeAssertData))]
+        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen(string method, string analyzerId, string suggestedConstraint)
+        {
+            var code = TestUtility.WrapInTestMethod($@"
+            Assert.That(
+                ↓""abc"".{method}(""ab""),
+                Is.False
+            );");
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(
+                ""abc"",
+                {suggestedConstraint}(""ab"")
+            );");
+
+            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+        }
     }
 }

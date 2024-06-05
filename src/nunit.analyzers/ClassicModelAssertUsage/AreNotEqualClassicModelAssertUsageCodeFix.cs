@@ -34,7 +34,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         SyntaxFactory.SingletonSeparatedList(expectedArgument))));
 
             var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter].WithNameColon(null);
-            return (actualArgument, constraintArgument);
+            return (actualArgument.WithoutTrailingTrivia(), constraintArgument.WithTriviaFrom(actualArgument));
         }
     }
 }

@@ -77,6 +77,13 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             if (CodeFixHelper.GetInterpolatedMessageArgumentOrDefault(messageArgument, args, unconditional: false, argsIsArray) is ArgumentSyntax interpolatedMessageArgument)
                 newArguments.Add(interpolatedMessageArgument);
 
+            // Fix trailing trivia for the first and the last argument
+            if (newArguments.Count > 1)
+                newArguments[0] = newArguments[0].WithoutTrailingTrivia();
+            var lastIndex = newArguments.Count - 1;
+            var previousLastArgument = invocationNode.ArgumentList.Arguments.Last();
+            newArguments[lastIndex] = newArguments[lastIndex].WithTrailingTrivia(previousLastArgument.GetTrailingTrivia());
+
             var newArgumentsList = invocationNode.ArgumentList.WithArguments(newArguments);
             newInvocationNode = newInvocationNode.WithArgumentList(newArgumentsList);
 
