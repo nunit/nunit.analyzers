@@ -6,7 +6,11 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.ClassicModelAssertUsage;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
+#if NUNIT4
 using NUnit.Framework.Legacy;
+#else
+using ClassicAssert = NUnit.Framework.Assert;
+#endif
 
 namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 {
