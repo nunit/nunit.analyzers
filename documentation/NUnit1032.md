@@ -14,9 +14,11 @@
 
 An IDisposable field/property should be Disposed in a TearDown method.
 
-This analyzer rule only applies to a `TestFixture` which is using the default NUnit `SingleInstance` life cycle where the class is instantiated once for all tests.
+This analyzer rule only applies to a `TestFixture` which is using the default
+NUnit `SingleInstance` life cycle where the class is instantiated once for all tests.
 
-If you are using `LifeCycle.InstancePerTestCase` you should dispose the fields/properties in the `Dispose` method of the test class.
+If you are using `LifeCycle.InstancePerTestCase` you should dispose the fields/properties
+in the `Dispose` method of the test class.
 
 ## Motivation
 
@@ -32,7 +34,7 @@ must be disposed in `OneTimeTearDown`.
 
 ### LifeCycle.InstancePerTestCase
 
-If you have `IDisposable` fields or propererties, your class must implement the
+If you have `IDisposable` fields or properties, your class must implement the
 [`IDisposable`](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable?view=net-8.0) interface.
 
 Dispose any fields/properties that are initialized at declaration or in the constructor in the
@@ -42,8 +44,10 @@ The NUnit.Analyzer will not help you here as the functionality is available in a
 
 These are the rules that will help you with this:
 
-* [CA1001](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1001) Types that own disposable fields should be disposable
-* [CA2213](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2213) Disposable fields should be disposed
+* [CA1001](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1001)
+Types that own disposable fields should be disposable
+* [CA2213](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2213)
+Disposable fields should be disposed
 
 Unfortunately, those rules are not enabled by default, you can enable them in your project in a
 [`.editorconfig`](https://learn.microsoft.com/en-us/visualstudio/code-quality/use-roslyn-analyzers?view=vs-2022#manually-configure-rule-severity-in-an-editorconfig-file)
