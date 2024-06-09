@@ -40,7 +40,9 @@ If you have `IDisposable` fields or properties, your class must implement the
 Dispose any fields/properties that are initialized at declaration or in the constructor in the
 [`Dispose`](https://learn.microsoft.com/en-us/dotnet/api/system.idisposable.dispose?view=net-8.0) method.
 
-The NUnit.Analyzer will not help you here as the functionality is available in [Microsoft .NET Analyzers](https://www.nuget.org/packages/Microsoft.CodeAnalysis.NetAnalyzers). These are the rules that will help you with this:
+The NUnit.Analyzer will not help you here as the functionality is available in
+[Microsoft .NET Analyzers](https://www.nuget.org/packages/Microsoft.CodeAnalysis.NetAnalyzers).
+These are the rules that will help you with this:
 
 * [CA1001](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1001)
 Types that own disposable fields should be disposable
