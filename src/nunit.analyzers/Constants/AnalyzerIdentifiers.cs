@@ -102,5 +102,11 @@ namespace NUnit.Analyzers.Constants
         internal const string TypesThatOwnDisposableFieldsShouldBeDisposable = "NUnit3004";
 
         #endregion
+
+        #region Style
+
+        internal const string SimplifyValues = "NUnit4001";
+
+        #endregion
     }
 }
