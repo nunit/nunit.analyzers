@@ -26,10 +26,7 @@ namespace NUnit.Analyzers.ConstraintUsage
                 var expected = invocation.ArgumentList.Arguments.FirstOrDefault()?.Expression;
                 var constraintExpression = GetConstraintExpression(suggestedConstraintString, expected);
 
-                // Fix trivia
-                return actual is not null && constraintExpression is not null
-                    ? (actual.WithTriviaFrom(constraintExpression), constraintExpression.WithTriviaFrom(actual))
-                    : (actual, constraintExpression);
+                return (actual, constraintExpression);
             }
             else
             {

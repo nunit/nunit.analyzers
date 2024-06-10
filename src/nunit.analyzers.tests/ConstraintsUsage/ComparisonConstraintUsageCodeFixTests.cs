@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -12,13 +14,26 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
     {
         private static readonly DiagnosticAnalyzer analyzer = new ComparisonConstraintUsageAnalyzer();
         private static readonly CodeFixProvider fix = new ComparisonConstraintUsageCodeFix();
-
-        [TestCase(">=", "Is.GreaterThanOrEqualTo")]
-        [TestCase(">", "Is.GreaterThan")]
-        [TestCase("<=", "Is.LessThanOrEqualTo")]
-        [TestCase("<", "Is.LessThan")]
-        public void FixesComparisonOperator(string operatorToken, string constraint)
+        private static readonly Dictionary<string, string> operatorTokensToConstraints = new()
         {
+            { ">=", "Is.GreaterThanOrEqualTo" },
+            { ">", "Is.GreaterThan" },
+            { "<=", "Is.LessThanOrEqualTo" },
+            { "<", "Is.LessThan" },
+        };
+        private static readonly string[] operatorTokens = operatorTokensToConstraints.Keys.ToArray();
+        private static readonly Dictionary<string, string> operatorTokensToConstraintsReversed = new()
+        {
+            { ">=", "Is.LessThan" },
+            { ">", "Is.LessThanOrEqualTo" },
+            { "<=", "Is.GreaterThan" },
+            { "<", "Is.GreaterThanOrEqualTo" },
+        };
+
+        [Test]
+        public void FixesComparisonOperator([ValueSource(nameof(operatorTokens))] string operatorToken)
+        {
+            var constraint = operatorTokensToConstraints[operatorToken];
             var code = TestUtility.WrapInTestMethod(@$"
             int actual = 5;
             Assert.That(↓actual {operatorToken} 9);");
@@ -33,12 +48,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
         }
 
-        [TestCase(">=", "Is.GreaterThanOrEqualTo")]
-        [TestCase(">", "Is.GreaterThan")]
-        [TestCase("<=", "Is.LessThanOrEqualTo")]
-        [TestCase("<", "Is.LessThan")]
-        public void FixesComparisonOperatorWithIsTrue(string operatorToken, string constraint)
+        [Test]
+        public void FixesComparisonOperatorWithIsTrue([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
+            var constraint = operatorTokensToConstraints[operatorToken];
             var code = TestUtility.WrapInTestMethod(@$"
             int actual = 5;
             Assert.That(↓actual {operatorToken} 9, Is.True);");
@@ -53,12 +66,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
         }
 
-        [TestCase(">=", "Is.LessThan")]
-        [TestCase(">", "Is.LessThanOrEqualTo")]
-        [TestCase("<=", "Is.GreaterThan")]
-        [TestCase("<", "Is.GreaterThanOrEqualTo")]
-        public void FixesWhenComparisonOperatorUsedWithIsFalse(string operatorToken, string constraint)
+        [Test]
+        public void FixesWhenComparisonOperatorUsedWithIsFalse([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
+            var constraint = operatorTokensToConstraintsReversed[operatorToken];
             var code = TestUtility.WrapInTestMethod(@$"
             int actual = 5;
             Assert.That(↓actual {operatorToken} 9, Is.False);");
@@ -73,12 +84,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
         }
 
-        [TestCase(">=", "Is.LessThan")]
-        [TestCase(">", "Is.LessThanOrEqualTo")]
-        [TestCase("<=", "Is.GreaterThan")]
-        [TestCase("<", "Is.GreaterThanOrEqualTo")]
-        public void FixesWhenComparisonOperatorUseConstantOnLeftHandSide(string operatorToken, string constraint)
+        [Test]
+        public void FixesWhenComparisonOperatorUseConstantOnLeftHandSide([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
+            var constraint = operatorTokensToConstraintsReversed[operatorToken];
             var code = TestUtility.WrapInTestMethod(@$"
             int actual = 5;
             Assert.That(↓9 {operatorToken} actual, Is.True);");
@@ -93,12 +102,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
         }
 
-        [TestCase(">=", "Is.LessThan")]
-        [TestCase(">", "Is.LessThanOrEqualTo")]
-        [TestCase("<=", "Is.GreaterThan")]
-        [TestCase("<", "Is.GreaterThanOrEqualTo")]
-        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen(string operatorToken, string constraint)
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
+            var constraint = operatorTokensToConstraintsReversed[operatorToken];
             var code = TestUtility.WrapInTestMethod(@$"
             int actual = 5;
             Assert.That(
@@ -117,12 +124,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
         }
 
-        [TestCase(">=", "Is.GreaterThanOrEqualTo")]
-        [TestCase(">", "Is.GreaterThan")]
-        [TestCase("<=", "Is.LessThanOrEqualTo")]
-        [TestCase("<", "Is.LessThan")]
-        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen(string operatorToken, string constraint)
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
+            var constraint = operatorTokensToConstraints[operatorToken];
             var code = TestUtility.WrapInTestMethod(@$"
             int actual = 5;
             Assert.That(
@@ -135,6 +140,30 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 actual,
                 {constraint}(9)
             );");
+
+            var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
+                string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
+
+            RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
+            [ValueSource(nameof(operatorTokens))] string operatorToken,
+            [Values] bool newlineBeforeClosingParen)
+        {
+            var optionalNewline = newlineBeforeClosingParen ? @"
+            " : string.Empty;
+            var constraint = operatorTokensToConstraints[operatorToken];
+            var code = TestUtility.WrapInTestMethod(@$"
+            int actual = 5;
+            Assert.That(
+                ↓actual {operatorToken} 9, ""message""{optionalNewline});");
+
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            int actual = 5;
+            Assert.That(
+                actual, {constraint}(9), ""message""{optionalNewline});");
 
             var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
                 string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));

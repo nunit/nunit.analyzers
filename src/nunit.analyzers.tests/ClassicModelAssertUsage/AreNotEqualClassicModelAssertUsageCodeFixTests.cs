@@ -145,5 +145,21 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
+        {
+            var optionalNewline = newlineBeforeClosingParen ? @"
+            " : string.Empty;
+            var code = TestUtility.WrapInTestMethod($@"
+            ↓ClassicAssert.AreNotEqual(
+                2d, 3d{optionalNewline});");
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(
+                3d, Is.Not.EqualTo(2d){optionalNewline});");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
     }
 }

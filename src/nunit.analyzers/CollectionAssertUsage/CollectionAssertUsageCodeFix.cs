@@ -116,7 +116,7 @@ namespace NUnit.Analyzers.CollectionAssertUsage
                         ArgumentList(SingletonSeparatedList(comparerArgument))));
             }
 
-            return (actualArgument.WithoutTrailingTrivia(), newConstraintArgument.WithTriviaFrom(actualArgument));
+            return (actualArgument, newConstraintArgument);
         }
 
         private static (ArgumentSyntax actualArgument, ArgumentSyntax constraintArgument) GetActualAndConstraintArguments(

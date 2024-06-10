@@ -195,5 +195,34 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }}");
             RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
+        {
+            var optionalNewline = newlineBeforeClosingParen ? @"
+            " : string.Empty;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var instance = new object();
+            var collection = Array.Empty<object>();
+
+            ↓ClassicAssert.Contains(
+                instance,
+                collection{optionalNewline});
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var instance = new object();
+            var collection = Array.Empty<object>();
+
+            Assert.That(
+                collection,
+                Does.Contain(instance){optionalNewline});
+        }}");
+
+            RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
     }
 }

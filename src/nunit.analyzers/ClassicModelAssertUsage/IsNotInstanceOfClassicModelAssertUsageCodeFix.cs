@@ -32,7 +32,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         SyntaxFactory.GenericName(NUnitFrameworkConstants.NameOfIsInstanceOf)
                             .WithTypeArgumentList(typeArguments))));
             var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter].WithNameColon(null);
-            return (actualArgument, constraintArgument.WithTriviaFrom(actualArgument));
+            return (actualArgument, constraintArgument);
         }
 
         protected override (ArgumentSyntax ActualArgument, ArgumentSyntax? ConstraintArgument) ConstructActualAndConstraintArguments(
@@ -53,7 +53,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                     SyntaxFactory.SingletonSeparatedList(expectedArgument))));
 
             var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter].WithNameColon(null);
-            return (actualArgument, constraintArgument.WithTriviaFrom(actualArgument));
+            return (actualArgument, constraintArgument);
         }
     }
 }

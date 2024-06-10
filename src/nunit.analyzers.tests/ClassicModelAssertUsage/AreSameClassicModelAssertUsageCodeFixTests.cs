@@ -179,8 +179,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             ↓ClassicAssert.AreSame(
                 expected,
-                actual,
-                ""message""
+                actual{commaAndMessage}
             );
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
@@ -191,10 +190,38 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 
             Assert.That(
                 actual,
-                Is.SameAs(expected),
-                ""message""
+                Is.SameAs(expected){commaAndMessage}
             );
         }}");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
+        {
+            var optionalNewline = newlineBeforeClosingParen ? @"
+            " : string.Empty;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var expected = new object();
+            var actual = new object();
+
+            ↓ClassicAssert.AreSame(
+                expected,
+                actual{optionalNewline});
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var expected = new object();
+            var actual = new object();
+
+            Assert.That(
+                actual,
+                Is.SameAs(expected){optionalNewline});
+        }}");
+
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }

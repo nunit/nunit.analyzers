@@ -23,12 +23,7 @@ namespace NUnit.Analyzers.ConstraintUsage
                 var expected = invocation.ArgumentList.Arguments.FirstOrDefault()?.Expression;
                 var constraintExpression = GetConstraintExpression(suggestedConstraintString, expected);
 
-                // Fix trivia
-                return (
-                    actual,
-                    constraintExpression is not null
-                        ? constraintExpression.WithTriviaFrom(conditionNode)
-                        : constraintExpression);
+                return (actual, constraintExpression);
             }
             else
             {

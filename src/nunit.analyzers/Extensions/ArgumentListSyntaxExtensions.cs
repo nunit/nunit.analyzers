@@ -54,12 +54,17 @@ namespace NUnit.Analyzers.Extensions
 
         private static bool TryGetFirstEndOfLineTrivia(SyntaxToken openParenToken, SyntaxToken[] separators, out SyntaxTrivia trailingTrivia)
         {
-            foreach (var trivia in openParenToken.TrailingTrivia)
+            // If there's only one argument, there are no separators.
+            // Therefore, use the trailing trivia of the opening parenthesis into account to make our best guess.
+            if (separators.Length == 0)
             {
-                if (trivia.IsKind(SyntaxKind.EndOfLineTrivia))
+                foreach (var trivia in openParenToken.TrailingTrivia)
                 {
-                    trailingTrivia = trivia;
-                    return true;
+                    if (trivia.IsKind(SyntaxKind.EndOfLineTrivia))
+                    {
+                        trailingTrivia = trivia;
+                        return true;
+                    }
                 }
             }
 

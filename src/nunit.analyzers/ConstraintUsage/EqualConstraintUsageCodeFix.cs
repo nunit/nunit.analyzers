@@ -35,10 +35,7 @@ namespace NUnit.Analyzers.ConstraintUsage
                 constraintExpression = null;
             }
 
-            // Fix trivia
-            return actual is not null && constraintExpression is not null
-                ? (actual.WithTriviaFrom(constraintExpression), constraintExpression.WithTriviaFrom(actual))
-                : (actual, constraintExpression);
+            return (actual, constraintExpression);
         }
 
         private static (ExpressionSyntax? actual, ExpressionOrPatternSyntax? expected) GetActualExpected(SyntaxNode conditionNode)

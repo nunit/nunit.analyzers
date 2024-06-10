@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -19,11 +21,18 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             new[] { nameof(string.EndsWith), AnalyzerIdentifiers.StringEndsWithConstraintUsage, "Does.EndWith" }
         };
 
-        private static readonly object[] NegativeAssertData = new[]
+        private static readonly Dictionary<string, string[]> NegativeAssertDictionary = new()
         {
-            new[] { nameof(string.Contains), AnalyzerIdentifiers.StringContainsConstraintUsage, "Does.Not.Contain" },
-            new[] { nameof(string.StartsWith), AnalyzerIdentifiers.StringStartsWithConstraintUsage, "Does.Not.StartWith" },
-            new[] { nameof(string.EndsWith), AnalyzerIdentifiers.StringEndsWithConstraintUsage, "Does.Not.EndWith" }
+            { nameof(string.Contains), new[] { nameof(string.Contains), AnalyzerIdentifiers.StringContainsConstraintUsage, "Does.Not.Contain" } },
+            { nameof(string.StartsWith), new[] { nameof(string.StartsWith), AnalyzerIdentifiers.StringStartsWithConstraintUsage, "Does.Not.StartWith" } },
+            { nameof(string.EndsWith), new[] { nameof(string.EndsWith), AnalyzerIdentifiers.StringEndsWithConstraintUsage, "Does.Not.EndWith" } },
+        };
+        private static readonly object[] NegativeAssertData = NegativeAssertDictionary.Values.ToArray();
+        private static readonly string[] StringConstraints = new[]
+        {
+            nameof(string.Contains),
+            nameof(string.StartsWith),
+            nameof(string.EndsWith),
         };
 
         [TestCaseSource(nameof(PositiveAssertData))]
@@ -151,6 +160,26 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 ""abc"",
                 {suggestedConstraint}(""ab"")
             );");
+
+            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+        }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
+            [ValueSource(nameof(StringConstraints))] string method,
+            [Values] bool newlineBeforeClosingParen)
+        {
+            var analyzerId = NegativeAssertDictionary[method][1];
+            var suggestedConstraint = NegativeAssertDictionary[method][2];
+            var optionalNewline = newlineBeforeClosingParen ? @"
+            " : string.Empty;
+            var code = TestUtility.WrapInTestMethod($@"
+            Assert.That(
+                ↓""abc"".{method}(""ab""), Is.False{optionalNewline});");
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(
+                ""abc"", {suggestedConstraint}(""ab""){optionalNewline});");
 
             RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }

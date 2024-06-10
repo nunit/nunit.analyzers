@@ -351,5 +351,23 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
+        {
+            var optionalNewline = newlineBeforeClosingParen ? @"
+            " : string.Empty;
+            var code = TestUtility.WrapInTestMethod($@"
+            var actual = ""abc"";
+            Assert.That(
+                actual.Equals(""abc""), Is.True{optionalNewline});");
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            var actual = ""abc"";
+            Assert.That(
+                actual, Is.EqualTo(""abc""){optionalNewline});");
+
+            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+        }
     }
 }

@@ -29,7 +29,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsTrue)));
 
             var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfConditionParameter].WithNameColon(null);
-            return (actualArgument, constraintArgument.WithTriviaFrom(actualArgument));
+            return (actualArgument, constraintArgument);
         }
     }
 }

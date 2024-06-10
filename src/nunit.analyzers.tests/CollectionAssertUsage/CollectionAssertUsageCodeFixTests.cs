@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NUnit.Analyzers.ClassicModelAssertUsage;
 using NUnit.Analyzers.CollectionAssertUsage;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
@@ -453,6 +454,51 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             Assert.That(collection, {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}, $""{{""first""}}, {{""second""}}"");
             ");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void CodeFixForTwoCollectionParameterAssertsMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
+            [ValueSource(nameof(TwoCollectionParameterAsserts))] string method,
+            [Values] bool newlineBeforeClosingParen)
+        {
+            var optionalNewline = newlineBeforeClosingParen ? @"
+            " : string.Empty;
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            ↓CollectionAssert.{method}(
+                collection1,
+                collection2{optionalNewline});");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            Assert.That(
+                {GetAdjustedTwoCollectionConstraint(method, insertNewline: true)}{optionalNewline});");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixForCollectionAndItemParameterAssertMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
+            [ValueSource(nameof(CollectionAndItemParameterAsserts))] string method,
+            [Values] bool newlineBeforeClosingParen)
+        {
+            var optionalNewline = newlineBeforeClosingParen ? @"
+            " : string.Empty;
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ typeof(byte), typeof(char) }};
+            var expected = typeof(byte);
+            ↓CollectionAssert.{method}(
+                collection,
+                expected{optionalNewline});");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ typeof(byte), typeof(char) }};
+            var expected = typeof(byte);
+            Assert.That(
+                collection,
+                {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}{optionalNewline});");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         private static string GetAdjustedTwoCollectionConstraint(string method, bool insertNewline = false)
