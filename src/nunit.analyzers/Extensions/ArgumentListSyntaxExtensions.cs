@@ -67,15 +67,17 @@ namespace NUnit.Analyzers.Extensions
                     }
                 }
             }
-
-            foreach (var separator in separators)
+            else
             {
-                foreach (var trivia in separator.TrailingTrivia)
+                foreach (var separator in separators)
                 {
-                    if (trivia.IsKind(SyntaxKind.EndOfLineTrivia))
+                    foreach (var trivia in separator.TrailingTrivia)
                     {
-                        trailingTrivia = trivia;
-                        return true;
+                        if (trivia.IsKind(SyntaxKind.EndOfLineTrivia))
+                        {
+                            trailingTrivia = trivia;
+                            return true;
+                        }
                     }
                 }
             }
