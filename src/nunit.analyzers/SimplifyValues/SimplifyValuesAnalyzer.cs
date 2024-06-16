@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
@@ -56,18 +55,8 @@ public sealed class SimplifyValuesAnalyzer : DiagnosticAnalyzer
 
     private static void AnalyzeParameter(SymbolAnalysisContext symbolContext, INamedTypeSymbol valuesType)
     {
-        var parameterSymbol = (IParameterSymbol)symbolContext.Symbol;
-
-        // Since this simplification should only be done for tests decorated with the Combinatorial attribute,
-        // first check the attributes of the method containing the Values attribute.
-        var syntaxReference = parameterSymbol.DeclaringSyntaxReferences.FirstOrDefault();
-        if (syntaxReference is null)
-            return;
-
-        var syntaxNode = syntaxReference.GetSyntax(symbolContext.CancellationToken);
-
-        var methodDeclarationSyntax = syntaxNode.Parent?.Parent as MethodDeclarationSyntax;
-        if (methodDeclarationSyntax is null)
+        var parameterSymbol = symbolContext.Symbol as IParameterSymbol;
+        if (parameterSymbol is null)
             return;
 
         var methodSymbol = parameterSymbol.ContainingSymbol as IMethodSymbol;
