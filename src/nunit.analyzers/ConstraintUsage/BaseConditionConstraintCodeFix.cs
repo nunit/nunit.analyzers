@@ -8,7 +8,6 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Formatting;
 using NUnit.Analyzers.Extensions;
 using NUnit.Analyzers.Helpers;
 using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
@@ -144,9 +143,7 @@ namespace NUnit.Analyzers.ConstraintUsage
                 constraintArgumentWithRightTrivia
             }.Union(remainingArguments);
 
-            var newArgumentsList = assertNode.ArgumentList
-                .WithArguments(newArguments)
-                .WithAdditionalAnnotations(Formatter.Annotation);
+            var newArgumentsList = assertNode.ArgumentList.WithArguments(newArguments);
 
             return newAssertNode.WithArgumentList(newArgumentsList);
         }

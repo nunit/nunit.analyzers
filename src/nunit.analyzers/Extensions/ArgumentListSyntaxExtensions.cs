@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace NUnit.Analyzers.Extensions
 {
@@ -18,7 +19,8 @@ namespace NUnit.Analyzers.Extensions
             // To match the old style as closely as possible, do not attempt anything if the number of arguments stayed the same
             if (originalArguments.Count == newArguments.Count())
             {
-                return @this.WithArguments(SyntaxFactory.SeparatedList(newArguments, originalSeparators));
+                return @this.WithArguments(SyntaxFactory.SeparatedList(newArguments, originalSeparators))
+                    .WithAdditionalAnnotations(Formatter.Annotation);
             }
 
             // Otherwise, the number of arguments has either increased or decreased, in which case
@@ -49,7 +51,8 @@ namespace NUnit.Analyzers.Extensions
 
             var newSeparatedList = SyntaxFactory.SeparatedList<ArgumentSyntax>(nodesAndTokens);
 
-            return @this.WithArguments(newSeparatedList);
+            return @this.WithArguments(newSeparatedList)
+                .WithAdditionalAnnotations(Formatter.Annotation);
         }
 
         private static bool TryGetFirstEndOfLineTrivia(SyntaxToken openParenToken, SyntaxToken[] separators, out SyntaxTrivia trailingTrivia)
