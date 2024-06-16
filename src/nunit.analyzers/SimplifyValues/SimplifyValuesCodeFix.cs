@@ -15,8 +15,8 @@ public class SimplifyValuesCodeFix : CodeFixProvider
 {
     internal const string SimplifyValuesTitle = "Simplify the Values attribute";
 
-    public override ImmutableArray<string> FixableDiagnosticIds
-        => ImmutableArray.Create(AnalyzerIdentifiers.SimplifyValues);
+    public override ImmutableArray<string> FixableDiagnosticIds { get; }
+        = ImmutableArray.Create(AnalyzerIdentifiers.SimplifyValues);
 
     public sealed override FixAllProvider GetFixAllProvider()
         => WellKnownFixAllProviders.BatchFixer;
