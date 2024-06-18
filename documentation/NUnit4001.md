@@ -12,7 +12,7 @@
 
 ## Description
 
-Consider simplifying the ValuesAttribute when you're using the CombinatorialAttribute.
+Consider removing unnecessary parameters from the ValuesAttribute.
 
 ## Motivation
 
