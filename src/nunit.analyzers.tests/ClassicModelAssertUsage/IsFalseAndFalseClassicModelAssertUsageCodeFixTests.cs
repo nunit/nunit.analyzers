@@ -176,8 +176,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var assertion = diagnosticIdsToAssertions[diagnosticId];
             var commaAndMessage = hasMessage
-                ? @",
-                ""message"""
+                ? ",\r\n                \"message\""
                 : string.Empty;
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
@@ -204,8 +203,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var assertion = diagnosticIdsToAssertions[diagnosticId];
             var commaAndMessage = hasMessage
-                ? @",
-                ""message"""
+                ? ",\r\n                \"message\""
                 : string.Empty;
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 

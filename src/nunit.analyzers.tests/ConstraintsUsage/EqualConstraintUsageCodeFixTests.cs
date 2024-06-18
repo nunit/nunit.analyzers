@@ -311,8 +311,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? @",
-                ""message"""
+                ? ",\r\n                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapInTestMethod($@"
             var actual = ""abc"";
@@ -332,8 +331,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? @",
-                ""message"""
+                ? ",\r\n                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapInTestMethod($@"
             var actual = ""abc"";

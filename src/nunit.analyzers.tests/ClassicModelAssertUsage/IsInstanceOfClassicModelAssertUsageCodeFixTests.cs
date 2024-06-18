@@ -364,8 +364,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void CodeFixForGenericMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? @",
-                ""message"""
+                ? ",\r\n                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
@@ -391,8 +390,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void CodeFixForGenericMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? @",
-                ""message"""
+                ? ",\r\n                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
