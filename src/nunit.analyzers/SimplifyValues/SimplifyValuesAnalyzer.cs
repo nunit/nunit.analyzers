@@ -65,8 +65,8 @@ public sealed class SimplifyValuesAnalyzer : DiagnosticAnalyzer
 
         var methodAttributes = methodSymbol.GetAttributes();
         var methodHasNonCombinatorialAttribute = methodAttributes
-            .Any(attribute => attribute.AttributeClass is { } attributeClass
-                && StringComparer.OrdinalIgnoreCase.Equals(
+            .Any(attribute => attribute.AttributeClass is INamedTypeSymbol attributeClass
+                && StringComparer.Ordinal.Equals(
                     attributeClass.ContainingNamespace.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
                     "global::NUnit.Framework")
                 && nonCombinatorialAttributes.Contains(attributeClass.Name));
