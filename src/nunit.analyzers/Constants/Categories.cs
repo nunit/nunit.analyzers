@@ -5,5 +5,6 @@ namespace NUnit.Analyzers.Constants
         internal const string Structure = nameof(Structure);
         internal const string Assertion = nameof(Assertion);
         internal const string Suppression = nameof(Suppression);
+        internal const string Style = nameof(Style);
     }
 }
