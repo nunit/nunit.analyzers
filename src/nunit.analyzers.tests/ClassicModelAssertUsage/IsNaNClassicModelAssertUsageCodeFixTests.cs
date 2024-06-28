@@ -123,5 +123,82 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage
+                ? ",\r\n                \"message\""
+                : string.Empty;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var expr = double.NaN;
+
+            ↓ClassicAssert.IsNaN(
+                expr{commaAndMessage});
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var expr = double.NaN;
+
+            Assert.That(
+                expr,
+                Is.NaN{commaAndMessage});
+        }}");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage
+                ? ",\r\n                \"message\""
+                : string.Empty;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var expr = double.NaN;
+
+            ↓ClassicAssert.IsNaN(
+                expr{commaAndMessage}
+            );
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var expr = double.NaN;
+
+            Assert.That(
+                expr,
+                Is.NaN{commaAndMessage}
+            );
+        }}");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
+        {
+            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var expr = double.NaN;
+
+            ↓ClassicAssert.IsNaN(
+                expr, ""message""{optionalNewline});
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var expr = double.NaN;
+
+            Assert.That(
+                expr, Is.NaN, ""message""{optionalNewline});
+        }}");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
     }
 }

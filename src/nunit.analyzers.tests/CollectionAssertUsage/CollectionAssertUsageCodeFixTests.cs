@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
+using NUnit.Analyzers.ClassicModelAssertUsage;
 using NUnit.Analyzers.CollectionAssertUsage;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
@@ -120,6 +121,130 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             var collection2 = new[] {{ 2, 4, 6 }};
             Assert.That({GetAdjustedTwoCollectionConstraint(method)});
             ");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void CodeFixForOneCollectionParameterAssertMaintainsReasonableTriviaWithEndOfLineClosingParen(
+            [ValueSource(nameof(OneCollectionParameterAsserts))] string method,
+            [Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage ? ",\r\n                \"message\"" : string.Empty;
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ 1, 2, 3 }};
+            ↓CollectionAssert.{method}(
+                collection{commaAndMessage});");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ 1, 2, 3 }};
+            Assert.That(
+                collection,
+                {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}{commaAndMessage});");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void CodeFixForOneCollectionParameterAssertMaintainsReasonableTriviaWithNewLineClosingParen(
+            [ValueSource(nameof(OneCollectionParameterAsserts))] string method,
+            [Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage ? ",\r\n                \"message\"" : string.Empty;
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ 1, 2, 3 }};
+            ↓CollectionAssert.{method}(
+                collection{commaAndMessage}
+            );");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ 1, 2, 3 }};
+            Assert.That(
+                collection,
+                {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}{commaAndMessage}
+            );");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void CodeFixForTwoCollectionParameterAssertMaintainsReasonableTriviaWithEndOfLineClosingParen(
+            [ValueSource(nameof(TwoCollectionParameterAsserts))] string method,
+            [Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage ? ",\r\n                \"message\"" : string.Empty;
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            ↓CollectionAssert.{method}(
+                collection1,
+                collection2{commaAndMessage});");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            Assert.That(
+                {GetAdjustedTwoCollectionConstraint(method, insertNewline: true)}{commaAndMessage});");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void CodeFixForTwoCollectionParameterAssertMaintainsReasonableTriviaWithNewLineClosingParen(
+            [ValueSource(nameof(TwoCollectionParameterAsserts))] string method,
+            [Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage ? ",\r\n                \"message\"" : string.Empty;
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            ↓CollectionAssert.{method}(
+                collection1,
+                collection2{commaAndMessage}
+            );");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            Assert.That(
+                {GetAdjustedTwoCollectionConstraint(method, insertNewline: true)}{commaAndMessage}
+            );");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void CodeFixForCollectionAndItemParameterAssertMaintainsReasonableTriviaWithEndOfLineClosingParen(
+            [ValueSource(nameof(CollectionAndItemParameterAsserts))] string method,
+            [Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage ? ",\r\n                \"message\"" : string.Empty;
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ typeof(byte), typeof(char) }};
+            var expected = typeof(byte);
+            ↓CollectionAssert.{method}(
+                collection,
+                expected{commaAndMessage});");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ typeof(byte), typeof(char) }};
+            var expected = typeof(byte);
+            Assert.That(
+                collection,
+                {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}{commaAndMessage});");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void CodeFixForCollectionAndItemParameterAssertMaintainsReasonableTriviaWithNewLineClosingParen(
+            [ValueSource(nameof(CollectionAndItemParameterAsserts))] string method,
+            [Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage ? ",\r\n                \"message\"" : string.Empty;
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ typeof(byte), typeof(char) }};
+            var expected = typeof(byte);
+            ↓CollectionAssert.{method}(
+                collection,
+                expected{commaAndMessage}
+            );");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ typeof(byte), typeof(char) }};
+            var expected = typeof(byte);
+            Assert.That(
+                collection,
+                {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}{commaAndMessage}
+            );");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
@@ -325,7 +450,50 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
-        private static string GetAdjustedTwoCollectionConstraint(string method)
+        [Test]
+        public void CodeFixForTwoCollectionParameterAssertsMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
+            [ValueSource(nameof(TwoCollectionParameterAsserts))] string method,
+            [Values] bool newlineBeforeClosingParen)
+        {
+            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            ↓CollectionAssert.{method}(
+                collection1,
+                collection2{optionalNewline});");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection1 = new[] {{ 1, 2, 3 }};
+            var collection2 = new[] {{ 2, 4, 6 }};
+            Assert.That(
+                {GetAdjustedTwoCollectionConstraint(method, insertNewline: true)}{optionalNewline});");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixForCollectionAndItemParameterAssertMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
+            [ValueSource(nameof(CollectionAndItemParameterAsserts))] string method,
+            [Values] bool newlineBeforeClosingParen)
+        {
+            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
+            var code = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ typeof(byte), typeof(char) }};
+            var expected = typeof(byte);
+            ↓CollectionAssert.{method}(
+                collection,
+                expected{optionalNewline});");
+            var fixedCode = TestUtility.WrapInTestMethod(@$"
+            var collection = new[] {{ typeof(byte), typeof(char) }};
+            var expected = typeof(byte);
+            Assert.That(
+                collection,
+                {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}{optionalNewline});");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        private static string GetAdjustedTwoCollectionConstraint(string method, bool insertNewline = false)
         {
             (string actualArgument, string constraintArgument) =
                 CollectionAssertUsageCodeFix.CollectionAssertToOneUnswappedParameterConstraints.ContainsKey(method)
@@ -334,7 +502,10 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
 
             string constraint = CollectionAssertUsageAnalyzer.TwoCollectionParameterAsserts[method]
                                                              .Replace("expected", constraintArgument);
-            return $"{actualArgument}, {constraint}";
+            return insertNewline
+                ? $@"{actualArgument},
+                {constraint}"
+                : $"{actualArgument}, {constraint}";
         }
     }
 }
