@@ -152,8 +152,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             [ValueSource(nameof(operatorTokens))] string operatorToken,
             [Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? @"
-            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
             var constraint = operatorTokensToConstraints[operatorToken];
             var code = TestUtility.WrapInTestMethod(@$"
             int actual = 5;

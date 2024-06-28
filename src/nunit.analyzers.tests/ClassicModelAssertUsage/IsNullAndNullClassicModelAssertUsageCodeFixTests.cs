@@ -205,8 +205,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             [ValueSource(nameof(diagnosticIds))] string diagnosticId,
             [Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? @"
-            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
             var assertion = diagnosticIdsToAssertions[diagnosticId];
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 

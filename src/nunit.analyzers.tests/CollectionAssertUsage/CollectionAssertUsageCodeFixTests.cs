@@ -455,8 +455,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             [ValueSource(nameof(TwoCollectionParameterAsserts))] string method,
             [Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? @"
-            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
             var code = TestUtility.WrapInTestMethod(@$"
             var collection1 = new[] {{ 1, 2, 3 }};
             var collection2 = new[] {{ 2, 4, 6 }};
@@ -477,8 +476,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             [ValueSource(nameof(CollectionAndItemParameterAsserts))] string method,
             [Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? @"
-            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
             var code = TestUtility.WrapInTestMethod(@$"
             var collection = new[] {{ typeof(byte), typeof(char) }};
             var expected = typeof(byte);

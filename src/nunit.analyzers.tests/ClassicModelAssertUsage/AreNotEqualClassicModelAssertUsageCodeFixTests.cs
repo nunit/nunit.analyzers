@@ -147,8 +147,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? @"
-            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
             var code = TestUtility.WrapInTestMethod($@"
             ↓ClassicAssert.AreNotEqual(
                 2d, 3d{optionalNewline});");

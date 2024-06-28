@@ -143,8 +143,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? @"
-            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
             var testCode = TestUtility.WrapInTestMethod($@"
             ClassicAssert.IsFalse(
                 ↓new[] {{ 1, 2, 3 }}.Contains(1), ""message""{optionalNewline});",

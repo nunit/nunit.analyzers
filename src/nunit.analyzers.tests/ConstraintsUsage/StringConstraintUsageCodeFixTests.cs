@@ -167,8 +167,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         {
             var analyzerId = NegativeAssertDictionary[method][1];
             var suggestedConstraint = NegativeAssertDictionary[method][2];
-            var optionalNewline = newlineBeforeClosingParen ? @"
-            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
             var code = TestUtility.WrapInTestMethod($@"
             Assert.That(
                 ↓""abc"".{method}(""ab""), Is.False{optionalNewline});");
