@@ -206,8 +206,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var actual = new object();
 
             ↓ClassicAssert.AreSame(
-                expected,
-                actual{optionalNewline});
+                expected, actual{optionalNewline});
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
@@ -216,8 +215,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var actual = new object();
 
             Assert.That(
-                actual,
-                Is.SameAs(expected){optionalNewline});
+                actual, Is.SameAs(expected){optionalNewline});
         }}");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);

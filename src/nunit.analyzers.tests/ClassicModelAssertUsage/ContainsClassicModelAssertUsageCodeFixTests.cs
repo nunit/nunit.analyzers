@@ -206,8 +206,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var collection = Array.Empty<object>();
 
             ↓ClassicAssert.Contains(
-                instance,
-                collection{optionalNewline});
+                instance, collection{optionalNewline});
         }}");
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
@@ -216,8 +215,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var collection = Array.Empty<object>();
 
             Assert.That(
-                collection,
-                Does.Contain(instance){optionalNewline});
+                collection, Does.Contain(instance){optionalNewline});
         }}");
 
             RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
