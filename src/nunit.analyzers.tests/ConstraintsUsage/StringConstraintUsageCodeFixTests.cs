@@ -14,12 +14,13 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         private static readonly DiagnosticAnalyzer analyzer = new StringConstraintUsageAnalyzer();
         private static readonly CodeFixProvider fix = new StringConstraintUsageCodeFix();
 
-        private static readonly object[] PositiveAssertData = new[]
+        private static readonly Dictionary<string, string[]> PositiveAssertDictionary = new()
         {
-            new[] { nameof(string.Contains), AnalyzerIdentifiers.StringContainsConstraintUsage, "Does.Contain" },
-            new[] { nameof(string.StartsWith), AnalyzerIdentifiers.StringStartsWithConstraintUsage, "Does.StartWith" },
-            new[] { nameof(string.EndsWith), AnalyzerIdentifiers.StringEndsWithConstraintUsage, "Does.EndWith" }
+            { nameof(string.Contains), new[] { nameof(string.Contains), AnalyzerIdentifiers.StringContainsConstraintUsage, "Does.Contain" } },
+            { nameof(string.StartsWith), new[] { nameof(string.StartsWith), AnalyzerIdentifiers.StringStartsWithConstraintUsage, "Does.StartWith" } },
+            { nameof(string.EndsWith), new[] { nameof(string.EndsWith), AnalyzerIdentifiers.StringEndsWithConstraintUsage, "Does.EndWith" } },
         };
+        private static readonly object[] PositiveAssertData = PositiveAssertDictionary.Values.ToArray();
 
         private static readonly Dictionary<string, string[]> NegativeAssertDictionary = new()
         {
@@ -28,12 +29,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             { nameof(string.EndsWith), new[] { nameof(string.EndsWith), AnalyzerIdentifiers.StringEndsWithConstraintUsage, "Does.Not.EndWith" } },
         };
         private static readonly object[] NegativeAssertData = NegativeAssertDictionary.Values.ToArray();
-        private static readonly string[] StringConstraints = new[]
-        {
-            nameof(string.Contains),
-            nameof(string.StartsWith),
-            nameof(string.EndsWith),
-        };
+        private static readonly string[] StringConstraints = PositiveAssertDictionary.Keys.ToArray();
 
         [TestCaseSource(nameof(PositiveAssertData))]
         public void AnalyzeStringBooleanMethodAssertTrue(string method, string analyzerId, string suggestedConstraint)
