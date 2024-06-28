@@ -127,20 +127,20 @@ namespace NUnit.Analyzers.ConstraintUsage
                 : assertNode.ArgumentList.Arguments.Skip(1);
 
             var actualArgument = SyntaxFactory.Argument(actual);
-            var actualArgumentWithRightTrivia = conditionNode is not null
+            var actualArgumentWithCorrectTrivia = conditionNode is not null
                 ? actualArgument.WithLeadingTrivia(conditionNode.GetLeadingTrivia()) // ignore the trailing trivia, as there is a following argument
                 : actualArgument;
 
             var lastOriginalArgument = assertNode.ArgumentList.Arguments.Last();
             var constraintArgument = SyntaxFactory.Argument(constraintExpression).WithTriviaFrom(lastOriginalArgument);
-            var constraintArgumentWithRightTrivia = remainingArguments.Any()
+            var constraintArgumentWithCorrectTrivia = remainingArguments.Any()
                 ? constraintArgument.WithoutTrailingTrivia() // remove the trailing trivia, as there is a following argument
                 : constraintArgument;
 
             var newArguments = new[]
             {
-                actualArgumentWithRightTrivia,
-                constraintArgumentWithRightTrivia
+                actualArgumentWithCorrectTrivia,
+                constraintArgumentWithCorrectTrivia
             }.Union(remainingArguments);
 
             var newArgumentsList = assertNode.ArgumentList.WithArguments(newArguments);
