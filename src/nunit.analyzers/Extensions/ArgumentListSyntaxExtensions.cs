@@ -25,7 +25,7 @@ namespace NUnit.Analyzers.Extensions
 
             // Otherwise, the number of arguments has either increased or decreased, in which case
             // there is no one-size-fits-all answer on what to do about the trivias around separators.
-            // Therefore, add a newline after the the separator if either the opening parenthesis
+            // Therefore, add a newline after the separator if either the opening parenthesis
             // or any of the original separators had a trailing newline.
             var shouldAddTrailingNewlineAfterComma = TryGetFirstEndOfLineTrivia(@this.OpenParenToken, originalSeparators, out var trailingTrivia);
 
