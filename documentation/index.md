@@ -51,6 +51,7 @@ Rules which enforce structural requirements on the test code.
 | [NUnit1030](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1030.md) | The type of parameter provided by the TestCaseSource does not match the type of the parameter in the Test method | :white_check_mark: | :exclamation: | :x: |
 | [NUnit1031](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1031.md) | The individual arguments provided by a ValuesAttribute must match the type of the corresponding parameter of the method | :white_check_mark: | :exclamation: | :x: |
 | [NUnit1032](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1032.md) | An IDisposable field/property should be Disposed in a TearDown method | :white_check_mark: | :exclamation: | :x: |
+| [NUnit1033](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1033.md) | The Write methods on TestContext are Obsolete | :white_check_mark: | :exclamation: | :white_check_mark: |
 
 ## Assertion Rules (NUnit2001 - )
 

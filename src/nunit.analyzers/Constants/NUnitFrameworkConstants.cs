@@ -52,6 +52,10 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfMultiple = "Multiple";
         public const string NameOfMultipleAsync = "MultipleAsync";
 
+        public const string NameOfOut = "Out";
+        public const string NameOfWrite = "Write";
+        public const string NameOfWriteLine = "WriteLine";
+
         public const string NameOfThrows = "Throws";
         public const string NameOfThrowsArgumentException = "ArgumentException";
         public const string NameOfThrowsArgumentNullException = "ArgumentNullException";
@@ -152,6 +156,8 @@ namespace NUnit.Analyzers.Constants
 
         public const string FullNameOfCancelAfterAttribute = "NUnit.Framework.CancelAfterAttribute";
         public const string FullNameOfCancellationToken = "System.Threading.CancellationToken";
+
+        public const string FullNameOfTypeTestContext = "NUnit.Framework.TestContext";
 
         public const string NameOfConstraint = "Constraint";
 
