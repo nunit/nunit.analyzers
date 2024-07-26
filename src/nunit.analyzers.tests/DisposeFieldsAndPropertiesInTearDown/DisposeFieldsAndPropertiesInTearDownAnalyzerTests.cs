@@ -1034,6 +1034,8 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         {{
             private const double Tolerance = 1E-10;
 
+            private IDisposable? field;
+
             private static IDisposable? Property {{ get; set; }}
 
             [SetUp]
@@ -1059,6 +1061,8 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             [Test]
             public void SomeTest()
             {
+                // field needs Disposal, but as TearDown is in a different source 'file' we cannot check if it is.
+                field = new DummyDisposable();
                 SomeAsserts();
             }
         }");
