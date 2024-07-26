@@ -15,6 +15,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     [TestFixture]
     public sealed class TestCaseUsageAnalyzerTests
     {
+#if NUNIT4
 #if NET6_0_OR_GREATER
         // This can go once NUnit 4.2.0 is released and we update our reference.
         private const string GenericTestCaseAttributeSource = """
@@ -62,6 +63,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             }
             
             """;
+#endif
 #endif
 
         private readonly DiagnosticAnalyzer analyzer = new TestCaseUsageAnalyzer();
