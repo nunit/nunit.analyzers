@@ -11,7 +11,7 @@
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Nullable>enable</Nullable>
-    <LangVersion>11.0</LangVersion>
+    <LangVersion>preview</LangVersion>
     <!-- Counter intuitive, but this only enabled the pre-shipped analyzer, we configure them below -->
     <EnableNETAnalyzers>false</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
