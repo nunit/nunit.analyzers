@@ -366,6 +366,12 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
         {
             if (IsPossibleDisposableCreation(expression))
             {
+                if (model.SyntaxTree != expression.SyntaxTree)
+                {
+                    // It might need it, but we cannot check it.
+                    return false;
+                }
+
                 ITypeSymbol? instanceType = model.GetTypeInfo(expression).Type;
                 return instanceType is not null &&
                        instanceType.IsDisposable() &&
