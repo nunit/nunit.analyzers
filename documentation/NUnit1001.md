@@ -29,6 +29,12 @@ public void SampleTest(int numberValue)
 {
     Assert.That(numberValue, Is.EqualTo(1));
 }
+
+[TestCase<double>(42)]
+public void SampleTest(int numberValue)
+{
+    Assert.That(numberValue, Is.EqualTo(1));
+}
 ```
 
 ### Problem

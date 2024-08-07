@@ -75,7 +75,9 @@ namespace NUnit.Analyzers.TestCaseUsage
 
             var testCaseAttributes = methodAttributes
                 .Where(a => a.ApplicationSyntaxReference is not null
-                    && SymbolEqualityComparer.Default.Equals(a.AttributeClass, testCaseType));
+                    && (SymbolEqualityComparer.Default.Equals(a.AttributeClass, testCaseType) ||
+                        (a.AttributeClass is not null && a.AttributeClass.IsGenericType &&
+                        SymbolEqualityComparer.Default.Equals(a.AttributeClass.BaseType, testCaseType))));
 
             foreach (var attribute in testCaseAttributes)
             {
