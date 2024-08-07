@@ -28,7 +28,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfDoes),
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfDoesContain)))
                 .WithArgumentList(SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SingletonSeparatedList(expectedArgument))));
+                    SyntaxFactory.SingletonSeparatedList(expectedArgument.WithoutTrivia()))));
 
             var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter].WithNameColon(null);
             return (actualArgument, constraintArgument);

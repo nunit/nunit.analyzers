@@ -301,5 +301,140 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             Assert.That(actual, Is.InstanceOf<int>(), $""{""first""}, {""second""}"");");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expected = typeof(int);
+            var actual = 42;
+
+            ↓ClassicAssert.IsInstanceOf(
+                expected,
+                actual,
+                ""message"");
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expected = typeof(int);
+            var actual = 42;
+
+            Assert.That(
+                actual,
+                Is.InstanceOf(expected),
+                ""message"");
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expected = typeof(int);
+            var actual = 42;
+
+            ↓ClassicAssert.IsInstanceOf(
+                expected,
+                actual,
+                ""message""
+            );
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMethod()
+        {
+            var expected = typeof(int);
+            var actual = 42;
+
+            Assert.That(
+                actual,
+                Is.InstanceOf(expected),
+                ""message""
+            );
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixForGenericMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage
+                ? ",\r\n                \"message\""
+                : string.Empty;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var actual = 42;
+
+            ↓ClassicAssert.IsInstanceOf<int>(
+                actual{commaAndMessage});
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var actual = 42;
+
+            Assert.That(
+                actual,
+                Is.InstanceOf<int>(){commaAndMessage});
+        }}");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixForGenericMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage
+                ? ",\r\n                \"message\""
+                : string.Empty;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var actual = 42;
+
+            ↓ClassicAssert.IsInstanceOf<int>(
+                actual{commaAndMessage}
+            );
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var actual = 42;
+
+            Assert.That(
+                actual,
+                Is.InstanceOf<int>(){commaAndMessage}
+            );
+        }}");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
+        {
+            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var actual = 42;
+
+            ↓ClassicAssert.IsInstanceOf<int>(
+                actual, ""message""{optionalNewline});
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var actual = 42;
+
+            Assert.That(
+                actual, Is.InstanceOf<int>(), ""message""{optionalNewline});
+        }}");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
     }
 }

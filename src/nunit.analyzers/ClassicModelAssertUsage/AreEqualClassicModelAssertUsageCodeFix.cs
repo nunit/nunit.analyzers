@@ -27,7 +27,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsEqualTo)))
                 .WithArgumentList(SyntaxFactory.ArgumentList(
-                    SyntaxFactory.SingletonSeparatedList(expectedArgument)));
+                    SyntaxFactory.SingletonSeparatedList(expectedArgument.WithoutTrivia())));
 
             // The tolerance argument has to be added to the "Is.EqualTo(expected)" as ".Within(tolerance)"
             if (argumentNamesToArguments.TryGetValue(NUnitFrameworkConstants.NameOfDeltaParameter, out var toleranceArgument))
@@ -42,7 +42,7 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                         equalToInvocationNode,
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfEqualConstraintWithin)))
                     .WithArgumentList(SyntaxFactory.ArgumentList(
-                        SyntaxFactory.SingletonSeparatedList(toleranceArgumentNoColon)));
+                        SyntaxFactory.SingletonSeparatedList(toleranceArgumentNoColon.WithoutTrivia())));
             }
 
             var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter].WithNameColon(null);
