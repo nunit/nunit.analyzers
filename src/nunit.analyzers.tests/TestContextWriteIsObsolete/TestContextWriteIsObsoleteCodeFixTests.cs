@@ -20,7 +20,7 @@ namespace NUnit.Analyzers.Tests.TestContextWriteIsObsolete
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
                 public void Test()
                 {{
-                    TestContext.{writeMethodAndParameters};
+                    ↓TestContext.{writeMethodAndParameters};
                 }}");
 
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"

@@ -18,7 +18,7 @@ namespace NUnit.Analyzers.Tests.TestContextWriteIsObsolete
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
                 public void Test()
                 {{
-                    TestContext.{writeMethodAndParameters};
+                    ↓TestContext.{writeMethodAndParameters};
                 }}");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);

@@ -14,7 +14,7 @@ namespace NUnit.Analyzers.TestContextWriteIsObsolete
             title: TestContextWriteIsObsoleteAnalyzerConstants.Title,
             messageFormat: TestContextWriteIsObsoleteAnalyzerConstants.Message,
             category: Categories.Structure,
-            defaultSeverity: DiagnosticSeverity.Error,
+            defaultSeverity: DiagnosticSeverity.Warning,
             description: TestContextWriteIsObsoleteAnalyzerConstants.Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(descriptor);
