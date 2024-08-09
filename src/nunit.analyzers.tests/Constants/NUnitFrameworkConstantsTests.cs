@@ -76,6 +76,10 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfMultipleAsync), "MultipleAsync"),
 #endif
 
+            (nameof(NUnitFrameworkConstants.NameOfOut), nameof(TestContext.Out)),
+            (nameof(NUnitFrameworkConstants.NameOfWrite), nameof(TestContext.Out.Write)),
+            (nameof(NUnitFrameworkConstants.NameOfWriteLine), nameof(TestContext.Out.WriteLine)),
+
             (nameof(NUnitFrameworkConstants.NameOfThrows), nameof(Throws)),
             (nameof(NUnitFrameworkConstants.NameOfThrowsArgumentException), nameof(Throws.ArgumentException)),
             (nameof(NUnitFrameworkConstants.NameOfThrowsArgumentNullException), nameof(Throws.ArgumentNullException)),
@@ -207,6 +211,8 @@ namespace NUnit.Analyzers.Tests.Constants
 
             (nameof(NUnitFrameworkConstants.FullNameOfCancelAfterAttribute), typeof(CancelAfterAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfCancellationToken), typeof(CancellationToken)),
+
+            (nameof(NUnitFrameworkConstants.FullNameOfTypeTestContext), typeof(TestContext)),
 
             (nameof(NUnitFrameworkConstants.FullNameOfSameAsConstraint), typeof(SameAsConstraint)),
             (nameof(NUnitFrameworkConstants.FullNameOfSomeItemsConstraint), typeof(SomeItemsConstraint)),
