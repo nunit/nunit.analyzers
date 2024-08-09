@@ -28,7 +28,6 @@ Besides this being inconsistent, later versions of .NET added new overloads,
 Instead of adding more and more dummy wrappers, it was decided that user code should use
  the `Out` property and then can use any `Write` overload available on `TextWriter`.
 
-
 ## How to fix violations
 
 Simply insert `.Out` between `TestContext` and `.Write`.
