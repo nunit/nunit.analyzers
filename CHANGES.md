@@ -1,4 +1,48 @@
-﻿# NUnit Analyzers 4.2 - April 24, 2024
+﻿# NUnit Analyzers 4.3 - August 9, 2024
+
+This release of the NUnit Analyzers contains some bug fixes to existing analyzers and code fixes - among other
+improvements to trivia when using the code fix of NUnit2049.
+
+For new features we now warn against using `TestContext.Write` as this will be obsolete in NUnit at some point;
+NUnit1001 now recognises and check generic TestCase attributes; and we have added a new analyzer and code fix for
+simplifying usages of `ValuesAttribute`.
+
+The release contains contributions from the following users (in alphabetical order):
+* @andrewimcclement
+* @Bartleby2718
+* @DrPepperBianco
+* @KaiBNET
+* @maettu-this
+* @manfred-brands
+* @mikkelbu
+* @RenderMichael
+* @SeanKilleen
+* @trampster
+
+Issues Resolved
+
+Features and Enhancements
+* #770 Add rule to detect calls to TestContext.Write methods and CodeFix to replace usages with Out.Write
+* #767 Augment NUnit1001 to recognized and check generic TestCase attributes
+* #755 New diagnostic: The Values attribute can be simplified.
+
+Bugs
+* #766 Error when TearDown method is defined in partial test classes - Syntax node is not within syntax tree
+* #743 NUnit1032 (missing Dispose), if dispose is wrapped in "(… as IDisposable)?.Dispose()"
+* #739 Null suppression does not work when Assert is fully qualified
+* #713 Code fix for NUnit2049 places the comma at a wrong place and messes up indentation bug
+
+Tooling, Process, and Documentation
+* #764 Update the solution file
+* #761 Update nunit.analyzers.nuspec to specify that NUnit.Analyzers v4 is intended to be used with NUnit 4. 
+* #756 error NUnit1032 is incorrect when InstancePerTestCase and constructor is used to initialize IDisposible
+* #741 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.9.0 to 17.10.0 in /src 
+* #737 Update NUnit2013.md to fix code block 
+* #736 chore: bump version 
+* #734 Why dropping composite message formatting support also for Assert.Pass/Fail/... where there are no actual and constraint parameters?
+
+
+# NUnit Analyzers 4.2 - April 24, 2024
 
 This release of the Analyzers extends NUnit2050 to also cover `Assume` and Nunit1032 to consider dispose of a type 
 having explicit interface implementation. Furthermore, named parameters are now handled correctly codefixes for 
