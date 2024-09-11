@@ -84,7 +84,9 @@ namespace NUnit.Analyzers.ConstActualValueUsage
 
             var newRoot = root
                 .ReplaceNodes(new[] { expectedArgument, actualArgument },
-                    (node, _) => node == actualArgument ? expectedArgument : actualArgument);
+                    (node, _) => node == actualArgument
+                        ? expectedArgument.WithTriviaFrom(actualArgument)
+                        : actualArgument.WithTriviaFrom(expectedArgument));
 
             var codeAction = CodeAction.Create(
                 SwapArgumentsDescription,

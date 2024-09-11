@@ -46,6 +46,32 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         }
 
         [TestCase(nameof(ClassicAssert.AreEqual))]
+        [TestCase(nameof(ClassicAssert.AreNotEqual))]
+        [TestCase(nameof(ClassicAssert.AreSame))]
+        [TestCase(nameof(ClassicAssert.AreNotSame))]
+        public void LiteralArgumentIsProvidedForClassicAssertCodeFixWithNewLine(string classicAssertMethod)
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                public void Test()
+                {{
+                    int expected = 5;
+                    ClassicAssert.{classicAssertMethod}(expected,
+                        ↓1);
+                }}");
+
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+                public void Test()
+                {{
+                    int expected = 5;
+                    ClassicAssert.{classicAssertMethod}(1,
+                        expected);
+                }}");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+                fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
+        }
+
+        [TestCase(nameof(ClassicAssert.AreEqual))]
         public void LiteralArgumentIsProvidedForClassicAssertWithDeltaCodeFix(string classicAssertMethod)
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
