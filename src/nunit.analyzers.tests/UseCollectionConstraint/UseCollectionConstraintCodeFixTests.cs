@@ -52,6 +52,26 @@ namespace NUnit.Analyzers.Tests.UseCollectionConstraint
         }
 
         [TestCaseSource(nameof(NumericContraints))]
+        public void VerifyLengthWithNewLine(string constraint)
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var array = new int[] {{ 1 }};
+            Assert.That(↓array.Length,
+                Is.{constraint});
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var array = new int[] {{ 1 }};
+            Assert.That(array,
+                Has.Length.{constraint});
+        }}");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [TestCaseSource(nameof(NumericContraints))]
         public void VerifyCount(string constraint)
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
