@@ -85,7 +85,7 @@ namespace NUnit.Analyzers.UseCollectionConstraint
                 var hasPropertyExpression = SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfHas),
-                        propertyName);
+                        propertyName).WithTriviaFrom(innerConstraintExpression);
 
                 nodesToReplace.Add(innerConstraintExpression, hasPropertyExpression);
 
