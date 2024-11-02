@@ -1,5 +1,6 @@
 # NUnit2054
 
+<!-- markdownlint-disable-next-line MD013 -->
 ## Consider using Assert.That(actual, Is.Not.AssignableFrom(expected)) instead of ClassicAssert.IsNotAssignableFrom(expected, actual)
 
 | Topic    | Value
@@ -17,8 +18,8 @@ Consider using the constraint model, `Assert.That(actual, Is.Not.AssignableFrom(
 
 ## Motivation
 
-The assert `ClassicAssert.IsNotAssignableFrom` from the classic Assert model makes it easy to confuse the `expected` and the
-`actual` argument, so this analyzer marks usages of `ClassicAssert.IsNotAssignableFrom`.
+The assert `ClassicAssert.IsNotAssignableFrom` from the classic Assert model makes it easy to confuse the `expected`
+and the `actual` argument, so this analyzer marks usages of `ClassicAssert.IsNotAssignableFrom`.
 
 ```csharp
 [Test]
