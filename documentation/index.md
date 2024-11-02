@@ -109,6 +109,8 @@ Rules which improve assertions in the test code.
 | [NUnit2048](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2048.md) | Consider using Assert.That(...) instead of StringAssert(...) | :white_check_mark: | :warning: | :white_check_mark: |
 | [NUnit2049](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2049.md) | Consider using Assert.That(...) instead of CollectionAssert(...) | :white_check_mark: | :warning: | :white_check_mark: |
 | [NUnit2050](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2050.md) | NUnit 4 no longer supports string.Format specification | :white_check_mark: | :exclamation: | :white_check_mark: |
+| [NUnit2051](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2051.md) | Consider using Assert.That(expr, Is.Positive) instead of ClassicAssert.Positive(expr) | :white_check_mark: | :information_source: | :white_check_mark: |
+| [NUnit2052](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2052.md) | Consider using Assert.That(expr, Is.Negative) instead of ClassicAssert.Negative(expr) | :white_check_mark: | :information_source: | :white_check_mark: |
 
 ## Suppressor Rules (NUnit3001 - )
 

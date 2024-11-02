@@ -97,5 +97,13 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
         internal const string IsNotInstanceOfTitle = "Consider using Assert.That(actual, Is.Not.InstanceOf(expected)) instead of ClassicAssert.IsNotInstanceOf(expected, actual)";
         internal const string IsNotInstanceOfMessage = "Consider using the constraint model, Assert.That(actual, Is.Not.InstanceOf(expected)), instead of the classic model, ClassicAssert.IsNotInstanceOf(expected, actual)";
         internal const string IsNotInstanceOfDescription = "Consider using the constraint model, Assert.That(actual, Is.Not.InstanceOf(expected)), instead of the classic model, ClassicAssert.IsNotInstanceOf(expected, actual).";
+
+        internal const string PositiveTitle = "Consider using Assert.That(expr, Is.Positive) instead of ClassicAssert.Positive(expr)";
+        internal const string PositiveMessage = "Consider using the constraint model, Assert.That(expr, Is.Positive), instead of the classic model, ClassicAssert.Positive(expr)";
+        internal const string PositiveDescription = "Consider using the constraint model, Assert.That(expr, Is.Positive), instead of the classic model, ClassicAssert.Positive(expr).";
+
+        internal const string NegativeTitle = "Consider using Assert.That(expr, Is.Negative) instead of ClassicAssert.Negative(expr)";
+        internal const string NegativeMessage = "Consider using the constraint model, Assert.That(expr, Is.Negative), instead of the classic model, ClassicAssert.Negative(expr)";
+        internal const string NegativeDescription = "Consider using the constraint model, Assert.That(expr, Is.Negative), instead of the classic model, ClassicAssert.Negative(expr).";
     }
 }

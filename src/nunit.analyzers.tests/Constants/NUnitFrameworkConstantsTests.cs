@@ -42,6 +42,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfIsLessThan), nameof(Is.LessThan)),
             (nameof(NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo), nameof(Is.LessThanOrEqualTo)),
             (nameof(NUnitFrameworkConstants.NameOfIsPositive), nameof(Is.Positive)),
+            (nameof(NUnitFrameworkConstants.NameOfIsNegative), nameof(Is.Negative)),
             (nameof(NUnitFrameworkConstants.NameOfIsZero), nameof(Is.Zero)),
             (nameof(NUnitFrameworkConstants.NameOfIsNaN), nameof(Is.NaN)),
             (nameof(NUnitFrameworkConstants.NameOfIsEmpty), nameof(Is.Empty)),
@@ -120,6 +121,8 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfAssertContains), nameof(ClassicAssert.Contains)),
             (nameof(NUnitFrameworkConstants.NameOfAssertIsInstanceOf), nameof(ClassicAssert.IsInstanceOf)),
             (nameof(NUnitFrameworkConstants.NameOfAssertIsNotInstanceOf), nameof(ClassicAssert.IsNotInstanceOf)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertPositive), nameof(ClassicAssert.Positive)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertNegative), nameof(ClassicAssert.Negative)),
 
             (nameof(NUnitFrameworkConstants.NameOfAssertCatch), nameof(Assert.Catch)),
             (nameof(NUnitFrameworkConstants.NameOfAssertCatchAsync), nameof(Assert.CatchAsync)),
