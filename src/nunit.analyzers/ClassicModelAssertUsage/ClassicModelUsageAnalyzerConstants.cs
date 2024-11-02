@@ -105,5 +105,13 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
         internal const string NegativeTitle = "Consider using Assert.That(expr, Is.Negative) instead of ClassicAssert.Negative(expr)";
         internal const string NegativeMessage = "Consider using the constraint model, Assert.That(expr, Is.Negative), instead of the classic model, ClassicAssert.Negative(expr)";
         internal const string NegativeDescription = "Consider using the constraint model, Assert.That(expr, Is.Negative), instead of the classic model, ClassicAssert.Negative(expr).";
+
+        internal const string IsAssignableFromTitle = "Consider using Assert.That(actual, Is.AssignableFrom(expected)) instead of ClassicAssert.IsAssignableFrom(expected, actual)";
+        internal const string IsAssignableFromMessage = "Consider using the constraint model, Assert.That(actual, Is.AssignableFrom(expected)), instead of the classic model, ClassicAssert.IsAssignableFrom(expected, actual)";
+        internal const string IsAssignableFromDescription = "Consider using the constraint model, Assert.That(actual, Is.AssignableFrom(expected)), instead of the classic model, ClassicAssert.IsAssignableFrom(expected, actual).";
+
+        internal const string IsNotAssignableFromTitle = "Consider using Assert.That(actual, Is.Not.AssignableFrom(expected)) instead of ClassicAssert.IsNotAssignableFrom(expected, actual)";
+        internal const string IsNotAssignableFromMessage = "Consider using the constraint model, Assert.That(actual, Is.Not.AssignableFrom(expected)), instead of the classic model, ClassicAssert.IsNotAssignableFrom(expected, actual)";
+        internal const string IsNotAssignableFromDescription = "Consider using the constraint model, Assert.That(actual, Is.Not.AssignableFrom(expected)), instead of the classic model, ClassicAssert.IsNotAssignableFrom(expected, actual).";
     }
 }

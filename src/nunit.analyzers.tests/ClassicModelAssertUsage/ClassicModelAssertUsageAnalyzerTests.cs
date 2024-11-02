@@ -21,7 +21,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var analyzer = new ClassicModelAssertUsageAnalyzer();
             var diagnostics = analyzer.SupportedDiagnostics;
 
-            Assert.That(diagnostics, Has.Length.EqualTo(26), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
+            Assert.That(diagnostics, Has.Length.EqualTo(28), nameof(DiagnosticAnalyzer.SupportedDiagnostics));
 
             foreach (var diagnostic in diagnostics)
             {
