@@ -15,57 +15,6 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     [TestFixture]
     public sealed class TestCaseUsageAnalyzerTests
     {
-#if NUNIT4
-#if NET6_0_OR_GREATER
-        // This can go once NUnit 4.2.0 is released and we update our reference.
-        private const string GenericTestCaseAttributeSource = """
-            using System;
-
-            namespace NUnit.Framework
-            {
-            #pragma warning disable CA1019 // Define accessors for attribute arguments
-
-                /// <summary>
-                /// Marks a method as a parameterized test suite and provides arguments for each test case.
-                /// </summary>
-                /// <typeparam name="T">The type of the argument for the test case.</typeparam>
-                [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
-                public sealed class TestCaseAttribute<T> : TestCaseAttribute
-                {
-                    /// <summary>
-                    /// Initializes a new instance of the <see cref="TestCaseAttribute{T}"/> class.
-                    /// </summary>
-                    /// <param name="argument">The argument for the test case.</param>
-                    public TestCaseAttribute(T argument)
-                        : base(new object?[] { argument })
-                    {
-                        this.TypeArgs = new[] { typeof(T) };
-                    }
-                }
-            
-                /// <summary>
-                /// Marks a method as a parameterized test suite and provides arguments for each test case.
-                /// </summary>
-                /// <typeparam name="T">The type of the argument for the test case.</typeparam>
-                [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]
-                public sealed class TestCaseAttribute<T1, T2> : TestCaseAttribute
-                {
-                    /// <summary>
-                    /// Initializes a new instance of the <see cref="TestCaseAttribute{T1,T2}"/> class.
-                    /// </summary>
-                    /// <param name="argument">The argument for the test case.</param>
-                    public TestCaseAttribute(T1 argument1, T2 argument2)
-                        : base(new object?[] { argument1, argument2 })
-                    {
-                        this.TypeArgs = new[] { typeof(T1), typeof(T2) };
-                    }
-                }
-            }
-            
-            """;
-#endif
-#endif
-
         private readonly DiagnosticAnalyzer analyzer = new TestCaseUsageAnalyzer();
 
         private static IEnumerable<TestCaseData> SpecialConversions
@@ -818,7 +767,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase<byte>(2)]
         public void Test(byte a) { }
     }");
-            RoslynAssert.Valid(this.analyzer, GenericTestCaseAttributeSource, testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -830,7 +779,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase<byte, uint>(2, 3)]
         public void Test(byte a, uint b) { }
     }");
-            RoslynAssert.Valid(this.analyzer, GenericTestCaseAttributeSource, testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
@@ -844,7 +793,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     }");
             RoslynAssert.Diagnostics(this.analyzer,
                 ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
-                GenericTestCaseAttributeSource, testCode);
+                testCode);
         }
 
         [Test]
@@ -858,7 +807,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     }");
             RoslynAssert.Diagnostics(this.analyzer,
                 ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
-                GenericTestCaseAttributeSource, testCode);
+                testCode);
         }
 
         [Test]
@@ -873,7 +822,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase<double>(1)]
         public void TestWithGenericParameter<T>(T arg1) { }
     }");
-            RoslynAssert.Valid(this.analyzer, GenericTestCaseAttributeSource, testCode);
+            RoslynAssert.Valid(this.analyzer, testCode);
         }
 #endif
 
