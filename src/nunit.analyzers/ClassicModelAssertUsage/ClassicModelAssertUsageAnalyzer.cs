@@ -204,6 +204,38 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             defaultSeverity: DiagnosticSeverity.Info,
             description: ClassicModelUsageAnalyzerConstants.IsNotInstanceOfDescription);
 
+        private static readonly DiagnosticDescriptor positiveDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.PositiveUsage,
+            title: ClassicModelUsageAnalyzerConstants.PositiveTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.PositiveMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.PositiveDescription);
+
+        private static readonly DiagnosticDescriptor negativeDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.NegativeUsage,
+            title: ClassicModelUsageAnalyzerConstants.NegativeTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.NegativeMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.NegativeDescription);
+
+        private static readonly DiagnosticDescriptor isAssignableFromDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.IsAssignableFromUsage,
+            title: ClassicModelUsageAnalyzerConstants.IsAssignableFromTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.IsAssignableFromMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.IsAssignableFromDescription);
+
+        private static readonly DiagnosticDescriptor isNotAssignableFromDescriptor = DiagnosticDescriptorCreator.Create(
+            id: AnalyzerIdentifiers.IsNotAssignableFromUsage,
+            title: ClassicModelUsageAnalyzerConstants.IsNotAssignableFromTitle,
+            messageFormat: ClassicModelUsageAnalyzerConstants.IsNotAssignableFromMessage,
+            category: Categories.Assertion,
+            defaultSeverity: DiagnosticSeverity.Info,
+            description: ClassicModelUsageAnalyzerConstants.IsNotAssignableFromDescription);
+
         private static readonly ImmutableDictionary<string, DiagnosticDescriptor> NameToDescriptor =
           new Dictionary<string, DiagnosticDescriptor>
           {
@@ -231,6 +263,10 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
               { NameOfAssertContains, containsDescriptor },
               { NameOfAssertIsInstanceOf, isInstanceOfDescriptor },
               { NameOfAssertIsNotInstanceOf, isNotInstanceOfDescriptor },
+              { NameOfAssertPositive, positiveDescriptor },
+              { NameOfAssertNegative, negativeDescriptor },
+              { NameOfAssertIsAssignableFrom, isAssignableFromDescriptor },
+              { NameOfAssertIsNotAssignableFrom, isNotAssignableFromDescriptor },
           }.ToImmutableDictionary();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ClassicModelAssertUsageAnalyzer.NameToDescriptor.Values.ToImmutableArray();

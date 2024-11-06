@@ -22,10 +22,12 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfIsLessThan = "LessThan";
         public const string NameOfIsLessThanOrEqualTo = "LessThanOrEqualTo";
         public const string NameOfIsPositive = "Positive";
+        public const string NameOfIsNegative = "Negative";
         public const string NameOfIsZero = "Zero";
         public const string NameOfIsNaN = "NaN";
         public const string NameOfIsEmpty = "Empty";
         public const string NameOfIsInstanceOf = "InstanceOf";
+        public const string NameOfIsAssignableFrom = "AssignableFrom";
         public const string NameOfIsAll = "All";
         public const string NameOfIsUnique = "Unique";
         public const string NameOfIsOrdered = "Ordered";
@@ -96,6 +98,10 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfAssertContains = "Contains";
         public const string NameOfAssertIsInstanceOf = "IsInstanceOf";
         public const string NameOfAssertIsNotInstanceOf = "IsNotInstanceOf";
+        public const string NameOfAssertIsAssignableFrom = "IsAssignableFrom";
+        public const string NameOfAssertIsNotAssignableFrom = "IsNotAssignableFrom";
+        public const string NameOfAssertPositive = "Positive";
+        public const string NameOfAssertNegative = "Negative";
 
         public const string NameOfAssertCatch = "Catch";
         public const string NameOfAssertCatchAsync = "CatchAsync";
