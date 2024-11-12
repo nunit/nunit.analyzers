@@ -303,60 +303,62 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen()
+        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var commaAndMessage = hasMessage
+                ? ",\r\n                \"message\""
+                : string.Empty;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
-        {
+        {{
             var expected = typeof(int);
             var actual = 42;
 
             ↓ClassicAssert.IsAssignableFrom(
                 expected,
-                actual,
-                ""message"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                actual{commaAndMessage});
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
-        {
+        {{
             var expected = typeof(int);
             var actual = 42;
 
             Assert.That(
                 actual,
-                Is.AssignableFrom(expected),
-                ""message"");
-        }");
+                Is.AssignableFrom(expected){commaAndMessage});
+        }}");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen()
+        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var commaAndMessage = hasMessage
+                ? ",\r\n                \"message\""
+                : string.Empty;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
-        {
+        {{
             var expected = typeof(int);
             var actual = 42;
 
             ↓ClassicAssert.IsAssignableFrom(
                 expected,
-                actual,
-                ""message""
+                actual{commaAndMessage}
             );
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
-        {
+        {{
             var expected = typeof(int);
             var actual = 42;
 
             Assert.That(
                 actual,
-                Is.AssignableFrom(expected),
-                ""message""
+                Is.AssignableFrom(expected){commaAndMessage}
             );
-        }");
+        }}");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 

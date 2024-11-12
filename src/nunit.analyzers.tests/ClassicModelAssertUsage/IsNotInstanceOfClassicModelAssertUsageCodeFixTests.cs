@@ -303,30 +303,31 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen()
+        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var commaAndMessage = hasMessage
+                ? ",\r\n                \"message\""
+                : string.Empty;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
-        {
+        {{
             var expected = typeof(int);
             var actual = 42;
 
             ↓ClassicAssert.IsNotInstanceOf(
                 expected,
-                actual,
-                ""message"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                actual{commaAndMessage});
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         public void TestMethod()
-        {
+        {{
             var expected = typeof(int);
             var actual = 42;
 
             Assert.That(
                 actual,
-                Is.Not.InstanceOf(expected),
-                ""message"");
-        }");
+                Is.Not.InstanceOf(expected){commaAndMessage});
+        }}");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -383,6 +384,34 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             Assert.That(
                 actual,
                 Is.Not.InstanceOf<int>(){commaAndMessage});
+        }}");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [Test]
+        public void CodeFixForGenericMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
+        {
+            var commaAndMessage = hasMessage
+                ? ",\r\n                \"message\""
+                : string.Empty;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var actual = 42;
+
+            ↓ClassicAssert.IsNotInstanceOf<int>(
+                actual{commaAndMessage}
+            );
+        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public void TestMethod()
+        {{
+            var actual = 42;
+
+            Assert.That(
+                actual,
+                Is.Not.InstanceOf<int>(){commaAndMessage}
+            );
         }}");
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

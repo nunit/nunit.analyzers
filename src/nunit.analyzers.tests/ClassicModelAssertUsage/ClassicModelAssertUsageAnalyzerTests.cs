@@ -94,6 +94,10 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                     $"{AnalyzerIdentifiers.PositiveUsage} is missing.");
                 Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.NegativeUsage),
                     $"{AnalyzerIdentifiers.NegativeUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsAssignableFromUsage),
+                    $"{AnalyzerIdentifiers.NegativeUsage} is missing.");
+                Assert.That(diagnosticIds, Contains.Item(AnalyzerIdentifiers.IsNotAssignableFromUsage),
+                    $"{AnalyzerIdentifiers.NegativeUsage} is missing.");
             });
         }
 
@@ -604,6 +608,70 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void Test()
         {
             ↓ClassicAssert.Negative(2);
+        }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsAssignableFromIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsAssignableFromUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsAssignableFromIsUsed
+    {
+        public void Test()
+        {
+            ↓ClassicAssert.IsAssignableFrom(typeof(int), 2);
+        }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenGenericIsAssignableFromIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsAssignableFromUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenGenericIsAssignableFromIsUsed
+    {
+        public void Test()
+        {
+            ↓ClassicAssert.IsAssignableFrom<int>(2);
+        }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenIsNotAssignableFromIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotAssignableFromUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenIsNotAssignableFromIsUsed
+    {
+        public void Test()
+        {
+            ↓ClassicAssert.IsNotAssignableFrom(typeof(int), 2);
+        }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenGenericIsNotAssignableFromIsUsed()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotAssignableFromUsage);
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenGenericIsNotAssignableFromIsUsed
+    {
+        public void Test()
+        {
+            ↓ClassicAssert.IsNotAssignableFrom<int>(2);
         }
     }");
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
