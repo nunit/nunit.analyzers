@@ -92,6 +92,10 @@ namespace NUnit.Analyzers.Constants
         internal const string StringAssertUsage = "NUnit2048";
         internal const string CollectionAssertUsage = "NUnit2049";
         internal const string UpdateStringFormatToInterpolatableString = "NUnit2050";
+        internal const string PositiveUsage = "NUnit2051";
+        internal const string NegativeUsage = "NUnit2052";
+        internal const string IsAssignableFromUsage = "NUnit2053";
+        internal const string IsNotAssignableFromUsage = "NUnit2054";
 
         #endregion Assertion
 
