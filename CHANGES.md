@@ -1,4 +1,35 @@
-﻿# NUnit Analyzers 4.3 - August 9, 2024
+﻿# NUnit Analyzers 4.4 - November 13, 2024
+
+This release of the NUnit Analyzers adds handling of `Assert.IsAssignableFrom`/`Assert.IsNotAssignableFrom` and 
+`Assert.Positive`/`Assert.Negative`. Also insertion of trivia for code fixes for `NUnit2007` and `NUnit2046`
+have been improved.
+
+The release contains contributions from the following users (in alphabetical order):
+* @manfred-brands
+* @MCPtz
+* @mikkelbu
+* @verdie-g
+
+Issues Resolved
+
+Features and Enhancements
+* #790 NUnit.Analyzers 4.3.0 missed an Assert.IsAssignableFrom that caused a build error after upgrading to latest NUnit 4.2.2
+* #789 NUnit.Analyzers 4.3.0 missed an Assert.Positive that caused a build error after upgrading to latest NUnit 4.2.2
+
+Bugs
+* #784 Fix trivia for NUnit2046
+* #783 NUnit2007 doesn't apply trivia correctly
+
+Tooling, Process, and Documentation
+* #788 chore: Bump NUnit to version 4.2.2 
+* #785 chore(deps): Bump NUnit3TestAdapter from 4.5.0 to 4.6.0
+* #780 chore(deps): Bump CSharpIsNullAnalyzer from 0.1.495 to 0.1.593
+* #778 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.10.0 to 17.11.1
+* #776 chore: bump version 
+* #775 chore: Update release notes 
+
+
+# NUnit Analyzers 4.3 - August 9, 2024
 
 This release of the NUnit Analyzers contains some bug fixes to existing analyzers and code fixes - among other
 improvements to trivia when using the code fix of NUnit2049.
