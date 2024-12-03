@@ -25,12 +25,21 @@ namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
         }
 
         internal static string WrapMethodInClassNamespaceAndAddUsings(string method,
-            string? additionalUsings = null)
+            string? additionalUsings = null,
+            bool isNUnit4Only = false)
         {
+            var methodWithPreProcessor = isNUnit4Only
+                ? $"""
+                    
+                    #if NUNIT4
+                    {method}
+                    #endif
+                    """
+                : method;
             return WrapClassInNamespaceAndAddUsing($@"
     [TestFixture]
     public class TestClass
-    {{{method}
+    {{{methodWithPreProcessor}
     }}", additionalUsings);
         }
 
