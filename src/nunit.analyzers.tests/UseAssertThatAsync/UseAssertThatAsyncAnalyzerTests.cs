@@ -1,3 +1,4 @@
+#if NUNIT4
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -13,90 +14,114 @@ public sealed class UseAssertThatAsyncAnalyzerTests
     private static readonly ExpectedDiagnostic diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.UseAssertThatAsync);
 
     [Test]
-    public void AnalyzeWhenResultIsUsed()
+    public void AnalyzeWhenIntResultIsUsed()
     {
         var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void Test()
         {
-            Assert.That(GetResultAsync().Result, Is.EqualTo(42));
+            Assert.That(GetIntAsync().Result, Is.EqualTo(42));
         }
 
-        private static Task<int> GetResultAsync() => Task.FromResult(42);");
+        private static Task<int> GetIntAsync() => Task.FromResult(42);");
         RoslynAssert.Valid(analyzer, testCode);
     }
 
     [Test]
-    public void AnalyzeWhenAwaitIsNotUsedInLine()
+    public void AnalyzeWhenBoolResultIsUsed()
+    {
+        var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void Test()
+        {
+            Assert.That(GetBoolAsync().Result);
+        }
+
+        private static Task<bool> GetBoolAsync() => Task.FromResult(true);");
+        RoslynAssert.Valid(analyzer, testCode);
+    }
+
+    [Test]
+    public void AnalyzeWhenAwaitIsNotUsedInLineForInt()
     {
         var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public async Task Test()
         {
-            var fourtyTwo = await GetResultAsync();
+            var fourtyTwo = await GetIntAsync();
             Assert.That(fourtyTwo, Is.EqualTo(42));
         }
 
-        private static Task<int> GetResultAsync() => Task.FromResult(42);");
+        private static Task<int> GetIntAsync() => Task.FromResult(42);");
         RoslynAssert.Valid(analyzer, testCode);
     }
 
-    /* TODO:
-    #if NUNIT4
-        [Test]
-        public void AnalyzeWhenMultipleAsyncIsUsed()
-        {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-            public async Task Test()
-            {
-                await Assert.MultipleAsync(async () =>
-                {
-                    Assert.That(await Get1(), Is.Not.Null);
-                    Assert.That(await Get2(), Is.Not.Null);
-                });
-
-                static Task<string?> Get1() => Task.FromResult(default(string));
-                static Task<string?> Get2() => Task.FromResult(default(string));
-            }");
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-    #endif
-    */
-
     [Test]
-    public void AnalyzeWhenAwaitItsUsedWithConfigureAwait()
+    public void AnalyzeWhenAwaitIsNotUsedInLineForBool()
     {
         var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public async Task Test()
         {
-            Assert.That(await GetResultAsync().ConfigureAwait(false), Is.EqualTo(42));
+            var myBool = await GetBoolAsync();
+            Assert.That(myBool, Is.True);
         }
 
-        private static Task<int> GetResultAsync() => Task.FromResult(42);");
+        private static Task<bool> GetBoolAsync() => Task.FromResult(true);");
+        RoslynAssert.Valid(analyzer, testCode);
+    }
+
+    [Test]
+    public void AnalyzeWhenAwaitIsUsedInLineForInt([Values] bool? configureAwaitValue)
+    {
+        var configurAwait = configureAwaitValue switch
+        {
+            null => string.Empty,
+            true => ".ConfigureAwait(true)",
+            false => ".ConfigureAwait(false)",
+        };
+        var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public async Task Test()
+        {{
+            Assert.That(await GetIntAsync(){configurAwait}, Is.EqualTo(42));
+        }}
+
+        private static Task<int> GetIntAsync() => Task.FromResult(42);");
         RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
     }
 
     [Test]
-    public void AnalyzeWhenAwaitIsUsedWithoutConfigureAwait()
+    public void AnalyzeWhenAwaitIsUsedInLineForBool([Values] bool? configureAwaitValue)
     {
-        var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public async Task Test()
+        var configurAwait = configureAwaitValue switch
         {
-            ↓Assert.That(await GetResultAsync(), Is.EqualTo(42));
-        }
+            null => string.Empty,
+            true => ".ConfigureAwait(true)",
+            false => ".ConfigureAwait(false)",
+        };
+        var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public async Task Test()
+        {{
+            Assert.That(await GetBoolAsync(){configurAwait}, Is.True);
+        }}
 
-        private static Task<int> GetResultAsync() => Task.FromResult(42);");
+        private static Task<bool> GetBoolAsync() => Task.FromResult(true);");
         RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
     }
 
     [Test]
-    public void AnalyzeWhenAwaitIsUsedWithoutConfigureAwaitAsSecondArgument()
+    public void AnalyzeWhenAwaitIsUsedAsSecondArgument([Values] bool? configureAwaitValue)
     {
-        var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public async Task Test()
+        var configurAwait = configureAwaitValue switch
         {
-            ↓Assert.That(expression: Is.EqualTo(42), actual: await GetResultAsync());
-        }
+            null => string.Empty,
+            true => ".ConfigureAwait(true)",
+            false => ".ConfigureAwait(false)",
+        };
+        var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        public async Task Test()
+        {{
+            ↓Assert.That(expression: Is.EqualTo(42), actual: await GetIntAsync(){configurAwait});
+        }}
 
-        private static Task<int> GetResultAsync() => Task.FromResult(42);");
+        private static Task<int> GetIntAsync() => Task.FromResult(42);");
         RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
     }
 }
+#endif

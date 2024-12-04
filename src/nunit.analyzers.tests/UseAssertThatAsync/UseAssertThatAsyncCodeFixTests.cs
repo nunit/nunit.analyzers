@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+#if NUNIT4
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -25,144 +25,135 @@ public sealed class UseAssertThatAsyncCodeFixTests
         Assert.That(ids, Is.EquivalentTo(new[] { AnalyzerIdentifiers.UseAssertThatAsync }));
     }
 
-#if NUNIT4
     [Test]
-    public void VerifyWithoutConfigureAwait()
+    public void VerifyIntAndConstraint([Values] bool? configureAwaitValue)
     {
-        var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public async Task Test1()
+        var configurAwait = configureAwaitValue switch
         {
-            Assert.That(await GetResultAsync(), Is.EqualTo(42));
-        }
-
-        private static Task<int> GetResultAsync() => Task.FromResult(42);",
-            isNUnit4Only: true);
-        var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public async Task Test1()
-        {
-            await Assert.ThatAsync(() => GetResultAsync(), Is.EqualTo(42));
-        }
-
-        private static Task<int> GetResultAsync() => Task.FromResult(42);",
-            isNUnit4Only: true);
-        RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
-    }
-
-    [Test]
-    public void VerifyWithConfigureAwait()
-    {
-        Assert.ThatAsync(() => Task.FromResult(1), Is.EqualTo(1));
-        var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public async Task Test()
-        {
-            Assert.That(await GetResultAsync().ConfigureAwait(false), Is.EqualTo(42));
-        }
-
-        private static Task<int> GetResultAsync() => Task.FromResult(42);",
-            isNUnit4Only: true);
-        var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public async Task Test()
-        {
-            await Assert.ThatAsync(() => GetResultAsync(), Is.EqualTo(42));
-        }
-
-        private static Task<int> GetResultAsync() => Task.FromResult(42);",
-            isNUnit4Only: true);
-        RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
-    }
-
-    [Test]
-    public void AnalyzeWhenAwaitIsUsedWithoutConfigureAwaitAsSecondArgument()
-    {
-        var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public async Task Test()
-        {
-            ↓Assert.That(expression: Is.EqualTo(42), actual: await GetResultAsync());
-        }
-
-        private static Task<int> GetResultAsync() => Task.FromResult(42);",
-            isNUnit4Only: true);
-        var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public async Task Test()
-        {
-            await Assert.ThatAsync(constraint: Is.EqualTo(42), code: () => GetResultAsync());
-        }
-
-        private static Task<int> GetResultAsync() => Task.FromResult(42);",
-            isNUnit4Only: true);
-        RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
-    }
-
-    /*
-    [Test]
-    public void AddsAsyncWhenAwaitIsUsed()
-    {
-        var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void Test()
-        {
-            var configuration = new Configuration();
-            Assert.That(configuration, Is.Not.Null);
-            ↓Assert.That(configuration.Value1, Is.EqualTo(0));
-            Assert.That(configuration.Value2, Is.EqualTo(0.0));
-            Assert.That(await configuration.AsStringAsync(), Is.EqualTo(string.Empty));
-            configuration = null;
-        }
-
-        private sealed class Configuration
-        {
-            public int Value1 { get; set; }
-            public double Value2 { get; set; }
-            public string Value11 { get; set; } = string.Empty;
-            public Task<string> AsStringAsync() => Task.FromResult(Value11);
-        }");
-        var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void Test()
-        {
-            var configuration = new Configuration();
-            Assert.That(configuration, Is.Not.Null);
-            Assert.Multiple(async () =>
-            {
-                Assert.That(configuration.Value1, Is.EqualTo(0));
-                Assert.That(configuration.Value2, Is.EqualTo(0.0));
-                Assert.That(await configuration.AsStringAsync(), Is.EqualTo(string.Empty));
-            });
-            configuration = null;
-        }
-
-        private sealed class Configuration
-        {
-            public int Value1 { get; set; }
-            public double Value2 { get; set; }
-            public string Value11 { get; set; } = string.Empty;
-            public Task<string> AsStringAsync() => Task.FromResult(Value11);
-        }");
-        RoslynAssert.FixAll(analyzer, fix, expectedDiagnostic, code, fixedCode);
-    }
-
-    [Test]
-    public void VerifyKeepsTrivia()
-    {
+            null => string.Empty,
+            true => ".ConfigureAwait(true)",
+            false => ".ConfigureAwait(false)",
+        };
         var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-        public void TestMethod()
+        public async Task Test()
         {{
-                // Verify that boolean work as expected
-            ↓Assert.That(true, Is.True);
-            Assert.That(false, Is.False);
-        }}");
-        var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-        public void TestMethod()
-        {{
-            Assert.Multiple(() =>
-            {{
-                // Verify that boolean work as expected
-                Assert.That(true, Is.True);
-                Assert.That(false, Is.False);
-            }});
-        }}");
+            Assert.That(await GetIntAsync(){configurAwait}, Is.EqualTo(42));
+        }}
+
+        private static Task<int> GetIntAsync() => Task.FromResult(42);");
+        var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public async Task Test()
+        {
+            await Assert.ThatAsync(() => GetIntAsync(), Is.EqualTo(42));
+        }
+
+        private static Task<int> GetIntAsync() => Task.FromResult(42);");
         RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
     }
-    */
-#endif
+
+    [Test]
+    public void VerifyTaskIntReturningInstanceMethodAndConstraint([Values] bool? configureAwaitValue)
+    {
+        var configurAwait = configureAwaitValue switch
+        {
+            null => string.Empty,
+            true => ".ConfigureAwait(true)",
+            false => ".ConfigureAwait(false)",
+        };
+        var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+        public async Task Test()
+        {{
+            Assert.That(await this.GetIntAsync(){configurAwait}, Is.EqualTo(42));
+        }}
+
+        private Task<int> GetIntAsync() => Task.FromResult(42);");
+        var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public async Task Test()
+        {
+            await Assert.ThatAsync(() => this.GetIntAsync(), Is.EqualTo(42));
+        }
+
+        private Task<int> GetIntAsync() => Task.FromResult(42);");
+        RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+    }
+
+    [Test]
+    public void VerifyBoolAndConstraint([Values] bool? configureAwaitValue)
+    {
+        var configurAwait = configureAwaitValue switch
+        {
+            null => string.Empty,
+            true => ".ConfigureAwait(true)",
+            false => ".ConfigureAwait(false)",
+        };
+        var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+        public async Task Test()
+        {{
+            Assert.That(await GetBoolAsync(){configurAwait}, Is.EqualTo(true));
+        }}
+
+        private static Task<bool> GetBoolAsync() => Task.FromResult(true);");
+        var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public async Task Test()
+        {
+            await Assert.ThatAsync(() => GetBoolAsync(), Is.EqualTo(true));
+        }
+
+        private static Task<bool> GetBoolAsync() => Task.FromResult(true);");
+        RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+    }
+
+    // Assert.That(bool) is supported, but there is no overload of Assert.ThatAsync that only takes a single bool.
+    [Test]
+    public void VerifyBoolOnly([Values] bool? configureAwaitValue)
+    {
+        var configurAwait = configureAwaitValue switch
+        {
+            null => string.Empty,
+            true => ".ConfigureAwait(true)",
+            false => ".ConfigureAwait(false)",
+        };
+        var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+        public async Task Test()
+        {{
+            Assert.That(await GetBoolAsync(){configurAwait});
+        }}
+
+        private static Task<bool> GetBoolAsync() => Task.FromResult(true);");
+        var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public async Task Test()
+        {
+            await Assert.ThatAsync(() => GetBoolAsync(), Is.True);
+        }
+
+        private static Task<bool> GetBoolAsync() => Task.FromResult(true);");
+        RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+    }
+
+    [Test]
+    public void VerifyBoolAsSecondArgumentAndConstraint([Values] bool? configureAwaitValue)
+    {
+        var configurAwait = configureAwaitValue switch
+        {
+            null => string.Empty,
+            true => ".ConfigureAwait(true)",
+            false => ".ConfigureAwait(false)",
+        };
+        var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+        public async Task Test()
+        {{
+            ↓Assert.That(expression: Is.EqualTo(42), actual: await GetIntAsync(){configurAwait});
+        }}
+
+        private static Task<int> GetIntAsync() => Task.FromResult(42);");
+        var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public async Task Test()
+        {
+            await Assert.ThatAsync(() => GetIntAsync(), Is.EqualTo(42));
+        }
+
+        private static Task<int> GetIntAsync() => Task.FromResult(42);");
+        RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+    }
 }
+#endif

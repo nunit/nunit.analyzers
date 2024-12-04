@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -22,24 +23,29 @@ public class UseAssertThatAsyncAnalyzer : BaseAssertionAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         ImmutableArray.Create(descriptor);
 
-    protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
+    protected override void AnalyzeAssertInvocation(Version nunitVersion, OperationAnalysisContext context, IInvocationOperation assertOperation)
     {
+        // Assert.ThatAsync was introduced in NUnit 4
+        if (nunitVersion.Major < 4)
+            return;
+
         if (assertOperation.TargetMethod.Name != NUnitFrameworkConstants.NameOfAssertThat)
             return;
 
         var arguments = assertOperation.Arguments;
 
-        // For now, just flag the actual argumentSyntax that uses await inline
-        // TODO: Also exclude .ConfigureAwait(false)
-        var expectedArgument = arguments.Single(a => a.Parameter?.Name == NUnitFrameworkConstants.NameOfActualParameter);
-        if (expectedArgument.Syntax is not ArgumentSyntax argumentSyntax || argumentSyntax.Expression is not AwaitExpressionSyntax awaitExpression)
+        var actualArgument = arguments.SingleOrDefault(a => a.Parameter?.Name == NUnitFrameworkConstants.NameOfActualParameter)
+            ?? arguments[0];
+        if (actualArgument.Syntax is not ArgumentSyntax argumentSyntax || argumentSyntax.Expression is not AwaitExpressionSyntax awaitExpression)
             return;
 
-        // Verify that the awaited expression is a Task<T>-returning method
+        // Verify that the awaited expression is generic
         var awaitedSymbol = context.Operation.SemanticModel?.GetSymbolInfo(awaitExpression.Expression).Symbol;
-        if (awaitedSymbol is not IMethodSymbol methodSymbol || !methodSymbol.ReturnType.Name.Contains("Task")) // TODO:
-            return;
-
-        context.ReportDiagnostic(Diagnostic.Create(descriptor, assertOperation.Syntax.GetLocation()));
+        if (awaitedSymbol is IMethodSymbol methodSymbol
+            && methodSymbol.ReturnType is INamedTypeSymbol namedTypeSymbol
+            && namedTypeSymbol.IsGenericType)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(descriptor, assertOperation.Syntax.GetLocation()));
+        }
     }
 }

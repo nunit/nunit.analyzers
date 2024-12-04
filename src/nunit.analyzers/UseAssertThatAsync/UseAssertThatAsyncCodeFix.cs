@@ -13,7 +13,11 @@ namespace NUnit.Analyzers.UseAssertThatAsync;
 [ExportCodeFixProvider(LanguageNames.CSharp)]
 public class UseAssertThatAsyncCodeFix : CodeFixProvider
 {
-    internal const string WrapWithAssertMultiple = "Wrap with Assert.Multiple call";
+    private static readonly string[] firstParameterCandidates =
+    [
+        NUnitFrameworkConstants.NameOfActualParameter,
+        NUnitFrameworkConstants.NameOfConditionParameter,
+    ];
 
     public sealed override ImmutableArray<string> FixableDiagnosticIds
         => ImmutableArray.Create(AnalyzerIdentifiers.UseAssertThatAsync);
@@ -25,33 +29,57 @@ public class UseAssertThatAsyncCodeFix : CodeFixProvider
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
         if (root is null)
             return;
+
         var diagnostic = context.Diagnostics.First();
         var diagnosticSpan = diagnostic.Location.SourceSpan;
 
-        var invocation = root.FindNode(diagnosticSpan) as InvocationExpressionSyntax;
-        if (invocation is null)
+        var assertThatInvocation = root.FindNode(diagnosticSpan) as InvocationExpressionSyntax;
+        if (assertThatInvocation is null)
             return;
 
-        var argumentList = invocation.ArgumentList;
+        var argumentList = assertThatInvocation.ArgumentList;
+        var actualArgument = argumentList.Arguments.SingleOrDefault(
+            a => firstParameterCandidates.Contains(a.NameColon?.Name.Identifier.Text))
+            ?? argumentList.Arguments[0];
 
-        // TODO: fix oder
-        var awaitExpression = argumentList.Arguments[0].Expression as AwaitExpressionSyntax;
-
-        if (awaitExpression is null)
+        if (actualArgument.Expression is not AwaitExpressionSyntax awaitExpression)
             return;
 
-        var newInvocation = invocation
-            .WithExpression(
-                SyntaxFactory.AwaitExpression(
-                    SyntaxFactory.IdentifierName("Assert.ThatAsync")))
-            .WithArgumentList(SyntaxFactory.ArgumentList(
-                SyntaxFactory.SeparatedList(
-                [
-                    SyntaxFactory.Argument(SyntaxFactory.ParenthesizedLambdaExpression(awaitExpression.Expression)),
-                    argumentList.Arguments[1]
-                ])));
+        // Remove the await keyword (and .ConfigureAwait() if it exists)
+        var insideLambda = awaitExpression.Expression is InvocationExpressionSyntax invocation
+            && invocation.Expression is MemberAccessExpressionSyntax memberAccess
+            && memberAccess.Name.Identifier.Text == "ConfigureAwait"
+            ? memberAccess.Expression.WithTriviaFrom(awaitExpression)
+            : awaitExpression.Expression;
 
-        var newRoot = root.ReplaceNode(invocation, newInvocation);
+        var memberAccessExpression = SyntaxFactory.MemberAccessExpression(
+            SyntaxKind.SimpleMemberAccessExpression,
+            SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfAssert),
+            SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfAssertThatAsync));
+
+        // If there's only one argument, is must have been Assert.That(bool).
+        // However, the overload Assert.ThatAsync(bool) doesn't exist, so add Is.True in that case.
+        var nonLambdaArguments = argumentList.Arguments.Count == 1
+            ? [SyntaxFactory.Argument(
+                SyntaxFactory.MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
+                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsTrue)))]
+            : argumentList.Arguments
+                .Where(a => a != actualArgument)
+                .Select(a => a.WithNameColon(null))
+                .ToArray();
+        var newArgumentList = SyntaxFactory.ArgumentList(
+            SyntaxFactory.SeparatedList(
+            [
+                SyntaxFactory.Argument(SyntaxFactory.ParenthesizedLambdaExpression(insideLambda)),
+                 .. nonLambdaArguments,
+            ]));
+
+        var assertThatAsyncInvocation = SyntaxFactory.AwaitExpression(
+            SyntaxFactory.InvocationExpression(memberAccessExpression, newArgumentList));
+
+        var newRoot = root.ReplaceNode(assertThatInvocation, assertThatAsyncInvocation);
         context.RegisterCodeFix(
             CodeAction.Create(
                 UseAssertThatAsyncConstants.Title,
