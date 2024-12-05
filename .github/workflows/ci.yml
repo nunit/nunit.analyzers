@@ -45,7 +45,6 @@ jobs:
         uses: actions/setup-dotnet@main
         with:
           global-json-file: ./global.json
-          dotnet-version: 8.x
 
       - name: dotnet test (NUnit4)
         run: dotnet test --configuration=Release -p:NUnitVersion=4 ./src/nunit.analyzers.tests/

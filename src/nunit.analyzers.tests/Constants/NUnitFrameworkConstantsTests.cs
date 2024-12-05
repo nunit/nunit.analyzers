@@ -110,6 +110,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfAssertIsNotNull), nameof(ClassicAssert.IsNotNull)),
             (nameof(NUnitFrameworkConstants.NameOfAssertNotNull), nameof(ClassicAssert.NotNull)),
             (nameof(NUnitFrameworkConstants.NameOfAssertThat), nameof(ClassicAssert.That)),
+            (nameof(NUnitFrameworkConstants.NameOfAssertThatAsync), nameof(ClassicAssert.ThatAsync)),
             (nameof(NUnitFrameworkConstants.NameOfAssertGreater), nameof(ClassicAssert.Greater)),
             (nameof(NUnitFrameworkConstants.NameOfAssertGreaterOrEqual), nameof(ClassicAssert.GreaterOrEqual)),
             (nameof(NUnitFrameworkConstants.NameOfAssertLess), nameof(ClassicAssert.Less)),

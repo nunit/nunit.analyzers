@@ -60,21 +60,22 @@ public class UseAssertThatAsyncCodeFix : CodeFixProvider
         // If there's only one argument, is must have been Assert.That(bool).
         // However, the overload Assert.ThatAsync(bool) doesn't exist, so add Is.True in that case.
         var nonLambdaArguments = argumentList.Arguments.Count == 1
-            ? [SyntaxFactory.Argument(
+            ? new[]
+            {
+                SyntaxFactory.Argument(
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
-                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsTrue)))]
+                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsTrue)))
+            }
             : argumentList.Arguments
                 .Where(a => a != actualArgument)
                 .Select(a => a.WithNameColon(null))
                 .ToArray();
         var newArgumentList = SyntaxFactory.ArgumentList(
             SyntaxFactory.SeparatedList(
-            [
-                SyntaxFactory.Argument(SyntaxFactory.ParenthesizedLambdaExpression(insideLambda)),
-                 .. nonLambdaArguments,
-            ]));
+                new[] { SyntaxFactory.Argument(SyntaxFactory.ParenthesizedLambdaExpression(insideLambda)) }
+                    .Concat(nonLambdaArguments)));
 
         var assertThatAsyncInvocation = SyntaxFactory.AwaitExpression(
             SyntaxFactory.InvocationExpression(memberAccessExpression, newArgumentList));
