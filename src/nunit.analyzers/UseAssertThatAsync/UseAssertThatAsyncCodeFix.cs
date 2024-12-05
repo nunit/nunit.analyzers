@@ -14,10 +14,10 @@ namespace NUnit.Analyzers.UseAssertThatAsync;
 public class UseAssertThatAsyncCodeFix : CodeFixProvider
 {
     private static readonly string[] firstParameterCandidates =
-    [
+    {
         NUnitFrameworkConstants.NameOfActualParameter,
         NUnitFrameworkConstants.NameOfConditionParameter,
-    ];
+    };
 
     public sealed override ImmutableArray<string> FixableDiagnosticIds
         => ImmutableArray.Create(AnalyzerIdentifiers.UseAssertThatAsync);
