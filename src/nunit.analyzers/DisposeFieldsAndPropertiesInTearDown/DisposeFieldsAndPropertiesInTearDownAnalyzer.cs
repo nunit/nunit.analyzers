@@ -22,7 +22,8 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             "Dispose",
             "DisposeAsync",
             "Close",
-            "CloseAsync");
+            "CloseAsync",
+            "Quit");
 
         // Types that even though they are IDisposable, don't need to be Disposed.
         private static readonly ImmutableHashSet<string> DisposableTypeNotRequiringToBeDisposed = ImmutableHashSet.Create(
