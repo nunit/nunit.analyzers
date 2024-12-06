@@ -86,6 +86,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfAssertNotNull = "NotNull";
         public const string NameOfAssertIsNotNull = "IsNotNull";
         public const string NameOfAssertThat = "That";
+        public const string NameOfAssertThatAsync = "ThatAsync";
         public const string NameOfAssertGreater = "Greater";
         public const string NameOfAssertGreaterOrEqual = "GreaterOrEqual";
         public const string NameOfAssertLess = "Less";
