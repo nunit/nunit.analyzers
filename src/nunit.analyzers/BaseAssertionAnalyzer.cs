@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
+using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
 
 namespace NUnit.Analyzers
@@ -50,7 +51,8 @@ namespace NUnit.Analyzers
         {
             IEnumerable<AssemblyIdentity> referencedAssemblies = context.Compilation.ReferencedAssemblyNames;
 
-            AssemblyIdentity? nunit = referencedAssemblies.SingleOrDefault(a => a.Name.Equals("nunit.framework", StringComparison.OrdinalIgnoreCase));
+            AssemblyIdentity? nunit = referencedAssemblies.FirstOrDefault(a =>
+                a.Name.Equals(NUnitFrameworkConstants.NUnitFrameworkAssemblyName, StringComparison.OrdinalIgnoreCase));
 
             if (nunit is null)
             {
