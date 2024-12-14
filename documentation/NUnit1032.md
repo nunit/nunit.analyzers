@@ -64,7 +64,7 @@ dotnet_diagnostic.CA2213.severity = warning
 
 The analyzer considers the following list of method names to be disposing: `Dispose`, `DisposeAsync`, `Close`, and
 `CloseAsync`. It is possible to add method names to this list by using the configuration
-`dotnet_diagnostic.NUnit1032.additional_dispose_methods` in the `.editorconfig`. The configuration accepts a 
+`dotnet_diagnostic.NUnit1032.additional_dispose_methods` in the `.editorconfig`. The configuration accepts a
 list of method names - separated by either comma, semicolon, or space. I.e. to add `Quit` and `Exit` to the list add
 the following line.
 
