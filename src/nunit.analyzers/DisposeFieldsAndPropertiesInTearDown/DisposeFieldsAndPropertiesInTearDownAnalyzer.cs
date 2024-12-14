@@ -17,7 +17,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
     {
         private static readonly char[] AdditionalDisposalMethodsSeparators = { ',', ';', ' ' };
 
-        // Methods that are considered to be Dispoing an instance.
+        // Methods that are considered to be Disposing an instance.
         private static readonly ImmutableHashSet<string> StandardDisposeMethods = ImmutableHashSet.Create(
             "Dispose",
             "DisposeAsync",
