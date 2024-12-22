@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -127,6 +128,35 @@ namespace NUnit.Analyzers.Helpers
 
             // Delete remaining arguments.
             arguments.RemoveRange(nextArgument, arguments.Count - nextArgument);
+        }
+
+        /// <summary>
+        /// Checks if the given expression is something that is covered by the EmptyConstraint.
+        /// </summary>
+        internal static bool IsEmpty(ExpressionSyntax expression)
+        {
+            if (expression is LiteralExpressionSyntax literalExpression && literalExpression.Token.ValueText.Length == 0)
+            {
+                return true;
+            }
+
+            if (expression is MemberAccessExpressionSyntax memberProperty &&
+                memberProperty.Name.Identifier.Text == nameof(string.Empty))
+            {
+                // Intends to covers string.Empty, ImmutableXXX<T>.Empty and other similar cases.
+                return true;
+            }
+
+            if (expression is InvocationExpressionSyntax invocationExpression &&
+                invocationExpression.ArgumentList.Arguments.Count == 0 &&
+                invocationExpression.Expression is MemberAccessExpressionSyntax memberMethod &&
+                memberMethod.Name is GenericNameSyntax genericName && genericName.Identifier.Text == nameof(Array.Empty))
+            {
+                // Intends to covers Array.Empty<T>(), Enumerable.Empty<T> and other similar cases.
+                return true;
+            }
+
+            return false;
         }
 
         internal static IEnumerable<InterpolatedStringContentSyntax> UpdateStringFormatToFormattableString(string formatSpecification, ExpressionSyntax[] formatArguments)
