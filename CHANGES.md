@@ -1,4 +1,31 @@
-﻿# NUnit Analyzers 4.4 - November 13, 2024
+﻿# NUnit Analyzers 4.5 - December 22, 2024
+
+The release primarily fixes a problem with the NUnit Analyzers when used with NUnit 4.3.1 - see #811 for more
+information. In additional, we have also added some smaller improvements and bug fixes.
+
+The release contains contributions from the following users (in alphabetical order):
+* @manfred-brands
+* @mikkelbu
+* @RenderMichael
+* @zlepper
+
+Issues Resolved
+
+Features and Enhancements
+* #811 NUnit2021 ignores cast operation since NUnit 4.3.1
+* #801 Allow NUnit2005 to recognize Is.Empty
+
+Bugs
+* #794 AD0001: Occasional InvalidOperationException error in analyzer in IDE
+
+Tooling, Process, and Documentation
+* #808 chore: Correct typo
+* #806 Add information about dotnet_diagnostic.NUnit1032.additional_dispose_methods to the docs
+* #795 chore(deps): Bump Microsoft.NET.Test.Sdk from 17.11.1 to 17.12.0
+* #793 chore: bump version
+
+
+# NUnit Analyzers 4.4 - November 13, 2024
 
 This release of the NUnit Analyzers adds handling of `Assert.IsAssignableFrom`/`Assert.IsNotAssignableFrom` and 
 `Assert.Positive`/`Assert.Negative`. Also insertion of trivia for code fixes for `NUnit2007` and `NUnit2046`
