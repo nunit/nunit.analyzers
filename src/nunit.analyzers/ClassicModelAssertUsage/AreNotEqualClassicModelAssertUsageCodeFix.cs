@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.Helpers;
 
 namespace NUnit.Analyzers.ClassicModelAssertUsage
 {
@@ -21,8 +22,21 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             IReadOnlyDictionary<string, ArgumentSyntax> argumentNamesToArguments)
         {
             var expectedArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfExpectedParameter].WithNameColon(null);
-            var constraintArgument = SyntaxFactory.Argument(
-                SyntaxFactory.InvocationExpression(
+            ExpressionSyntax constraint;
+
+            if (CodeFixHelper.IsEmpty(expectedArgument.Expression))
+            {
+                constraint = SyntaxFactory.MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    SyntaxFactory.MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
+                        SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsNot)),
+                    SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsEmpty));
+            }
+            else
+            {
+                constraint = SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         SyntaxFactory.MemberAccessExpression(
@@ -31,10 +45,11 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
                             SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsNot)),
                         SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIsEqualTo)))
                     .WithArgumentList(SyntaxFactory.ArgumentList(
-                        SyntaxFactory.SingletonSeparatedList(expectedArgument))));
+                        SyntaxFactory.SingletonSeparatedList(expectedArgument)));
+            }
 
             var actualArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfActualParameter].WithNameColon(null);
-            return (actualArgument, constraintArgument);
+            return (actualArgument, SyntaxFactory.Argument(constraint));
         }
     }
 }

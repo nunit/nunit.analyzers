@@ -1,4 +1,8 @@
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.ClassicModelAssertUsage;
@@ -157,6 +161,61 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 3d, Is.Not.EqualTo(2d){optionalNewline});");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
+
+        [TestCase("string.Empty")]
+        [TestCase("String.Empty")]
+        [TestCase("Guid.Empty")]
+        [TestCase("\"\"")]
+        [TestCase("Array.Empty<int>()")]
+        [TestCase("Enumerable.Empty<int>()", "using System.Linq;")]
+        public void CodeFixUsesIsEmpty(string expected, string? additionalUsings = null)
+        {
+            var code = TestUtility.WrapInTestMethod($@"
+            string value = ""Value"";
+            ↓ClassicAssert.AreNotEqual({expected}, value);",
+            additionalUsings);
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            string value = ""Value"";
+            Assert.That(value, Is.Not.Empty);",
+            additionalUsings);
+
+            IEnumerable<MetadataReference> existingReferences = Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>();
+
+            Settings settings = Settings.Default
+                                        .WithMetadataReferences(existingReferences.Concat(MetadataReferences.Transitive(typeof(ImmutableArray<>))));
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+                fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription,
+                settings: settings);
+        }
+
+        [TestCase("ImmutableArray<int>.Empty")]
+        [TestCase("ImmutableList<int>.Empty")]
+        [TestCase("ImmutableHashSet<int>.Empty")]
+        public void CodeFixUsesIsEmpty(string expected)
+        {
+            const string UsingSystemCollectionsImmutable = "using System.Collections.Immutable;";
+
+            var code = TestUtility.WrapInTestMethod($@"
+            string value = ""Value"";
+            ↓ClassicAssert.AreNotEqual({expected}, value);",
+            UsingSystemCollectionsImmutable);
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            string value = ""Value"";
+            Assert.That(value, Is.Not.Empty);",
+            UsingSystemCollectionsImmutable);
+
+            IEnumerable<MetadataReference> existingReferences = Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>();
+
+            Settings settings = Settings.Default
+                                        .WithMetadataReferences(existingReferences.Concat(MetadataReferences.Transitive(typeof(ImmutableArray<>))));
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+                fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription,
+                settings: settings);
         }
     }
 }
