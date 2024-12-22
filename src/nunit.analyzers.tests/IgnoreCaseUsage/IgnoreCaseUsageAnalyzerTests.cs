@@ -12,6 +12,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.IgnoreCaseUsage);
 
+#if !NUNIT4
         [Test]
         public void AnalyzeWhenIgnoreCaseUsedForNonStringEqualToArgument()
         {
@@ -20,6 +21,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
+#endif
 
         [TestCase(nameof(Is.EqualTo))]
         [TestCase(nameof(Is.EquivalentTo))]
@@ -103,7 +105,7 @@ namespace NUnit.Analyzers.Tests.IgnoreCaseUsage
         public void AnalyzeWhenIgnoreCaseUsedInConstraintCombinedByOperators()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(1, Is.EqualTo(1).↓IgnoreCase | Is.EqualTo(true).↓IgnoreCase);");
+                Assert.That(1 == 1, Is.EqualTo(false).↓IgnoreCase | Is.EqualTo(true).↓IgnoreCase);");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }

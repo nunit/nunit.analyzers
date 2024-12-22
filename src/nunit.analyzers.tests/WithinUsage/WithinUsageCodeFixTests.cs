@@ -22,7 +22,9 @@ namespace NUnit.Analyzers.Tests.WithinUsage
             Assert.That(ids, Is.EquivalentTo(new[] { AnalyzerIdentifiers.WithinIncompatibleTypes }));
         }
 
+#if !NUNIT4
         [TestCase(NUnitFrameworkConstants.NameOfIsEqualTo)]
+#endif
         [TestCase(NUnitFrameworkConstants.NameOfIsLessThan)]
         [TestCase(NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo)]
         [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThan)]
@@ -39,7 +41,9 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                 fixTitle: WithinUsageCodeFix.RemoveWithinDescription);
         }
 
+#if !NUNIT4
         [TestCase(NUnitFrameworkConstants.NameOfIsEqualTo)]
+#endif
         [TestCase(NUnitFrameworkConstants.NameOfIsLessThan)]
         [TestCase(NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo)]
         [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThan)]
@@ -56,6 +60,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                 fixTitle: WithinUsageCodeFix.RemoveWithinDescription);
         }
 
+#if !NUNIT4
         [Test]
         public void FixesWithinUsageOnConstraintWithIncompatibleExpectedTypeWithMessage()
         {
@@ -81,5 +86,6 @@ namespace NUnit.Analyzers.Tests.WithinUsage
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: WithinUsageCodeFix.RemoveWithinDescription);
         }
+#endif
     }
 }
