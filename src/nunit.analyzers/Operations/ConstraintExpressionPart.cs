@@ -126,7 +126,7 @@ namespace NUnit.Analyzers.Operations
         {
             var argument = (this.Root as IInvocationOperation)?.Arguments.FirstOrDefault()?.Value;
 
-            if (argument is IConversionOperation conversion)
+            if (argument is IConversionOperation conversion && conversion.IsImplicit)
                 argument = conversion.Operand;
 
             return argument;
