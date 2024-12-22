@@ -194,7 +194,7 @@ namespace NUnit.Analyzers.Tests.Operations
         [Test]
         public async Task GetHelperClassNameReturnsIdentifierName()
         {
-            var constraintPart = await CreateConstraintPart("Is.EqualTo(1).IgnoreCase").ConfigureAwait(false);
+            var constraintPart = await CreateConstraintPart("Is.EqualTo(\"X\").IgnoreCase").ConfigureAwait(false);
 
             Assert.That(constraintPart.HelperClass?.Name, Is.EqualTo("Is"));
         }

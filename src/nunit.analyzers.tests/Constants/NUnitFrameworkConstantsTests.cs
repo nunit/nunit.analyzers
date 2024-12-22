@@ -251,6 +251,12 @@ namespace NUnit.Analyzers.Tests.Constants
         }
 
         [Test]
+        public void TestPrefixOfAllEqualConstraints()
+        {
+            Assert.That(NUnitFrameworkConstants.PrefixOfAllEqualToConstraints, Is.EqualTo("NUnit.Framework.Constraints.Equal"));
+        }
+
+        [Test]
         public void NameOfAssertAreEqualParameters()
         {
             var parameters = typeof(ClassicAssert).GetMethods()

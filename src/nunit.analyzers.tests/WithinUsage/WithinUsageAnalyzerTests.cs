@@ -28,7 +28,9 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                                     .WithMetadataReferences(existingReferences.Concat(MetadataReferences.Transitive(typeof(ImmutableArray<>))));
         }
 
+#if !NUNIT4
         [TestCase(NUnitFrameworkConstants.NameOfIsEqualTo)]
+#endif
         [TestCase(NUnitFrameworkConstants.NameOfIsLessThan)]
         [TestCase(NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo)]
         [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThan)]
@@ -41,7 +43,9 @@ namespace NUnit.Analyzers.Tests.WithinUsage
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
+#if !NUNIT4
         [TestCase(NUnitFrameworkConstants.NameOfIsEqualTo)]
+#endif
         [TestCase(NUnitFrameworkConstants.NameOfIsLessThan)]
         [TestCase(NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo)]
         [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThan)]
@@ -54,6 +58,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
+#if !NUNIT4
         [Test]
         public void AnalyzeWhenAppliedToNotEqualConstraintForStrings()
         {
@@ -62,6 +67,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
+#endif
 
         [Test]
         public void AnalyzeWhenAppliedToEqualityConstraintForArraysOfValidTypes()

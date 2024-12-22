@@ -980,5 +980,36 @@ using System.Collections.Generic;");
 
             RoslynAssert.Diagnostics(analyzer, testCode);
         }
+
+        [Test]
+        public void NoDiagnosticWhenComparingInstanceWithValueCastToInstanceType()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                [Test]
+                public void TestMethod()
+                {
+                    MyLong l0 = new(0);
+
+                    Assert.That(l0, Is.EqualTo((MyLong)0));
+                }
+
+                private readonly struct MyLong : IEquatable<MyLong>
+                {
+                    private readonly long _value;
+
+                    public MyLong(long value) => _value = value;
+
+                    public bool Equals(MyLong other) => _value == other._value;
+
+                    public override bool Equals(object? obj) => obj is MyLong other && Equals(other);
+                    public override int GetHashCode() => _value.GetHashCode();
+
+                    public static implicit operator MyLong(long value) => new(value);
+                    public static implicit operator long(MyLong value) => value._value;
+                }
+                """);
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
     }
 }

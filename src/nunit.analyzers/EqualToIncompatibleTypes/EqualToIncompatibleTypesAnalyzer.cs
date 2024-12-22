@@ -101,7 +101,8 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                     var constraintMethod = constraintPartExpression.GetConstraintMethod();
 
                     if (constraintMethod?.Name != NUnitFrameworkConstants.NameOfIsEqualTo
-                        || constraintMethod.ReturnType?.GetFullMetadataName() != NUnitFrameworkConstants.FullNameOfEqualToConstraint)
+                        || constraintMethod.ReturnType?.GetFullMetadataName().StartsWith(
+                                NUnitFrameworkConstants.PrefixOfAllEqualToConstraints, StringComparison.Ordinal) != true)
                     {
                         continue;
                     }

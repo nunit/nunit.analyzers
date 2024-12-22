@@ -184,6 +184,8 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfTestDelegate = "NUnit.Framework.TestDelegate";
         public const string FullNameOfThrows = "NUnit.Framework.Throws";
 
+        public const string PrefixOfAllEqualToConstraints = "NUnit.Framework.Constraints.Equal";
+
         public const string NameOfTestCaseAttribute = "TestCaseAttribute";
         public const string NameOfTestCaseSourceAttribute = "TestCaseSourceAttribute";
         public const string NameOfTestAttribute = "TestAttribute";
