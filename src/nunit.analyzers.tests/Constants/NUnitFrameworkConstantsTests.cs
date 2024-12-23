@@ -74,8 +74,10 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.NameOfMultiple), nameof(Assert.Multiple)),
 #if NUNIT4
             (nameof(NUnitFrameworkConstants.NameOfMultipleAsync), nameof(Assert.MultipleAsync)),
+            (nameof(NUnitFrameworkConstants.NameOfEnterMultipleScope), nameof(Assert.EnterMultipleScope)),
 #else
             (nameof(NUnitFrameworkConstants.NameOfMultipleAsync), "MultipleAsync"),
+            (nameof(NUnitFrameworkConstants.NameOfEnterMultipleScope), "EnterMultipleScope"),
 #endif
 
             (nameof(NUnitFrameworkConstants.NameOfOut), nameof(TestContext.Out)),

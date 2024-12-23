@@ -45,6 +45,38 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
         }");
             RoslynAssert.Valid(this.analyzer, testCode);
         }
+
+#if WOULD_SOMEONE_ACTUALLY_USE_THIS
+        [Test]
+        public void AnalyzeWhenMultipleScopeDeclarationIsUsed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void Test()
+        {
+            using IDisposable disposable = Assert.EnterMultipleScope();
+
+            Assert.That(true, Is.True);
+            disposable.Dispose();
+            Assert.That(false, Is.False);
+        }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+#endif
+
+        [Test]
+        public void AnalyzeWhenMultipleScopeStatementIsUsed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void Test()
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(true, Is.True);
+                Assert.That(false, Is.False);
+            }
+        }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
 #endif
 
         [Test]
