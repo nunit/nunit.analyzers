@@ -95,18 +95,35 @@ namespace NUnit.Analyzers.Helpers
         /// </summary>
         public static bool IsInsideAssertMultiple(SyntaxNode node)
         {
-            InvocationExpressionSyntax? possibleAssertMultiple;
-
-            while ((possibleAssertMultiple = node.Ancestors().OfType<InvocationExpressionSyntax>().FirstOrDefault()) is not null)
+            // Look for Assert.Multiple(delegate) invocation.
+            SyntaxNode currentNode = node;
+            InvocationExpressionSyntax? possibleAssertMultipleInvocation;
+            while ((possibleAssertMultipleInvocation = currentNode.Ancestors().OfType<InvocationExpressionSyntax>().FirstOrDefault()) is not null)
             {
                 // Is the statement inside a Block which is part of an Assert.Multiple.
-                if (IsAssert(possibleAssertMultiple, NUnitFrameworkConstants.NameOfMultiple, NUnitFrameworkConstants.NameOfMultipleAsync))
+                if (IsAssert(possibleAssertMultipleInvocation, NUnitFrameworkConstants.NameOfMultiple, NUnitFrameworkConstants.NameOfMultipleAsync))
                 {
                     return true;
                 }
 
                 // Keep looking at possible parent nested expression.
-                node = possibleAssertMultiple;
+                currentNode = possibleAssertMultipleInvocation;
+            }
+
+            // Look for using (Assert.EnterMultipleScope()) invocation.
+            currentNode = node;
+            UsingStatementSyntax? usingStatement;
+            while ((usingStatement = currentNode.Ancestors().OfType<UsingStatementSyntax>().FirstOrDefault()) is not null)
+            {
+                // Is the using expression an Assert.EnterMultipleScope.
+                if (usingStatement.Expression is InvocationExpressionSyntax usingInvocation &&
+                    IsAssert(usingInvocation, NUnitFrameworkConstants.NameOfEnterMultipleScope))
+                {
+                    return true;
+                }
+
+                // Keep looking at possible parent nested expression.
+                currentNode = usingStatement;
             }
 
             return false;
