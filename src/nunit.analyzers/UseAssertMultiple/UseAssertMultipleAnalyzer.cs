@@ -13,6 +13,8 @@ namespace NUnit.Analyzers.UseAssertMultiple
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class UseAssertMultipleAnalyzer : BaseAssertionAnalyzer
     {
+        private static readonly Version firstNUnitVersionWithEnterMultipleScope = new Version(4, 2);
+
         private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.UseAssertMultiple,
             title: UseAssertMultipleConstants.Title,
@@ -67,7 +69,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
             }
         }
 
-        protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
+        protected override void AnalyzeAssertInvocation(Version nunitVersion, OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
             if (assertOperation.TargetMethod.Name != NUnitFrameworkConstants.NameOfAssertThat ||
                 AssertHelper.IsInsideAssertMultiple(assertOperation.Syntax))
@@ -134,7 +136,11 @@ namespace NUnit.Analyzers.UseAssertMultiple
 
                 if (lastAssert > firstAssert)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(descriptor, assertOperation.Syntax.GetLocation()));
+                    var properties = ImmutableDictionary.CreateBuilder<string, string?>();
+                    properties.Add(AnalyzerPropertyKeys.SupportsEnterMultipleScope,
+                        nunitVersion >= firstNUnitVersionWithEnterMultipleScope ?
+                        NUnitFrameworkConstants.NameOfEnterMultipleScope : null);
+                    context.ReportDiagnostic(Diagnostic.Create(descriptor, assertOperation.Syntax.GetLocation(), properties.ToImmutable()));
                 }
             }
         }
