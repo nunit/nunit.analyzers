@@ -4,7 +4,7 @@
 [![GitHub Actions build status](https://github.com/nunit/nunit.analyzers/actions/workflows/ci.yml/badge.svg)](https://github.com/nunit/nunit.analyzers/actions/workflows/ci.yml)
 [![NuGet Version](https://img.shields.io/nuget/v/nunit.analyzers?label=nuget%20version)](https://www.nuget.org/packages/NUnit.Analyzers)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/nunit.analyzers?label=nuget%20downloads)](https://www.nuget.org/packages/NUnit.Analyzers)
-[![MyGet Feed](https://img.shields.io/myget/nunit-analyzers/v/nunit.analyzers?label=myget%20version)](https://www.myget.org/feed/nunit-analyzers/package/nuget/NUnit.Analyzers)
+[![MyGet Feed](https://img.shields.io/myget/nunit-analyzers/vpre/nunit.analyzers?label=myget%20version)](https://www.myget.org/feed/nunit-analyzers/package/nuget/NUnit.Analyzers)
 
 This is a suite of analyzers that target the NUnit testing framework. Right now, the code is separate from the NUnit framework, so if you want to try out the analyzers you'll need to download the analyzers separately as a nuget package. In the future the analyzers may be added as part of the NUnit framework package but that hasn't been done yet.
 
