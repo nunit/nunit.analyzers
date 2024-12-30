@@ -53,6 +53,7 @@ namespace NUnit.Analyzers.Constants
 
         public const string NameOfMultiple = "Multiple";
         public const string NameOfMultipleAsync = "MultipleAsync";
+        public const string NameOfEnterMultipleScope = "EnterMultipleScope";
 
         public const string NameOfOut = "Out";
         public const string NameOfWrite = "Write";
