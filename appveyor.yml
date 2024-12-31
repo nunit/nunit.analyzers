@@ -1,7 +1,7 @@
 image: Visual Studio 2022
 
 environment:
-  CLI_CHANNEL: 6.0.1xx
+  CLI_CHANNEL: 8.0.xxx
 
 install:
   - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
