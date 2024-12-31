@@ -26,32 +26,37 @@ namespace NUnit.Analyzers.Extensions
 
         // Intrinsic type converters for types
         // https://github.com/dotnet/runtime/blob/master/src/libraries/System.ComponentModel.TypeConverter/src/System/ComponentModel/ReflectTypeDescriptionProvider.cs
-        // For converters that exist in .NET Standard 1.6 we use the converter.
+        // For converters that exist in .NET Standard 2.0 we use the converter.
         // Otherwise, we assume that the converter exists and it can convert the value.
-        private static readonly List<(Type type, Lazy<TypeConverter>? typeConverter)> IntrinsicTypeConverters =
+        private static readonly List<(string fullName, Lazy<TypeConverter>? typeConverter)> IntrinsicTypeConverters =
             new()
             {
-                (typeof(bool), new Lazy<TypeConverter>(() => new BooleanConverter())),
-                (typeof(byte), new Lazy<TypeConverter>(() => new ByteConverter())),
-                (typeof(sbyte), new Lazy<TypeConverter>(() => new SByteConverter())),
-                (typeof(char), new Lazy<TypeConverter>(() => new CharConverter())),
-                (typeof(double), new Lazy<TypeConverter>(() => new DoubleConverter())),
-                (typeof(string), new Lazy<TypeConverter>(() => new StringConverter())),
-                (typeof(int), new Lazy<TypeConverter>(() => new Int32Converter())),
-                (typeof(short), new Lazy<TypeConverter>(() => new Int16Converter())),
-                (typeof(long), new Lazy<TypeConverter>(() => new Int64Converter())),
-                (typeof(float), new Lazy<TypeConverter>(() => new SingleConverter())),
-                (typeof(ushort), new Lazy<TypeConverter>(() => new UInt16Converter())),
-                (typeof(uint), new Lazy<TypeConverter>(() => new UInt32Converter())),
-                (typeof(ulong), new Lazy<TypeConverter>(() => new UInt64Converter())),
-                (typeof(CultureInfo), null),
-                (typeof(DateTime), new Lazy<TypeConverter>(() => new DateTimeConverter())),
-                (typeof(DateTimeOffset), new Lazy<TypeConverter>(() => new DateTimeOffsetConverter())),
-                (typeof(decimal), new Lazy<TypeConverter>(() => new DecimalConverter())),
-                (typeof(TimeSpan), new Lazy<TypeConverter>(() => new TimeSpanConverter())),
-                (typeof(Guid), new Lazy<TypeConverter>(() => new GuidConverter())),
-                (typeof(Uri), new Lazy<TypeConverter>(() => new UriTypeConverter())),
-                (typeof(Version), null),
+                ("System.Boolean", new Lazy<TypeConverter>(() => new BooleanConverter())),
+                ("System.Byte", new Lazy<TypeConverter>(() => new ByteConverter())),
+                ("System.SByte", new Lazy<TypeConverter>(() => new SByteConverter())),
+                ("System.Char", new Lazy<TypeConverter>(() => new CharConverter())),
+                ("System.Double", new Lazy<TypeConverter>(() => new DoubleConverter())),
+                ("System.String", new Lazy<TypeConverter>(() => new StringConverter())),
+                ("System.Int32", new Lazy<TypeConverter>(() => new Int32Converter())),
+                ("System.Int16", new Lazy<TypeConverter>(() => new Int16Converter())),
+                ("System.Int64", new Lazy<TypeConverter>(() => new Int64Converter())),
+                ("System.Int128", null),
+                ("System.Half", null),
+                ("System.Single", new Lazy<TypeConverter>(() => new SingleConverter())),
+                ("System.UInt16", new Lazy<TypeConverter>(() => new UInt16Converter())),
+                ("System.UInt32", new Lazy<TypeConverter>(() => new UInt32Converter())),
+                ("System.UInt64", new Lazy<TypeConverter>(() => new UInt64Converter())),
+                ("System.UInt128", null),
+                ("System.Globalization.CultureInfo", null),
+                ("System.DateTime", new Lazy<TypeConverter>(() => new DateTimeConverter())),
+                ("System.DateTimeOffset", new Lazy<TypeConverter>(() => new DateTimeOffsetConverter())),
+                ("System.DateOnly", null),
+                ("System.Decimal", new Lazy<TypeConverter>(() => new DecimalConverter())),
+                ("System.TimeOnly", null),
+                ("System.TimeSpan", new Lazy<TypeConverter>(() => new TimeSpanConverter())),
+                ("System.Guid", new Lazy<TypeConverter>(() => new GuidConverter())),
+                ("System.Uri", new Lazy<TypeConverter>(() => new UriTypeConverter())),
+                ("System.Version", null)
             };
 
         internal static bool CanAssignTo(this TypedConstant @this, ITypeSymbol target, Compilation compilation,
@@ -214,7 +219,7 @@ namespace NUnit.Analyzers.Extensions
             Compilation compilation)
         {
             var typeName = targetTypeSymbol.GetFullMetadataName();
-            var targetType = IntrinsicTypeConverters.FirstOrDefault(t => t.type.FullName == typeName);
+            var targetType = IntrinsicTypeConverters.FirstOrDefault(t => t.fullName == typeName);
 
             if (targetType != default)
             {
@@ -254,7 +259,7 @@ namespace NUnit.Analyzers.Extensions
             return false;
         }
 
-#endregion
+        #endregion
 
 #pragma warning disable SA1202 // Elements should be ordered by access. Prefer grouping
         internal static ImmutableArray<TypedConstant> AdjustArguments(this ImmutableArray<TypedConstant> attributePositionalArguments)
