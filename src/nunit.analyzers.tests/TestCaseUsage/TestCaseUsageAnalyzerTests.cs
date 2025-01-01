@@ -29,6 +29,17 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             }
         }
 
+#if NET8_0_OR_GREATER
+        private static IEnumerable<TestCaseData> SpecialConversions_NET8
+        {
+            get
+            {
+                yield return new TestCaseData("2019-10-10", typeof(DateOnly));
+                yield return new TestCaseData("23:59:59", typeof(TimeOnly));
+            }
+        }
+#endif
+
         [Test]
         public void VerifySupportedDiagnostics()
         {
@@ -757,7 +768,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
 #if NUNIT4
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
         [Test]
         public void AnalyzeWhenArgumentIsCorrectGenericTypeParameter()
         {
@@ -822,6 +833,18 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase<double>(1)]
         public void TestWithGenericParameter<T>(T arg1) { }
     }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [TestCaseSource(nameof(SpecialConversions_NET8))]
+        public void AnalyzeWhenArgumentIsSpecialConversionNET8(string value, Type targetType)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    public sealed class AnalyzeWhenArgumentIsSpecialConversion
+    {{
+        [TestCase(""{value}"")]
+        public void Test({targetType.Name} a) {{ }}
+    }}");
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 #endif

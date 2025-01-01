@@ -99,6 +99,12 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
                 SetName("CanAssignToWhenParameterIsVersionAndArgumentIsValidString");
             yield return new TestCaseData("\"a.b.c.d\"", "Version", "object", Is.True).
                 SetName("CanAssignToWhenParameterIsVersionAndArgumentIsInValidString");
+#if NET8_0_OR_GREATER
+            yield return new TestCaseData("\"00:03:00\"", "TimeOnly", "string", Is.True).
+                SetName("CanAssignToWhenParameterIsTimeSpanAndArgumentIsValidString");
+            yield return new TestCaseData("\"2020-05-08\"", "DateOnly", "string", Is.True).
+                SetName("CanAssignToWhenParameterIsDateTimeAndArgumentIsValidString");
+#endif
         }
 
         private static async Task<(TypedConstant argumentConstant, ITypeSymbol typeSymbol, Compilation compilation)>
