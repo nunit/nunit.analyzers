@@ -59,7 +59,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         {
             // Find the NetAnalyzers assembly (note version should match the one referenced)
             string netAnalyzersPath = Path.Combine(PathHelper.GetNuGetPackageDirectory(),
-                "microsoft.codeanalysis.netanalyzers/7.0.4/analyzers/dotnet/cs/Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll");
+                "microsoft.codeanalysis.netanalyzers/8.0.0/analyzers/dotnet/cs/Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll");
             Assembly netAnalyzerAssembly = Assembly.LoadFrom(netAnalyzersPath);
             Type analyzerType = netAnalyzerAssembly.GetType("Microsoft.CodeQuality.CSharp.Analyzers.Maintainability.CSharpAvoidUninstantiatedInternalClasses", true)!;
             this.analyzer = (DiagnosticAnalyzer)Activator.CreateInstance(analyzerType)!;
