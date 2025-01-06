@@ -26,7 +26,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             }
             else if (expected is PatternSyntax pattern)
             {
-                constraintExpression = this.ConvertPattern(
+                constraintExpression = ConvertPattern(
                     SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfIs),
                     pattern);
             }
@@ -91,7 +91,7 @@ namespace NUnit.Analyzers.ConstraintUsage
         ///   supported-pattern or supported-pattern,
         ///   supported-pattern and supported-pattern.
         /// </remarks>
-        private InvocationExpressionSyntax? ConvertPattern(ExpressionSyntax member, PatternSyntax pattern)
+        private static InvocationExpressionSyntax? ConvertPattern(ExpressionSyntax member, PatternSyntax pattern)
         {
             if (pattern is ConstantPatternSyntax constantPattern)
             {
@@ -125,7 +125,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             }
             else if (pattern is UnaryPatternSyntax unaryPattern && unaryPattern.IsKind(SyntaxKind.NotPattern))
             {
-                return this.ConvertPattern(
+                return ConvertPattern(
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         member,
@@ -143,11 +143,11 @@ namespace NUnit.Analyzers.ConstraintUsage
 
                 if (constraint is not null)
                 {
-                    InvocationExpressionSyntax? leftExpression = this.ConvertPattern(member, binaryPattern.Left);
+                    InvocationExpressionSyntax? leftExpression = ConvertPattern(member, binaryPattern.Left);
 
                     if (leftExpression is not null)
                     {
-                        return this.ConvertPattern(
+                        return ConvertPattern(
                             SyntaxFactory.MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
                                 leftExpression,
