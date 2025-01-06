@@ -29,8 +29,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             }
         }
 
-#if NET8_0_OR_GREATER
-        private static IEnumerable<TestCaseData> SpecialConversions_NET8
+#if NET6_0_OR_GREATER
+        private static IEnumerable<TestCaseData> SpecialConversions_NET6
         {
             get
             {
@@ -768,7 +768,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
 #if NUNIT4
-#if NET8_0_OR_GREATER
+#if NET6_0_OR_GREATER
         [Test]
         public void AnalyzeWhenArgumentIsCorrectGenericTypeParameter()
         {
@@ -836,8 +836,8 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
-        [TestCaseSource(nameof(SpecialConversions_NET8))]
-        public void AnalyzeWhenArgumentIsSpecialConversionNET8(string value, Type targetType)
+        [TestCaseSource(nameof(SpecialConversions_NET6))]
+        public void AnalyzeWhenArgumentIsSpecialConversionNET6(string value, Type targetType)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public sealed class AnalyzeWhenArgumentIsSpecialConversion

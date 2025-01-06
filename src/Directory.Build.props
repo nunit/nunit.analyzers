@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers.Unstable" Version="1.2.0.556" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.4" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="3.11.0" PrivateAssets="all" />
     <PackageReference Include="CSharpIsNullAnalyzer" Version="0.1.593" PrivateAssets="all" />
   </ItemGroup>
@@ -31,9 +31,9 @@
     <GenerateNullableAttributes>false</GenerateNullableAttributes>
   </PropertyGroup>
 
-  <!-- Get nullability information from .NET8.0 when compiling for non net8.0 targets -->
-  <ItemGroup Condition="'$(TargetFramework)' != 'net8.0'">
-    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[8.0.0]" />
+  <!-- Get nullability information from .NET7.0 when compiling for non net7.0 targets -->
+  <ItemGroup Condition="'$(TargetFramework)' != 'net7.0'">
+    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[7.0.0]" />
     <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.160" PrivateAssets="all" />
   </ItemGroup>
 
