@@ -767,6 +767,20 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
+#if NET6_0_OR_GREATER
+        [TestCaseSource(nameof(SpecialConversions_NET6))]
+        public void AnalyzeWhenArgumentIsSpecialConversionNET6(string value, Type targetType)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
+    public sealed class AnalyzeWhenArgumentIsSpecialConversion
+    {{
+        [TestCase(""{value}"")]
+        public void Test({targetType.Name} a) {{ }}
+    }}");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+#endif
+
 #if NUNIT4
 #if NET6_0_OR_GREATER
         [Test]
@@ -833,18 +847,6 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase<double>(1)]
         public void TestWithGenericParameter<T>(T arg1) { }
     }");
-            RoslynAssert.Valid(this.analyzer, testCode);
-        }
-
-        [TestCaseSource(nameof(SpecialConversions_NET6))]
-        public void AnalyzeWhenArgumentIsSpecialConversionNET6(string value, Type targetType)
-        {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    public sealed class AnalyzeWhenArgumentIsSpecialConversion
-    {{
-        [TestCase(""{value}"")]
-        public void Test({targetType.Name} a) {{ }}
-    }}");
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 #endif
