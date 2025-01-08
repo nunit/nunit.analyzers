@@ -17,6 +17,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
     [ExportCodeFixProvider(LanguageNames.CSharp)]
     public class UseAssertMultipleCodeFix : CodeFixProvider
     {
+        internal const string WrapWithAssertEnterMultipleScope = "Wrap with 'using (Assert.EnterMultipleScope())' statement";
         internal const string WrapWithAssertMultiple = "Wrap with Assert.Multiple call";
 
         public override ImmutableArray<string> FixableDiagnosticIds
@@ -106,6 +107,24 @@ namespace NUnit.Analyzers.UseAssertMultiple
                 }
             }
 
+            var diagnostic = context.Diagnostics.First();
+            bool supportedEnterMultipleScope = diagnostic.Properties[AnalyzerPropertyKeys.SupportsEnterMultipleScope] is not null;
+            if (supportedEnterMultipleScope)
+            {
+                UsingStatementSyntax usingAssertEnterMultipleScope =
+                    SyntaxFactory.UsingStatement(null,
+                        SyntaxFactory.InvocationExpression(
+                            SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfAssert),
+                                SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfEnterMultipleScope))),
+                        SyntaxFactory.Block(statementsInsideAssertMultiple))
+                    .WithTrailingTrivia(SyntaxFactory.CarriageReturnLineFeed)
+                    .WithAdditionalAnnotations(Formatter.Annotation);
+
+                RegisterCodeFix(WrapWithAssertEnterMultipleScope, usingAssertEnterMultipleScope);
+            }
+
             ParenthesizedLambdaExpressionSyntax parenthesizedLambdaExpression =
                 SyntaxFactory.ParenthesizedLambdaExpression(
                     SyntaxFactory.Block(statementsInsideAssertMultiple));
@@ -130,27 +149,32 @@ namespace NUnit.Analyzers.UseAssertMultiple
                 .WithTrailingTrivia(SyntaxFactory.CarriageReturnLineFeed)
                 .WithAdditionalAnnotations(Formatter.Annotation);
 
-            if (endOfLineTrivia is not null)
+            RegisterCodeFix(WrapWithAssertMultiple, assertMultiple);
+
+            void RegisterCodeFix(string name, SyntaxNode assertMultiple)
             {
-                // Add the remembered blank line to go before the Assert.Multiple statement.
-                assertMultiple = assertMultiple.WithLeadingTrivia(endOfLineTrivia.Value);
+                if (endOfLineTrivia is not null)
+                {
+                    // Add the remembered blank line to go before the Assert.Multiple statement.
+                    assertMultiple = assertMultiple.WithLeadingTrivia(endOfLineTrivia.Value);
+                }
+
+                // Comments at the end of a block are not associated with the last statement but with the closing brace
+                // Keep the exising block's open and close braces with associated trivia in our updated block.
+                var updatedBlock = SyntaxFactory.Block(
+                    block.OpenBraceToken,
+                    SyntaxFactory.List(statementsBeforeAssertMultiple.Append(assertMultiple).Concat(statementsAfterAssertMultiple)),
+                    block.CloseBraceToken);
+
+                SyntaxNode newRoot = root.ReplaceNode(block, updatedBlock);
+
+                var codeAction = CodeAction.Create(
+                    name,
+                    _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
+                    name);
+
+                context.RegisterCodeFix(codeAction, context.Diagnostics);
             }
-
-            // Comments at the end of a block are not associated with the last statement but with the closing brace
-            // Keep the exising block's open and close braces with associated trivia in our updated block.
-            var updatedBlock = SyntaxFactory.Block(
-                block.OpenBraceToken,
-                SyntaxFactory.List(statementsBeforeAssertMultiple.Append(assertMultiple).Concat(statementsAfterAssertMultiple)),
-                block.CloseBraceToken);
-
-            SyntaxNode newRoot = root.ReplaceNode(block, updatedBlock);
-
-            var codeAction = CodeAction.Create(
-                WrapWithAssertMultiple,
-                _ => Task.FromResult(context.Document.WithSyntaxRoot(newRoot)),
-                WrapWithAssertMultiple);
-
-            context.RegisterCodeFix(codeAction, context.Diagnostics);
         }
     }
 }
