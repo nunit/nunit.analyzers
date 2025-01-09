@@ -15,6 +15,7 @@ Features and Enhancements
 * #769 Recognized the new Assert.EnterMultipleScope() concept.
 
 Tooling, Process, and Documentation
+* #829 chore: Bump year to 2025 in copyrights
 * #823 chore: Bump cake.tool to version 4
 * #822 chore: Bump NUnit to 4.3.2
 * #818 chore: Replace "buildstats.info" with "img.shields.io"
