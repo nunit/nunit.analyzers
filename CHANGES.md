@@ -1,4 +1,28 @@
-﻿# NUnit Analyzers 4.5 - December 22, 2024
+﻿# NUnit Analyzers 4.6 - January 9, 2025
+
+This release contains two improvements: Allowing `NUnit1001` to understand `DateOnly` and `TimeOnly` parameters in
+`TestCaseUsage` and making `NUnit2045` support `Assert.EnterMultipleScope` (introduced in NUnit version 4.2). 
+
+The release contains contributions from the following users (in alphabetical order):
+* @Dreamescaper
+* @manfred-brands
+* @mikkelbu
+
+Issues Resolved
+
+Features and Enhancements
+* #820 NUnit1001 compains about DateOnly parameters
+* #769 Recognized the new Assert.EnterMultipleScope() concept.
+
+Tooling, Process, and Documentation
+* #829 chore: Bump year to 2025 in copyrights
+* #823 chore: Bump cake.tool to version 4
+* #822 chore: Bump NUnit to 4.3.2
+* #818 chore: Replace "buildstats.info" with "img.shields.io"
+* #815 chore: bump version
+
+
+# NUnit Analyzers 4.5 - December 22, 2024
 
 The release primarily fixes a problem with the NUnit Analyzers when used with NUnit 4.3.1 - see #811 for more
 information. In additional, we have also added some smaller improvements and bug fixes.
