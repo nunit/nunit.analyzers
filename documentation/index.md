@@ -113,6 +113,7 @@ Rules which improve assertions in the test code.
 | [NUnit2052](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2052.md) | Consider using Assert.That(expr, Is.Negative) instead of ClassicAssert.Negative(expr) | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2053](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2053.md) | Consider using Assert.That(actual, Is.AssignableFrom(expected)) instead of ClassicAssert.IsAssignableFrom(expected, actual) | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2054](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2054.md) | Consider using Assert.That(actual, Is.Not.AssignableFrom(expected)) instead of ClassicAssert.IsNotAssignableFrom(expected, actual) | :white_check_mark: | :information_source: | :white_check_mark: |
+| [NUnit2055](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2055.md) | Use Assert.ThatAsync | :white_check_mark: | :information_source: | :white_check_mark: |
 
 ## Suppressor Rules (NUnit3001 - )
 
