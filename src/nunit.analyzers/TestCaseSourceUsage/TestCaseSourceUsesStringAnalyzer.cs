@@ -248,16 +248,16 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                             var hasCancelAfterAttribute = testMethod.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType)) ||
                                 testMethod.ContainingType.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
 
-                            var (methodRequiredParameters, methodOptionalParameters, methodParamsParameters) = testMethod.GetParameterCounts(hasCancelAfterAttribute, cancellationTokenType);
+                            var (methodRequiredParameters, methodOptionalParameters, _) = testMethod.GetParameterCounts(hasCancelAfterAttribute, cancellationTokenType);
 
                             if (elementType.SpecialType != SpecialType.System_String && (elementType.SpecialType == SpecialType.System_Object || elementType.IsIEnumerable(out _) ||
                                 IsOrDerivesFrom(elementType, context.SemanticModel.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseParameters))))
                             {
-                                // We only know that there is 1 or (likely) more parameters.
+                                // For non-generic methods we only know that there is 1 or (likely) more parameters, for generic methods we even don't know this for sure.
                                 // The object could hide an array, possibly with a variable number of elements: TestCaseData.Argument.
                                 // Potentially we could examine the body of the TestCaseSource to see if we can determine the exact amount.
                                 // For complex method that is certainly beyond the scope of this.
-                                if (methodRequiredParameters + methodOptionalParameters < 1)
+                                if (methodRequiredParameters + methodOptionalParameters < 1 && !testMethod.IsGenericMethod)
                                 {
                                     context.ReportDiagnostic(Diagnostic.Create(
                                             mismatchInNumberOfTestMethodParameters,

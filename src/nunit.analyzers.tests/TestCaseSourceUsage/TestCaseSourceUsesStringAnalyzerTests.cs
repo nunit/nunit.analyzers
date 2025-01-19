@@ -659,6 +659,30 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             RoslynAssert.Valid(analyzer, testCode);
         }
 
+#if NUNIT4
+        [Test]
+        public void AnalyzeWhenNumberOfParametersOfGenericTestIsNotEvidentFromTestSource()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenTestSourceProvidesDataWithSingleTypeArgs
+    {
+        [TestCaseSource(nameof(TestData))]
+        public void Method<T>()
+        {
+            Assert.That(typeof(T).IsValueType, Is.True);
+        }
+
+        static IEnumerable<TestCaseData> TestData()
+        {
+            yield return new TestCaseData { TypeArgs = new Type[] { typeof(int) } };
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+#endif
+
         [TestCase("IEnumerable", "object", "System.Collections")]
         [TestCase("IEnumerable<object>", "object", "System.Collections.Generic")]
         [TestCase("IEnumerable<TestCaseData>", "TestCaseData", "System.Collections.Generic")]
