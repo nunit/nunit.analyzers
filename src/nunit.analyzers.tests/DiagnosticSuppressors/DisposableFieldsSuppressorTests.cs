@@ -23,8 +23,6 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             Assembly netAnalyzerAssembly = Assembly.LoadFrom(netAnalyzersPath);
             Type analyzerType = netAnalyzerAssembly.GetType("Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.TypesThatOwnDisposableFieldsShouldBeDisposableAnalyzer", true)!;
             this.analyzer = (DiagnosticAnalyzer)Activator.CreateInstance(analyzerType)!;
-
-            this.analyzer = new DefaultEnabledAnalyzer(this.analyzer);
         }
 
         [Test]

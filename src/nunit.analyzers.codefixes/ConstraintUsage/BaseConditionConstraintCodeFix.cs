@@ -141,7 +141,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             {
                 actualArgumentWithCorrectTrivia,
                 constraintArgumentWithCorrectTrivia
-            }.Union(remainingArguments);
+            }.Concat(remainingArguments);
 
             var newArgumentsList = assertNode.ArgumentList.WithArguments(newArguments);
 

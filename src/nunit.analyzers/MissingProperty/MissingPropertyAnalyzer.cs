@@ -71,7 +71,9 @@ namespace NUnit.Analyzers.MissingProperty
                     continue;
                 }
 
-                var propertyMembers = actualType.GetAllMembers().Where(m => m.Kind == SymbolKind.Property);
+                var propertyMembers = actualType.GetAllMembers()
+                                                .Where(m => m.Kind == SymbolKind.Property)
+                                                .ToArray();
                 if (!propertyMembers.Any(m => m.Name == propertyName))
                 {
                     var properties = propertyMembers.Select(p => p.Name).Distinct().ToImmutableDictionary(p => p, p => (string?)p);
