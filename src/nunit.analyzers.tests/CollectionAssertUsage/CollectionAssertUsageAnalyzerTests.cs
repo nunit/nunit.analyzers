@@ -103,8 +103,8 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }
 
-        [TestCase(NUnitFrameworkConstants.NameOfCollectionAssertAreEqual)]
-        [TestCase(NUnitFrameworkConstants.NameOfCollectionAssertAreNotEqual)]
+        [TestCase(NUnitLegacyFrameworkConstants.NameOfCollectionAssertAreEqual)]
+        [TestCase(NUnitLegacyFrameworkConstants.NameOfCollectionAssertAreNotEqual)]
         public void AnalyzeTwoCollectionWithComparerWhenFormatAndParamsArgumentsAreUsed(string method)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"

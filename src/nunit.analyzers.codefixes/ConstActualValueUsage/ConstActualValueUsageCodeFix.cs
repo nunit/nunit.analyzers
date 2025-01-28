@@ -18,34 +18,34 @@ namespace NUnit.Analyzers.ConstActualValueUsage
     {
         internal const string SwapArgumentsDescription = "Swap actual and expected arguments";
 
-        private static readonly string[] SupportedClassicAsserts = new[]
-        {
-            NUnitFrameworkConstants.NameOfAssertAreEqual,
-            NUnitFrameworkConstants.NameOfAssertAreNotEqual,
-            NUnitFrameworkConstants.NameOfAssertAreSame,
-            NUnitFrameworkConstants.NameOfAssertAreNotSame,
-        };
+        private static readonly string[] SupportedClassicAsserts =
+        [
+            NUnitLegacyFrameworkConstants.NameOfAssertAreEqual,
+            NUnitLegacyFrameworkConstants.NameOfAssertAreNotEqual,
+            NUnitLegacyFrameworkConstants.NameOfAssertAreSame,
+            NUnitLegacyFrameworkConstants.NameOfAssertAreNotSame,
+        ];
 
-        private static readonly string[] SupportedStringAsserts = new[]
-        {
-            NUnitFrameworkConstants.NameOfStringAssertAreEqualIgnoringCase,
-            NUnitFrameworkConstants.NameOfStringAssertAreNotEqualIgnoringCase,
-            NUnitFrameworkConstants.NameOfStringAssertContains,
-            NUnitFrameworkConstants.NameOfStringAssertDoesNotContain,
-            NUnitFrameworkConstants.NameOfStringAssertDoesNotEndWith,
-            NUnitFrameworkConstants.NameOfStringAssertDoesNotMatch,
-            NUnitFrameworkConstants.NameOfStringAssertDoesNotStartWith,
-            NUnitFrameworkConstants.NameOfStringAssertEndsWith,
-            NUnitFrameworkConstants.NameOfStringAssertIsMatch,
-            NUnitFrameworkConstants.NameOfStringAssertStartsWith,
-        };
+        private static readonly string[] SupportedStringAsserts =
+        [
+            NUnitLegacyFrameworkConstants.NameOfStringAssertAreEqualIgnoringCase,
+            NUnitLegacyFrameworkConstants.NameOfStringAssertAreNotEqualIgnoringCase,
+            NUnitLegacyFrameworkConstants.NameOfStringAssertContains,
+            NUnitLegacyFrameworkConstants.NameOfStringAssertDoesNotContain,
+            NUnitLegacyFrameworkConstants.NameOfStringAssertDoesNotEndWith,
+            NUnitLegacyFrameworkConstants.NameOfStringAssertDoesNotMatch,
+            NUnitLegacyFrameworkConstants.NameOfStringAssertDoesNotStartWith,
+            NUnitLegacyFrameworkConstants.NameOfStringAssertEndsWith,
+            NUnitLegacyFrameworkConstants.NameOfStringAssertIsMatch,
+            NUnitLegacyFrameworkConstants.NameOfStringAssertStartsWith,
+        ];
 
-        private static readonly string[] SupportedIsConstraints = new[]
-        {
+        private static readonly string[] SupportedIsConstraints =
+        [
             NUnitFrameworkConstants.NameOfIsEqualTo,
             NUnitFrameworkConstants.NameOfIsSameAs,
             NUnitFrameworkConstants.NameOfIsSamePath
-        };
+        ];
 
         public override ImmutableArray<string> FixableDiagnosticIds
             => ImmutableArray.Create(AnalyzerIdentifiers.ConstActualValueUsage);

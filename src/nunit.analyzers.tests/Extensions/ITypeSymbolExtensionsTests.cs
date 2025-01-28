@@ -23,7 +23,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 }";
             var types = await GetTypeSymbolAsync(
                 testCode,
-                new[] { "IsAssignableFromWhenThisIsNull" }).ConfigureAwait(false);
+                ["IsAssignableFromWhenThisIsNull"]).ConfigureAwait(false);
             var other = types[0];
 
             Assert.That(default(ITypeSymbol).IsAssignableFrom(other), Is.False);
@@ -39,7 +39,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 }";
             var types = await GetTypeSymbolAsync(
                 testCode,
-                new[] { "IsAssignableFromWhenOtherIsNull" }).ConfigureAwait(false);
+                ["IsAssignableFromWhenOtherIsNull"]).ConfigureAwait(false);
             var instance = types[0];
 
             Assert.That(instance.IsAssignableFrom(default(ITypeSymbol)), Is.False);
@@ -55,7 +55,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 }";
             var types = await GetTypeSymbolAsync(
                 testCode,
-                new[] { "IsAssignableFromWhenOtherIsSameTypeAsThis" }).ConfigureAwait(false);
+                ["IsAssignableFromWhenOtherIsSameTypeAsThis"]).ConfigureAwait(false);
             var instance = types[0];
             var other = instance;
 
@@ -72,11 +72,11 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 }";
             var types1 = await GetTypeSymbolAsync(
                 testCode,
-                new[] { "IsAssignableFromWhenOtherIsInDifferentAssembly" }).ConfigureAwait(false);
+                ["IsAssignableFromWhenOtherIsInDifferentAssembly"]).ConfigureAwait(false);
             var instance = types1[0];
             var types2 = await GetTypeSymbolAsync(
                 testCode,
-                new[] { "IsAssignableFromWhenOtherIsInDifferentAssembly" }).ConfigureAwait(false);
+                ["IsAssignableFromWhenOtherIsInDifferentAssembly"]).ConfigureAwait(false);
             var other = types2[0];
 
             Assert.That(instance.IsAssignableFrom(other), Is.False);
@@ -96,11 +96,10 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 }";
             var types = await GetTypeSymbolAsync(
                 testCode,
-                new[]
-                {
+                [
                     "IsAssignableFromWhenOtherIsASubclassBase",
                     "IsAssignableFromWhenOtherIsASubclassSub"
-                }).ConfigureAwait(false);
+                ]).ConfigureAwait(false);
 
             Assert.That(types[0].IsAssignableFrom(types[1]), Is.True);
         }
@@ -117,11 +116,10 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 }";
             var types = await GetTypeSymbolAsync(
                 testCode,
-                new[]
-                {
+                [
                     "IsAssignableFromWhenOtherIsNotASubclassA",
                     "IsAssignableFromWhenOtherIsNotASubclassB"
-                }).ConfigureAwait(false);
+                ]).ConfigureAwait(false);
 
             Assert.That(types[0].IsAssignableFrom(types[1]), Is.False);
         }
@@ -140,11 +138,10 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 }";
             var types = await GetTypeSymbolAsync(
                 testCode,
-                new[]
-                {
+                [
                     "IsAssignableFromWhenOtherImplementsInterface",
                     "IsAssignableFromWhenOtherImplementsInterfaceType"
-                }).ConfigureAwait(false);
+                ]).ConfigureAwait(false);
 
             Assert.That(types[0].IsAssignableFrom(types[1]), Is.True);
         }
@@ -234,7 +231,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
             VariableDeclaratorSyntax variableDeclaration = fieldNode.Declaration.Variables[0];
             IFieldSymbol? symbol = rootAndModel.Model.GetDeclaredSymbol(variableDeclaration) as IFieldSymbol;
             Assert.That(symbol, Is.Not.Null, $"Cannot find symbol for {variableDeclaration.Identifier}");
-            Assert.That(symbol.Type.Kind, Is.Not.EqualTo(SymbolKind.ErrorType), $"Cannot find type for {fieldNode.ToString()}");
+            Assert.That(symbol.Type.Kind, Is.Not.EqualTo(SymbolKind.ErrorType), $"Cannot find type for {fieldNode}");
 
             return symbol.Type;
         }

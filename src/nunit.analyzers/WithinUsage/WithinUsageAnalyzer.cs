@@ -15,14 +15,14 @@ namespace NUnit.Analyzers.WithinUsage
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class WithinUsageAnalyzer : BaseAssertionAnalyzer
     {
-        private static readonly string[] SupportedIsMethods = new[]
-        {
+        private static readonly string[] SupportedIsMethods =
+        [
             NUnitFrameworkConstants.NameOfIsEqualTo,
             NUnitFrameworkConstants.NameOfIsLessThan,
             NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo,
             NUnitFrameworkConstants.NameOfIsGreaterThan,
             NUnitFrameworkConstants.NameOfIsGreaterThanOrEqualTo,
-        };
+        ];
 
         private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.WithinIncompatibleTypes,

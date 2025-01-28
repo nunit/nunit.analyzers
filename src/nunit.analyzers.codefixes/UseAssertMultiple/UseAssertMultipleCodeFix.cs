@@ -103,7 +103,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
                 {
                     // Remember the trivia and delete it from the first statement inside the Assert.Multiple
                     endOfLineTrivia = firstTrivia;
-                    statementsInsideAssertMultiple[0] = firstStatement.ReplaceTrivia(firstTrivia, Enumerable.Empty<SyntaxTrivia>());
+                    statementsInsideAssertMultiple[0] = firstStatement.ReplaceTrivia(firstTrivia, []);
                 }
             }
 
@@ -117,7 +117,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
                             SyntaxFactory.MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
                                 SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfAssert),
-                                SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfEnterMultipleScope))),
+                                SyntaxFactory.IdentifierName(NUnitV4FrameworkConstants.NameOfEnterMultipleScope))),
                         SyntaxFactory.Block(statementsInsideAssertMultiple))
                     .WithTrailingTrivia(SyntaxFactory.CarriageReturnLineFeed)
                     .WithAdditionalAnnotations(Formatter.Annotation);

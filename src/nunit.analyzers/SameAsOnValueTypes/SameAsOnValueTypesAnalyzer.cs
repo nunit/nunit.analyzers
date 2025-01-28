@@ -27,8 +27,8 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
             IOperation? actualOperation;
             IOperation? expectedOperation;
 
-            if (assertOperation.TargetMethod.Name.Equals(NUnitFrameworkConstants.NameOfAssertAreSame, StringComparison.Ordinal) ||
-                assertOperation.TargetMethod.Name.Equals(NUnitFrameworkConstants.NameOfAssertAreNotSame, StringComparison.Ordinal))
+            if (assertOperation.TargetMethod.Name.Equals(NUnitLegacyFrameworkConstants.NameOfAssertAreSame, StringComparison.Ordinal) ||
+                assertOperation.TargetMethod.Name.Equals(NUnitLegacyFrameworkConstants.NameOfAssertAreNotSame, StringComparison.Ordinal))
             {
                 actualOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfActualParameter);
                 expectedOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfExpectedParameter);

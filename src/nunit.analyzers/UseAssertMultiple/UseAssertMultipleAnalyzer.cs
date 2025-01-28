@@ -13,7 +13,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class UseAssertMultipleAnalyzer : BaseAssertionAnalyzer
     {
-        private static readonly Version firstNUnitVersionWithEnterMultipleScope = new Version(4, 2);
+        private static readonly Version firstNUnitVersionWithEnterMultipleScope = new(4, 2);
 
         private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.UseAssertMultiple,
@@ -139,7 +139,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
                     var properties = ImmutableDictionary.CreateBuilder<string, string?>();
                     properties.Add(AnalyzerPropertyKeys.SupportsEnterMultipleScope,
                         nunitVersion >= firstNUnitVersionWithEnterMultipleScope ?
-                        NUnitFrameworkConstants.NameOfEnterMultipleScope : null);
+                        NUnitV4FrameworkConstants.NameOfEnterMultipleScope : null);
                     context.ReportDiagnostic(Diagnostic.Create(descriptor, assertOperation.Syntax.GetLocation(), properties.ToImmutable()));
                 }
             }

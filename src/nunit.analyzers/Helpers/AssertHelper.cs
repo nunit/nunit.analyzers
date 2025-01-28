@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.Helpers
             while ((possibleAssertMultipleInvocation = currentNode.Ancestors().OfType<InvocationExpressionSyntax>().FirstOrDefault()) is not null)
             {
                 // Is the statement inside a Block which is part of an Assert.Multiple.
-                if (IsAssert(possibleAssertMultipleInvocation, NUnitFrameworkConstants.NameOfMultiple, NUnitFrameworkConstants.NameOfMultipleAsync))
+                if (IsAssert(possibleAssertMultipleInvocation, NUnitFrameworkConstants.NameOfMultiple, NUnitV4FrameworkConstants.NameOfMultipleAsync))
                 {
                     return true;
                 }
@@ -117,7 +117,7 @@ namespace NUnit.Analyzers.Helpers
             {
                 // Is the using expression an Assert.EnterMultipleScope.
                 if (usingStatement.Expression is InvocationExpressionSyntax usingInvocation &&
-                    IsAssert(usingInvocation, NUnitFrameworkConstants.NameOfEnterMultipleScope))
+                    IsAssert(usingInvocation, NUnitV4FrameworkConstants.NameOfEnterMultipleScope))
                 {
                     return true;
                 }
@@ -150,7 +150,7 @@ namespace NUnit.Analyzers.Helpers
         {
             return IsAssert(expression,
                             x => x is NUnitFrameworkConstants.NameOfAssert
-                                   or NUnitFrameworkConstants.NameOfClassicAssert
+                                   or NUnitLegacyFrameworkConstants.NameOfClassicAssert
                                    or NUnitFrameworkConstants.NameOfAssume,
                             out member, out argumentList);
         }

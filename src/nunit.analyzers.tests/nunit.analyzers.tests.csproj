@@ -31,7 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\nunit.analyzers\nunit.analyzers.csproj" OutputItemType="Analyzer" />
-    <ProjectReference Include="..\nunit.analyzers.codefixes\nunit.analyzers.codefixes.csproj"  OutputItemType="Analyzer" />
+    <ProjectReference Include="..\nunit.analyzers.codefixes\nunit.analyzers.codefixes.csproj" OutputItemType="Analyzer" />
   </ItemGroup>
 
 </Project>

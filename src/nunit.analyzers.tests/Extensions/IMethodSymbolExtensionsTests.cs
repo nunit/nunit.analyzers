@@ -48,7 +48,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
     }
 }";
             var (method, compilation) = await GetMethodSymbolAsync(testCode).ConfigureAwait(false);
-            INamedTypeSymbol? cancellationTokenType = compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfCancellationToken);
+            INamedTypeSymbol? cancellationTokenType = compilation.GetTypeByMetadataName(NUnitV4FrameworkConstants.FullNameOfCancellationToken);
 
             var (requiredParameters, optionalParameters, paramsCount) = method.GetParameterCounts(hasCancelAfter, cancellationTokenType);
             int adjustment = hasCancelAfter ? 0 : 1;

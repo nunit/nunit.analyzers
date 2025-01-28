@@ -6,7 +6,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Extensions;
+
 using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
+using static NUnit.Analyzers.Constants.NUnitLegacyFrameworkConstants;
 
 namespace NUnit.Analyzers.ConstraintUsage
 {
@@ -15,18 +17,18 @@ namespace NUnit.Analyzers.ConstraintUsage
         internal const string SuggestedConstraintString = nameof(SuggestedConstraintString);
         internal const string SwapOperands = nameof(SwapOperands);
 
-        protected static readonly string[] SupportedPositiveAssertMethods = new[]
-        {
+        protected static readonly string[] SupportedPositiveAssertMethods =
+        [
             NameOfAssertThat,
             NameOfAssertTrue,
             NameOfAssertIsTrue
-        };
+        ];
 
-        protected static readonly string[] SupportedNegativeAssertMethods = new[]
-        {
+        protected static readonly string[] SupportedNegativeAssertMethods =
+        [
             NameOfAssertFalse,
             NameOfAssertIsFalse
-        };
+        ];
 
         protected static bool IsRefStruct(IOperation operation)
         {

@@ -36,22 +36,22 @@ namespace NUnit.Analyzers.Extensions
         internal static bool IsClassicAssert(this ITypeSymbol? @this)
         {
             return @this is not null &&
-                   @this.ContainingAssembly.Name is NUnitFrameworkConstants.NUnitFrameworkLegacyAssemblyName &&
-                   @this.Name is NUnitFrameworkConstants.NameOfClassicAssert;
+                   @this.ContainingAssembly.Name is NUnitLegacyFrameworkConstants.NUnitFrameworkLegacyAssemblyName &&
+                   @this.Name is NUnitLegacyFrameworkConstants.NameOfClassicAssert;
         }
 
         internal static bool IsStringAssert(this ITypeSymbol? @this)
         {
             return @this is not null &&
-                   @this.ContainingAssembly.Name is NUnitFrameworkConstants.NUnitFrameworkLegacyAssemblyName or NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
-                   @this.Name is NUnitFrameworkConstants.NameOfStringAssert;
+                   @this.ContainingAssembly.Name is NUnitLegacyFrameworkConstants.NUnitFrameworkLegacyAssemblyName or NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
+                   @this.Name is NUnitLegacyFrameworkConstants.NameOfStringAssert;
         }
 
         internal static bool IsCollectionAssert(this ITypeSymbol? @this)
         {
             return @this is not null &&
-                   @this.ContainingAssembly.Name is NUnitFrameworkConstants.NUnitFrameworkLegacyAssemblyName or NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
-                   @this.Name is NUnitFrameworkConstants.NameOfCollectionAssert;
+                   @this.ContainingAssembly.Name is NUnitLegacyFrameworkConstants.NUnitFrameworkLegacyAssemblyName or NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
+                   @this.Name is NUnitLegacyFrameworkConstants.NameOfCollectionAssert;
         }
 
         internal static bool IsConstraint(this ITypeSymbol? @this)

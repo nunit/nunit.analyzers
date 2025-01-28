@@ -121,8 +121,8 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                 return;
             }
 
-            INamedTypeSymbol? cancelAfterType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfCancelAfterAttribute);
-            INamedTypeSymbol? cancellationTokenType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfCancellationToken);
+            INamedTypeSymbol? cancelAfterType = context.Compilation.GetTypeByMetadataName(NUnitV4FrameworkConstants.FullNameOfCancelAfterAttribute);
+            INamedTypeSymbol? cancellationTokenType = context.Compilation.GetTypeByMetadataName(NUnitV4FrameworkConstants.FullNameOfCancellationToken);
 
             context.RegisterSyntaxNodeAction(syntaxContext => AnalyzeAttribute(syntaxContext, testCaseSourceAttribute, cancelAfterType, cancellationTokenType), SyntaxKind.Attribute);
         }
