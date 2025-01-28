@@ -111,6 +111,7 @@ namespace NUnit.Analyzers.Constants
         #region Style
 
         internal const string SimplifyValues = "NUnit4001";
+        internal const string UseSpecificConstraint = "NUnit4002";
 
         #endregion
     }
