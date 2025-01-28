@@ -132,4 +132,5 @@ Rules which help you write concise and readable NUnit test code.
 
 | Id       | Title       | :mag: | :memo: | :bulb: |
 | :--      | :--         | :--:  | :--:   | :--:   |
-| [NUnit4001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit4001.md) | Simplify the Values attribute | :white_check_mark: | :information_source: | :x: |
+| [NUnit4001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit4001.md) | Simplify the Values attribute | :white_check_mark: | :information_source: | :white_check_mark: |
+| [NUnit4002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit4002.md) | Use Specific constraint | :white_check_mark: | :information_source: | :white_check_mark: |

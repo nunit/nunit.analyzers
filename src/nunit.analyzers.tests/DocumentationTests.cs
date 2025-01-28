@@ -215,7 +215,7 @@ namespace NUnit.Analyzers.Tests
 
         [TestCase(Categories.Structure, 0)]
         [TestCase(Categories.Assertion, 1)]
-        [TestCase(Categories.Style, 2)]
+        [TestCase(Categories.Style, 3)]
         public void EnsureThatAnalyzerIndexIsAsExpected(string category, int tableNumber)
         {
             var builder = new StringBuilder();
