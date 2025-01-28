@@ -16,14 +16,14 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
     public sealed class UpdateStringFormatToInterpolatableStringAnalyzer : BaseAssertionAnalyzer
     {
         private static readonly string[] ObsoleteParamsMethods =
-        {
+        [
             NUnitFrameworkConstants.NameOfAssertPass,
             NUnitFrameworkConstants.NameOfAssertFail,
             NUnitFrameworkConstants.NameOfAssertWarn,
             NUnitFrameworkConstants.NameOfAssertIgnore,
             NUnitFrameworkConstants.NameOfAssertInconclusive,
             NUnitFrameworkConstants.NameOfAssertThat,
-        };
+        ];
 
         private static readonly DiagnosticDescriptor updateStringFormatToInterpolatableString = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.UpdateStringFormatToInterpolatableString,

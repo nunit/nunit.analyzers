@@ -92,7 +92,7 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
-        [TestCase(NUnitFrameworkConstants.NameOfCollectionAssertIsOrdered)]
+        [TestCase(NUnitLegacyFrameworkConstants.NameOfCollectionAssertIsOrdered)]
         public void AnalyzeOneCollectionWithComparerWhenFormatAndParamsArgumentsAreUsed(string method)
         {
             var code = TestUtility.WrapInTestMethod(@$"
@@ -350,8 +350,8 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
-        [TestCase(NUnitFrameworkConstants.NameOfCollectionAssertAreEqual)]
-        [TestCase(NUnitFrameworkConstants.NameOfCollectionAssertAreNotEqual)]
+        [TestCase(NUnitLegacyFrameworkConstants.NameOfCollectionAssertAreEqual)]
+        [TestCase(NUnitLegacyFrameworkConstants.NameOfCollectionAssertAreNotEqual)]
         public void AnalyzeTwoCollectionWithComparerWhenFormatAndParamsArgumentsAreUsed(string method)
         {
             var code = TestUtility.WrapInTestMethod(@$"

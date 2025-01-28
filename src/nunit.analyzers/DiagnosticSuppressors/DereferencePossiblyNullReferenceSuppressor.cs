@@ -338,23 +338,23 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                         }
                     }
                 }
-                else if (member == NUnitFrameworkConstants.NameOfAssertNotNull ||
-                    member == NUnitFrameworkConstants.NameOfAssertIsNotNull)
+                else if (member == NUnitLegacyFrameworkConstants.NameOfAssertNotNull ||
+                    member == NUnitLegacyFrameworkConstants.NameOfAssertIsNotNull)
                 {
                     if (CoveredBy(firstArgument, possibleNullReference))
                     {
                         return true;
                     }
                 }
-                else if (member == NUnitFrameworkConstants.NameOfAssertIsTrue ||
-                         member == NUnitFrameworkConstants.NameOfAssertTrue)
+                else if (member == NUnitLegacyFrameworkConstants.NameOfAssertIsTrue ||
+                         member == NUnitLegacyFrameworkConstants.NameOfAssertTrue)
                 {
                     if (IsHasValue(firstArgument, possibleNullReference))
                     {
                         return true;
                     }
                 }
-                else if (member is NUnitFrameworkConstants.NameOfMultiple or NUnitFrameworkConstants.NameOfMultipleAsync)
+                else if (member is NUnitFrameworkConstants.NameOfMultiple or NUnitV4FrameworkConstants.NameOfMultipleAsync)
                 {
                     // Look up into the actual asserted parameter
                     if (argumentList.Arguments.FirstOrDefault()?.Expression is AnonymousFunctionExpressionSyntax anonymousFunction)

@@ -7,8 +7,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.ClassicModelAssertUsage;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Helpers;
+
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+
 using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
+using static NUnit.Analyzers.Constants.NUnitLegacyFrameworkConstants;
 
 namespace NUnit.Analyzers.StringAssertUsage
 {

@@ -52,8 +52,8 @@ namespace NUnit.Analyzers.TestCaseUsage
             if (testCaseType is null)
                 return;
 
-            INamedTypeSymbol? cancelAfterType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfCancelAfterAttribute);
-            INamedTypeSymbol? cancellationTokenType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfCancellationToken);
+            INamedTypeSymbol? cancelAfterType = context.Compilation.GetTypeByMetadataName(NUnitV4FrameworkConstants.FullNameOfCancelAfterAttribute);
+            INamedTypeSymbol? cancellationTokenType = context.Compilation.GetTypeByMetadataName(NUnitV4FrameworkConstants.FullNameOfCancellationToken);
 
             context.RegisterSymbolAction(symbolContext => AnalyzeMethod(symbolContext, testCaseType, cancelAfterType, cancellationTokenType), SymbolKind.Method);
         }

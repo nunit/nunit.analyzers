@@ -29,8 +29,8 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
             IOperation? actualOperation;
             IOperation? expectedOperation;
 
-            if (assertOperation.TargetMethod.Name.Equals(NUnitFrameworkConstants.NameOfAssertAreEqual, StringComparison.Ordinal) ||
-                assertOperation.TargetMethod.Name.Equals(NUnitFrameworkConstants.NameOfAssertAreNotEqual, StringComparison.Ordinal))
+            if (assertOperation.TargetMethod.Name.Equals(NUnitLegacyFrameworkConstants.NameOfAssertAreEqual, StringComparison.Ordinal) ||
+                assertOperation.TargetMethod.Name.Equals(NUnitLegacyFrameworkConstants.NameOfAssertAreNotEqual, StringComparison.Ordinal))
             {
                 actualOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfActualParameter);
                 expectedOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfExpectedParameter);

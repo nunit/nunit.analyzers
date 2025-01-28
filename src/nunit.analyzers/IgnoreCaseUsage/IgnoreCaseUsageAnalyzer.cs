@@ -15,13 +15,13 @@ namespace NUnit.Analyzers.IgnoreCaseUsage
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class IgnoreCaseUsageAnalyzer : BaseAssertionAnalyzer
     {
-        private static readonly string[] SupportedIsMethods = new[]
-        {
+        private static readonly string[] SupportedIsMethods =
+        [
             NUnitFrameworkConstants.NameOfIsEqualTo,
             NUnitFrameworkConstants.NameOfIsEquivalentTo,
             NUnitFrameworkConstants.NameOfIsSupersetOf,
             NUnitFrameworkConstants.NameOfIsSubsetOf
-        };
+        ];
 
         private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.IgnoreCaseUsage,

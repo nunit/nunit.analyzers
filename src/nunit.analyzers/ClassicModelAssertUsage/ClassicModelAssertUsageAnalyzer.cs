@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Helpers;
-using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
+using static NUnit.Analyzers.Constants.NUnitLegacyFrameworkConstants;
 
 namespace NUnit.Analyzers.ClassicModelAssertUsage
 {
