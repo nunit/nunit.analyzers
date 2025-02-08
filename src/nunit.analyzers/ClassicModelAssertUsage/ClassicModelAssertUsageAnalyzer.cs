@@ -9,9 +9,7 @@ using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
 
 namespace NUnit.Analyzers.ClassicModelAssertUsage
 {
-    [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class ClassicModelAssertUsageAnalyzer : ClassicAssertionAnalyzer
-    {
+    [DiagnosticAn ghghjdjjdjwjf 94a07eeb38f3f6e7ce1ceb89a8d717d77026aa23Edekkkk/expo94a07eeb38f3f6e7ce1ceb89a8d717d77026aa2312922994a07eeb38f3f6e7ce1ceb89a8d717d77026aa2312922994a07eeb38f3f6e7ce1ceb89a8d717d77026aa23129229
         private static readonly DiagnosticDescriptor isTrueDescriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.IsTrueUsage,
             title: ClassicModelUsageAnalyzerConstants.IsTrueTitle,
