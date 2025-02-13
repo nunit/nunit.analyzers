@@ -28,6 +28,7 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
 #if NUNIT4
             ["default(int)", "Default"],
 #endif
+            ["0", "Zero"],
         ];
 
         [TestCaseSource(nameof(EqualToSpecificConstraint))]
@@ -44,7 +45,7 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
             AnalyzeForEqualTo("Is", string.Empty, literal, constraint, settings);
             AnalyzeForEqualTo("Is", ".And.Not.Empty", literal, constraint, settings);
             AnalyzeForEqualTo("Is.Not", string.Empty, literal, constraint, settings);
-            AnalyzeForEqualTo("Is.EqualTo(0).Or", string.Empty, literal, constraint, settings);
+            AnalyzeForEqualTo("Is.EqualTo(4).Or", string.Empty, literal, constraint, settings);
         }
 
         private static void AnalyzeForEqualTo(string prefix, string suffix, string literal, string constraint, Settings? settings = null)
