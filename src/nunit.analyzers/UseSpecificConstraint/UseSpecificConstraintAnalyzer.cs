@@ -45,11 +45,12 @@ namespace NUnit.Analyzers.UseSpecificConstraint
 
                 if (argument is LiteralExpressionSyntax literalExpression)
                 {
-                    constraint = literalExpression.Kind() switch
+                    constraint = (literalExpression.Kind(), literalExpression.Token.ValueText) switch
                     {
-                        SyntaxKind.NullLiteralExpression => NUnitFrameworkConstants.NameOfIsNull,
-                        SyntaxKind.FalseLiteralExpression => NUnitFrameworkConstants.NameOfIsFalse,
-                        SyntaxKind.TrueLiteralExpression => NUnitFrameworkConstants.NameOfIsTrue,
+                        (SyntaxKind.NullLiteralExpression, _) => NUnitFrameworkConstants.NameOfIsNull,
+                        (SyntaxKind.FalseLiteralExpression, _) => NUnitFrameworkConstants.NameOfIsFalse,
+                        (SyntaxKind.TrueLiteralExpression, _) => NUnitFrameworkConstants.NameOfIsTrue,
+                        (SyntaxKind.NumericLiteralExpression, "0") => NUnitFrameworkConstants.NameOfIsZero,
                         _ => null,
                     };
 
