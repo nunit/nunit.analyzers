@@ -88,7 +88,8 @@ namespace NUnit.Analyzers.Extensions
 
         internal static bool IsTestFixture(this ITypeSymbol typeSymbol, Compilation compilation)
         {
-            return typeSymbol.GetMembers().OfType<IMethodSymbol>().Any(m => m.IsTestRelatedMethod(compilation));
+            return typeSymbol.GetAllAttributes().Any(a => a.IsTestFixtureAttribute(compilation)) ||
+                   typeSymbol.GetMembers().OfType<IMethodSymbol>().Any(m => m.IsTestRelatedMethod(compilation));
         }
 
         internal static bool IsInstancePerTestCaseFixture(this ITypeSymbol typeSymbol, Compilation compilation)
