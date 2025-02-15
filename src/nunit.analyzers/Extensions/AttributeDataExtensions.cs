@@ -19,9 +19,19 @@ namespace NUnit.Analyzers.Extensions
             return DerivesFromInterface(compilation, @this, NUnitFrameworkConstants.FullNameOfTypeITestBuilder);
         }
 
+        public static bool DerivesFromIFixtureBuilder(this AttributeData @this, Compilation compilation)
+        {
+            return DerivesFromInterface(compilation, @this, NUnitFrameworkConstants.FullNameOfTypeIFixtureBuilder);
+        }
+
         public static bool DerivesFromIParameterDataSource(this AttributeData @this, Compilation compilation)
         {
             return DerivesFromInterface(compilation, @this, NUnitFrameworkConstants.FullNameOfTypeIParameterDataSource);
+        }
+
+        public static bool IsTestFixtureAttribute(this AttributeData @this, Compilation compilation)
+        {
+            return @this.DerivesFromIFixtureBuilder(compilation);
         }
 
         public static bool IsTestMethodAttribute(this AttributeData @this, Compilation compilation)

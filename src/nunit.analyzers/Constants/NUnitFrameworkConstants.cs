@@ -86,6 +86,7 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfTypeTestAttribute = "NUnit.Framework.TestAttribute";
         public const string FullNameOfTypeParallelizableAttribute = "NUnit.Framework.ParallelizableAttribute";
         public const string FullNameOfTypeITestBuilder = "NUnit.Framework.Interfaces.ITestBuilder";
+        public const string FullNameOfTypeIFixtureBuilder = "NUnit.Framework.Interfaces.IFixtureBuilder";
         public const string FullNameOfTypeISimpleTestBuilder = "NUnit.Framework.Interfaces.ISimpleTestBuilder";
         public const string FullNameOfTypeValuesAttribute = "NUnit.Framework.ValuesAttribute";
         public const string FullNameOfTypeValueSourceAttribute = "NUnit.Framework.ValueSourceAttribute";

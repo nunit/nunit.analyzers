@@ -128,6 +128,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.FullNameOfTypeValuesAttribute), typeof(ValuesAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeITestBuilder), typeof(ITestBuilder)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeISimpleTestBuilder), typeof(ISimpleTestBuilder)),
+            (nameof(NUnitFrameworkConstants.FullNameOfTypeIFixtureBuilder), typeof(IFixtureBuilder)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeIParameterDataSource), typeof(IParameterDataSource)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeTestCaseData), typeof(TestCaseData)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeTestCaseParameters), typeof(TestCaseParameters)),
