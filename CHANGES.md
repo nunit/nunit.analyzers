@@ -1,4 +1,39 @@
-﻿# NUnit Analyzers 4.6 - January 9, 2025
+﻿# NUnit Analyzers 4.7 - April 1, 2025
+
+The release primarily add another diagnostic `NUnit4002` - and associated codefix - to help simplify
+`EqualTo` constraints when the expected value is a simple constant - e.g. `true`, `false`, `0`, or 
+`default`. The release also removes some false positives for `Nunit1029`.
+
+As tooling contributions the analyzers now build using .NET8.0 and also analyzers and codefixes are
+now split into separate projects as only editors should load codefixes.
+
+The release contains contributions from the following users (in alphabetical order):
+* @cbersch
+* @Dreamescaper
+* @manfred-brands
+* @mikkelbu
+* @seanblue
+* @zlepper
+
+Issues Resolved
+
+Features and Enhancements
+* #828 Replace Is.EqualTo(default) with Is.Default
+* #826 Suggest to use Is.Null instead of Is.EqualTo(null)
+* #824 Use Is.False / Is.True instead of Is.EqualTo
+
+Bugs
+* #832 False positive for Nunit1029 when only a type argument is use
+
+Tooling, Process, and Documentation
+* #853 chore: Add NUnit4002.md solution file
+* #846 chore: Bump NUnit3TestAdapter to version 5 
+* #843 chore(deps): Bump Microsoft.NET.Test.Sdk and Microsoft.NETFramework.ReferenceAssemblies
+* #838 chore: bump version 
+* #677 Build using .NET8.0 SDK
+
+
+# NUnit Analyzers 4.6 - January 9, 2025
 
 This release contains two improvements: Allowing `NUnit1001` to understand `DateOnly` and `TimeOnly` parameters in
 `TestCaseUsage` and making `NUnit2045` support `Assert.EnterMultipleScope` (introduced in NUnit version 4.2). 
