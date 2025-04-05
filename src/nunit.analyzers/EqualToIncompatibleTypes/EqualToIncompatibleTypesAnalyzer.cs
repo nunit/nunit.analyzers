@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -50,7 +49,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                 foreach (var constraintPartExpression in constraintExpression.ConstraintParts)
                 {
                     if (constraintPartExpression.HasIncompatiblePrefixes()
-                        || HasCustomEqualityComparer(constraintPartExpression)
+                        || constraintPartExpression.HasCustomComparer()
                         || constraintPartExpression.HasUnknownExpressions())
                     {
                         return;
@@ -140,11 +139,6 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                     descriptor,
                     expectedOperation.Syntax.GetLocation()));
             }
-        }
-
-        private static bool HasCustomEqualityComparer(ConstraintExpressionPart constraintPartExpression)
-        {
-            return constraintPartExpression.GetSuffixesNames().Any(s => s == NUnitFrameworkConstants.NameOfEqualConstraintUsing);
         }
     }
 }
