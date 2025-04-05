@@ -30,15 +30,22 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
 #if NUNIT4
             ["default(int)", "Default"],
 #endif
+            ["0", "Zero"],
+            ["0.0", "Zero"],
         ];
 
         [TestCaseSource(nameof(EqualToSpecificConstraint))]
         public void AnalyzeForSpecificConstraint(string literal, string constraint) => AnalyzeForEqualTo(literal, constraint);
 
 #if NUNIT4
-        [Test]
-        public void AnalyzeForIsDefault() => AnalyzeForEqualTo("default", "Default",
-            Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors));
+        /*
+         *  Is.EqualTo(default) no longer compiles with NUnit 4.3
+         *  As 'default' is untyped, the call is ambigous between the specificy typed overloads.
+         *
+            [Test]
+            public void AnalyzeForIsDefault() => AnalyzeForEqualTo("default", "Default",
+                Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors));
+          */
 #endif
 
         private static void AnalyzeForEqualTo(string literal, string constraint, Settings? settings = null)
@@ -46,7 +53,7 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
             AnalyzeForEqualTo("Is", string.Empty, literal, constraint, settings);
             AnalyzeForEqualTo("Is", ".And.Not.Empty", literal, constraint, settings);
             AnalyzeForEqualTo("Is.Not", string.Empty, literal, constraint, settings);
-            AnalyzeForEqualTo("Is.EqualTo(0).Or", string.Empty, literal, constraint, settings);
+            AnalyzeForEqualTo("Is.EqualTo(4).Or", string.Empty, literal, constraint, settings);
         }
 
         private static void AnalyzeForEqualTo(string prefix, string suffix, string literal, string constraint, Settings? settings = null)
