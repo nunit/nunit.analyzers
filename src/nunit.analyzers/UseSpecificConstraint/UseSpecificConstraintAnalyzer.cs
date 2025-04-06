@@ -1,17 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.Helpers;
+using NUnit.Analyzers.Operations;
 
 namespace NUnit.Analyzers.UseSpecificConstraint
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class UseSpecificConstraintAnalyzer : DiagnosticAnalyzer
+    public sealed class UseSpecificConstraintAnalyzer : BaseAssertionAnalyzer
     {
         private static readonly DiagnosticDescriptor simplifyConstraint = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.UseSpecificConstraint,
@@ -25,57 +25,84 @@ namespace NUnit.Analyzers.UseSpecificConstraint
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(simplifyConstraint);
 
-        public override void Initialize(AnalysisContext context)
+        protected override void AnalyzeAssertInvocation(Version nunitVersion, OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-            context.EnableConcurrentExecution();
-            context.RegisterCompilationStartAction(this.AnalyzeCompilationStart);
-        }
-
-        private static void AnalyzeInvocation(Version nunitVersion, SyntaxNodeAnalysisContext context)
-        {
-            var invocationExpression = (InvocationExpressionSyntax)context.Node;
-
-            if (invocationExpression.ArgumentList.Arguments.Count == 1 &&
-                invocationExpression.Expression is MemberAccessExpressionSyntax memberAccessExpression &&
-                memberAccessExpression.Name.Identifier.Text == NUnitFrameworkConstants.NameOfIsEqualTo)
+            if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
+                out var actualOperation, out var constraintExpression))
             {
-                ExpressionSyntax argument = invocationExpression.ArgumentList.Arguments[0].Expression;
+                return;
+            }
+
+            var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
+            if (actualType is null)
+                return;
+
+            foreach (var constraintPartExpression in constraintExpression.ConstraintParts)
+            {
+                if (constraintPartExpression.HasIncompatiblePrefixes()
+                    || constraintPartExpression.HasCustomComparer()
+                    || constraintPartExpression.HasUnknownExpressions())
+                {
+                    return;
+                }
+
+                var constraintMethod = constraintPartExpression.GetConstraintMethod();
+                if (constraintMethod?.Name != NUnitFrameworkConstants.NameOfIsEqualTo)
+                    continue;
+
+                var expectedOperation = constraintPartExpression.GetExpectedArgument();
+                if (expectedOperation is null)
+                    continue;
+
                 string? constraint = null;
 
-                if (argument is LiteralExpressionSyntax literalExpression)
-                {
-                    constraint = literalExpression.Kind() switch
-                    {
-                        SyntaxKind.NullLiteralExpression => NUnitFrameworkConstants.NameOfIsNull,
-                        SyntaxKind.FalseLiteralExpression => NUnitFrameworkConstants.NameOfIsFalse,
-                        SyntaxKind.TrueLiteralExpression => NUnitFrameworkConstants.NameOfIsTrue,
-                        _ => null,
-                    };
+                // Look for both direct `0` and cast `(short)0` to catch all 0 values.
+                ILiteralOperation? literalOperation = (expectedOperation is IConversionOperation conversionOperation ?
+                    conversionOperation.Operand : expectedOperation) as ILiteralOperation;
 
-                    if (constraint is null && nunitVersion.Major >= 4)
+                if (literalOperation is not null)
+                {
+                    if (literalOperation.ConstantValue.HasValue)
                     {
-                        constraint = literalExpression.Kind() switch
+                        constraint = literalOperation.ConstantValue.Value switch
                         {
-                            SyntaxKind.DefaultLiteralExpression => NUnitV4FrameworkConstants.NameOfIsDefault,
-                            _ => constraint,
+                            null => NUnitFrameworkConstants.NameOfIsNull,
+                            false => NUnitFrameworkConstants.NameOfIsFalse,
+                            true => NUnitFrameworkConstants.NameOfIsTrue,
+                            0 or 0d or 0f or 0m => NUnitFrameworkConstants.NameOfIsZero,
+                            _ => null,
                         };
+
+                        if (constraint is null &&
+                            literalOperation.ConstantValue.Value is IConvertible convertible)
+                        {
+                            if (convertible.ToDouble(null) == 0)
+                            {
+                                // Catches all other 0 values: (byte)0, (short)0, 0u, 0L, 0uL
+                                constraint = NUnitFrameworkConstants.NameOfIsZero;
+                            }
+                        }
                     }
                 }
-                else if (argument is DefaultExpressionSyntax defaultExpression)
+                else if (expectedOperation is IDefaultValueOperation defaultValueOperation)
                 {
-                    if (defaultExpression.Type is PredefinedTypeSyntax predefinedType)
+                    if (defaultValueOperation.Type is INamedTypeSymbol defaultType)
                     {
-                        if (predefinedType.Keyword.IsKind(SyntaxKind.ObjectKeyword) ||
-                            predefinedType.Keyword.IsKind(SyntaxKind.StringKeyword))
+                        if (defaultType.SpecialType == SpecialType.System_Object ||
+                            defaultType.SpecialType == SpecialType.System_String)
                         {
                             constraint = NUnitFrameworkConstants.NameOfIsNull;
                         }
                         else if (nunitVersion.Major >= 4)
                         {
+                            // We cannot use `Is.Default` if the actual type is `object`.
+                            // Note that the case `default(object)` is handled above.
+                            if (actualType.SpecialType == SpecialType.System_Object)
+                                continue;
+
                             constraint = NUnitV4FrameworkConstants.NameOfIsDefault;
                         }
-                        else if (predefinedType.Keyword.IsKind(SyntaxKind.BoolKeyword))
+                        else if (defaultType.SpecialType == SpecialType.System_Boolean)
                         {
                             constraint = NUnitFrameworkConstants.NameOfIsFalse;
                         }
@@ -84,31 +111,16 @@ namespace NUnit.Analyzers.UseSpecificConstraint
 
                 if (constraint is not null)
                 {
-                    var diagnostic = Diagnostic.Create(simplifyConstraint, invocationExpression.GetLocation(),
+                    SyntaxNode syntax = constraintPartExpression.Root!.Syntax;
+                    var diagnostic = Diagnostic.Create(simplifyConstraint, syntax.GetLocation(),
                         new Dictionary<string, string?>
                         {
                             [AnalyzerPropertyKeys.SpecificConstraint] = constraint,
                         }.ToImmutableDictionary(),
-                        argument.ToString(), constraint);
+                        expectedOperation.Syntax.ToString(), constraint);
                     context.ReportDiagnostic(diagnostic);
                 }
             }
-        }
-
-        private void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
-        {
-            IEnumerable<AssemblyIdentity> referencedAssemblies = context.Compilation.ReferencedAssemblyNames;
-
-            AssemblyIdentity? nunit = referencedAssemblies.FirstOrDefault(a =>
-                a.Name.Equals(NUnitFrameworkConstants.NUnitFrameworkAssemblyName, StringComparison.OrdinalIgnoreCase));
-
-            if (nunit is null)
-            {
-                // Who would use NUnit.Analyzers without NUnit?
-                return;
-            }
-
-            context.RegisterSyntaxNodeAction((context) => AnalyzeInvocation(nunit.Version, context), SyntaxKind.InvocationExpression);
         }
     }
 }

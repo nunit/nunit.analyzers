@@ -58,7 +58,7 @@ namespace NUnit.Analyzers.ComparableTypes
             foreach (var constraintPartExpression in constraintExpression.ConstraintParts)
             {
                 if (constraintPartExpression.HasIncompatiblePrefixes()
-                    || HasCustomComparer(constraintPartExpression)
+                    || constraintPartExpression.HasCustomComparer()
                     || constraintPartExpression.HasUnknownExpressions())
                 {
                     continue;
@@ -168,11 +168,6 @@ namespace NUnit.Analyzers.ComparableTypes
 
             return (typeSymbol.TypeKind == TypeKind.Interface && typeSymbol.GetFullMetadataName() == iComparable) ||
                 typeSymbol.AllInterfaces.Any(i => i.TypeArguments.Length == 0 && i.GetFullMetadataName() == iComparable);
-        }
-
-        private static bool HasCustomComparer(ConstraintExpressionPart constraintPartExpression)
-        {
-            return constraintPartExpression.GetSuffixesNames().Any(s => s == NUnitFrameworkConstants.NameOfEqualConstraintUsing);
         }
     }
 }
