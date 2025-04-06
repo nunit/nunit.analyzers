@@ -15,27 +15,27 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.BaseTestFixtureIsNotAbstract);
 
-        private static readonly IEnumerable<string> testMethodRelatedAttributes =
+        private static readonly IEnumerable<string[]> testMethodRelatedAttributes =
         [
-            "OneTimeSetUp",
-            "OneTimeTearDown",
-            "SetUp",
-            "TearDown",
-            "Test",
+            ["", "OneTimeSetUp"],
+            ["internal ", "OneTimeTearDown"],
+            ["public ", "SetUp"],
+            ["partial ", "TearDown"],
+            ["internal partial ", "Test"],
         ];
 
         [TestCaseSource(nameof(testMethodRelatedAttributes))]
-        public void FixWhenBaseFixtureIsNotAbstract(string attribute)
+        public void FixWhenBaseFixtureIsNotAbstract(string modifiers, string attribute)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     // Base Fixture
-    public class ↓BaseFixture
+    {modifiers}class ↓BaseFixture
     {{
         [{attribute}]
         public void BaseFixtureMethod() {{ }}
     }}
 
-    public class DerivedFixture : BaseFixture
+    {modifiers}class DerivedFixture : BaseFixture
     {{
         [Test]
         public void DerivedFixtureMethod() {{ }}
@@ -43,13 +43,13 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
 
             var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     // Base Fixture
-    public abstract class BaseFixture
+    {modifiers}abstract class BaseFixture
     {{
         [{attribute}]
         public void BaseFixtureMethod() {{ }}
     }}
 
-    public class DerivedFixture : BaseFixture
+    {modifiers}class DerivedFixture : BaseFixture
     {{
         [Test]
         public void DerivedFixtureMethod() {{ }}
