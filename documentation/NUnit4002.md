@@ -35,6 +35,7 @@ public void Test()
     Assert.That(actualObject, Is.EqualTo(default));
     Assert.That(actualInt, Is.EqualTo(default));
 }
+```
 
 ## How to fix violations
 
