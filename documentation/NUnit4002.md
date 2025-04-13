@@ -52,6 +52,7 @@ public void Test()
     Assert.That(actualObject, Is.Null);
     Assert.That(actualInt, Is.Default);
 }
+```
 
 <!-- start generated config severity -->
 ## Configure severity
