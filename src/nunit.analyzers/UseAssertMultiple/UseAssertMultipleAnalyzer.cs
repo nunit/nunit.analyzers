@@ -14,6 +14,7 @@ namespace NUnit.Analyzers.UseAssertMultiple
     public class UseAssertMultipleAnalyzer : BaseAssertionAnalyzer
     {
         private static readonly Version firstNUnitVersionWithEnterMultipleScope = new(4, 2);
+        private static readonly Version firstNUnitVersionWithAssertMultiple = new(3, 7);
 
         private static readonly DiagnosticDescriptor descriptor = DiagnosticDescriptorCreator.Create(
             id: AnalyzerIdentifiers.UseAssertMultiple,
@@ -71,6 +72,11 @@ namespace NUnit.Analyzers.UseAssertMultiple
 
         protected override void AnalyzeAssertInvocation(Version nunitVersion, OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
+            if (nunitVersion < firstNUnitVersionWithAssertMultiple)
+            {
+                return;
+            }
+
             if (assertOperation.TargetMethod.Name != NUnitFrameworkConstants.NameOfAssertThat ||
                 AssertHelper.IsInsideAssertMultiple(assertOperation.Syntax))
             {
