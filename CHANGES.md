@@ -1,4 +1,34 @@
-﻿# NUnit Analyzers 4.7 - April 1, 2025
+﻿# NUnit Analyzers 4.8 - May 22, 2025
+
+This release of the NUnit Analyzers adds a new diagnostic `NUnit1034` that checks
+whether base TestFixtures are declared as `abstract`. When a base class is not `abstract` 
+it will also be run as a standalone test which is most times not the intention.
+
+The release also contains some fixes to `NUnit4002` and `Nunit2045`.
+
+The release contains contributions from the following users (in alphabetical order):
+* @Bartleby2718
+* @CharliePoole
+* @MaceWindu
+* @manfred-brands
+* @mikkelbu
+* @Rabadash8820
+
+Issues Resolved
+
+Features and Enhancements
+* #840 Detect incorrect or questionable use of TestFixture inheritance.
+
+Bugs
+* #862 NUnit.Analyzers doesn't recognize the version of NUnit in use
+* #856 NUnit4002 shouldn't trigger for unknown types
+
+Tooling, Process, and Documentation
+* #861 Add missing backticks in NUnit4002.md
+* #855 chore: bump version 
+
+
+# NUnit Analyzers 4.7 - April 1, 2025
 
 The release primarily add another diagnostic `NUnit4002` - and associated codefix - to help simplify
 `EqualTo` constraints when the expected value is a simple constant - e.g. `true`, `false`, `0`, or 
