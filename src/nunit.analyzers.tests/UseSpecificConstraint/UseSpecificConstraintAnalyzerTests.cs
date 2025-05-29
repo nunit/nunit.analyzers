@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.UseSpecificConstraint
 {
-    public class UseSpecificConstraintAnalyzerTests
+    public sealed class UseSpecificConstraintAnalyzerTests
     {
         private static readonly DiagnosticAnalyzer analyzer = new UseSpecificConstraintAnalyzer();
         private static readonly ExpectedDiagnostic expectedDiagnostic =
@@ -87,6 +87,20 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
             RoslynAssert.Valid(analyzer, testCode);
         }
 #endif
+
+        [Test]
+        public void AnalyzeForStringShouldNotSuggestIsZero()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                [TestCase("Hello")]
+                public void TestMethod(string s)
+                {
+                    Assert.That(s, Is.EqualTo("World!"));
+                }
+                """);
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
 
         private static void AnalyzeForEqualTo(string literal, string constraint, Settings? settings = null)
         {

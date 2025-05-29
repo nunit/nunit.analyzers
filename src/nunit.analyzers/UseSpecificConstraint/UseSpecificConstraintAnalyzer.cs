@@ -64,7 +64,9 @@ namespace NUnit.Analyzers.UseSpecificConstraint
                 {
                     if (literalOperation.ConstantValue.HasValue)
                     {
-                        constraint = literalOperation.ConstantValue.Value switch
+                        object? constantValue = literalOperation.ConstantValue.Value;
+
+                        constraint = constantValue switch
                         {
                             null => NUnitFrameworkConstants.NameOfIsNull,
                             false => NUnitFrameworkConstants.NameOfIsFalse,
@@ -74,13 +76,25 @@ namespace NUnit.Analyzers.UseSpecificConstraint
                         };
 
                         if (constraint is null &&
-                            literalOperation.ConstantValue.Value is IConvertible convertible)
+                            constantValue is not null &&
+                            constantValue.GetType().IsPrimitive &&
+                            constantValue is IConvertible convertible)
                         {
-                            if (convertible.ToDouble(null) == 0)
+                            // We do not know what exceptions this conversion may throw, so we catch all exceptions.
+#pragma warning disable CA1031 // Do not catch general exception types
+                            try
                             {
-                                // Catches all other 0 values: (byte)0, (short)0, 0u, 0L, 0uL
-                                constraint = NUnitFrameworkConstants.NameOfIsZero;
+                                if (convertible.ToDouble(null) == 0)
+                                {
+                                    // Catches all other 0 values: (byte)0, (short)0, 0u, 0L, 0uL
+                                    constraint = NUnitFrameworkConstants.NameOfIsZero;
+                                }
                             }
+                            catch
+                            {
+                                // Ignore conversion errors, we cannot use this value as a constraint.
+                            }
+#pragma warning restore CA1031 // Do not catch general exception types
                         }
                     }
                 }
