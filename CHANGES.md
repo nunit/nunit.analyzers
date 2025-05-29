@@ -1,4 +1,20 @@
-﻿# NUnit Analyzers 4.8 - May 22, 2025
+﻿# NUnit Analyzers 4.8.1 - May 29, 2025
+
+This release of the NUnit Analyzers fixes a problem with `NUnit4002` when applied to comparisons between non-number
+types - e.g. strings.
+
+The release contains contributions from the following users (in alphabetical order):
+* @adrianbanks
+* @manfred-brands
+* @mikkelbu
+
+Issues Resolved
+
+Bugs
+* #870 Compilation error caused by exception in an analyzer after updating to v4.8.0
+
+
+# NUnit Analyzers 4.8 - May 22, 2025
 
 This release of the NUnit Analyzers adds a new diagnostic `NUnit1034` that checks
 whether base TestFixtures are declared as `abstract`. When a base class is not `abstract` 
