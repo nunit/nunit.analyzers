@@ -212,7 +212,7 @@ namespace NUnit.Analyzers.Tests.RangeUsage
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
-                public void ATest([{{range}}] {{type}} value) { }
+                public void ATest([↓{{range}}] {{type}} value) { }
             """);
             RoslynAssert.Diagnostics(this.analyzer, ExpectedDiagnostic.Create(AnalyzerIdentifiers.AttributeValueMismatchedParameterType), testCode);
         }
@@ -222,7 +222,7 @@ namespace NUnit.Analyzers.Tests.RangeUsage
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
-                public void ATest([{{testCase.Range}}] {{testCase.ParameterType}} value) { }
+                public void ATest([↓{{testCase.Range}}] {{testCase.ParameterType}} value) { }
             """);
             RoslynAssert.Diagnostics(this.analyzer, ExpectedDiagnostic.Create(AnalyzerIdentifiers.RangeUsesZeroStep), testCode);
         }
@@ -232,7 +232,7 @@ namespace NUnit.Analyzers.Tests.RangeUsage
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
-                public void ATest([{{testCase.Range}}] {{testCase.ParameterType}} value) { }
+                public void ATest([↓{{testCase.Range}}] {{testCase.ParameterType}} value) { }
             """);
             RoslynAssert.Diagnostics(this.analyzer, ExpectedDiagnostic.Create(AnalyzerIdentifiers.RangeInvalidIncrementing), testCode);
         }
@@ -242,7 +242,7 @@ namespace NUnit.Analyzers.Tests.RangeUsage
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
-                public void ATest([{{testCase.Range}}] {{testCase.ParameterType}} value) { }
+                public void ATest([↓{{testCase.Range}}] {{testCase.ParameterType}} value) { }
             """);
             RoslynAssert.Diagnostics(this.analyzer, ExpectedDiagnostic.Create(AnalyzerIdentifiers.RangeInvalidDecrementing), testCode);
         }

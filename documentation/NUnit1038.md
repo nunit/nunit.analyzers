@@ -19,7 +19,7 @@ Ensure that the attribute and parameter types match.
 The `Range` attribute is used to specify a range of values for a parameter in a test method.
 The type of the range values must match the type of the parameter.
 If NUnit cannot match the types, it will throw an exception at runtime.
-NUnit rules are that `int` can be assigned to any integral type and `double`.
+NUnit rules are that an `int` can be assigned to any integral type or to a `double`.
 
 ```csharp
 [Test]
