@@ -88,6 +88,7 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfTypeITestBuilder = "NUnit.Framework.Interfaces.ITestBuilder";
         public const string FullNameOfTypeIFixtureBuilder = "NUnit.Framework.Interfaces.IFixtureBuilder";
         public const string FullNameOfTypeISimpleTestBuilder = "NUnit.Framework.Interfaces.ISimpleTestBuilder";
+        public const string FullNameOfTypeRangeAttribute = "NUnit.Framework.RangeAttribute";
         public const string FullNameOfTypeValuesAttribute = "NUnit.Framework.ValuesAttribute";
         public const string FullNameOfTypeValueSourceAttribute = "NUnit.Framework.ValueSourceAttribute";
 
@@ -130,6 +131,7 @@ namespace NUnit.Analyzers.Constants
         public const string NameOfTestCaseSourceAttribute = "TestCaseSourceAttribute";
         public const string NameOfTestAttribute = "TestAttribute";
         public const string NameOfParallelizableAttribute = "ParallelizableAttribute";
+        public const string NameOfRangeAttribute = "RangeAttribute";
         public const string NameOfValuesAttribute = "ValuesAttribute";
         public const string NameOfValueSourceAttribute = "ValueSourceAttribute";
 

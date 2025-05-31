@@ -388,17 +388,17 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [TestCase("ImmutableHashSet<int>.Empty")]
         public void CodeFixUsesIsEmpty(string expected)
         {
-            const string UsingSystemCollectionsImmutable = "using System.Collections.Immutable;";
+            const string usingSystemCollectionsImmutable = "using System.Collections.Immutable;";
 
             var code = TestUtility.WrapInTestMethod($@"
             string value = ""Value"";
             ↓ClassicAssert.AreEqual({expected}, value);",
-            UsingSystemCollectionsImmutable);
+            usingSystemCollectionsImmutable);
 
             var fixedCode = TestUtility.WrapInTestMethod($@"
             string value = ""Value"";
             Assert.That(value, Is.Empty);",
-            UsingSystemCollectionsImmutable);
+            usingSystemCollectionsImmutable);
 
             IEnumerable<MetadataReference> existingReferences = Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>();
 

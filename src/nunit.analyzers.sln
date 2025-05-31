@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 17
+# Visual Studio Version 17
 VisualStudioVersion = 17.2.32210.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nunit.analyzers", "nunit.analyzers\nunit.analyzers.csproj", "{74151914-3C12-4EAC-8FD5-5766EBEA35A3}"
@@ -44,6 +44,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documentation", "documentat
 		..\documentation\NUnit1032.md = ..\documentation\NUnit1032.md
 		..\documentation\NUnit1033.md = ..\documentation\NUnit1033.md
 		..\documentation\NUnit1034.md = ..\documentation\NUnit1034.md
+		..\documentation\NUnit1035.md = ..\documentation\NUnit1035.md
+		..\documentation\NUnit1036.md = ..\documentation\NUnit1036.md
+		..\documentation\NUnit1037.md = ..\documentation\NUnit1037.md
+		..\documentation\NUnit1038.md = ..\documentation\NUnit1038.md
 		..\documentation\NUnit2001.md = ..\documentation\NUnit2001.md
 		..\documentation\NUnit2002.md = ..\documentation\NUnit2002.md
 		..\documentation\NUnit2003.md = ..\documentation\NUnit2003.md

@@ -53,6 +53,10 @@ Rules which enforce structural requirements on the test code.
 | [NUnit1032](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1032.md) | An IDisposable field/property should be Disposed in a TearDown method | :white_check_mark: | :exclamation: | :x: |
 | [NUnit1033](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1033.md) | The Write methods on TestContext will be marked as Obsolete and eventually removed | :white_check_mark: | :warning: | :white_check_mark: |
 | [NUnit1034](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1034.md) | Base TestFixtures should be abstract | :white_check_mark: | :warning: | :white_check_mark: |
+| [NUnit1035](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1035.md) | The 'step' parameter to Range cannot be zero | :white_check_mark: | :exclamation: | :x: |
+| [NUnit1036](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1036.md) | The value for 'from' must be less than 'to' when 'step' is positive | :white_check_mark: | :exclamation: | :x: |
+| [NUnit1037](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1037.md) | The value for 'from' must be greater than 'to' when 'step' is negative | :white_check_mark: | :exclamation: | :x: |
+| [NUnit1038](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit1038.md) | The type of the attribute values doesn't match the parameter type | :white_check_mark: | :exclamation: | :x: |
 
 ## Assertion Rules (NUnit2001 - )
 

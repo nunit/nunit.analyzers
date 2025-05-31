@@ -38,6 +38,10 @@ namespace NUnit.Analyzers.Constants
         internal const string FieldIsNotDisposedInTearDown = "NUnit1032";
         internal const string TestContextWriteIsObsolete = "NUnit1033";
         internal const string BaseTestFixtureIsNotAbstract = "NUnit1034";
+        internal const string RangeUsesZeroStep = "NUnit1035";
+        internal const string RangeInvalidIncrementing = "NUnit1036";
+        internal const string RangeInvalidDecrementing = "NUnit1037";
+        internal const string AttributeValueMismatchedParameterType = "NUnit1038";
 
         #endregion Structure
 
