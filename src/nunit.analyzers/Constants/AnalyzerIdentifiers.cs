@@ -101,6 +101,7 @@ namespace NUnit.Analyzers.Constants
         internal const string NegativeUsage = "NUnit2052";
         internal const string IsAssignableFromUsage = "NUnit2053";
         internal const string IsNotAssignableFromUsage = "NUnit2054";
+        internal const string InstanceOf = "NUnit2055";
 
         #endregion Assertion
 
