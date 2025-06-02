@@ -31,13 +31,13 @@ namespace NUnit.Analyzers.Tests.InstanceOf
         public void VerifyInstanceOfCodeFix(string instanceValue, string typeExpression, string constraintString)
         {
             var code = TestUtility.WrapInTestMethod(
-            @$"var instance = {instanceValue};
-            Assert.That(↓instance is {typeExpression}{constraintString});");
+                @$"var instance = {instanceValue};
+                Assert.That(↓instance is {typeExpression}{constraintString});");
 
             var expectedConstraint = constraintString == ", Is.False" ? "Is.Not.InstanceOf" : "Is.InstanceOf";
             var fixedCode = TestUtility.WrapInTestMethod(
-            @$"var instance = {instanceValue};
-            Assert.That(instance, {expectedConstraint}<{typeExpression}>());");
+                @$"var instance = {instanceValue};
+                Assert.That(instance, {expectedConstraint}<{typeExpression}>());");
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }

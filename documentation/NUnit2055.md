@@ -33,7 +33,7 @@ public void Test()
 ## How to fix violations
 
 The analyzer comes with a code fix that will replace `Assert.That(instance is SomeType, Is.True)`
-and `Assert.That(instance is SomeType)` into `Assert.That(instance, Is.InstanceOf<SomeType>())`-
+and `Assert.That(instance is SomeType)` into `Assert.That(instance, Is.InstanceOf<SomeType>())`
 and similarly replace `Assert.That(instance is SomeType, Is.False)` into
 ``Assert.That(instance, Is.Not.InstanceOf<SomeType>())``. So the code block above will be changed into
 
