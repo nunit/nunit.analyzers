@@ -119,6 +119,7 @@ Rules which improve assertions in the test code.
 | [NUnit2053](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2053.md) | Consider using Assert.That(actual, Is.AssignableFrom(expected)) instead of ClassicAssert.IsAssignableFrom(expected, actual) | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2054](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2054.md) | Consider using Assert.That(actual, Is.Not.AssignableFrom(expected)) instead of ClassicAssert.IsNotAssignableFrom(expected, actual) | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2055](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2055.md) | Consider using Is.InstanceOf\<T> constraint instead of an 'is T' expression | :white_check_mark: | :information_source: | :white_check_mark: |
+| [NUnit2056](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2056.md) | Consider using Assert.EnterMultipleScope statement instead of Assert.Multiple/Assert.MultipleAsync | :white_check_mark: | :information_source: | :white_check_mark: |
 
 ## Suppressor Rules (NUnit3001 - )
 

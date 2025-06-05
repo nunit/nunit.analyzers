@@ -102,6 +102,7 @@ namespace NUnit.Analyzers.Constants
         internal const string IsAssignableFromUsage = "NUnit2053";
         internal const string IsNotAssignableFromUsage = "NUnit2054";
         internal const string InstanceOf = "NUnit2055";
+        internal const string UseAssertEnterMultipleScope = "NUnit2056";
 
         #endregion Assertion
 
