@@ -30,6 +30,22 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
         }
 
         [Test]
+        public void AnalyzeWhenMultipleIsUsedWithAnAsyncDelegate()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void Test()
+        {
+            ↓Assert.Multiple(async () =>
+            {
+                Assert.That(true, Is.True);
+                await Task.Yield();
+                Assert.That(false, Is.False);
+            });
+        }");
+            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenMultipleAsyncIsUsed()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"

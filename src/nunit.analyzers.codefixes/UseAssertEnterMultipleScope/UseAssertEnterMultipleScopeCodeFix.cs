@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Composition;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -15,6 +16,9 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
     public class UseAssertEnterMultipleScopeCodeFix : CodeFixProvider
     {
         internal const string UseAssertEnterMultipleScopeMethod = "Use Assert.EnterMultipleScope method";
+
+        internal const string SystemThreadingTasksNamespace = "System.Threading.Tasks";
+        internal const string TaskTypeName = "Task";
 
         public override ImmutableArray<string> FixableDiagnosticIds
             => ImmutableArray.Create(AnalyzerIdentifiers.UseAssertEnterMultipleScope);
@@ -43,15 +47,21 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
                 return;
             }
 
-            var blockSyntax = FindBlockSyntax(node);
+            var (blockSyntax, lambdaHasAsyncKeyword) = FindBlockSyntax(node);
             if (blockSyntax is null)
             {
                 return;
             }
 
-            var newSyntax = CreateUsingStatementSyntax(blockSyntax, expressionStatementSyntax.GetTrailingTrivia());
+            var newBodySyntax = CreateUsingStatementSyntax(blockSyntax, expressionStatementSyntax.GetTrailingTrivia());
 
-            var newRoot = root.ReplaceNode(expressionStatementSyntax, newSyntax);
+            // Replace body syntax and add annotation to have a reference to the new body syntax in the updated root
+            var annotation = new SyntaxAnnotation();
+            var annotatedNewSyntax = newBodySyntax.WithAdditionalAnnotations(annotation);
+            var rootWithAnnotatedBody = root.ReplaceNode(expressionStatementSyntax, annotatedNewSyntax);
+            var newBodySyntaxInUpdatedRoot = rootWithAnnotatedBody.GetAnnotatedNodes(annotation).First();
+
+            var newRoot = UpdateTestMethodSignatureIfNecessary(rootWithAnnotatedBody, newBodySyntaxInUpdatedRoot, lambdaHasAsyncKeyword);
 
             var codeAction = CodeAction.Create(
                 UseAssertEnterMultipleScopeMethod,
@@ -61,17 +71,17 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
             context.RegisterCodeFix(codeAction, context.Diagnostics);
         }
 
-        private static BlockSyntax? FindBlockSyntax(SyntaxNode node)
+        private static (BlockSyntax? Block, bool HasAsyncKeyword) FindBlockSyntax(SyntaxNode node)
         {
             if (node is not InvocationExpressionSyntax invocationExprSyntax ||
                 invocationExprSyntax.ArgumentList.Arguments.Count != 1 ||
                 invocationExprSyntax.ArgumentList.Arguments[0].Expression
                     is not ParenthesizedLambdaExpressionSyntax parenthesizedLambdaExpressionSyntax)
             {
-                return null;
+                return (null, false);
             }
 
-            return parenthesizedLambdaExpressionSyntax.Block;
+            return (parenthesizedLambdaExpressionSyntax.Block, parenthesizedLambdaExpressionSyntax.AsyncKeyword != default);
         }
 
         private static UsingStatementSyntax CreateUsingStatementSyntax(BlockSyntax blockSyntax, SyntaxTriviaList trailingTrivia) =>
@@ -83,6 +93,56 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
                             SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfAssert),
                             SyntaxFactory.IdentifierName(NUnitV4FrameworkConstants.NameOfEnterMultipleScope))))
                 .WithTrailingTrivia(trailingTrivia);
+
+        private static SyntaxNode UpdateTestMethodSignatureIfNecessary(
+            SyntaxNode newRoot,
+            SyntaxNode newSyntaxInTree,
+            bool lambdaHasAsyncKeyword)
+        {
+            var methodDeclaration = FindNearestParentOfType<MethodDeclarationSyntax>(newSyntaxInTree);
+
+            if (!lambdaHasAsyncKeyword || methodDeclaration is null || IsAsyncTaskMethod(methodDeclaration))
+            {
+                return newRoot;
+            }
+
+            var systemThreadingTasksUsingExists = newRoot.DescendantNodes()
+                .OfType<UsingDirectiveSyntax>()
+                .Any(u => u.Name.ToString() == SystemThreadingTasksNamespace);
+
+            var taskTypeName = GetTaskTypeSyntax(systemThreadingTasksUsingExists);
+
+            var newMethodDeclaration = methodDeclaration
+                .WithModifiers(methodDeclaration.Modifiers.Add(SyntaxFactory.Token(SyntaxKind.AsyncKeyword)))
+                .WithReturnType(taskTypeName);
+
+            return newRoot.ReplaceNode(methodDeclaration, newMethodDeclaration);
+        }
+
+        private static bool IsAsyncTaskMethod(MethodDeclarationSyntax methodDeclaration)
+        {
+            var isAsync = methodDeclaration.Modifiers.Any(SyntaxKind.AsyncKeyword);
+            var returnsTask = (methodDeclaration.ReturnType is IdentifierNameSyntax id && id.Identifier.Text == TaskTypeName)
+                || (methodDeclaration.ReturnType is QualifiedNameSyntax qn && qn.ToString() == $"{SystemThreadingTasksNamespace}.{TaskTypeName}");
+
+            return isAsync && returnsTask;
+        }
+
+        private static TypeSyntax GetTaskTypeSyntax(bool systemThreadingTasksUsingExists)
+            => systemThreadingTasksUsingExists
+                ? SyntaxFactory.ParseTypeName(TaskTypeName)
+                : QualifiedNameFromParts("System", "Threading", "Tasks", TaskTypeName);
+
+        private static NameSyntax QualifiedNameFromParts(params string[] parts)
+        {
+            NameSyntax name = SyntaxFactory.IdentifierName(parts[0]);
+            for (int i = 1; i < parts.Length; i++)
+            {
+                name = SyntaxFactory.QualifiedName(name, SyntaxFactory.IdentifierName(parts[i]));
+            }
+
+            return name;
+        }
 
         private static T? FindNearestParentOfType<T>(SyntaxNode node)
             where T : SyntaxNode

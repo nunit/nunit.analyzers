@@ -22,9 +22,6 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-        protected override bool IsAssert(bool hasClassicAssert, IInvocationOperation invocationOperation) =>
-            base.IsAssert(false, invocationOperation);
-
         protected override void AnalyzeAssertInvocation(Version nunitVersion, OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
             if (nunitVersion < firstNUnitVersionWithEnterMultipleScope)

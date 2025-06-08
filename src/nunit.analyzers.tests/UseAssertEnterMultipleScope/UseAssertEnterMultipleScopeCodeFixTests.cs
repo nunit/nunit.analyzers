@@ -54,6 +54,81 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
         }
 
         [Test]
+        public void VerifyAssertMultipleWithAsyncDelegate()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public void TestMulti()
+        {
+            ↓Assert.Multiple(async () =>
+            {
+                var i = 4;
+                var j = 67;
+                await Task.Yield();
+                Assert.That(i, Is.EqualTo(j));
+            });
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public async Task TestMulti()
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                var i = 4;
+                var j = 67;
+                await Task.Yield();
+                Assert.That(i, Is.EqualTo(j));
+            }
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void VerifyAssertMultipleWithAsyncDelegateAndNoSystemThreading()
+        {
+            var code = @"
+using NUnit.Framework;
+
+namespace NUnit.Analyzers.Tests.Targets.UseAssertEnterMultipleScope
+{
+    public class TestClass
+    {
+        [Test]
+        public void TestMulti()
+        {
+            ↓Assert.Multiple(async () =>
+            {
+                var i = 4;
+                var j = 67;
+                await System.Threading.Tasks.Task.Yield();
+                Assert.That(i, Is.EqualTo(j));
+            });
+        }
+    }
+}";
+            var fixedCode = @"
+using NUnit.Framework;
+
+namespace NUnit.Analyzers.Tests.Targets.UseAssertEnterMultipleScope
+{
+    public class TestClass
+    {
+        [Test]
+        public async System.Threading.Tasks.Task TestMulti()
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                var i = 4;
+                var j = 67;
+                await System.Threading.Tasks.Task.Yield();
+                Assert.That(i, Is.EqualTo(j));
+            }
+        }
+    }
+}";
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
         public void VerifyAssertMultipleAsync()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
