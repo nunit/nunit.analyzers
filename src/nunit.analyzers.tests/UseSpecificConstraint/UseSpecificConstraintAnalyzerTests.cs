@@ -22,7 +22,7 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
 #endif
             ["true", "True"],
 
-            ["null", "Null"],
+            ["(object?)null", "Null"],
             ["default(object)", "Null"],
             ["default(string)", "Null"],
 #if NUNIT4
@@ -102,22 +102,61 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
             RoslynAssert.Valid(analyzer, testCode);
         }
 
-        private static void AnalyzeForEqualTo(string literal, string constraint, Settings? settings = null)
+        [Test]
+        public void AnalyzeForNullableStructShouldNotSuggestIsDefault()
         {
-            AnalyzeForEqualTo("Is", string.Empty, literal, constraint, settings);
-            AnalyzeForEqualTo("Is", ".And.Not.Empty", literal, constraint, settings);
-            AnalyzeForEqualTo("Is.Not", string.Empty, literal, constraint, settings);
-            AnalyzeForEqualTo("Is.EqualTo(4).Or", string.Empty, literal, constraint, settings);
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                class SomeType
+                {
+                    public Guid? Id { get; set; }
+                }
+
+                [Test]
+                public void TestMethod()
+                {
+                    var obj = new SomeType { Id = Guid.NewGuid() };
+
+                    Assert.That(obj.Id, Is.Not.EqualTo(default(Guid)));
+                }
+                """);
+
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
-        private static void AnalyzeForEqualTo(string prefix, string suffix, string literal, string constraint, Settings? settings = null)
+#if NUNIT4
+        [TestCase("Exception? actual = null;", "default(Exception?)")]
+        [TestCase("Exception? actual = null;", "default(Exception)")]
+        [TestCase("Exception actual = null!;", "default(Exception?)")]
+        [TestCase("Exception actual = null!;", "default(Exception)")]
+        public void AnalyzeForReferenceTypeShouldSuggestIsDefaultEvenIfNullabilityDoesntMatch(string initialization, string literal)
         {
-            var testCode = TestUtility.WrapInTestMethod(
-                $"Assert.That(false, ↓{prefix}.EqualTo({literal}){suffix});");
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                    {initialization}
+                    Assert.That(actual, ↓Is.EqualTo({literal}));");
+
+            RoslynAssert.Diagnostics(analyzer,
+                expectedDiagnostic.WithMessage($"Replace 'Is.EqualTo({literal})' with 'Is.Default' constraint"),
+                testCode);
+        }
+#endif
+
+        private static void AnalyzeForEqualTo(string literal, string constraint)
+        {
+            AnalyzeForEqualTo("Is", string.Empty, literal, constraint);
+            AnalyzeForEqualTo("Is", ".And.Not.Empty", literal, constraint);
+            AnalyzeForEqualTo("Is.Not", string.Empty, literal, constraint);
+            AnalyzeForEqualTo("Is.EqualTo(4).Or", string.Empty, literal, constraint);
+        }
+
+        private static void AnalyzeForEqualTo(string prefix, string suffix, string literal, string constraint)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var actual = {literal};
+                Assert.That(actual, ↓{prefix}.EqualTo({literal}){suffix});");
 
             RoslynAssert.Diagnostics(analyzer,
                 expectedDiagnostic.WithMessage($"Replace 'Is.EqualTo({literal})' with 'Is.{constraint}' constraint"),
-                testCode, settings);
+                testCode);
         }
     }
 }
