@@ -24,7 +24,7 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
 #endif
             ["true", "True"],
 
-            ["null", "Null"],
+            ["(object?)null", "Null"],
             ["default(object)", "Null"],
             ["default(string)", "Null"],
 #if NUNIT4
@@ -58,11 +58,13 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
 
         private static void AnalyzeForEqualTo(string prefix, string suffix, string literal, string constraint, Settings? settings = null)
         {
-            var testCode = TestUtility.WrapInTestMethod(
-                $"Assert.That(false, ↓{prefix}.EqualTo({literal}){suffix});");
+            var testCode = TestUtility.WrapInTestMethod($@"
+                var actual = {literal};
+                Assert.That(actual, ↓{prefix}.EqualTo({literal}){suffix});");
 
-            var fixedCode = TestUtility.WrapInTestMethod(
-                $"Assert.That(false, {prefix}.{constraint}{suffix});");
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+                var actual = {literal};
+                Assert.That(actual, {prefix}.{constraint}{suffix});");
 
             RoslynAssert.CodeFix(analyzer, fix,
                 expectedDiagnostic.WithMessage($"Replace 'Is.EqualTo({literal})' with 'Is.{constraint}' constraint"),

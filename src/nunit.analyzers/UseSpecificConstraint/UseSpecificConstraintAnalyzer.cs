@@ -114,6 +114,9 @@ namespace NUnit.Analyzers.UseSpecificConstraint
                             if (actualType.SpecialType == SpecialType.System_Object)
                                 continue;
 
+                            if (!SymbolEqualityComparer.Default.Equals(actualType, defaultType))
+                                continue;
+
                             constraint = NUnitV4FrameworkConstants.NameOfIsDefault;
                         }
                         else if (defaultType.SpecialType == SpecialType.System_Boolean)
