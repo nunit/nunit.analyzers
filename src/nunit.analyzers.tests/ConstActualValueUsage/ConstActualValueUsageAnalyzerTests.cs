@@ -468,5 +468,18 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenTypeOfArgumentIsProvidedForAssertThat()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                public void Test()
+                {
+                    Assert.That(↓typeof(string), Is.EqualTo("".GetType()));
+                }
+                """);
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
     }
 }
