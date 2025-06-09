@@ -100,7 +100,7 @@ namespace NUnit.Analyzers.Tests.Targets.UseAssertEnterMultipleScope
             {
                 var i = 4;
                 var j = 67;
-                await System.Threading.Tasks.Task.Yield();
+                await Task.Yield();
                 Assert.That(i, Is.EqualTo(j));
             });
         }
@@ -122,7 +122,7 @@ namespace NUnit.Analyzers.Tests.Targets.UseAssertEnterMultipleScope
             {
                 var i = 4;
                 var j = 67;
-                await System.Threading.Tasks.Task.Yield();
+                await Task.Yield();
                 Assert.That(i, Is.EqualTo(j));
             }
         }
@@ -151,7 +151,7 @@ namespace NUnit.Analyzers.Tests.Targets.UseAssertEnterMultipleScope
             {
                 var i = 4;
                 var j = 67;
-                await System.Threading.Tasks.Task.Yield();
+                await Task.Yield();
                 Assert.That(i, Is.EqualTo(j));
             });
         }
@@ -173,7 +173,7 @@ namespace NUnit.Analyzers.Tests.Targets.UseAssertEnterMultipleScope
             {
                 var i = 4;
                 var j = 67;
-                await System.Threading.Tasks.Task.Yield();
+                await Task.Yield();
                 Assert.That(i, Is.EqualTo(j));
             }
         }
