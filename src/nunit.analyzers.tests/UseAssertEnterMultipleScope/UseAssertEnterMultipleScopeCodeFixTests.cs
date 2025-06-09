@@ -82,6 +82,108 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
         }
 
         [Test]
+        public void VerifyAssertMultipleWithAsyncDelegateAndUsingSystemThreadingInsideNamespace()
+        {
+            var code = @"
+using NUnit.Framework;
+
+namespace NUnit.Analyzers.Tests.Targets.UseAssertEnterMultipleScope
+{
+    using System.Threading.Tasks;
+
+    public class TestClass
+    {
+        [Test]
+        public void TestMulti()
+        {
+            ↓Assert.Multiple(async () =>
+            {
+                var i = 4;
+                var j = 67;
+                await System.Threading.Tasks.Task.Yield();
+                Assert.That(i, Is.EqualTo(j));
+            });
+        }
+    }
+}";
+            var fixedCode = @"
+using NUnit.Framework;
+
+namespace NUnit.Analyzers.Tests.Targets.UseAssertEnterMultipleScope
+{
+    using System.Threading.Tasks;
+
+    public class TestClass
+    {
+        [Test]
+        public async Task TestMulti()
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                var i = 4;
+                var j = 67;
+                await System.Threading.Tasks.Task.Yield();
+                Assert.That(i, Is.EqualTo(j));
+            }
+        }
+    }
+}";
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void VerifyAssertMultipleWithAsyncDelegateAndUsingSystemThreadingOutNamespaceButOtherUsingsInside()
+        {
+            var code = @"
+using System.Threading.Tasks;
+
+namespace NUnit.Analyzers.Tests.Targets.UseAssertEnterMultipleScope
+{
+    using NUnit.Framework;
+
+    public class TestClass
+    {
+        [Test]
+        public void TestMulti()
+        {
+            ↓Assert.Multiple(async () =>
+            {
+                var i = 4;
+                var j = 67;
+                await System.Threading.Tasks.Task.Yield();
+                Assert.That(i, Is.EqualTo(j));
+            });
+        }
+    }
+}";
+            var fixedCode = @"
+using System.Threading.Tasks;
+
+namespace NUnit.Analyzers.Tests.Targets.UseAssertEnterMultipleScope
+{
+    using NUnit.Framework;
+
+    public class TestClass
+    {
+        [Test]
+        public async Task TestMulti()
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                var i = 4;
+                var j = 67;
+                await System.Threading.Tasks.Task.Yield();
+                Assert.That(i, Is.EqualTo(j));
+            }
+        }
+    }
+}";
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
         public void VerifyAssertMultipleWithAsyncDelegateAndNoSystemThreading()
         {
             var code = @"

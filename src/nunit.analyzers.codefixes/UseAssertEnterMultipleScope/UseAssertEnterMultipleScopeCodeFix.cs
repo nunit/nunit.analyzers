@@ -41,7 +41,7 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
 
             var node = root.FindNode(context.Span);
 
-            var expressionStatementSyntax = FindNearestParentOfType<ExpressionStatementSyntax>(node);
+            var expressionStatementSyntax = node.FirstAncestorOrSelf<ExpressionStatementSyntax>();
             if (expressionStatementSyntax is null)
             {
                 return;
@@ -99,16 +99,18 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
             SyntaxNode newSyntaxInTree,
             bool lambdaHasAsyncKeyword)
         {
-            var methodDeclaration = FindNearestParentOfType<MethodDeclarationSyntax>(newSyntaxInTree);
+            var methodDeclaration = newSyntaxInTree.FirstAncestorOrSelf<MethodDeclarationSyntax>();
 
             if (!lambdaHasAsyncKeyword || methodDeclaration is null || IsAsyncTaskMethod(methodDeclaration))
             {
                 return newRoot;
             }
 
-            var systemThreadingTasksUsingExists = newRoot.DescendantNodes()
-                .OfType<UsingDirectiveSyntax>()
-                .Any(u => u.Name.ToString() == SystemThreadingTasksNamespace);
+            var namespaceDeclaration = methodDeclaration.FirstAncestorOrSelf<NamespaceDeclarationSyntax>();
+            var compilationUnit = methodDeclaration.FirstAncestorOrSelf<CompilationUnitSyntax>();
+            var systemThreadingTasksUsingExists =
+                compilationUnit?.Usings.Any(IsUsingSystemThreadingTasks) is true ||
+                namespaceDeclaration?.Usings.Any(IsUsingSystemThreadingTasks) is true;
 
             var taskTypeName = GetTaskTypeSyntax(systemThreadingTasksUsingExists);
 
@@ -118,6 +120,9 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
 
             return newRoot.ReplaceNode(methodDeclaration, newMethodDeclaration);
         }
+
+        private static bool IsUsingSystemThreadingTasks(UsingDirectiveSyntax u) =>
+            u.Name.ToString() == SystemThreadingTasksNamespace;
 
         private static bool IsAsyncTaskMethod(MethodDeclarationSyntax methodDeclaration)
         {
@@ -142,18 +147,6 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
             }
 
             return name;
-        }
-
-        private static T? FindNearestParentOfType<T>(SyntaxNode node)
-            where T : SyntaxNode
-        {
-            var current = node;
-            while (current is not null && current is not T)
-            {
-                current = current.Parent;
-            }
-
-            return current as T;
         }
     }
 }
