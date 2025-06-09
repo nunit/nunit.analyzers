@@ -55,8 +55,12 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                 return;
             }
 
-            if (!actualOperation.ConstantValue.HasValue && !IsStringEmpty(actualOperation))
+            if (!actualOperation.ConstantValue.HasValue &&
+                !IsStringEmpty(actualOperation) &&
+                actualOperation.Kind != OperationKind.TypeOf)
+            {
                 return;
+            }
 
             // The actual expression is a constant field, check if expected is also constant
             var expectedOperation = GetExpectedOperation(assertOperation);
