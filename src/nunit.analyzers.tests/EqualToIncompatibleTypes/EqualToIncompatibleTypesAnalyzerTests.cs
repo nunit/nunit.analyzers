@@ -949,7 +949,7 @@ using System.Collections.Generic;");
                 Assert.That(() => ThrowingMethod(), Throws.{constraint}.And.EqualTo(↓exception));
             ");
 
-            RoslynAssert.Diagnostics(analyzer, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -978,7 +978,7 @@ using System.Collections.Generic;");
                 Assert.That(testString, Is.EqualTo(↓testUri));
             ");
 
-            RoslynAssert.Diagnostics(analyzer, testCode);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
@@ -1011,5 +1011,85 @@ using System.Collections.Generic;");
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+#if NUNIT4
+        [Test]
+        public void AnalyzeWhenUsingPropertiesComparerOverloadWithoutArgument()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                [Test]
+                public void TestMethod()
+                {
+                    var record1 = new Record("Test");
+                    var record2 = new AnotherRecord("Test");
+
+                    Assert.That(record1, Is.EqualTo(↓record2).UsingPropertiesComparer());
+                }
+
+                private class Record
+                {
+                    public string Name { get; }
+
+                    public Record(string name)
+                    {
+                        Name = name;
+                    }
+                }
+
+                private class AnotherRecord
+                {
+                    public string Name { get; }
+
+                    public AnotherRecord(string name)
+                    {
+                        Name = name;
+                    }
+                }
+                """);
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Theory]
+        [TestCase("c => c.AllowDifferentTypes()")]
+        [TestCase("c => c.CompareOnlyCommonProperties()")]
+        [TestCase("c => c.Map<Record, AnotherRecord>(r => r.Name, a => a.Name)")]
+        public void AnalyzeWhenUsingPropertiesComparerOverloadWithArgument(string configure)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                [Test]
+                public void TestMethod()
+                {
+                    var record1 = new Record("Test");
+                    var record2 = new AnotherRecord("Test");
+
+                    Assert.That(record1, Is.EqualTo(record2).UsingPropertiesComparer(
+                        {{configure}}));
+                }
+
+                private class Record
+                {
+                    public string Name { get; }
+
+                    public Record(string name)
+                    {
+                        Name = name;
+                    }
+                }
+
+                private class AnotherRecord
+                {
+                    public string Name { get; }
+
+                    public AnotherRecord(string name)
+                    {
+                        Name = name;
+                    }
+                }
+                """);
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+#endif
     }
 }

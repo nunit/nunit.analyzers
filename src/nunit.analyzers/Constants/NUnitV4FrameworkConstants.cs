@@ -16,5 +16,9 @@ namespace NUnit.Analyzers.Constants
 
         public const string FullNameOfCancelAfterAttribute = "NUnit.Framework.CancelAfterAttribute";
         public const string FullNameOfCancellationToken = "System.Threading.CancellationToken";
+
+        public const string NameOfUsingPropertiesComparer = "UsingPropertiesComparer";
+
+        public const string FullNameOfSomeItemsConstraintGeneric = "NUnit.Framework.Constraints.SomeItemsConstraint`1";
     }
 }
