@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -107,8 +106,7 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                         continue;
                     }
 
-                    // Check if suffix contains UsingPropertiesComparer and it has a parameter
-                    if (constraintPartExpression.Suffixes.Any(IsUsingPropertiesComparerWithArgument))
+                    if (constraintPartExpression.HasAnySuffixWithUsingPropertiesComparerWithArgument())
                     {
                         continue;
                     }
@@ -121,13 +119,6 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                     }
                 }
             }
-        }
-
-        private static bool IsUsingPropertiesComparerWithArgument(IOperation operation)
-        {
-            return operation is IInvocationOperation invocation &&
-                   invocation.TargetMethod.Name == NUnitV4FrameworkConstants.NameOfUsingPropertiesComparer &&
-                   invocation.Arguments.Length > 0;
         }
 
         private static void CheckActualVsExpectedOperation(OperationAnalysisContext context, IOperation? actualOperation, IOperation? expectedOperation)
