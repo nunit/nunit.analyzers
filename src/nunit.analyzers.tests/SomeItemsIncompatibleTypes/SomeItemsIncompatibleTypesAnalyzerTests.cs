@@ -151,5 +151,83 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
                 expectedDiagnostic.WithMessage($"The '{this.constraint}' constraint cannot be used with actual argument of type 'string[]' and expected argument of type 'int'"),
                 testCode);
         }
+
+#if NUNIT4
+        [Test]
+        public void AnalyzeWhenUsingPropertiesComparerOverloadWithoutArgument()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                [Test]
+                public void TestMethod()
+                {
+                    var actual = new[] { new Record("Test1"), new Record("Test2"), new Record("Test3") };
+                    var expected = new AnotherRecord("Test2");
+
+                    Assert.That(actual, ↓{{this.constraint}}(expected).UsingPropertiesComparer());
+                }
+
+                private class Record
+                {
+                    public string Name { get; }
+                    public Record(string name)
+                    {
+                        Name = name;
+                    }
+                }
+
+                private class AnotherRecord
+                {
+                    public string Name { get; }
+                    public AnotherRecord(string name)
+                    {
+                        Name = name;
+                    }
+                }
+                """);
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Theory]
+        [TestCase("c => c.AllowDifferentTypes()")]
+        [TestCase("c => c.CompareOnlyCommonProperties()")]
+        [TestCase("c => c.Map<Record, AnotherRecord>(r => r.Name, a => a.Name)")]
+        public void AnalyzeWhenUsingPropertiesComparerOverloadWithArgument(string configure)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                [Test]
+                public void TestMethod()
+                {
+                    var actual = new[] { new Record("Test1"), new Record("Test2"), new Record("Test3") };
+                    var expected = new AnotherRecord("Test2");
+
+                    Assert.That(actual, {{this.constraint}}(expected).UsingPropertiesComparer(
+                        {{configure}}));
+                }
+
+                private class Record
+                {
+                    public string Name { get; }
+
+                    public Record(string name)
+                    {
+                        Name = name;
+                    }
+                }
+
+                private class AnotherRecord
+                {
+                    public string Name { get; }
+
+                    public AnotherRecord(string name)
+                    {
+                        Name = name;
+                    }
+                }
+                """);
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+#endif
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 using NUnit.Framework.Internal;
 
 namespace NUnit.Analyzers.Tests.Constants
@@ -22,12 +23,16 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitV4FrameworkConstants.NameOfEnterMultipleScope), nameof(Assert.EnterMultipleScope)),
 
             (nameof(NUnitV4FrameworkConstants.NameOfCancelAfterAttribute), nameof(CancelAfterAttribute)),
+
+            (nameof(NUnitV4FrameworkConstants.NameOfUsingPropertiesComparer), nameof(EqualConstraint<string>.UsingPropertiesComparer)),
         ];
 
         public static readonly (string Constant, Type Type)[] FullNameOfTypeSource =
         [
             (nameof(NUnitV4FrameworkConstants.FullNameOfCancelAfterAttribute), typeof(CancelAfterAttribute)),
             (nameof(NUnitV4FrameworkConstants.FullNameOfCancellationToken), typeof(CancellationToken)),
+
+            (nameof(NUnitV4FrameworkConstants.FullNameOfSomeItemsConstraintGeneric), typeof(SomeItemsConstraint<>))
         ];
 
         protected override IEnumerable<string> Names => Constant(NameOfSource);

@@ -184,6 +184,18 @@ namespace NUnit.Analyzers.Operations
             return operationSyntax.ToString().Substring(startDelta);
         }
 
+        public bool HasAnySuffixWithUsingPropertiesComparerWithArgument()
+        {
+            static bool IsUsingPropertiesComparerWithArgument(IOperation operation)
+            {
+                return operation is IInvocationOperation invocation &&
+                       invocation.TargetMethod.Name == NUnitV4FrameworkConstants.NameOfUsingPropertiesComparer &&
+                       !invocation.Arguments.IsEmpty;
+            }
+
+            return this.Suffixes.Any(IsUsingPropertiesComparerWithArgument);
+        }
+
         private static (ITypeSymbol? helperClass, IReadOnlyCollection<IOperation> prefixes, IOperation? root, IReadOnlyCollection<IOperation> suffixes)
             SplitExpressions(IReadOnlyList<IOperation> callChainOperations)
         {

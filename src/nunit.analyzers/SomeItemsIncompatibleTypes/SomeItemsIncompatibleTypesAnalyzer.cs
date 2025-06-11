@@ -34,7 +34,7 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
             foreach (var constraintPart in constraintExpression.ConstraintParts)
             {
                 if ((!IsDoesContain(constraintPart) && !IsContainsItem(constraintPart))
-                    || constraintPart.Root?.Type?.GetFullMetadataName() != NUnitFrameworkConstants.FullNameOfSomeItemsConstraint)
+                    || IsNotSomeItemsConstraint(constraintPart))
                 {
                     continue;
                 }
@@ -83,6 +83,11 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
                         }
                     }
 
+                    if (constraintPart.HasAnySuffixWithUsingPropertiesComparerWithArgument())
+                    {
+                        continue;
+                    }
+
                     // Valid, if collection element type matches expected type.
                     if (NUnitEqualityComparerHelper.CanBeEqual(elementType, expectedType, context.Compilation))
                         continue;
@@ -99,6 +104,11 @@ namespace NUnit.Analyzers.SomeItemsIncompatibleTypes
                     expectedTypeDisplay));
             }
         }
+
+        private static bool IsNotSomeItemsConstraint(ConstraintExpressionPart constraintPart) =>
+            constraintPart.Root?.Type?.GetFullMetadataName()
+                is not NUnitFrameworkConstants.FullNameOfSomeItemsConstraint
+                and not NUnitV4FrameworkConstants.FullNameOfSomeItemsConstraintGeneric;
 
         private static bool IsDoesContain(ConstraintExpressionPart constraintPart)
         {

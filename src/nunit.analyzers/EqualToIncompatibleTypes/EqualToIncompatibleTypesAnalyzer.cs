@@ -106,6 +106,11 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
                         continue;
                     }
 
+                    if (constraintPartExpression.HasAnySuffixWithUsingPropertiesComparerWithArgument())
+                    {
+                        continue;
+                    }
+
                     expectedOperation = constraintPartExpression.GetExpectedArgument();
 
                     if (expectedOperation is not null)

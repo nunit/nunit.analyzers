@@ -38,12 +38,6 @@ var ANALYZER_PROJECT = SRC_DIR + "nunit.analyzers/nunit.analyzers.csproj";
 var CODEFIXES_PROJECT = SRC_DIR + "nunit.analyzers.codefixes/nunit.analyzers.codefixes.csproj";
 var TEST_PROJECT = SRC_DIR + "nunit.analyzers.tests/nunit.analyzers.tests.csproj";
 
-// Package sources for nuget restore
-var PACKAGE_SOURCE = new string[]
-{
-    "https://www.nuget.org/api/v2",
-};
-
 //////////////////////////////////////////////////////////////////////
 // SETUP AND TEARDOWN TASKS
 //////////////////////////////////////////////////////////////////////
@@ -117,10 +111,7 @@ Task("Clean")
 Task("RestorePackages")
     .Does(() =>
     {
-        DotNetRestore(SOLUTION_FILE, new DotNetRestoreSettings 
-        {
-            Sources = PACKAGE_SOURCE,
-        });
+        DotNetRestore(SOLUTION_FILE, new DotNetRestoreSettings());
     });
 
 //////////////////////////////////////////////////////////////////////
