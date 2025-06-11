@@ -1,4 +1,43 @@
-﻿# NUnit Analyzers 4.8.1 - May 29, 2025
+﻿# NUnit Analyzers 4.9 - June 11, 2025
+
+This release of the NUnit Analyzers adds several new analyzers. For the `RangeAttribute`,
+the analyzers now warn about potential issues at runtime.
+
+It also introduces an analyzer and code fix for translating
+`Assert.Multiple`/`Assert.MultipleAsync` into the new `Assert.EnterMultipleScope` format, as well
+as for converting `is T` checks into `Is.InstanceOf<T>()` constraints.
+
+For `NUnit2021`, the analyzer now respects `UsingPropertiesComparer`, including enhancements
+that will be available in NUnit 4.4.
+
+Finally, this release includes improvements to `NUnit2007`, `NUnit2045`, and `NUnit4002`.
+See the list of resolved issues below for more details.
+
+The release contains contributions from the following users (in alphabetical order):
+* @MaceWindu
+* @manfred-brands
+* @mikkelbu
+* @OsirisTerje
+* @stevenaw
+
+Issues Resolved
+
+Features and Enhancements
+* #880 NUnit2007 could flag typeof() as a constant first parameter
+* #866 When Assert.Multiple is found, should suggest to convert to Assert.EnterMultipleScope
+* #865 NUnit 2045 suggest Assert.Multiple, but should suggest Assert.EnterMultipleScope
+* #857 NUnit2021 Should not raise for UsingPropertiesComparer
+* #765 Add Rule for converting is T into Is.InstanceOf<T>()
+* #89 Test the correct usage of the Range attribute
+
+Bugs
+* #879 `NUnit4002` shouldn't trigger for `T` vs `nullable<T>` struct types
+
+Tooling, Process, and Documentation
+* #868 chore: bump version
+
+
+# NUnit Analyzers 4.8.1 - May 29, 2025
 
 This release of the NUnit Analyzers fixes a problem with `NUnit4002` when applied to comparisons between non-number
 types - e.g. strings.
