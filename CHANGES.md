@@ -1,4 +1,21 @@
-﻿# NUnit Analyzers 4.9 - June 11, 2025
+﻿# NUnit Analyzers 4.9.1 - June 12, 2025
+
+This release of the NUnit Analyzers fixes a problem with the code-fix for translating
+`Assert.Multiple`/`Assert.MultipleAsync` into the new `Assert.EnterMultipleScope` format
+when the test method already is asynchronous and have a return type different from `Task`.
+
+The release contains contributions from the following users (in alphabetical order):
+* @MaceWindu
+* @manfred-brands
+* @mikkelbu
+
+Issues Resolved
+
+Bugs
+* #888 Assert.MultipleAsync -> EnterMultipleScope autofix produce invalid code
+
+
+# NUnit Analyzers 4.9 - June 11, 2025
 
 This release of the NUnit Analyzers adds several new analyzers. For the `RangeAttribute`,
 the analyzers now warn about potential issues at runtime.
