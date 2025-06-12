@@ -261,6 +261,81 @@ namespace NUnit.Analyzers.Tests.Targets.UseAssertEnterMultipleScope
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
+
+        [Test]
+        public void VerifyMultipleAsyncAndValueTaskIsUsed()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public async ValueTask Test()
+        {
+            await ↓Assert.MultipleAsync(async () =>
+            {
+                Assert.That(await Get1(), Is.Not.Null);
+                Assert.That(await Get2(), Is.Not.Null);
+            });
+
+            static Task<string?> Get1() => Task.FromResult(default(string));
+            static Task<string?> Get2() => Task.FromResult(default(string));
+        }");
+
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public async ValueTask Test()
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(await Get1(), Is.Not.Null);
+                Assert.That(await Get2(), Is.Not.Null);
+            }
+
+            static Task<string?> Get1() => Task.FromResult(default(string));
+            static Task<string?> Get2() => Task.FromResult(default(string));
+        }");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
+
+        [Test]
+        public void VerifyMultipleAsyncAndGenericTaskIsUsed()
+        {
+            var code = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class TestClass
+    {
+        [Test(ExpectedResult = 4)]
+        public async Task<int> Test()
+        {
+            await ↓Assert.MultipleAsync(async () =>
+            {
+                Assert.That(await Get1(), Is.Not.Null);
+                Assert.That(await Get2(), Is.Not.Null);
+            });
+
+            return 4;
+
+            static Task<string?> Get1() => Task.FromResult(default(string));
+            static Task<string?> Get2() => Task.FromResult(default(string));
+        }
+    }");
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class TestClass
+    {
+        [Test(ExpectedResult = 4)]
+        public async Task<int> Test()
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(await Get1(), Is.Not.Null);
+                Assert.That(await Get2(), Is.Not.Null);
+            }
+
+            return 4;
+
+            static Task<string?> Get1() => Task.FromResult(default(string));
+            static Task<string?> Get2() => Task.FromResult(default(string));
+        }
+    }");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
     }
 }
 

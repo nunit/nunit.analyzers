@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
         {
             var methodDeclaration = newSyntaxInTree.FirstAncestorOrSelf<MethodDeclarationSyntax>();
 
-            if (!lambdaHasAsyncKeyword || methodDeclaration is null || IsAsyncTaskMethod(methodDeclaration))
+            if (!lambdaHasAsyncKeyword || methodDeclaration is null || methodDeclaration.Modifiers.Any(SyntaxKind.AsyncKeyword))
             {
                 return newRoot;
             }
@@ -123,15 +123,6 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
 
         private static bool IsUsingSystemThreadingTasks(UsingDirectiveSyntax u) =>
             u.Name.ToString() == SystemThreadingTasksNamespace;
-
-        private static bool IsAsyncTaskMethod(MethodDeclarationSyntax methodDeclaration)
-        {
-            var isAsync = methodDeclaration.Modifiers.Any(SyntaxKind.AsyncKeyword);
-            var returnsTask = (methodDeclaration.ReturnType is IdentifierNameSyntax id && id.Identifier.Text == TaskTypeName)
-                || (methodDeclaration.ReturnType is QualifiedNameSyntax qn && qn.ToString() == $"{SystemThreadingTasksNamespace}.{TaskTypeName}");
-
-            return isAsync && returnsTask;
-        }
 
         private static TypeSyntax GetTaskTypeSyntax(bool systemThreadingTasksUsingExists)
             => systemThreadingTasksUsingExists
