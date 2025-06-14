@@ -1087,6 +1087,52 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
+        [Test]
+        public void VariableAssertedNotNullInsideUsingBlock()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [Test]
+                public void VariableAssertedNotNullInsideUsingBlock()
+                {
+                    MemoryStream? stream = null;
+                    using (stream = GetStream())
+                    {
+                        Assert.That(stream, Is.Not.Null);
+                    }
+
+                    Assert.That(() => ↓stream.Length, Throws.Exception);
+
+                    static MemoryStream? GetStream() => null;
+                }
+            ", "using System.IO;");
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
+        [Test]
+        public void VariableAssertedNotNullInsideUsingStatement()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [Test]
+                public void VariableAssertedNotNullInsideUsingStatement()
+                {
+                    MemoryStream? stream = null;
+                    using (stream = GetStream())
+                        Assert.That(stream, Is.Not.Null);
+
+                    Assert.That(() => ↓stream.Length, Throws.Exception);
+
+                    static MemoryStream? GetStream() => null;
+                }
+            ", "using System.IO;");
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
         public record struct AssertMultiple(string Start, string End);
     }
 }

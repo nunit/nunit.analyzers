@@ -257,16 +257,45 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
         private static bool IsValidatedNotNullByPreviousStatementInSameBlock(string possibleNullReference, BlockSyntax block, StatementSyntax? statement)
         {
-            var siblings = block.ChildNodes().ToList();
-            int nodeIndex = statement is null ? siblings.Count : siblings.FindIndex(x => x == statement);
+            var siblings = block.Statements;
+            int nodeIndex;
+            if (statement is null)
+            {
+                nodeIndex = siblings.Count;
+            }
+            else
+            {
+                // Why does IReadOnlyList not have IndexOf?
+                for (nodeIndex = 0; nodeIndex < siblings.Count; nodeIndex++)
+                {
+                    if (siblings[nodeIndex] == statement)
+                        break;
+                }
+            }
 
             // Look in earlier statements to see if the variable was previously checked for null.
             while (--nodeIndex >= 0)
             {
-                SyntaxNode previous = siblings[nodeIndex];
+                StatementSyntax previous = siblings[nodeIndex];
 
-                if (previous is ExpressionStatementSyntax expressionStatement)
+                bool? validationResult = IsValidatedNotNullByStatement(possibleNullReference, previous);
+                if (validationResult is not null)
                 {
+                    // We found a definite validation
+                    return validationResult.Value;
+                }
+
+                // Keep looking in previous statements.
+            }
+
+            return false;
+        }
+
+        private static bool? IsValidatedNotNullByStatement(string possibleNullReference, StatementSyntax statement)
+        {
+            switch (statement)
+            {
+                case ExpressionStatementSyntax expressionStatement:
                     if (expressionStatement.Expression is AssignmentExpressionSyntax assignmentExpression)
                     {
                         // Is the offending symbol assigned here?
@@ -281,9 +310,10 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                         if (IsValidatedNotNullByExpression(possibleNullReference, expressionStatement.Expression))
                             return true;
                     }
-                }
-                else if (previous is LocalDeclarationStatementSyntax localDeclarationStatement)
-                {
+
+                    break;
+
+                case LocalDeclarationStatementSyntax localDeclarationStatement:
                     VariableDeclarationSyntax declaration = localDeclarationStatement.Declaration;
                     foreach (var variable in declaration.Variables)
                     {
@@ -295,10 +325,22 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                                 ShouldBeSuppressed(initializer));
                         }
                     }
-                }
+
+                    break;
+
+                case BlockSyntax block:
+                    return IsValidatedNotNullByPreviousStatementInSameBlock(possibleNullReference, block, null);
+
+                case UsingStatementSyntax usingStatement:
+                    return IsValidatedNotNullByStatement(possibleNullReference, usingStatement.Statement);
+
+                default:
+                    // We can't handle conditionals or loops here, so we just return false.
+                    break;
             }
 
-            return false;
+            // Unknown statement type or not validated.
+            return null;
         }
 
         private static bool IsValidatedNotNullByExpression(string possibleNullReference, ExpressionSyntax expression)
