@@ -30,6 +30,14 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             }
         ";
 
+        private static readonly AssertMultiple[] Multiples =
+        [
+            new AssertMultiple("Assert.Multiple(() =>", ");"),
+#if NUNIT4
+            new AssertMultiple("using (Assert.EnterMultipleScope())", "")
+#endif
+        ];
+
         private static readonly DiagnosticSuppressor suppressor = new DereferencePossiblyNullReferenceSuppressor();
 
         [TestCase("")]
@@ -344,20 +352,20 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
-        [Test]
-        public void InsideAssertMultiple()
+        [TestCaseSource(nameof(Multiples))]
+        public void InsideAssertMultiple(AssertMultiple multiple)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                [TestCase("""")]
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                [TestCase("")]
                 public void Test(string? s)
-                {{
-                    Assert.Multiple(() =>
-                    {{
+                {
+                    {{multiple.Start}}
+                    {
                         ClassicAssert.NotNull(s);
                         Assert.That(↓s.Length, Is.GreaterThan(0));
-                    }});
-                }}
-            ");
+                    }{{multiple.End}}
+                }
+            """);
 
             RoslynAssert.NotSuppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
@@ -378,6 +386,27 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                         ClassicAssert.NotNull(s);
                         Assert.That(↓s.Length, Is.GreaterThan(0));
                     }});
+                }}
+            ");
+
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
+        [Test]
+        public void InsideEnterMultipleScopeAsync()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                [TestCase("""")]
+                public async Task Test(string? s)
+                {{
+                    using (Assert.EnterMultipleScope())
+                    {{
+                        await Task.Yield();
+                        ClassicAssert.NotNull(s);
+                        Assert.That(↓s.Length, Is.GreaterThan(0));
+                    }}
                 }}
             ");
 
@@ -489,21 +518,22 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
-        [TestCase("var")]
-        [TestCase("Exception?")]
-        public void ThrowsLocalDeclarationInsideAssertMultiple(string type)
+        [Test]
+        public void ThrowsLocalDeclarationInsideAssertMultiple(
+            [Values("var", "Exception?")] string type,
+            [ValueSource(nameof(Multiples))] AssertMultiple multiple)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
                 public void Test()
-                {{
-                    Assert.Multiple(() =>
-                    {{
-                        {type} ex = Assert.Throws<Exception>(() => throw new InvalidOperationException());
+                {
+                    {{multiple.Start}}
+                    {
+                        {{type}} ex = Assert.Throws<Exception>(() => throw new InvalidOperationException());
                         string m = ↓ex.Message;
-                    }});
-                }}
-            ");
+                    }{{multiple.End}}
+                }
+            """);
 
             RoslynAssert.NotSuppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
@@ -563,70 +593,71 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
-        [Test]
-        public void ThrowAssignedOutsideAssertMultipleUsedInside()
+        [TestCaseSource(nameof(Multiples))]
+        public void ThrowAssignedOutsideAssertMultipleUsedInside(AssertMultiple multiple)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
                 public void Test()
                 {
-                    var e = Assert.Throws<Exception>(() => throw new Exception(""Test""));
-                    Assert.Multiple(() =>
+                    var e = Assert.Throws<Exception>(() => throw new Exception("Test"));
+                    {{multiple.Start}}
                     {
-                        Assert.That(↓e.Message, Is.EqualTo(""Test""));
+                        Assert.That(↓e.Message, Is.EqualTo("Test"));
                         Assert.That(e.InnerException, Is.Null);
                         Assert.That(e.StackTrace, Is.Not.Empty);
-                    });
-                }");
+                    }{{multiple.End}}
+                }
+            """);
 
             RoslynAssert.Suppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
                 testCode);
         }
 
-        [Test]
-        public void VariableAssertedOutsideAssertMultipleUsedInside()
+        [TestCaseSource(nameof(Multiples))]
+        public void VariableAssertedOutsideAssertMultipleUsedInside(AssertMultiple multiple)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
                 public void Test()
                 {
                     var e = GetPossibleException();
                     Assert.That(e, Is.Not.Null);
-                    Assert.Multiple(() =>
+                    {{multiple.Start}}
                     {
-                        Assert.That(↓e.Message, Is.EqualTo(""Test""));
+                        Assert.That(↓e.Message, Is.EqualTo("Test"));
                         Assert.That(e.InnerException, Is.Null);
                         Assert.That(e.StackTrace, Is.Not.Empty);
-                    });
+                    }{{multiple.End}}
                 }
 
                 private Exception? GetPossibleException() => new Exception();
-                ");
+            """);
 
             RoslynAssert.Suppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
                 testCode);
         }
 
-        [Test]
-        public void VariableAssignedOutsideAssertMultipleUsedInside()
+        [TestCaseSource(nameof(Multiples))]
+        public void VariableAssignedOutsideAssertMultipleUsedInside(AssertMultiple multiple)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
                 public void Test()
                 {
                     var e = GetPossibleException();
-                    Assert.Multiple(() =>
+                    {{multiple.Start}}
                     {
-                        Assert.That(↓e.Message, Is.EqualTo(""Test""));
+                        Assert.That(↓e.Message, Is.EqualTo("Test"));
                         Assert.That(e.InnerException, Is.Null);
                         Assert.That(e.StackTrace, Is.Not.Empty);
-                    });
+                    }{{multiple.End}}
                 }
 
                 private Exception? GetPossibleException() => new Exception();
-                ");
+            """);
 
             RoslynAssert.NotSuppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
@@ -672,53 +703,54 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
-        [Test]
-        public void NestedStatements()
+        [TestCaseSource(nameof(Multiples))]
+        public void NestedStatements(AssertMultiple multiple)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
                 public void Test()
                 {
-                    Assert.Multiple(() =>
+                    {{multiple.Start}}
                     {
                         Assert.DoesNotThrow(() =>
                         {
-                            var e = Assert.Throws<Exception>(() => new Exception(""Test""));
+                            var e = Assert.Throws<Exception>(() => new Exception("Test"));
                             if (↓e.InnerException is not null)
                             {
-                                Assert.That(e.InnerException.Message, Is.EqualTo(""Test""));
+                                Assert.That(e.InnerException.Message, Is.EqualTo("Test"));
                             }
                             else
                             {
-                                Assert.That(e.Message, Is.EqualTo(""Test""));
+                                Assert.That(e.Message, Is.EqualTo("Test"));
                             }
                         });
-                    });
-                }");
+                    }{{multiple.End}}
+                }
+            """);
 
             RoslynAssert.NotSuppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
                 testCode);
         }
 
-        [Test]
-        public void TestIssue436()
+        [TestCaseSource(nameof(Multiples))]
+        public void TestIssue436(AssertMultiple multiple)
         {
             // Test is changed from actual issue by replacing the .Select with an [1].
             // The original code would not give null reference issues on the .Select for the .NET Framework
             // because System.Linq is not annotated and therefore the compiler doesn't know null is not allowed.
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [TestCase(null)]
                 public void HasCountShouldNotAffectNullabilitySuppression(List<int>? maybeNull)
                 {
                     Assert.That(maybeNull, Is.Not.Null);
-                    Assert.Multiple(() =>
+                    {{multiple.Start}}
                     {
                         Assert.That(maybeNull, Has.Count.EqualTo(2));
                         Assert.That(↓maybeNull[1], Is.EqualTo(1));
-                    });
+                    }{{multiple.End}}
                 }
-            ", @"using System.Collections.Generic;");
+            """, @"using System.Collections.Generic;");
 
             RoslynAssert.Suppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
@@ -956,29 +988,29 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
-        [Test]
-        public void TestIssue587SuppressedInsideAssertMultiple()
+        [TestCaseSource(nameof(Multiples))]
+        public void TestIssue587SuppressedInsideAssertMultiple(AssertMultiple multiple)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
                 public void Test()
                 {
                     Extra? oldExtra = GetResult();
                     Extra? extra = GetResult();
 
-                    Assert.Multiple(() =>
+                    {{multiple.Start}}
                     {
                         Assert.That(oldExtra, Is.SameAs(extra));
                         Assert.That(extra, Is.Not.Null);
-                    });
-                    Assert.Multiple(() =>
+                    }{{multiple.End}}
+                    {{multiple.Start}}
                     {
                         Assert.That(↓extra.Value, Is.EqualTo(8));
-                        Assert.That(extra.Info, Is.EqualTo(""Hi""));
-                    });
+                        Assert.That(extra.Info, Is.EqualTo("Hi"));
+                    }{{multiple.End}}
                 }
 
-                private static Extra? GetResult() => new("".NET"", 8);
+                private static Extra? GetResult() => new(".NET", 8);
 
                 private sealed class Extra
                 {
@@ -991,7 +1023,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     public string Info { get; }
                     public int Value { get; }
                 }
-            ");
+            """);
 
             RoslynAssert.Suppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
@@ -1054,5 +1086,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8604"]),
                 testCode);
         }
+
+        public record struct AssertMultiple(string Start, string End);
     }
 }
