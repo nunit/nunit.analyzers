@@ -41,7 +41,7 @@ using (Assert.EnterMultipleScope())
 };
 ```
 
-Using `Assert.Multiple` then fix would look like this - where all the independent `Assert` statements are called from
+Using `Assert.Multiple` then the fix would look like this - where all the independent `Assert` statements are called from
 inside the lambda parameter.
 
 ```csharp
