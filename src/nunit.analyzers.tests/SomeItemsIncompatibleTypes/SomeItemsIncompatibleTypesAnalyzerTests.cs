@@ -144,7 +144,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
         {
             var testCode = TestUtility.WrapInTestMethod($@"
                 var actual = new[] {{ ""1"", ""2"", ""3"" }};
-                Assert.That(actual, {this.constraint}(1).Using((IEqualityComparer<string>)StringComparer.Ordinal));",
+                Assert.That(actual, ↓{this.constraint}(1).Using((IEqualityComparer<string>)StringComparer.Ordinal));",
                 "using System.Collections.Generic;");
 
             RoslynAssert.Diagnostics(analyzer,

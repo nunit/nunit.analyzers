@@ -757,19 +757,19 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
-        [TestCase("string fatal = line2 ?? line1;")]
-        [TestCase("string fatal = line2 is not null ? line2 : line1;")]
-        [TestCase("string fatal = line2 is null ? line1 : line2;")]
-        [TestCase("string fatal = line2 != null ? line2 : line1;")]
-        [TestCase("string fatal = line2 == null ? line1 : line2;")]
-        [TestCase("string fatal; if (line2 is not null) fatal = line2; else fatal = line1;")]
-        [TestCase("string fatal; if (line2 is not null) { fatal = line2; } else { fatal = line1; }")]
-        [TestCase("string fatal; if (line2 != null) fatal = line2; else fatal = line1;")]
-        [TestCase("string fatal; if (null != line2) { fatal = line2; } else { fatal = line1; }")]
-        [TestCase("string fatal; if (line2 is null) fatal = line1; else fatal = line2;")]
-        [TestCase("string fatal; if (line2 is null) { fatal = line1; } else { fatal = line2; }")]
-        [TestCase("string fatal; if (null == line2) fatal = line1; else fatal = line2;")]
-        [TestCase("string fatal; if (line2 == null) { fatal = line1; } else { fatal = line2; }")]
+        [TestCase("string fatal = ↓line2 ?? line1;")]
+        [TestCase("string fatal = ↓line2 is not null ? line2 : line1;")]
+        [TestCase("string fatal = ↓line2 is null ? line1 : line2;")]
+        [TestCase("string fatal = ↓line2 != null ? line2 : line1;")]
+        [TestCase("string fatal = ↓line2 == null ? line1 : line2;")]
+        [TestCase("string fatal; if (line2 is not null) fatal = line2; else fatal = ↓line1;")]
+        [TestCase("string fatal; if (line2 is not null) { fatal = line2; } else { fatal = ↓line1; }")]
+        [TestCase("string fatal; if (line2 != null) fatal = line2; else fatal = ↓line1;")]
+        [TestCase("string fatal; if (null != line2) { fatal = line2; } else { fatal = ↓line1; }")]
+        [TestCase("string fatal; if (line2 is null) fatal = ↓line1; else fatal = line2;")]
+        [TestCase("string fatal; if (line2 is null) { fatal = ↓line1; } else { fatal = line2; }")]
+        [TestCase("string fatal; if (null == line2) fatal = ↓line1; else fatal = line2;")]
+        [TestCase("string fatal; if (line2 == null) { fatal = ↓line1; } else { fatal = line2; }")]
         public void TestIssue503SimpleIdentifier(string expression)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
@@ -790,13 +790,13 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
-        [TestCase("string fatal = lines.Line2 ?? lines.Line1;")]
-        [TestCase("string fatal = lines.Line2 is not null ? lines.Line2 : lines.Line1;")]
-        [TestCase("string fatal = lines.Line2 is null ? lines.Line1 : lines.Line2;")]
-        [TestCase("string fatal = lines.Line2 != null ? lines.Line2 : lines.Line1;")]
-        [TestCase("string fatal = lines.Line2 == null ? lines.Line1 : lines.Line2;")]
-        [TestCase("string fatal = null != lines.Line2 ? lines.Line2 : lines.Line1;")]
-        [TestCase("string fatal = null == lines.Line2 ? lines.Line1 : lines.Line2;")]
+        [TestCase("string fatal = ↓lines.Line2 ?? lines.Line1;")]
+        [TestCase("string fatal = ↓lines.Line2 is not null ? lines.Line2 : lines.Line1;")]
+        [TestCase("string fatal = ↓lines.Line2 is null ? lines.Line1 : lines.Line2;")]
+        [TestCase("string fatal = ↓lines.Line2 != null ? lines.Line2 : lines.Line1;")]
+        [TestCase("string fatal = ↓lines.Line2 == null ? lines.Line1 : lines.Line2;")]
+        [TestCase("string fatal = ↓null != lines.Line2 ? lines.Line2 : lines.Line1;")]
+        [TestCase("string fatal = ↓null == lines.Line2 ? lines.Line1 : lines.Line2;")]
         public void TestIssue503Properties(string expression)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
@@ -1046,7 +1046,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 private static string GetStringSuppress(HasString? str) // argument is nullable
                 {
                     Assert.That(str!.Inner, Is.Not.Null);
-                    return str.Inner; // warning: possible null reference return
+                    return ↓str.Inner; // warning: possible null reference return
                 }
 
                 private sealed class HasString
@@ -1074,7 +1074,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 {
                     object? x = null;
                     NUnit.Framework.Assert.That(x, Is.Not.Null);
-                    M(x);
+                    M(↓x);
                 }
 
                 void M(object o)

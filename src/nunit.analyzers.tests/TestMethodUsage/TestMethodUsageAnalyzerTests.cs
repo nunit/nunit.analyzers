@@ -344,7 +344,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResultIsIncorrect
     {
-        [TestCase(ExpectedResult = '1')]
+        [TestCase(↓ExpectedResult = '1')]
         public CustomAwaitable GenericTaskTestCaseWithExpectedResult()
         {
             return new CustomAwaitable();
@@ -386,7 +386,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
 
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                [TestCase(ExpectedResult = '1')]
+                [TestCase(↓ExpectedResult = '1')]
                 public async ValueTask<int> GenericTaskTestCaseWithExpectedResult()
                 {
                     await Task.CompletedTask;

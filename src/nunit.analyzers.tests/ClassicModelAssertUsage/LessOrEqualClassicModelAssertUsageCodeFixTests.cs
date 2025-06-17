@@ -108,7 +108,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void CodeFixPreservesLineBreakBeforeMessage()
         {
             var code = TestUtility.WrapInTestMethod(@"
-            ClassicAssert.LessOrEqual(2d, 3d,
+            ↓ClassicAssert.LessOrEqual(2d, 3d,
                 ""message"");");
 
             var fixedCode = TestUtility.WrapInTestMethod(@"
