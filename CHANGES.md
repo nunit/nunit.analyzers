@@ -1,4 +1,20 @@
-﻿# NUnit Analyzers 4.9.1 - June 12, 2025
+﻿# NUnit Analyzers 4.9.2 - June 17, 2025
+
+This release of the NUnit Analyzers extends the `NUnit3001` nullability suppressor
+to also work in the context of `Assert.EnterMultipleScope` and other using statements.
+
+The release contains contributions from the following users (in alphabetical order):
+* @artificialWave
+* @manfred-brands
+* @mikkelbu
+
+Issues Resolved
+
+Features and Enhancements
+* #892 Assert.EnterMultipleScope not detecting nullability properly 
+
+
+# NUnit Analyzers 4.9.1 - June 12, 2025
 
 This release of the NUnit Analyzers fixes a problem with the code-fix for translating
 `Assert.Multiple`/`Assert.MultipleAsync` into the new `Assert.EnterMultipleScope` format
