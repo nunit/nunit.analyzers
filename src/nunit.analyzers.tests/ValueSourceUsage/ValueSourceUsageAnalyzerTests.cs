@@ -243,7 +243,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
 #pragma warning restore CS0414
 
         [Test]
-        public void Test([ValueSource(nameof(TestCases))] int number)
+        public void Test([ValueSource(↓nameof(TestCases))] int number)
         {{
         }}
     }}");
@@ -325,7 +325,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
     public class FixWhenStringLiteralTargetsSourceInAnInnerClass
     {{
         [Test]
-        public void TestData([ValueSource(typeof(InnerClass), ""TestCases"")] string input) {{ }}
+        public void TestData([ValueSource(typeof(InnerClass), ↓""TestCases"")] string input) {{ }}
 
         public class InnerClass
         {{
@@ -356,7 +356,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
     public class FixWhenStringLiteralTargetsSourceInAnotherClass
     {{
         [Test]
-        public void TestData([ValueSource(typeof(AnotherClass), ""TestCases"")] string input) {{ }}
+        public void TestData([ValueSource(typeof(AnotherClass), ↓""TestCases"")] string input) {{ }}
     }}
 
     public class AnotherClass
@@ -387,7 +387,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
     public class FixWhenStringLiteralTargetsSourceInAnInnerClassInAnotherClass
     {{
         [Test]
-        public void TestData([ValueSource(typeof(AnotherClass.InnerClass), ""TestCases"")] string input) {{ }}
+        public void TestData([ValueSource(typeof(AnotherClass.InnerClass), ↓""TestCases"")] string input) {{ }}
     }}
 
     public class AnotherClass

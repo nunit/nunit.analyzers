@@ -136,7 +136,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     string actual = ""act"";
-                    ClassicAssert.AreEqual(actual, string.Empty);
+                    ClassicAssert.AreEqual(actual, ↓string.Empty);
                 }");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
@@ -149,7 +149,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 public void Test()
                 {
                     string actual = ""act"";
-                    Assert.That(string.Empty, Is.EqualTo(actual));
+                    Assert.That(↓string.Empty, Is.EqualTo(actual));
                 }");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);

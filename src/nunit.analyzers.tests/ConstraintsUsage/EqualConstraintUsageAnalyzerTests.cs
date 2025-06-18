@@ -342,7 +342,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         {
             Foo expected = new Foo();
             Foo actual = new Foo();
-            Assert.That(actual.Equals(expected), Is.True);
+            Assert.That(↓actual.Equals(expected), Is.True);
         }
 
         private sealed class Foo : IEquatable<Foo>
@@ -366,7 +366,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         {
             object expected = new Foo();
             Foo actual = new Foo();
-            Assert.That(actual.Equals(expected), Is.True);
+            Assert.That(↓actual.Equals(expected), Is.True);
         }
 
         private sealed class Foo : IEquatable<Foo>

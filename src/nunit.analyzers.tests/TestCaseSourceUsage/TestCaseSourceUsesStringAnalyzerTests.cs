@@ -314,7 +314,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         {testCaseMember}
 #pragma warning restore CS0414
 
-        [TestCaseSource(nameof(TestCases))]
+        [TestCaseSource(↓nameof(TestCases))]
         public void Test()
         {{
         }}
@@ -335,7 +335,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     {{
         {testCaseMember}
 
-        [TestCaseSource(nameof(TestCases), new object[] {{ 1, 2, 3 }})]
+        [TestCaseSource(↓nameof(TestCases), new object[] {{ 1, 2, 3 }})]
         public void Test()
         {{
         }}
@@ -458,7 +458,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public class FixWhenStringLiteralTargetsSourceInAnInnerClass
     {{
-        [TestCaseSource(typeof(InnerClass), ""TestCases"")]
+        [TestCaseSource(typeof(InnerClass), ↓""TestCases"")]
         public void TestData(string input) {{ }}
 
         public class InnerClass
@@ -489,7 +489,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public class FixWhenStringLiteralTargetsSourceInAnotherClass
     {{
-        [TestCaseSource(typeof(AnotherClass), ""TestCases"")]
+        [TestCaseSource(typeof(AnotherClass), ↓""TestCases"")]
         public void TestData(string input) {{ }}
     }}
 
@@ -520,7 +520,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
     public class FixWhenStringLiteralTargetsSourceInAnInnerClassInAnotherClass
     {{
-        [TestCaseSource(typeof(AnotherClass.InnerClass), ""TestCases"")]
+        [TestCaseSource(typeof(AnotherClass.InnerClass), ↓""TestCases"")]
         public void TestData(string input) {{ }}
     }}
 

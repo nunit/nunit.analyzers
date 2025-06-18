@@ -42,7 +42,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public class AnalyzeWhenTypeOfSourceNotImplementingIEnumerable
     {
-        [TestCaseSource(typeof(MyTests))]
+        [TestCaseSource(↓typeof(MyTests))]
         public void Test()
         {
         }
@@ -91,7 +91,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
         public class AnalyzeWhenTypeOfSourceNoDefaultConstructor
         {
-            [TestCaseSource(typeof(MyTests))]
+            [TestCaseSource(↓typeof(MyTests))]
             public void Test()
             {
             }

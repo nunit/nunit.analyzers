@@ -492,7 +492,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
     public sealed class AnalyzeWhenArgumentPassesSuppressedNullToNonNullableType
     {
-        [TestCase(""Hello"", null)]
+        [TestCase(""Hello"", ↓null)]
         public void Test(params string[] a) { }
     }");
             RoslynAssert.Diagnostics(this.analyzer,
