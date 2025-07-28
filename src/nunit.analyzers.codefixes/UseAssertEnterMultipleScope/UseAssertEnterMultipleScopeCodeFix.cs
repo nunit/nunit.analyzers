@@ -53,7 +53,8 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
                 return;
             }
 
-            var newBodySyntax = CreateUsingStatementSyntax(blockSyntax, expressionStatementSyntax.GetTrailingTrivia());
+            var newBodySyntax = CreateUsingStatementSyntax(blockSyntax,
+                expressionStatementSyntax.GetLeadingTrivia(), expressionStatementSyntax.GetTrailingTrivia());
 
             // Replace body syntax and add annotation to have a reference to the new body syntax in the updated root
             var annotation = new SyntaxAnnotation();
@@ -84,7 +85,7 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
             return (parenthesizedLambdaExpressionSyntax.Block, parenthesizedLambdaExpressionSyntax.AsyncKeyword != default);
         }
 
-        private static UsingStatementSyntax CreateUsingStatementSyntax(BlockSyntax blockSyntax, SyntaxTriviaList trailingTrivia) =>
+        private static UsingStatementSyntax CreateUsingStatementSyntax(BlockSyntax blockSyntax, SyntaxTriviaList leadingTrivia, SyntaxTriviaList trailingTrivia) =>
             SyntaxFactory.UsingStatement(blockSyntax)
                 .WithExpression(
                     SyntaxFactory.InvocationExpression(
@@ -92,6 +93,7 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
                             SyntaxKind.SimpleMemberAccessExpression,
                             SyntaxFactory.IdentifierName(NUnitFrameworkConstants.NameOfAssert),
                             SyntaxFactory.IdentifierName(NUnitV4FrameworkConstants.NameOfEnterMultipleScope))))
+                .WithLeadingTrivia(leadingTrivia)
                 .WithTrailingTrivia(trailingTrivia);
 
         private static SyntaxNode UpdateTestMethodSignatureIfNecessary(

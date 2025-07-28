@@ -336,6 +336,45 @@ namespace NUnit.Analyzers.Tests.Targets.UseAssertEnterMultipleScope
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
+
+        [Test]
+        public void VerifyKeepsLeadingTrivia()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [Test]
+        public void Test1()
+        {
+            // Arrange
+            const int expected = 4;
+
+            // Act
+            int? actual = 2 + 2;
+
+            // Assert
+            ↓Assert.Multiple(() => {
+                Assert.That(actual, Is.Not.Null);
+                Assert.That(actual, Is.EqualTo(expected));
+            });
+        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        [Test]
+        public void Test1()
+        {
+            // Arrange
+            const int expected = 4;
+
+            // Act
+            int? actual = 2 + 2;
+
+            // Assert
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(actual, Is.Not.Null);
+                Assert.That(actual, Is.EqualTo(expected));
+            }
+        }");
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
     }
 }
 
