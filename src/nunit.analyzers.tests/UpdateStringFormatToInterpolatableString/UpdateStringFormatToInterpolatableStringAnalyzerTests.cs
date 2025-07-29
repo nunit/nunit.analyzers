@@ -196,6 +196,7 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
+#if NUNIT4 && NET6_0_OR_GREATER
         [Test]
         public void AnalyzeAssertRecognizesPassingThroughCallerArgumentExpression()
         {
@@ -217,5 +218,6 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
 
             RoslynAssert.Valid(this.analyzer, testCode);
         }
+#endif
     }
 }
