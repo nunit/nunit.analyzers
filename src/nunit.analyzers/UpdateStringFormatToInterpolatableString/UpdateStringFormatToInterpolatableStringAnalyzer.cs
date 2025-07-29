@@ -15,6 +15,8 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class UpdateStringFormatToInterpolatableStringAnalyzer : BaseAssertionAnalyzer
     {
+        private const string CallerArgumentExpressionAttribute = "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute";
+
         private static readonly string[] ObsoleteParamsMethods =
         [
             NUnitFrameworkConstants.NameOfAssertPass,
@@ -133,8 +135,7 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
                     {
                         // Make an exception if this argument is passed in from a parameter with CallerArgumentExpression attribute
                         ImmutableArray<AttributeData> parameterAttributes = parameterReference.Parameter.GetAttributes();
-                        if (parameterAttributes.Select(attribute => attribute.AttributeClass?.ToString())
-                                               .Any(name => name == "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute"))
+                        if (parameterAttributes.Any(a => a.AttributeClass?.ToString() == CallerArgumentExpressionAttribute))
                         {
                             return;
                         }
