@@ -110,7 +110,9 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
                 if (parameter.IsOptional)
                 {
                     if (parameter.Name == NUnitFrameworkConstants.NameOfMessageParameter)
+                    {
                         break;
+                    }
 
                     // Overload with FormattableString or Func<string> overload
                     return;
@@ -118,12 +120,28 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
             }
 
             ImmutableArray<IArgumentOperation> arguments = assertOperation.Arguments;
-            if (arguments.Length > formatParameterIndex && arguments[formatParameterIndex + 1].ArgumentKind == ArgumentKind.Explicit)
+
+            if (arguments.Length > formatParameterIndex)
             {
-                // The argument after the message is explicitly specified
-                // Most likely the user thought it was using a format specification with a parameter.
-                // Or it copied code from some NUnit 3.x source into an NUNit 4 project.
-                ReportDiagnostic(context, assertOperation, methodName, formatParameterIndex, argsIsArray: false);
+                var nextArgument = arguments[formatParameterIndex + 1];
+                if (nextArgument.ArgumentKind == ArgumentKind.Explicit)
+                {
+                    // The argument after the message is explicitly specified
+                    // Most likely the user thought it was using a format specification with a parameter.
+                    // Or it copied code from some NUnit 3.x source into an NUNit 4 project.
+                    if (nextArgument.Value is IParameterReferenceOperation parameterReference)
+                    {
+                        // Make an exception if this argument is passed in from a parameter with CallerArgumentExpression attribute
+                        ImmutableArray<AttributeData> parameterAttributes = parameterReference.Parameter.GetAttributes();
+                        if (parameterAttributes.Select(attribute => attribute.AttributeClass?.Name)
+                                               .Any(name => name == "CallerArgumentExpressionAttribute"))
+                        {
+                            return;
+                        }
+                    }
+
+                    ReportDiagnostic(context, assertOperation, methodName, formatParameterIndex, argsIsArray: false);
+                }
             }
         }
 

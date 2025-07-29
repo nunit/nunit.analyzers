@@ -195,5 +195,27 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
             ");
             RoslynAssert.Valid(this.analyzer, testCode);
         }
+
+        [Test]
+        public void AnalyzeAssertRecognizesPassingThroughCallerArgumentExpression()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                public static void AssertThat(
+                    Func<object> valueProvider,
+                    IConstraint expression,
+                    NUnitString message,
+                    [CallerArgumentExpression(""valueProvider"")] string actualExpression = """",
+                    [CallerArgumentExpression(""expression"")] string constraintExpression = """"
+                    )
+                {
+                    Assert.That(
+                        valueProvider,
+                        new DelayedConstraint(expression, 3000, 300),
+                        message, actualExpression, constraintExpression);
+                }
+            ", "using System.Runtime.CompilerServices;using NUnit.Framework.Constraints;");
+
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
     }
 }
