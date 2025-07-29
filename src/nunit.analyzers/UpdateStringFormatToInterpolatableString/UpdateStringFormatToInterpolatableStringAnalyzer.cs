@@ -133,8 +133,8 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
                     {
                         // Make an exception if this argument is passed in from a parameter with CallerArgumentExpression attribute
                         ImmutableArray<AttributeData> parameterAttributes = parameterReference.Parameter.GetAttributes();
-                        if (parameterAttributes.Select(attribute => attribute.AttributeClass?.Name)
-                                               .Any(name => name == "CallerArgumentExpressionAttribute"))
+                        if (parameterAttributes.Select(attribute => attribute.AttributeClass?.ToString())
+                                               .Any(name => name == "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute"))
                         {
                             return;
                         }
