@@ -62,6 +62,13 @@ namespace NUnit.Analyzers.ConstActualValueUsage
                 return;
             }
 
+            if (actualOperation is ITypeOfOperation typeOfOperation &&
+                typeOfOperation.TypeOperand.Kind == SymbolKind.TypeParameter)
+            {
+                // typeof(T) is a special case, it is not a constant value as it depends on the parameter.
+                return;
+            }
+
             // The actual expression is a constant field, check if expected is also constant
             var expectedOperation = GetExpectedOperation(assertOperation);
 
