@@ -1,4 +1,29 @@
-﻿# NUnit Analyzers 4.9.2 - June 17, 2025
+﻿# NUnit Analyzers 4.10 - August 9, 2025
+
+This release of the NUnit Analyzers contains some minor improvements to NUnit2050, NUnit2056, and NUnit2007 as well
+as some improvements to existing tests. Once again, @manfred-brands was responsible for the majority of the work.
+
+The release contains contributions from the following users (in alphabetical order):
+* @dfev77
+* @manfred-brands
+* @mikebro
+* @mikkelbu
+
+Issues Resolved
+
+Bugs
+* #901 False positive on NUnit2050
+* #899 NUnit2056 analyzer's code fix removes comments and empty lines above it.
+* #896 NUnit2007 shouldn't trigger for generic types e.g. typeof(T)
+
+Tooling, Process, and Documentation
+* #905 NUnit4.4 alpha -> beta changes
+* #897 chore: Correct typo in NUnit2045.md
+* #894 Improve tests by adding ↓ to tests were it is missing in the source
+* #887 chore: bump version
+
+
+# NUnit Analyzers 4.9.2 - June 17, 2025
 
 This release of the NUnit Analyzers extends the `NUnit3001` nullability suppressor
 to also work in the context of `Assert.EnterMultipleScope` and other using statements.
