@@ -1063,7 +1063,7 @@ using System.Collections.Generic;");
                     var record1 = new Record("Test");
                     var record2 = new AnotherRecord("Test");
 
-                    Assert.That(record1, Is.EqualTo(record2).UsingPropertiesComparer(
+                    Assert.That(record1, Is.EqualTo(record2).UsingPropertiesComparer<AnotherRecord>(
                         {{configure}}));
                 }
 
