@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(NUnitVersion)' == '4'">
-    <PackageReference Include="NUnit" Version="4.4.0-alpha.0.22" />
+    <PackageReference Include="NUnit" Version="4.4.0-beta.2.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(NUnitVersion)' == '3'">
