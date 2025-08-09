@@ -496,8 +496,8 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
 
                     private static IEnumerable<TestCaseData> ExplicitTypeArgsTestCases()
                     {
-                        yield return new TestCaseData(2) { TypeArgs = new[] { typeof(long) } };
-                        yield return new TestCaseData(2L) { TypeArgs = new[] { typeof(long) } };
+                        yield return new TestCaseData(2);
+                        yield return new TestCaseData(2L);
                     }
                 }
                 """, "using System.Collections.Generic;");
