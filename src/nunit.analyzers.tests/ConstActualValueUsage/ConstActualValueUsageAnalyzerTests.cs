@@ -481,5 +481,27 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
+
+        [Test]
+        public void TypeOfGenericIsNotAConstant()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public class MyExplicitlyTypedTests
+                {
+                    [TestCaseSource(nameof(ExplicitTypeArgsTestCases))]
+                    public void ExplicitTypeArgs<T>(T input)
+                    {
+                        Assert.That(typeof(T), Is.EqualTo(typeof(long)));
+                    }
+
+                    private static IEnumerable<TestCaseData> ExplicitTypeArgsTestCases()
+                    {
+                        yield return new TestCaseData(2) { TypeArgs = new[] { typeof(long) } };
+                        yield return new TestCaseData(2L) { TypeArgs = new[] { typeof(long) } };
+                    }
+                }
+                """, "using System.Collections.Generic;");
+            RoslynAssert.Valid(analyzer, testCode);
+        }
     }
 }
