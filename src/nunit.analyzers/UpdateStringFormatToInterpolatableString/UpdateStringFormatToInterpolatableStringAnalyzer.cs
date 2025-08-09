@@ -13,7 +13,7 @@ using NUnit.Analyzers.Helpers;
 namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class UpdateStringFormatToInterpolatableStringAnalyzer : BaseAssertionAnalyzer
+    public sealed class UpdateStringFormatToInterpolatableStringAnalyzer : BaseAssertionAnalyzer<INamedTypeSymbol>
     {
         private const string CallerArgumentExpressionAttribute = "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute";
 
@@ -44,7 +44,12 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
             return containingType.IsAssert() || containingType.IsAssume();
         }
 
-        protected override void AnalyzeAssertInvocation(Version nunitVersion, OperationAnalysisContext context, IInvocationOperation assertOperation)
+        protected override INamedTypeSymbol? GetAdditionalInfoAtCompilationStart(Compilation compilation)
+        {
+            return compilation.GetTypeByMetadataName(CallerArgumentExpressionAttribute);
+        }
+
+        protected override void AnalyzeAssertInvocation(Version nunitVersion, INamedTypeSymbol? info, OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
             if (nunitVersion.Major < 4)
             {
@@ -52,7 +57,7 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
             }
             else
             {
-                AnalyzeNUnit4AssertInvocation(context, assertOperation);
+                AnalyzeNUnit4AssertInvocation(info, context, assertOperation);
             }
         }
 
@@ -93,7 +98,10 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
         /// <summary>
         /// This looks to see if the `CallerMemberExpression` parameters are explicitly specified.
         /// </summary>
-        private static void AnalyzeNUnit4AssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
+        private static void AnalyzeNUnit4AssertInvocation(
+            INamedTypeSymbol? callerArgumentExpressionAttributeTypeSymbol,
+            OperationAnalysisContext context,
+            IInvocationOperation assertOperation)
         {
             string methodName = assertOperation.TargetMethod.Name;
 
@@ -135,7 +143,8 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
                     {
                         // Make an exception if this argument is passed in from a parameter with CallerArgumentExpression attribute
                         ImmutableArray<AttributeData> parameterAttributes = parameterReference.Parameter.GetAttributes();
-                        if (parameterAttributes.Any(a => a.AttributeClass?.ToString() == CallerArgumentExpressionAttribute))
+                        if (parameterAttributes.Any(a =>
+                                SymbolEqualityComparer.Default.Equals(a.AttributeClass, callerArgumentExpressionAttributeTypeSymbol)))
                         {
                             return;
                         }
