@@ -13,8 +13,10 @@ using NUnit.Analyzers.Helpers;
 namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public sealed class UpdateStringFormatToInterpolatableStringAnalyzer : BaseAssertionAnalyzer
+    public sealed class UpdateStringFormatToInterpolatableStringAnalyzer : BaseAssertionAnalyzer<INamedTypeSymbol>
     {
+        private const string CallerArgumentExpressionAttribute = "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute";
+
         private static readonly string[] ObsoleteParamsMethods =
         [
             NUnitFrameworkConstants.NameOfAssertPass,
@@ -42,7 +44,12 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
             return containingType.IsAssert() || containingType.IsAssume();
         }
 
-        protected override void AnalyzeAssertInvocation(Version nunitVersion, OperationAnalysisContext context, IInvocationOperation assertOperation)
+        protected override INamedTypeSymbol? GetAdditionalInfoAtCompilationStart(Compilation compilation)
+        {
+            return compilation.GetTypeByMetadataName(CallerArgumentExpressionAttribute);
+        }
+
+        protected override void AnalyzeAssertInvocation(Version nunitVersion, INamedTypeSymbol? info, OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
             if (nunitVersion.Major < 4)
             {
@@ -50,7 +57,7 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
             }
             else
             {
-                AnalyzeNUnit4AssertInvocation(context, assertOperation);
+                AnalyzeNUnit4AssertInvocation(info, context, assertOperation);
             }
         }
 
@@ -91,7 +98,10 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
         /// <summary>
         /// This looks to see if the `CallerMemberExpression` parameters are explicitly specified.
         /// </summary>
-        private static void AnalyzeNUnit4AssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
+        private static void AnalyzeNUnit4AssertInvocation(
+            INamedTypeSymbol? callerArgumentExpressionAttributeTypeSymbol,
+            OperationAnalysisContext context,
+            IInvocationOperation assertOperation)
         {
             string methodName = assertOperation.TargetMethod.Name;
 
@@ -110,7 +120,9 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
                 if (parameter.IsOptional)
                 {
                     if (parameter.Name == NUnitFrameworkConstants.NameOfMessageParameter)
+                    {
                         break;
+                    }
 
                     // Overload with FormattableString or Func<string> overload
                     return;
@@ -118,12 +130,28 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
             }
 
             ImmutableArray<IArgumentOperation> arguments = assertOperation.Arguments;
-            if (arguments.Length > formatParameterIndex && arguments[formatParameterIndex + 1].ArgumentKind == ArgumentKind.Explicit)
+
+            if (arguments.Length > formatParameterIndex + 1)
             {
-                // The argument after the message is explicitly specified
-                // Most likely the user thought it was using a format specification with a parameter.
-                // Or it copied code from some NUnit 3.x source into an NUNit 4 project.
-                ReportDiagnostic(context, assertOperation, methodName, formatParameterIndex, argsIsArray: false);
+                var nextArgument = arguments[formatParameterIndex + 1];
+                if (nextArgument.ArgumentKind == ArgumentKind.Explicit)
+                {
+                    // The argument after the message is explicitly specified
+                    // Most likely the user thought it was using a format specification with a parameter.
+                    // Or it copied code from some NUnit 3.x source into an NUNit 4 project.
+                    if (nextArgument.Value is IParameterReferenceOperation parameterReference)
+                    {
+                        // Make an exception if this argument is passed in from a parameter with CallerArgumentExpression attribute
+                        ImmutableArray<AttributeData> parameterAttributes = parameterReference.Parameter.GetAttributes();
+                        if (parameterAttributes.Any(a =>
+                                SymbolEqualityComparer.Default.Equals(a.AttributeClass, callerArgumentExpressionAttributeTypeSymbol)))
+                        {
+                            return;
+                        }
+                    }
+
+                    ReportDiagnostic(context, assertOperation, methodName, formatParameterIndex, argsIsArray: false);
+                }
             }
         }
 
