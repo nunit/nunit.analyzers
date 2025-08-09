@@ -123,7 +123,7 @@ namespace NUnit.Analyzers.UpdateStringFormatToInterpolatableString
 
             ImmutableArray<IArgumentOperation> arguments = assertOperation.Arguments;
 
-            if (arguments.Length > formatParameterIndex)
+            if (arguments.Length > formatParameterIndex + 1)
             {
                 var nextArgument = arguments[formatParameterIndex + 1];
                 if (nextArgument.ArgumentKind == ArgumentKind.Explicit)
