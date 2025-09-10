@@ -67,7 +67,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
         [Test]
         public void VerifyPartlyIndependent()
         {
-            const string ConfigurationClass = @"
+            const string configurationClass = @"
         private sealed class Configuration
         {
             public int Value1 { get; set; }
@@ -84,7 +84,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
             Assert.That(configuration.Value2, Is.EqualTo(0.0));
             Assert.That(configuration.Value11, Is.EqualTo(string.Empty));
             configuration = null;
-        }" + ConfigurationClass);
+        }" + configurationClass);
 
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public void Test()
@@ -98,7 +98,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                 Assert.That(configuration.Value11, Is.EqualTo(string.Empty));
             });
             configuration = null;
-        }" + ConfigurationClass);
+        }" + configurationClass);
 
             RoslynAssert.FixAll(analyzer, fix, expectedDiagnostic, code, fixedCode, UseAssertMultipleCodeFix.WrapWithAssertMultiple);
 
@@ -115,7 +115,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                 Assert.That(configuration.Value11, Is.EqualTo(string.Empty));
             }
             configuration = null;
-        }" + ConfigurationClass);
+        }" + configurationClass);
 
             RoslynAssert.FixAll(analyzer, fix, expectedDiagnostic, code, fixedCode, UseAssertMultipleCodeFix.WrapWithAssertEnterMultipleScope);
 #endif
@@ -124,7 +124,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
         [Test]
         public void AddsAsyncWhenAwaitIsUsed()
         {
-            const string ConfigurationClass = @"
+            const string configurationClass = @"
         private sealed class Configuration
         {
             public int Value1 { get; set; }
@@ -142,7 +142,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
             Assert.That(configuration.Value2, Is.EqualTo(0.0));
             Assert.That(await configuration.AsStringAsync(), Is.EqualTo(string.Empty));
             configuration = null;
-        }" + ConfigurationClass);
+        }" + configurationClass);
 
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
         public async Task Test()
@@ -156,7 +156,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                 Assert.That(await configuration.AsStringAsync(), Is.EqualTo(string.Empty));
             });
             configuration = null;
-        }" + ConfigurationClass);
+        }" + configurationClass);
 
             // The test method itself no longer awaits, so CS1998 is generated.
             // Fixing this is outside the scope of this analyzer and there could be other non-touched statements that are waited.
@@ -176,7 +176,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                 Assert.That(await configuration.AsStringAsync(), Is.EqualTo(string.Empty));
             }
             configuration = null;
-        }" + ConfigurationClass);
+        }" + configurationClass);
 
             RoslynAssert.FixAll(analyzer, fix, expectedDiagnostic, code, fixedCode, UseAssertMultipleCodeFix.WrapWithAssertEnterMultipleScope);
 #endif

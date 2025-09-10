@@ -126,6 +126,38 @@ namespace NUnit.Analyzers.Helpers
                 currentNode = usingStatement;
             }
 
+            // Look for using IDisposable scope = Assert.EnterMultipleScope(); declaration;
+            currentNode = node;
+            ExpressionStatementSyntax? currentStatement = currentNode.Ancestors().OfType<ExpressionStatementSyntax>().FirstOrDefault();
+            BlockSyntax? blockSyntax;
+            while ((blockSyntax = currentNode.Ancestors().OfType<BlockSyntax>().FirstOrDefault()) is not null)
+            {
+                foreach (var statement in blockSyntax.Statements)
+                {
+                    if (statement is LocalDeclarationStatementSyntax localDeclarationStatement)
+                    {
+                        // Is the local declaration an Assert.EnterMultipleScope.
+                        foreach (var variable in localDeclarationStatement.Declaration.Variables)
+                        {
+                            if (variable.Initializer?.Value is InvocationExpressionSyntax initializer &&
+                                IsAssert(initializer, NUnitV4FrameworkConstants.NameOfEnterMultipleScope))
+                            {
+                                if (localDeclarationStatement.UsingKeyword != default)
+                                    return true;
+                            }
+                        }
+                    }
+
+                    if (statement == currentStatement)
+                    {
+                        // Any declaration after the current statement is not relevant.
+                        break;
+                    }
+                }
+
+                currentNode = blockSyntax;
+            }
+
             return false;
         }
 
