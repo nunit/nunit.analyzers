@@ -96,6 +96,10 @@ namespace NUnit.Analyzers.Extensions
                     // Get the position element of the array initializer
                     return initializerExpressionSyntax.Expressions.ElementAtOrDefault(position);
                 }
+                else
+                {
+                    attributeArgumentSyntax = @this.GetConstructorArgumentSyntax(position, cancellationToken);
+                }
             }
 
             return attributeArgumentSyntax?.Expression;

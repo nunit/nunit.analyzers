@@ -392,6 +392,40 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeWhenOneArgumentTypeOfMultipleIsIncorrect()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
+                string.Format(CultureInfo.InvariantCulture,
+                    TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 1, "int", "expected", "System.Type"));
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenOneArgumentTypeOfMultipleIsIncorrect
+    {
+        [TestCase(""string"", ↓12, 27, ""other"")]
+        public void Test(string actual, Type expected, int value, string other) { }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenLastArgumentTypeOfTwoIsIncorrect()
+        {
+            var expectedDiagnostic = ExpectedDiagnostic.Create(
+                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
+                string.Format(CultureInfo.InvariantCulture,
+                    TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 1, "int", "expected", "bool"));
+
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenLastArgumentTypeOfTwoIsIncorrect
+    {
+        [TestCase(""string"", ↓12)]
+        public void Test(string actual, bool expected) { }
+    }");
+            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void AnalyzeArgumentHasTypeNotAllowedInAttributes()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
