@@ -216,6 +216,35 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
+        [Test]
+        public void AnalyzeWhenFieldInitializedInLocalFunctionIsNotDisposed()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private object? ↓field;
+
+        [SetUp]
+        public void SetUp()
+        {{
+            Initialize();
+
+            void Initialize()
+            {{
+                field = new DummyDisposable();
+            }}
+        }}
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            field = null;
+        }}
+
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
         [TestCase("SetUp")]
         [TestCase("Test")]
         public void AnalyzeWhenFieldTypeParameterIsNotDisposed(string attribute)
@@ -298,7 +327,7 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         }
 
         [Test]
-        public void FieldConditionallyAssignedInCalledLocalMethod()
+        public void FieldConditionallyAssignedInCalledLocalFunction()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         private object? ↓field;
@@ -395,8 +424,8 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
     }}
         ");
 
-            const string AnalyzerConfig = "dotnet_diagnostic.NUnit1032.additional_dispose_methods = DisposeIfDisposable";
-            Settings settings = Settings.Default.WithAnalyzerConfig(AnalyzerConfig);
+            const string analyzerConfig = "dotnet_diagnostic.NUnit1032.additional_dispose_methods = DisposeIfDisposable";
+            Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
             RoslynAssert.Valid(analyzer, testCode, settings);
         }
 
@@ -427,9 +456,67 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         {DummyDisposable}
         ");
 
-            const string AnalyzerConfig = "dotnet_diagnostic.NUnit1032.additional_dispose_methods = Release";
-            Settings settings = Settings.Default.WithAnalyzerConfig(AnalyzerConfig);
+            const string analyzerConfig = "dotnet_diagnostic.NUnit1032.additional_dispose_methods = Release";
+            Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
             RoslynAssert.Valid(analyzer, testCode, settings);
+        }
+
+        [Test]
+        public void AnalyzeWhenFieldIsDisposedInMemberMethod()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private IDisposable? field;
+
+        [SetUp]
+        public void SetUpMethod()
+        {{
+            field = new DummyDisposable();
+        }}
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            CleanUp();
+        }}
+
+        private void CleanUp()
+        {{
+            field?.Dispose();
+        }}
+        
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenFieldIsDisposedInLocalMethod()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        private IDisposable? field;
+
+        [SetUp]
+        public void SetUpMethod()
+        {{
+            field = new DummyDisposable();
+        }}
+
+        [TearDown]
+        public void TearDownMethod()
+        {{
+            CleanUp();
+
+            void CleanUp()
+            {{
+                field?.Dispose();
+            }}
+        }}
+        
+        {DummyDisposable}
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -459,8 +546,8 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
     }}
         ");
 
-            const string AnalyzerConfig = "dotnet_diagnostic.NUnit1032.additional_dispose_methods = Release";
-            Settings settings = Settings.Default.WithAnalyzerConfig(AnalyzerConfig);
+            const string analyzerConfig = "dotnet_diagnostic.NUnit1032.additional_dispose_methods = Release";
+            Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
             RoslynAssert.Valid(analyzer, testCode, settings);
         }
 

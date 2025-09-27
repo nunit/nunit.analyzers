@@ -250,14 +250,31 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
         private static void AssignedIn(Parameters parameters, HashSet<string> assignments, IMethodSymbol symbol)
         {
-            BaseMethodDeclarationSyntax? method =
-                symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() as BaseMethodDeclarationSyntax;
+            SyntaxNode? syntaxNode = symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
 
-            if (method is not null)
+            if (syntaxNode is BaseMethodDeclarationSyntax method)
+            {
                 AssignedIn(parameters, assignments, method);
+            }
+            else if (syntaxNode is LocalFunctionStatementSyntax localFunction)
+            {
+                AssignedIn(parameters, assignments, localFunction);
+            }
         }
 
         private static void AssignedIn(Parameters parameters, HashSet<string> assignments, BaseMethodDeclarationSyntax method)
+        {
+            if (method.ExpressionBody is not null)
+            {
+                AssignedIn(parameters, assignments, method.ExpressionBody.Expression);
+            }
+            else if (method.Body is not null)
+            {
+                AssignedIn(parameters, assignments, method.Body);
+            }
+        }
+
+        private static void AssignedIn(Parameters parameters, HashSet<string> assignments, LocalFunctionStatementSyntax method)
         {
             if (method.ExpressionBody is not null)
             {
@@ -420,14 +437,31 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
         private static void DisposedIn(Parameters parameters, HashSet<string> disposals, IMethodSymbol symbol)
         {
-            MethodDeclarationSyntax? method =
-                symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() as MethodDeclarationSyntax;
+            SyntaxNode? syntaxNode = symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
 
-            if (method is not null)
+            if (syntaxNode is MethodDeclarationSyntax method)
+            {
                 DisposedIn(parameters, disposals, method);
+            }
+            else if (syntaxNode is LocalFunctionStatementSyntax localFunction)
+            {
+                DisposedIn(parameters, disposals, localFunction);
+            }
         }
 
         private static void DisposedIn(Parameters parameters, HashSet<string> disposals, MethodDeclarationSyntax method)
+        {
+            if (method.ExpressionBody is not null)
+            {
+                DisposedIn(parameters, disposals, method.ExpressionBody.Expression);
+            }
+            else if (method.Body is not null)
+            {
+                DisposedIn(parameters, disposals, method.Body);
+            }
+        }
+
+        private static void DisposedIn(Parameters parameters, HashSet<string> disposals, LocalFunctionStatementSyntax method)
         {
             if (method.ExpressionBody is not null)
             {
