@@ -105,7 +105,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     if (isSetup)
                     {
                         // Find (OneTime)SetUps method and check for assignment to this field.
-                        HashSet<MethodDeclarationSyntax> visitedMethods = new();
+                        HashSet<SyntaxNode> visitedMethods = new();
                         if (IsAssignedIn(model, classDeclaration, visitedMethods, method, fieldOrPropertyName))
                         {
                             context.ReportSuppression(Suppression.Create(NullableFieldOrPropertyInitializedInSetUp, diagnostic));
@@ -118,7 +118,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsAssignedIn(
             SemanticModel model,
             ClassDeclarationSyntax classDeclaration,
-            HashSet<MethodDeclarationSyntax> visitedMethods,
+            HashSet<SyntaxNode> visitedMethods,
             MethodDeclarationSyntax method,
             string fieldOrPropertyName)
         {
@@ -138,7 +138,27 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsAssignedIn(
             SemanticModel model,
             ClassDeclarationSyntax classDeclaration,
-            HashSet<MethodDeclarationSyntax> visitedMethods,
+            HashSet<SyntaxNode> visitedMethods,
+            LocalFunctionStatementSyntax method,
+            string fieldOrPropertyName)
+        {
+            if (method.ExpressionBody is not null)
+            {
+                return IsAssignedIn(model, classDeclaration, visitedMethods, method.ExpressionBody.Expression, fieldOrPropertyName);
+            }
+
+            if (method.Body is not null)
+            {
+                return IsAssignedIn(model, classDeclaration, visitedMethods, method.Body, fieldOrPropertyName);
+            }
+
+            return false;
+        }
+
+        private static bool IsAssignedIn(
+            SemanticModel model,
+            ClassDeclarationSyntax classDeclaration,
+            HashSet<SyntaxNode> visitedMethods,
             StatementSyntax statement,
             string fieldOrPropertyName)
         {
@@ -164,7 +184,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsAssignedIn(
             SemanticModel model,
             ClassDeclarationSyntax classDeclaration,
-            HashSet<MethodDeclarationSyntax> visitedMethods,
+            HashSet<SyntaxNode> visitedMethods,
             SyntaxList<StatementSyntax> statements,
             string fieldOrPropertyName)
         {
@@ -180,7 +200,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsAssignedIn(
             SemanticModel model,
             ClassDeclarationSyntax classDeclaration,
-            HashSet<MethodDeclarationSyntax> visitedMethods,
+            HashSet<SyntaxNode> visitedMethods,
             InvocationExpressionSyntax invocationExpression,
             string fieldOrPropertyName)
         {
@@ -188,14 +208,25 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             IMethodSymbol? calledMethod = model.GetSymbolInfo(invocationExpression).Symbol as IMethodSymbol;
 
             // Find the corresponding declaration
-            MethodDeclarationSyntax? method = calledMethod?.DeclaringSyntaxReferences.FirstOrDefault()?
-                                                           .GetSyntax() as MethodDeclarationSyntax;
-            if (method?.Parent == classDeclaration)
+            SyntaxNode? syntaxNode = calledMethod?.DeclaringSyntaxReferences.FirstOrDefault()?
+                                                  .GetSyntax();
+
+            if (syntaxNode is MethodDeclarationSyntax method)
             {
-                // We only get here if the method is in our source code and our class.
-                if (visitedMethods.Add(method))
+                if (method.Parent == classDeclaration)
                 {
-                    return IsAssignedIn(model, classDeclaration, visitedMethods, method, fieldOrPropertyName);
+                    // We only get here if the method is in our source code and our class.
+                    if (visitedMethods.Add(method))
+                    {
+                        return IsAssignedIn(model, classDeclaration, visitedMethods, method, fieldOrPropertyName);
+                    }
+                }
+            }
+            else if (syntaxNode is LocalFunctionStatementSyntax localFunction)
+            {
+                if (visitedMethods.Add(localFunction))
+                {
+                    return IsAssignedIn(model, classDeclaration, visitedMethods, localFunction, fieldOrPropertyName);
                 }
             }
 
@@ -205,7 +236,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         private static bool IsAssignedIn(
             SemanticModel model,
             ClassDeclarationSyntax classDeclaration,
-            HashSet<MethodDeclarationSyntax> visitedMethods,
+            HashSet<SyntaxNode> visitedMethods,
             ExpressionSyntax? expressionStatement,
             string fieldOrPropertyName)
         {
