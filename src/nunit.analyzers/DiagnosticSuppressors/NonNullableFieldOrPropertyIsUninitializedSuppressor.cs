@@ -106,7 +106,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     {
                         // Find (OneTime)SetUps method and check for assignment to this field.
                         HashSet<SyntaxNode> visitedMethods = new();
-                        if (IsAssignedIn(model, classDeclaration, visitedMethods, method, fieldOrPropertyName))
+                        if (IsAssignedIn(model, classDeclaration, visitedMethods, method.ExpressionBody, method.Body, fieldOrPropertyName))
                         {
                             context.ReportSuppression(Suppression.Create(NullableFieldOrPropertyInitializedInSetUp, diagnostic));
                         }
@@ -119,37 +119,17 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             SemanticModel model,
             ClassDeclarationSyntax classDeclaration,
             HashSet<SyntaxNode> visitedMethods,
-            MethodDeclarationSyntax method,
+            ArrowExpressionClauseSyntax? expressionBody, BlockSyntax? block,
             string fieldOrPropertyName)
         {
-            if (method.ExpressionBody is not null)
+            if (expressionBody is not null)
             {
-                return IsAssignedIn(model, classDeclaration, visitedMethods, method.ExpressionBody.Expression, fieldOrPropertyName);
+                return IsAssignedIn(model, classDeclaration, visitedMethods, expressionBody.Expression, fieldOrPropertyName);
             }
 
-            if (method.Body is not null)
+            if (block is not null)
             {
-                return IsAssignedIn(model, classDeclaration, visitedMethods, method.Body, fieldOrPropertyName);
-            }
-
-            return false;
-        }
-
-        private static bool IsAssignedIn(
-            SemanticModel model,
-            ClassDeclarationSyntax classDeclaration,
-            HashSet<SyntaxNode> visitedMethods,
-            LocalFunctionStatementSyntax method,
-            string fieldOrPropertyName)
-        {
-            if (method.ExpressionBody is not null)
-            {
-                return IsAssignedIn(model, classDeclaration, visitedMethods, method.ExpressionBody.Expression, fieldOrPropertyName);
-            }
-
-            if (method.Body is not null)
-            {
-                return IsAssignedIn(model, classDeclaration, visitedMethods, method.Body, fieldOrPropertyName);
+                return IsAssignedIn(model, classDeclaration, visitedMethods, block, fieldOrPropertyName);
             }
 
             return false;
@@ -218,7 +198,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     // We only get here if the method is in our source code and our class.
                     if (visitedMethods.Add(method))
                     {
-                        return IsAssignedIn(model, classDeclaration, visitedMethods, method, fieldOrPropertyName);
+                        return IsAssignedIn(model, classDeclaration, visitedMethods, method.ExpressionBody, method.Body, fieldOrPropertyName);
                     }
                 }
             }
@@ -226,7 +206,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             {
                 if (visitedMethods.Add(localFunction))
                 {
-                    return IsAssignedIn(model, classDeclaration, visitedMethods, localFunction, fieldOrPropertyName);
+                    return IsAssignedIn(model, classDeclaration, visitedMethods, localFunction.ExpressionBody, localFunction.Body, fieldOrPropertyName);
                 }
             }
 
