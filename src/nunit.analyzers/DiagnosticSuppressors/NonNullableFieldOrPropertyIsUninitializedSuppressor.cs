@@ -119,7 +119,8 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             SemanticModel model,
             ClassDeclarationSyntax classDeclaration,
             HashSet<SyntaxNode> visitedMethods,
-            ArrowExpressionClauseSyntax? expressionBody, BlockSyntax? block,
+            ArrowExpressionClauseSyntax? expressionBody,
+            BlockSyntax? block,
             string fieldOrPropertyName)
         {
             if (expressionBody is not null)
