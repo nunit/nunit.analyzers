@@ -245,6 +245,34 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             RoslynAssert.Suppressed(suppressor, testCode);
         }
 
+        [TestCase("SetUp", "")]
+        [TestCase("OneTimeSetUp", "this.")]
+        public void FieldAssignedInCalledLocalFunction(string attribute, string prefix)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                private string ↓field;
+
+                [{attribute}]
+                public void Initialize()
+                {{
+                    SetFields();
+
+                    void SetFields()
+                    {{
+                        {prefix}field = string.Empty;
+                    }}
+                }}
+
+                [Test]
+                public void Test()
+                {{
+                    Assert.That({prefix}field, Is.Not.Null);
+                }}
+            ");
+
+            RoslynAssert.Suppressed(suppressor, testCode);
+        }
+
         [TestCase("async Task", "await ", "", "")]
         [TestCase("async Task", "await ", "this.", "")]
         [TestCase("async Task", "await ", "", ".ConfigureAwait(false)")]
