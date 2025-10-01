@@ -1194,5 +1194,89 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+        [Test]
+        public void DoesNotFireWhenAdditionalSetUpTearDownMethodsAreConfigured()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public abstract class BaseTest
+            {
+	            [SetUp]
+	            public void SetUp()
+	            {
+		            OnSetUp();
+	            }
+
+	            [TearDown]
+	            public void TearDown()
+	            {
+		            OnTearDown();
+	            }
+
+	            protected virtual void OnSetUp()
+	            {
+	            }
+
+	            protected virtual void OnTearDown()
+	            {
+	            }
+            }
+
+            [TestFixture]
+            public class InheritedTest : BaseTest
+            {
+	            private IDisposable? disposable;
+
+	            protected override void OnSetUp()
+	            {
+		            base.OnSetUp();
+		            disposable = new DummyDisposable();
+	            }
+
+	            protected override void OnTearDown()
+	            {
+		            disposable?.Dispose();
+		            base.OnTearDown();
+	            }
+            }
+            " + DummyDisposable);
+
+            const string analyzerConfig = @"
+dotnet_diagnostic.NUnit1032.additional_setup_methods = OnSetUp
+dotnet_diagnostic.NUnit1032.additional_teardown_methods = OnTearDown
+";
+            Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
+            RoslynAssert.Valid(analyzer, testCode, settings);
+        }
+
+        [Test]
+        public void DoesFireWhenAdditionalSetUpTearDownMethodsAreNotOverrides()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+
+            [TestFixture]
+            public class InheritedTest
+            {
+	            private IDisposable? disposable;
+
+	            protected void OnSetUp()
+	            {
+		            disposable = new DummyDisposable();
+	            }
+
+	            protected void OnTearDown()
+	            {
+		            disposable?.Dispose();
+	            }
+            }
+            " + DummyDisposable);
+
+            const string analyzerConfig = @"
+dotnet_diagnostic.NUnit1032.additional_setup_methods = OnSetUp
+dotnet_diagnostic.NUnit1032.additional_teardown_methods = OnTearDown
+";
+            Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode, settings);
+        }
     }
 }
