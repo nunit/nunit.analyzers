@@ -70,10 +70,38 @@ namespace NUnit.Analyzers.Extensions
             object? argumentValue = GetValue(@this);
 
             ITypeSymbol? argumentType = @this.Type;
-            ITypeSymbol? targetType = GetTargetType(target);
+            ITypeSymbol? targetType = target;
 
-            if (allowEnumToUnderlyingTypeConversion && targetType?.TypeKind == TypeKind.Enum)
-                targetType = (targetType as INamedTypeSymbol)?.EnumUnderlyingType;
+            if (target is null)
+                return false;
+
+            INamedTypeSymbol? namedTargetType = targetType as INamedTypeSymbol;
+
+            if (targetType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T &&
+                namedTargetType is not null)
+            {
+                targetType = namedTargetType.TypeArguments[0];
+            }
+
+            if (argumentType?.TypeKind == TypeKind.Array && argumentType is IArrayTypeSymbol argumentArrayType)
+            {
+                if (targetType.TypeKind == TypeKind.Array && targetType is IArrayTypeSymbol targetArrayType)
+                {
+                    argumentType = argumentArrayType.ElementType;
+                    targetType = targetArrayType.ElementType;
+                }
+                else if (namedTargetType is not null && namedTargetType.IsGenericType)
+                {
+                    if (IsEnumerable(targetType))
+                    {
+                        argumentType = argumentArrayType.ElementType;
+                        targetType = namedTargetType.TypeArguments[0];
+                    }
+                }
+            }
+
+            if (allowEnumToUnderlyingTypeConversion && targetType.TypeKind == TypeKind.Enum)
+                targetType = namedTargetType?.EnumUnderlyingType;
 
             if (targetType is null)
                 return false;
@@ -130,9 +158,9 @@ namespace NUnit.Analyzers.Extensions
                 {
                     var canConvert = false;
 
-                    if (targetType.SpecialType == SpecialType.System_Int16 || targetType.SpecialType == SpecialType.System_Byte ||
-                        targetType.SpecialType == SpecialType.System_Int64 ||
-                        targetType.SpecialType == SpecialType.System_SByte || targetType.SpecialType == SpecialType.System_Double)
+                    if (targetType.SpecialType is SpecialType.System_Int16 or SpecialType.System_Byte or
+                                                  SpecialType.System_Int64 or
+                                                  SpecialType.System_SByte or SpecialType.System_Double)
                     {
                         canConvert = argumentType.SpecialType == SpecialType.System_Int32;
                     }
@@ -167,15 +195,14 @@ namespace NUnit.Analyzers.Extensions
                 : typedConstant.Value;
         }
 
-        private static ITypeSymbol GetTargetType(ITypeSymbol target)
+        private static bool IsEnumerable(ITypeSymbol typeSymbol)
         {
-            if (target is INamedTypeSymbol namedType &&
-                target.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
-            {
-                return namedType.TypeArguments[0];
-            }
-
-            return target;
+            return typeSymbol.OriginalDefinition.SpecialType is
+                SpecialType.System_Collections_Generic_IEnumerable_T or
+                SpecialType.System_Collections_Generic_ICollection_T or
+                SpecialType.System_Collections_Generic_IList_T or
+                SpecialType.System_Collections_Generic_IReadOnlyList_T or
+                SpecialType.System_Collections_Generic_IReadOnlyCollection_T;
         }
 
         private static bool TryChangeType(ITypeSymbol targetTypeSymbol, object argumentValue)
