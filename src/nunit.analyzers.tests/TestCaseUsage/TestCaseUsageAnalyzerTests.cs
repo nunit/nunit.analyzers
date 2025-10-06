@@ -959,5 +959,21 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 testCode);
         }
 #endif
+
+        [TestCase("arg: new[] { 1, 2, 3, }", "T[]", "")]
+        [TestCase(@"arg: new[] { ""a"", ""b"", ""c"", }", "IEnumerable<T>", "using System.Collections.Generic;")]
+        [TestCase("arg: new[] { typeof(int), typeof(string), typeof(double), }", "IList<T>", "using System.Collections.Generic;")]
+        [TestCase("arg: new[] { 1ul, 2ul, 3ul, }", "ICollection<T>", "using System.Collections.Generic;")]
+        public void AnalyzeWhenTestMethodHasGenericsEnumerable(string arrayArgument, string parameterType, string additionalUsings)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+        [TestCase({arrayArgument})]
+        public void TestCollectionMethod<T>({parameterType} collection)
+        {{
+            Assert.That(collection, Is.Not.Empty);
+        }}", additionalUsings);
+
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
     }
 }
