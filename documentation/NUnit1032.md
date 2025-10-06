@@ -72,6 +72,20 @@ the following line.
 dotnet_diagnostic.NUnit1032.additional_dispose_methods = Quit, Exit
 ```
 
+## Specifying additional SetUp and TearDown methods
+
+It is also possible to specify additional SetUp and TearDown methods using the configurations
+`dotnet_diagnostic.NUnit1032.additional_setup_methods` and `dotnet_diagnostic.NUnit1032.additional_teardown_methods`
+in the `.editorconfig`. This allow the user to specify `overridden` methods that will be called
+by SetUp and TearDown methods in the base class.
+The configuration accepts a list of method names - separated by either comma, semicolon, or space.
+I.e. to recognize `OnSetUp` and `OnTearDown` as additional methods add the following lines.
+
+```ini
+dotnet_diagnostic.NUnit1032.additional_setup_methods = OnSetUp
+dotnet_diagnostic.NUnit1032.additional_teardown_methods = OnTearDown
+```
+
 <!-- start generated config severity -->
 ## Configure severity
 
