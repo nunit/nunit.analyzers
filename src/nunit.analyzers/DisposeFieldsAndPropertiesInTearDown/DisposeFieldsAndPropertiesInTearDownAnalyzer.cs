@@ -149,6 +149,22 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 disposeMethods = disposeMethods.Union(value.Split(AdditionalDisposalMethodsSeparators, StringSplitOptions.RemoveEmptyEntries));
             }
 
+            // Sometimes virtual method are called from base class SetUp/TearDown methods.
+            // Allow the users to specify these as well.
+            ImmutableHashSet<string> additionalSetUpMethods = ImmutableHashSet<string>.Empty;
+            ImmutableHashSet<string> additonalTearDownMethods = ImmutableHashSet<string>.Empty;
+
+            if (options.TryGetValue("dotnet_diagnostic.NUnit1032.additional_setup_methods", out value))
+            {
+                additionalSetUpMethods = additionalSetUpMethods.Union(value.Split(AdditionalDisposalMethodsSeparators,
+                    StringSplitOptions.RemoveEmptyEntries));
+            }
+
+            if (options.TryGetValue("dotnet_diagnostic.NUnit1032.additional_teardown_methods", out value))
+            {
+                additonalTearDownMethods = additonalTearDownMethods.Union(value.Split(AdditionalDisposalMethodsSeparators, StringSplitOptions.RemoveEmptyEntries));
+            }
+
             HashSet<string> symbolNames = new(symbols.Keys);
 
             Parameters parameters = new(model, typeSymbol, disposeMethods, symbolNames);
@@ -157,8 +173,14 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
             var methods = members.OfType<IMethodSymbol>().ToArray();
             var oneTimeTearDownMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
             var oneTimeSetUpMethods = methods.Where(m => m.MethodKind == MethodKind.Constructor || HasAttribute(m, NUnitFrameworkConstants.NameOfOneTimeSetUpAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
-            var setUpMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfSetUpAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
-            var tearDownMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfTearDownAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
+            var setUpMethods = methods.Where(m =>
+                    HasAttribute(m, NUnitFrameworkConstants.NameOfSetUpAttribute) ||
+                    (m.IsOverride && additionalSetUpMethods.Contains(m.Name)))
+                .ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
+            var tearDownMethods = methods.Where(m =>
+                    HasAttribute(m, NUnitFrameworkConstants.NameOfTearDownAttribute) ||
+                    (m.IsOverride && additonalTearDownMethods.Contains(m.Name)))
+                .ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
 
             var setUpAndTearDownMethods = oneTimeSetUpMethods.Union(oneTimeTearDownMethods).Union(setUpMethods).Union(tearDownMethods);
             var otherMethods = methods.Where(m => m.DeclaredAccessibility != Accessibility.Private && !setUpAndTearDownMethods.Contains(m));
