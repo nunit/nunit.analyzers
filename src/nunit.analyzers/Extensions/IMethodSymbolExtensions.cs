@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using NUnit.Analyzers.Constants;
@@ -84,6 +85,21 @@ namespace NUnit.Analyzers.Extensions
         {
             return methodSymbol.GetAttributes().Any(
                 a => a.IsTestMethodAttribute(compilation) || a.IsSetUpOrTearDownMethodAttribute(compilation));
+        }
+
+        internal static bool HasAttribute(this IMethodSymbol method, string attributeName)
+        {
+            // Look for attribute not only on the method itself but
+            // also on the base method in case this is an override.
+            IEnumerable<AttributeData> attributes = Enumerable.Empty<AttributeData>();
+            for (IMethodSymbol? declaredMethod = method;
+                declaredMethod is not null;
+                declaredMethod = declaredMethod.OverriddenMethod)
+            {
+                attributes = attributes.Concat(declaredMethod.GetAttributes());
+            }
+
+            return attributes.Any(x => x.AttributeClass?.Name == attributeName);
         }
 
         internal static bool IsTestFixture(this ITypeSymbol typeSymbol, Compilation compilation)

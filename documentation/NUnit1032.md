@@ -74,17 +74,20 @@ dotnet_diagnostic.NUnit1032.additional_dispose_methods = Quit, Exit
 
 ## Specifying additional SetUp and TearDown methods
 
-It is also possible to specify additional SetUp and TearDown methods using the configurations
-`dotnet_diagnostic.NUnit1032.additional_setup_methods` and `dotnet_diagnostic.NUnit1032.additional_teardown_methods`
-in the `.editorconfig`. This allow the user to specify `overridden` methods that will be called
-by SetUp and TearDown methods in the base class.
-The configuration accepts a list of method names - separated by either comma, semicolon, or space.
-I.e. to recognize `OnSetUp` and `OnTearDown` as additional methods add the following lines.
+The analyzer can only analyze the current class and doesn't know if an `overridden` method
+is called from the base class' (OneTime)SetUp and (OneTime)TearDown methods.
+It is possible to specify those methods in the `.editorconfig`
+and have the analyzer treat them like SetUp and TearDown methods.
+There are four configurations for this:
 
-```ini
-dotnet_diagnostic.NUnit1032.additional_setup_methods = OnSetUp
-dotnet_diagnostic.NUnit1032.additional_teardown_methods = OnTearDown
-```
+* `dotnet_diagnostic.NUnit.additional_setup_methods`
+* `dotnet_diagnostic.NUnit.additional_teardown_methods`
+* `dotnet_diagnostic.NUnit.additional_one_time_setup_methods`
+* `dotnet_diagnostic.NUnit.additional_one_time_teardown_methods`
+
+The configuration accepts a list of method names - separated by either comma, semicolon, or space.
+
+Note that this configuration is shared with the [NUnit 3002](./NUnit3002.md) analyzer.
 
 <!-- start generated config severity -->
 ## Configure severity
