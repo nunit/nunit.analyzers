@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.Extensions;
 
 using BindingFlags = System.Reflection.BindingFlags;
 
@@ -81,6 +82,16 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
                 SemanticModel model = context.GetSemanticModel(sourceTree);
 
+                // Sometimes virtual method are called from base class SetUp methods.
+                // Allow the users to specify these as well.
+                AnalyzerConfigOptions options = context.Options.AnalyzerConfigOptionsProvider.GetOptions(classDeclaration.SyntaxTree);
+
+                options.GetAdditionalSetUpTearDownMethods(
+                    out ImmutableHashSet<string> additionalOneTimeSetUpMethods,
+                    out _,
+                    out ImmutableHashSet<string> additionalSetUpMethods,
+                    out _);
+
                 var methods = classDeclaration.Members.OfType<MethodDeclarationSyntax>();
                 foreach (var method in methods)
                 {
@@ -90,22 +101,14 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                         continue;
                     }
 
-                    // Look for attribute not only on the method itself but
-                    // also on the base method in case this is an override.
-                    IEnumerable<AttributeData> attributes = Enumerable.Empty<AttributeData>();
-                    do
+                    // Is the method a configured additional SetUp or OneTimeSetUp method?
+                    if ((declaredMethod.IsOverride &&
+                            (additionalSetUpMethods.Contains(declaredMethod.Name) ||
+                            additionalOneTimeSetUpMethods.Contains(declaredMethod.Name))) ||
+                        declaredMethod.HasAttribute(NUnitFrameworkConstants.NameOfSetUpAttribute) ||
+                        declaredMethod.HasAttribute(NUnitFrameworkConstants.NameOfOneTimeSetUpAttribute))
                     {
-                        attributes = attributes.Concat(declaredMethod.GetAttributes());
-                        declaredMethod = declaredMethod.OverriddenMethod;
-                    }
-                    while (declaredMethod is not null);
-
-                    var isSetup = attributes.Any(x => x.AttributeClass?.Name is NUnitFrameworkConstants.NameOfSetUpAttribute
-                                                                             or NUnitFrameworkConstants.NameOfOneTimeSetUpAttribute);
-
-                    if (isSetup)
-                    {
-                        // Find (OneTime)SetUps method and check for assignment to this field.
+                        // Check for assignment to this field.
                         HashSet<SyntaxNode> visitedMethods = new();
                         if (IsAssignedIn(model, classDeclaration, visitedMethods, method.ExpressionBody, method.Body, fieldOrPropertyName))
                         {

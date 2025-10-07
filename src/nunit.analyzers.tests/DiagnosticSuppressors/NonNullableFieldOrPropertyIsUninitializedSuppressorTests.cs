@@ -481,5 +481,46 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             RoslynAssert.Suppressed(suppressor, testCode);
         }
+
+        [TestCase("additional_setup_methods")]
+        [TestCase("additional_one_time_setup_methods")]
+        public void DoesDetectWhenFieldIsInitializedInAdditionalSetUpMethod(string configuration)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            public abstract class BaseTest
+            {
+	            [SetUp]
+	            public void SetUp()
+	            {
+		            OnSetUp();
+	            }
+
+	            protected virtual void OnSetUp()
+	            {
+	            }
+            }
+
+            [TestFixture]
+            public class InheritedTest : BaseTest
+            {
+	            private string ↓field;
+
+	            protected override void OnSetUp()
+	            {
+		            base.OnSetUp();
+		            field = ""SetUpWasCalled"";
+	            }
+
+                [Test]
+                public void Test()
+                {
+                    Assert.That(field, Is.Not.Null.And.Not.Empty);
+                }
+            }");
+
+            string analyzerConfig = $"dotnet_diagnostic.NUnit.{configuration} = OnSetUp";
+            Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
+            RoslynAssert.Suppressed(suppressor, testCode, settings);
+        }
     }
 }

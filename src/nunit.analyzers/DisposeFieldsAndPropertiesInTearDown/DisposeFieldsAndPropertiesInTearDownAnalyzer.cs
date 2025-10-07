@@ -15,7 +15,7 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class DisposeFieldsAndPropertiesInTearDownAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly char[] AdditionalDisposalMethodsSeparators = { ',', ';', ' ' };
+        private static readonly char[] AdditionalDisposalMethodsSeparators = AttributeDataExtensions.AdditionalMethodsSeparators;
 
         // Methods that are considered to be Disposing an instance.
         private static readonly ImmutableHashSet<string> StandardDisposeMethods = ImmutableHashSet.Create(
@@ -149,21 +149,11 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 disposeMethods = disposeMethods.Union(value.Split(AdditionalDisposalMethodsSeparators, StringSplitOptions.RemoveEmptyEntries));
             }
 
-            // Sometimes virtual method are called from base class SetUp/TearDown methods.
-            // Allow the users to specify these as well.
-            ImmutableHashSet<string> additionalSetUpMethods = ImmutableHashSet<string>.Empty;
-            ImmutableHashSet<string> additonalTearDownMethods = ImmutableHashSet<string>.Empty;
-
-            if (options.TryGetValue("dotnet_diagnostic.NUnit1032.additional_setup_methods", out value))
-            {
-                additionalSetUpMethods = additionalSetUpMethods.Union(value.Split(AdditionalDisposalMethodsSeparators,
-                    StringSplitOptions.RemoveEmptyEntries));
-            }
-
-            if (options.TryGetValue("dotnet_diagnostic.NUnit1032.additional_teardown_methods", out value))
-            {
-                additonalTearDownMethods = additonalTearDownMethods.Union(value.Split(AdditionalDisposalMethodsSeparators, StringSplitOptions.RemoveEmptyEntries));
-            }
+            options.GetAdditionalSetUpTearDownMethods(
+                out ImmutableHashSet<string> additionalOneTimeSetUpMethods,
+                out ImmutableHashSet<string> additionalOneTimeTearDownMethods,
+                out ImmutableHashSet<string> additionalSetUpMethods,
+                out ImmutableHashSet<string> additionalTearDownMethods);
 
             HashSet<string> symbolNames = new(symbols.Keys);
 
@@ -171,15 +161,22 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
 
             ImmutableArray<ISymbol> members = typeSymbol.GetMembers();
             var methods = members.OfType<IMethodSymbol>().ToArray();
-            var oneTimeTearDownMethods = methods.Where(m => HasAttribute(m, NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
-            var oneTimeSetUpMethods = methods.Where(m => m.MethodKind == MethodKind.Constructor || HasAttribute(m, NUnitFrameworkConstants.NameOfOneTimeSetUpAttribute)).ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
+            var oneTimeSetUpMethods = methods.Where(m =>
+                    m.MethodKind == MethodKind.Constructor ||
+                    m.HasAttribute(NUnitFrameworkConstants.NameOfOneTimeSetUpAttribute) ||
+                    (m.IsOverride && additionalOneTimeSetUpMethods.Contains(m.Name)))
+                .ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
+            var oneTimeTearDownMethods = methods.Where(m =>
+                    m.HasAttribute(NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute) ||
+                    (m.IsOverride && additionalOneTimeTearDownMethods.Contains(m.Name)))
+                .ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
             var setUpMethods = methods.Where(m =>
-                    HasAttribute(m, NUnitFrameworkConstants.NameOfSetUpAttribute) ||
+                    m.HasAttribute(NUnitFrameworkConstants.NameOfSetUpAttribute) ||
                     (m.IsOverride && additionalSetUpMethods.Contains(m.Name)))
                 .ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
             var tearDownMethods = methods.Where(m =>
-                    HasAttribute(m, NUnitFrameworkConstants.NameOfTearDownAttribute) ||
-                    (m.IsOverride && additonalTearDownMethods.Contains(m.Name)))
+                    m.HasAttribute(NUnitFrameworkConstants.NameOfTearDownAttribute) ||
+                    (m.IsOverride && additionalTearDownMethods.Contains(m.Name)))
                 .ToImmutableHashSet<IMethodSymbol>(SymbolEqualityComparer.Default);
 
             var setUpAndTearDownMethods = oneTimeSetUpMethods.Union(oneTimeTearDownMethods).Union(setUpMethods).Union(tearDownMethods);
@@ -212,21 +209,6 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                 return false;           // Expression body property
 
             return hasConstructors || accessorList.Accessors.Any(accessor => accessor.IsKind(SyntaxKind.SetAccessorDeclaration));
-        }
-
-        private static bool HasAttribute(IMethodSymbol method, string attributeName)
-        {
-            // Look for attribute not only on the method itself but
-            // also on the base method in case this is an override.
-            IEnumerable<AttributeData> attributes = Enumerable.Empty<AttributeData>();
-            for (IMethodSymbol? declaredMethod = method;
-                declaredMethod is not null;
-                declaredMethod = declaredMethod.OverriddenMethod)
-            {
-                attributes = attributes.Concat(declaredMethod.GetAttributes());
-            }
-
-            return attributes.Any(x => x.AttributeClass?.Name == attributeName);
         }
 
         private static void AnalyzeAssignedButNotDisposed(

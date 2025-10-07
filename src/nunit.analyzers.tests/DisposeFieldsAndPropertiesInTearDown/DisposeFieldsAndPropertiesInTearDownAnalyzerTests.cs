@@ -1195,8 +1195,9 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             RoslynAssert.Valid(analyzer, testCode);
         }
 
-        [Test]
-        public void DoesNotFireWhenAdditionalSetUpTearDownMethodsAreConfigured()
+        [TestCase("")]
+        [TestCase("one_time_")]
+        public void DoesNotFireWhenAdditionalSetUpTearDownMethodsAreConfigured(string prefix)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
             public abstract class BaseTest
@@ -1241,9 +1242,9 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             }
             " + DummyDisposable);
 
-            const string analyzerConfig = @"
-dotnet_diagnostic.NUnit1032.additional_setup_methods = OnSetUp
-dotnet_diagnostic.NUnit1032.additional_teardown_methods = OnTearDown
+            string analyzerConfig = @$"
+dotnet_diagnostic.NUnit.additional_{prefix}setup_methods = OnSetUp
+dotnet_diagnostic.NUnit.additional_{prefix}teardown_methods = OnTearDown
 ";
             Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
             RoslynAssert.Valid(analyzer, testCode, settings);
