@@ -375,6 +375,10 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                         AssignedIn(parameters, assignments, tryStatement.Finally.Block);
                     break;
 
+                case UsingStatementSyntax usingStatement:
+                    AssignedIn(parameters, assignments, usingStatement.Statement);
+                    break;
+
                 default:
                     // Anything assigned in a loop is bad as it overrides previous assignments.
                     break;
@@ -556,6 +560,11 @@ namespace NUnit.Analyzers.DisposeFieldsInTearDown
                     DisposedIn(parameters, disposals, tryStatement.Block);
                     if (tryStatement.Finally is not null)
                         DisposedIn(parameters, disposals, tryStatement.Finally.Block);
+                    break;
+
+                case UsingStatementSyntax usingStatement:
+                    // For completeness, but why would you Dispose additional fields in an unrelated Using statement?
+                    DisposedIn(parameters, disposals, usingStatement.Statement);
                     break;
 
                 default:

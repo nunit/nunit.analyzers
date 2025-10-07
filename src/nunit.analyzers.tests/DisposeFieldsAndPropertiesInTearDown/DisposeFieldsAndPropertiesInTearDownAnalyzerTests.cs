@@ -1278,5 +1278,32 @@ dotnet_diagnostic.NUnit1032.additional_teardown_methods = OnTearDown
             Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode, settings);
         }
+
+        [Test]
+        public void ShouldDetectFieldInitializedInUsingStatement()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            [TestFixture]
+            public class TestClass
+            {
+	            private IDisposable? ↓disposable;
+
+                [SetUp]
+                public void SetUp()
+                {
+                    using (var reader = new StreamReader(""Test.config""))
+                    {
+                        string configuration = reader.ReadToEnd();
+                        if (configuration == ""CreateDisposable"")
+                        {
+                            disposable = new DummyDisposable();
+                        }
+                    }
+                }
+            }
+            " + DummyDisposable, "using System.IO;");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
     }
 }

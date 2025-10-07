@@ -100,7 +100,8 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     }
                     while (declaredMethod is not null);
 
-                    var isSetup = attributes.Any(x => x.AttributeClass?.Name is "SetUpAttribute" or "OneTimeSetUpAttribute");
+                    var isSetup = attributes.Any(x => x.AttributeClass?.Name is NUnitFrameworkConstants.NameOfSetUpAttribute
+                                                                             or NUnitFrameworkConstants.NameOfOneTimeSetUpAttribute);
 
                     if (isSetup)
                     {
@@ -155,6 +156,9 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     return IsAssignedIn(model, classDeclaration, visitedMethods, tryStatement.Block, fieldOrPropertyName) ||
                         (tryStatement.Finally is not null &&
                         IsAssignedIn(model, classDeclaration, visitedMethods, tryStatement.Finally.Block, fieldOrPropertyName));
+
+                case UsingStatementSyntax usingStatement:
+                    return IsAssignedIn(model, classDeclaration, visitedMethods, usingStatement.Statement, fieldOrPropertyName);
 
                 default:
                     // Any conditional statement does not guarantee assignment.

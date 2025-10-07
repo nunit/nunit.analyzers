@@ -462,5 +462,24 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             RoslynAssert.Suppressed(suppressor, testCode);
         }
+
+        [Test]
+        public void ShouldDealWithFieldInitializedInUsingStatement()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                private string ↓_configuration;
+
+                [SetUp]
+                public void SetUp()
+                {
+                    using (var reader = new StreamReader(""Test.config""))
+                    {
+                        _configuration = reader.ReadToEnd();
+                    }
+                }
+            ", "using System.IO;");
+
+            RoslynAssert.Suppressed(suppressor, testCode);
+        }
     }
 }
