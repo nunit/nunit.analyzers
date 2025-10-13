@@ -86,6 +86,24 @@ namespace NUnit.Analyzers.Extensions
                 a => a.IsTestMethodAttribute(compilation) || a.IsSetUpOrTearDownMethodAttribute(compilation));
         }
 
+        internal static bool HasAttribute(this IMethodSymbol method, string attributeName)
+        {
+            // Look for attribute not only on the method itself but
+            // also on the base method in case this is an override.
+            for (IMethodSymbol? declaredMethod = method;
+                declaredMethod is not null;
+                declaredMethod = declaredMethod.OverriddenMethod)
+            {
+                foreach (var attribute in declaredMethod.GetAttributes())
+                {
+                    if (attribute.AttributeClass?.Name == attributeName)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
         internal static bool IsTestFixture(this ITypeSymbol typeSymbol, Compilation compilation)
         {
             return typeSymbol.GetAllAttributes().Any(a => a.IsTestFixtureAttribute(compilation)) ||

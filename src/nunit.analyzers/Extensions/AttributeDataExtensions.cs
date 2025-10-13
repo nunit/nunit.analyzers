@@ -1,14 +1,18 @@
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 
 namespace NUnit.Analyzers.Extensions
 {
     internal static class AttributeDataExtensions
     {
+        internal static readonly char[] AdditionalMethodsSeparators = { ',', ';', ' ' };
+
         public static bool DerivesFromISimpleTestBuilder(this AttributeData @this, Compilation compilation)
         {
             return DerivesFromInterface(compilation, @this, NUnitFrameworkConstants.FullNameOfTypeISimpleTestBuilder);
@@ -51,6 +55,41 @@ namespace NUnit.Analyzers.Extensions
                 || attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeOneTimeTearDownAttribute, compilation)
                 || attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeSetUpAttribute, compilation)
                 || attributeType.IsType(NUnitFrameworkConstants.FullNameOfTypeTearDownAttribute, compilation);
+        }
+
+        public static void GetAdditionalSetUpTearDownMethods(this AnalyzerConfigOptions options,
+            out ImmutableHashSet<string> additionalOneTimeSetUpMethods,
+            out ImmutableHashSet<string> additionalOneTimeTearDownMethods,
+            out ImmutableHashSet<string> additionalSetUpMethods,
+            out ImmutableHashSet<string> additionalTearDownMethods)
+        {
+            // Sometimes virtual method are called from base class SetUp/TearDown methods.
+            // Allow the users to specify these as well.
+            additionalOneTimeSetUpMethods = ImmutableHashSet<string>.Empty;
+            additionalOneTimeTearDownMethods = ImmutableHashSet<string>.Empty;
+            additionalSetUpMethods = ImmutableHashSet<string>.Empty;
+            additionalTearDownMethods = ImmutableHashSet<string>.Empty;
+            if (options.TryGetValue("dotnet_diagnostic.NUnit.additional_one_time_setup_methods", out string? value))
+            {
+                additionalOneTimeSetUpMethods = additionalOneTimeSetUpMethods.Union(value.Split(AdditionalMethodsSeparators,
+                    StringSplitOptions.RemoveEmptyEntries));
+            }
+
+            if (options.TryGetValue("dotnet_diagnostic.NUnit.additional_one_time_teardown_methods", out value))
+            {
+                additionalOneTimeTearDownMethods = additionalOneTimeTearDownMethods.Union(value.Split(AdditionalMethodsSeparators, StringSplitOptions.RemoveEmptyEntries));
+            }
+
+            if (options.TryGetValue("dotnet_diagnostic.NUnit.additional_setup_methods", out value))
+            {
+                additionalSetUpMethods = additionalSetUpMethods.Union(value.Split(AdditionalMethodsSeparators,
+                    StringSplitOptions.RemoveEmptyEntries));
+            }
+
+            if (options.TryGetValue("dotnet_diagnostic.NUnit.additional_teardown_methods", out value))
+            {
+                additionalTearDownMethods = additionalTearDownMethods.Union(value.Split(AdditionalMethodsSeparators, StringSplitOptions.RemoveEmptyEntries));
+            }
         }
 
         public static bool IsFixtureLifeCycleAttribute(this AttributeData @this, Compilation compilation)
