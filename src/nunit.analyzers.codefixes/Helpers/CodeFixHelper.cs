@@ -7,6 +7,10 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
 
+// We group the private methods with the public ones for better readability here.
+#pragma warning disable SA1201 // Elements should appear in the correct order
+#pragma warning disable SA1202 // Elements should be ordered by access
+
 namespace NUnit.Analyzers.Helpers
 {
     internal static class CodeFixHelper
@@ -260,6 +264,61 @@ namespace NUnit.Analyzers.Helpers
 
             return SyntaxFactory.Token(SyntaxTriviaList.Empty, SyntaxKind.InterpolatedStringTextToken,
                                        escapedText, text, SyntaxTriviaList.Empty);
+        }
+
+        internal static SyntaxNode UpdateTestMethodSignatureIfNecessary(
+            SyntaxNode root,
+            SyntaxNode original,
+            SyntaxNode replacement,
+            bool shouldBeAsync)
+        {
+            var annotation = new SyntaxAnnotation();
+            var annotatedReplacement = replacement.WithAdditionalAnnotations(annotation);
+            var rootWithAnnotatedReplacement = root.ReplaceNode(original, annotatedReplacement);
+            var replacementInUpdatedRoot = rootWithAnnotatedReplacement.GetAnnotatedNodes(annotation).First();
+
+            var methodDeclaration = replacementInUpdatedRoot.FirstAncestorOrSelf<MethodDeclarationSyntax>();
+
+            if (!shouldBeAsync || methodDeclaration is null || methodDeclaration.Modifiers.Any(SyntaxKind.AsyncKeyword))
+            {
+                return rootWithAnnotatedReplacement;
+            }
+
+            var namespaceDeclaration = methodDeclaration.FirstAncestorOrSelf<NamespaceDeclarationSyntax>();
+            var compilationUnit = methodDeclaration.FirstAncestorOrSelf<CompilationUnitSyntax>();
+            var systemThreadingTasksUsingExists =
+                compilationUnit?.Usings.Any(IsUsingSystemThreadingTasks) is true ||
+                namespaceDeclaration?.Usings.Any(IsUsingSystemThreadingTasks) is true;
+
+            var taskTypeName = GetTaskTypeSyntax(systemThreadingTasksUsingExists);
+
+            var newMethodDeclaration = methodDeclaration
+                .WithModifiers(methodDeclaration.Modifiers.Add(SyntaxFactory.Token(SyntaxKind.AsyncKeyword)))
+                .WithReturnType(taskTypeName);
+
+            return rootWithAnnotatedReplacement.ReplaceNode(methodDeclaration, newMethodDeclaration);
+        }
+
+        internal const string SystemThreadingTasksNamespace = "System.Threading.Tasks";
+        internal const string TaskTypeName = "Task";
+
+        private static bool IsUsingSystemThreadingTasks(UsingDirectiveSyntax u) =>
+            u.Name.ToString() == SystemThreadingTasksNamespace;
+
+        private static TypeSyntax GetTaskTypeSyntax(bool systemThreadingTasksUsingExists)
+            => systemThreadingTasksUsingExists
+                ? SyntaxFactory.ParseTypeName(TaskTypeName)
+                : QualifiedNameFromParts("System", "Threading", "Tasks", TaskTypeName);
+
+        private static NameSyntax QualifiedNameFromParts(params string[] parts)
+        {
+            NameSyntax name = SyntaxFactory.IdentifierName(parts[0]);
+            for (int i = 1; i < parts.Length; i++)
+            {
+                name = SyntaxFactory.QualifiedName(name, SyntaxFactory.IdentifierName(parts[i]));
+            }
+
+            return name;
         }
     }
 }
