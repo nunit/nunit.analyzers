@@ -33,7 +33,7 @@ Features and Enhancements
 * #921 NUnit1032 - disposals in overridden methods not detected
 * #919 NUnit1032/NUnit3002 - local functions not analyzed
 * #918 NUnit2045 - false positive for inline usings
-* #911 NUnit3002 doesn't recognized the using statement.
+* #911 NUnit3002 doesn't recognize the using statement.
 * #910 using declarations not recognized by NUnit2045
 
 Bugs
