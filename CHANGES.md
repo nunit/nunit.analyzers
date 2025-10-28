@@ -1,4 +1,52 @@
-﻿# NUnit Analyzers 4.10 - August 9, 2025
+﻿# NUnit Analyzers 4.11 - October 28, 2025
+
+This release of the NUnit Analyzers includes improvements and fixes related to `IDisposable` handling and initialization 
+in `SetUp` and `OneTimeSetUp` methods. It also introduces the ability to configure additional methods that should be 
+treated as `SetUp` and `TearDown` methods by the analyzers. This can be done in the `.editorconfig`, and there are four 
+configurations for this:
+
+* `dotnet_diagnostic.NUnit.additional_setup_methods`
+* `dotnet_diagnostic.NUnit.additional_teardown_methods`
+* `dotnet_diagnostic.NUnit.additional_one_time_setup_methods`
+* `dotnet_diagnostic.NUnit.additional_one_time_teardown_methods`
+
+Each configuration accepts a list of method names, separated by commas, semicolons, or spaces. For example:
+
+```ini
+dotnet_diagnostic.NUnit.additional_setup_methods = CustomSetup, MyInit
+```
+
+As in recent releases, a major part of this work was contributed by @manfred-brands.
+
+The release contains contributions from the following users (in alphabetical order):
+* @AlisonAMorrison
+* @BodrickLight
+* @cbersch
+* @manfred-brands
+* @mikkelbu
+* @PiotrKlecha
+* @sbe-schleupen
+
+Issues Resolved
+
+Features and Enhancements
+* #921 NUnit1032 - disposals in overriden methods not detected
+* #919 NUnit1032/NUnit3002 - local functions not analyzed
+* #918 NUnit2045 - false positive for inline usings
+* #911 NUnit3002 doesn't recognized the using statement.
+* #910 using declarations not recognized by NUnit2045
+
+Bugs
+* #922 NUnit1001 - false positive for arguments with generic parameters
+* #914 Wrong position of NUnit1001 diagnostic for TestCase with four parameters or more
+
+Tooling, Process, and Documentation
+* #926 chore: Bump NUnit3TestAdapter
+* #908 chore: bump version
+* #885 Bump to NUnit version 4.4 when this is released
+
+
+# NUnit Analyzers 4.10 - August 9, 2025
 
 This release of the NUnit Analyzers contains some minor improvements to NUnit2050, NUnit2056, and NUnit2007 as well
 as some improvements to existing tests. Once again, @manfred-brands was responsible for the majority of the work.
