@@ -30,7 +30,7 @@ The release contains contributions from the following users (in alphabetical ord
 Issues Resolved
 
 Features and Enhancements
-* #921 NUnit1032 - disposals in overriden methods not detected
+* #921 NUnit1032 - disposals in overridden methods not detected
 * #919 NUnit1032/NUnit3002 - local functions not analyzed
 * #918 NUnit2045 - false positive for inline usings
 * #911 NUnit3002 doesn't recognized the using statement.
