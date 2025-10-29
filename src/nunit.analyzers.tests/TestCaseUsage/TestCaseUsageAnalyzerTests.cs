@@ -226,6 +226,23 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeParameterIsArrayOfEnum()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeParameterIsArrayOfEnum
+    {
+        public enum TestEnum { A,B,C }
+
+        [TestCase(new TestEnum[] { })]
+        [TestCase(new TestEnum[] { TestEnum.A })]
+        [TestCase(new TestEnum[] { TestEnum.A, TestEnum.B })]
+        [TestCase(new TestEnum[] { TestEnum.A, TestEnum.B, TestEnum.C })]
+        public void Test(TestEnum[] e) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeParameterIsArrayOfObjectWithGoodArguments()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
