@@ -101,7 +101,7 @@ namespace NUnit.Analyzers.Extensions
             }
 
             if (allowEnumToUnderlyingTypeConversion && targetType.TypeKind == TypeKind.Enum)
-                targetType = namedTargetType?.EnumUnderlyingType;
+                targetType = (targetType as INamedTypeSymbol)?.EnumUnderlyingType;
 
             if (targetType is null)
                 return false;
