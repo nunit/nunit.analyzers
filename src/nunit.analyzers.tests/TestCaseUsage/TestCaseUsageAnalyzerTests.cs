@@ -226,6 +226,23 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeParameterIsArrayOfEnum()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    class AnalyzeParameterIsArrayOfEnum
+    {
+        public enum TestEnum { A,B,C }
+
+        [TestCase(new TestEnum[] { })]
+        [TestCase(new TestEnum[] { TestEnum.A })]
+        [TestCase(new TestEnum[] { TestEnum.A, TestEnum.B })]
+        [TestCase(new TestEnum[] { TestEnum.A, TestEnum.B, TestEnum.C })]
+        public void Test(TestEnum[] e) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeParameterIsArrayOfObjectWithGoodArguments()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
@@ -467,6 +484,20 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeWhenArgumentPassesNullToNullableEnumType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesNullToNullableEnumType
+    {
+        public enum TestEnum { A,B,C }
+
+        [TestCase(null)]
+        public void Test(TestEnum? e) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenArgumentPassesNullToNullableReferenceType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
@@ -554,6 +585,21 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
     {
         [TestCase(2)]
         public void Test(int? a) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenArgumentPassesValueToNullableEnumType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesValueToNullableEnumType
+    {
+        public enum TestEnum { A,B,C }
+
+        [TestCase(TestEnum.A)]
+        [TestCase(TestEnum.B)]
+        public void Test(TestEnum? e) { }
     }");
             RoslynAssert.Valid(this.analyzer, testCode);
         }

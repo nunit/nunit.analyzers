@@ -454,6 +454,20 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         }
 
         [Test]
+        public void AnalyzeWhenArgumentPassesNullToNullableEnumType()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public sealed class AnalyzeWhenArgumentPassesNullToNullableEnumType
+    {
+        public enum TestEnum { A,B,C }
+
+        [Test]
+        public void Test([Values(null)] TestEnum? e) { }
+    }");
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenArgumentPassesNullToNullableReferenceType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
