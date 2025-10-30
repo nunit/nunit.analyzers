@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using System.Composition;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -8,6 +7,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
+using NUnit.Analyzers.Helpers;
 
 namespace NUnit.Analyzers.UseAssertEnterMultipleScope
 {
@@ -16,9 +16,6 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
     public class UseAssertEnterMultipleScopeCodeFix : CodeFixProvider
     {
         internal const string UseAssertEnterMultipleScopeMethod = "Use Assert.EnterMultipleScope method";
-
-        internal const string SystemThreadingTasksNamespace = "System.Threading.Tasks";
-        internal const string TaskTypeName = "Task";
 
         public override ImmutableArray<string> FixableDiagnosticIds
             => ImmutableArray.Create(AnalyzerIdentifiers.UseAssertEnterMultipleScope);
@@ -57,12 +54,9 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
                 expressionStatementSyntax.GetLeadingTrivia(), expressionStatementSyntax.GetTrailingTrivia());
 
             // Replace body syntax and add annotation to have a reference to the new body syntax in the updated root
-            var annotation = new SyntaxAnnotation();
-            var annotatedNewSyntax = newBodySyntax.WithAdditionalAnnotations(annotation);
-            var rootWithAnnotatedBody = root.ReplaceNode(expressionStatementSyntax, annotatedNewSyntax);
-            var newBodySyntaxInUpdatedRoot = rootWithAnnotatedBody.GetAnnotatedNodes(annotation).First();
-
-            var newRoot = UpdateTestMethodSignatureIfNecessary(rootWithAnnotatedBody, newBodySyntaxInUpdatedRoot, lambdaHasAsyncKeyword);
+            var newRoot = CodeFixHelper.UpdateTestMethodSignatureIfNecessary(
+                root, expressionStatementSyntax, newBodySyntax,
+                shouldBeAsync: lambdaHasAsyncKeyword);
 
             var codeAction = CodeAction.Create(
                 UseAssertEnterMultipleScopeMethod,
@@ -95,51 +89,5 @@ namespace NUnit.Analyzers.UseAssertEnterMultipleScope
                             SyntaxFactory.IdentifierName(NUnitV4FrameworkConstants.NameOfEnterMultipleScope))))
                 .WithLeadingTrivia(leadingTrivia)
                 .WithTrailingTrivia(trailingTrivia);
-
-        private static SyntaxNode UpdateTestMethodSignatureIfNecessary(
-            SyntaxNode newRoot,
-            SyntaxNode newSyntaxInTree,
-            bool lambdaHasAsyncKeyword)
-        {
-            var methodDeclaration = newSyntaxInTree.FirstAncestorOrSelf<MethodDeclarationSyntax>();
-
-            if (!lambdaHasAsyncKeyword || methodDeclaration is null || methodDeclaration.Modifiers.Any(SyntaxKind.AsyncKeyword))
-            {
-                return newRoot;
-            }
-
-            var namespaceDeclaration = methodDeclaration.FirstAncestorOrSelf<NamespaceDeclarationSyntax>();
-            var compilationUnit = methodDeclaration.FirstAncestorOrSelf<CompilationUnitSyntax>();
-            var systemThreadingTasksUsingExists =
-                compilationUnit?.Usings.Any(IsUsingSystemThreadingTasks) is true ||
-                namespaceDeclaration?.Usings.Any(IsUsingSystemThreadingTasks) is true;
-
-            var taskTypeName = GetTaskTypeSyntax(systemThreadingTasksUsingExists);
-
-            var newMethodDeclaration = methodDeclaration
-                .WithModifiers(methodDeclaration.Modifiers.Add(SyntaxFactory.Token(SyntaxKind.AsyncKeyword)))
-                .WithReturnType(taskTypeName);
-
-            return newRoot.ReplaceNode(methodDeclaration, newMethodDeclaration);
-        }
-
-        private static bool IsUsingSystemThreadingTasks(UsingDirectiveSyntax u) =>
-            u.Name.ToString() == SystemThreadingTasksNamespace;
-
-        private static TypeSyntax GetTaskTypeSyntax(bool systemThreadingTasksUsingExists)
-            => systemThreadingTasksUsingExists
-                ? SyntaxFactory.ParseTypeName(TaskTypeName)
-                : QualifiedNameFromParts("System", "Threading", "Tasks", TaskTypeName);
-
-        private static NameSyntax QualifiedNameFromParts(params string[] parts)
-        {
-            NameSyntax name = SyntaxFactory.IdentifierName(parts[0]);
-            for (int i = 1; i < parts.Length; i++)
-            {
-                name = SyntaxFactory.QualifiedName(name, SyntaxFactory.IdentifierName(parts[i]));
-            }
-
-            return name;
-        }
     }
 }

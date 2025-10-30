@@ -9,5 +9,7 @@ namespace NUnit.Analyzers.Constants
         internal const string SupportsEnterMultipleScope = nameof(AnalyzerPropertyKeys.SupportsEnterMultipleScope);
 
         internal const string SpecificConstraint = nameof(AnalyzerPropertyKeys.SpecificConstraint);
+
+        internal const string IsAsync = nameof(AnalyzerPropertyKeys.IsAsync);
     }
 }

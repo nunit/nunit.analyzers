@@ -159,12 +159,16 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 Assert.That(function, Is.Not.Null);
                 Assert.That(functionCalled, Is.False);
 
+#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(() => function, Is.Not.Null);
+#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(functionCalled, Is.False);
 
+#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
 #pragma warning disable NUnit2023 // Invalid NullConstraint usage
                 Assert.That(() => function(), Is.Not.Null);
 #pragma warning restore NUnit2023 // Invalid NullConstraint usage
+#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(functionCalled, Is.True);
             });
         }
@@ -187,12 +191,16 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 Assert.That(asyncFunction, Is.Not.Null);
                 Assert.That(functionCalled, Is.False);
 
+#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(() => asyncFunction, Is.Not.Null);
+#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(functionCalled, Is.False);
 
+#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
 #pragma warning disable NUnit2023 // Invalid NullConstraint usage
                 Assert.That(() => asyncFunction(), Is.Not.Null);
 #pragma warning restore NUnit2023 // Invalid NullConstraint usage
+#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(functionCalled, Is.True);
             });
         }
@@ -211,12 +219,16 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 Assert.That(action, Is.Not.Null);
                 Assert.That(actionCalled, Is.False);
 
+#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(() => action, Is.Not.Null);
+#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(actionCalled, Is.False);
 
+#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
 #pragma warning disable NUnit2023 // Invalid NullConstraint usage
                 Assert.That(() => action(), Is.Not.Null);
 #pragma warning restore NUnit2023 // Invalid NullConstraint usage
+#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
 
 #if EXPECT_TEST_DELEGATE_TO_BE_CALLED
             // The above test succeeds, but does not call the action!
