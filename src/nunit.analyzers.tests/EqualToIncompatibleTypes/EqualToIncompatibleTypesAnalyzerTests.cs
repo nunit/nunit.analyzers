@@ -1091,5 +1091,66 @@ using System.Collections.Generic;");
             RoslynAssert.Valid(analyzer, testCode);
         }
 #endif
+
+        [TestCase("1.1f")]
+        [TestCase("2.2f")]
+        public void AnalyzeIsNotNaNOnValidTypes(string actual)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var actual = {actual};
+                Assert.That(actual, Is.Not.NaN);
+            ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("1.1f")]
+        [TestCase("2.2f")]
+        public void AnalyzeIsNaNOnValidTypes(string actual)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var actual = {actual};
+                Assert.That(actual, Is.NaN);
+            ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [TestCase("3.3m")]
+        [TestCase("4")]
+        [TestCase("string.Empty")]
+        public void AnalyzeIsNotNaNOnUnsupportedTypes(string actual)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var actual = {actual};
+                Assert.That(actual, Is.Not.NaN);
+            ");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [TestCase("3.3m")]
+        [TestCase("4")]
+        [TestCase("string.Empty")]
+        public void AnalyzeIsNaNOnUnsupportedTypes(string actual)
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                var actual = {actual};
+                Assert.That(actual, Is.Positive.And.↓Not.NaN);
+            ");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
+        public void AnalyzeOnNullableDouble()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                double? actual = Math.PI;
+                Assert.That(actual, Is.Not.NaN);
+            ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
     }
 }

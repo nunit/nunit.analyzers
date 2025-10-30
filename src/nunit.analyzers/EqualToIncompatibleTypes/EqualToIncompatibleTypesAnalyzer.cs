@@ -46,6 +46,12 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
 
                 var actualType = AssertHelper.GetUnwrappedActualType(actualOperation);
 
+                if (actualType is null)
+                    return;
+
+                if (actualType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
+                    actualType = ((INamedTypeSymbol)actualType).TypeArguments[0];
+
                 foreach (var constraintPartExpression in constraintExpression.ConstraintParts)
                 {
                     if (constraintPartExpression.HasIncompatiblePrefixes()
@@ -93,6 +99,17 @@ namespace NUnit.Analyzers.EqualToIncompatibleTypes
 
                             actualType = context.Compilation.GetTypeByMetadataName(typeName);
                         }
+
+                        continue;
+                    }
+
+                    if (actualType is not null &&
+                        actualType.SpecialType is not SpecialType.System_Single and not SpecialType.System_Double &&
+                        constraintPartExpression.GetConstraintName() == NUnitFrameworkConstants.NameOfIsNaN)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(
+                            descriptor,
+                            constraintPartExpression.GetLocation()));
 
                         continue;
                     }
