@@ -121,6 +121,7 @@ Rules which improve assertions in the test code.
 | [NUnit2055](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2055.md) | Consider using Is.InstanceOf\<T> constraint instead of an 'is T' expression | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2056](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2056.md) | Consider using Assert.EnterMultipleScope statement instead of Assert.Multiple/Assert.MultipleAsync | :white_check_mark: | :information_source: | :white_check_mark: |
 | [NUnit2057](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2057.md) | Remove unnecessary lambda expression | :white_check_mark: | :information_source: | :white_check_mark: |
+| [NUnit2058](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit2058.md) | The constraint is misused | :white_check_mark: | :warning: | :white_check_mark: |
 
 ## Suppressor Rules (NUnit3001 - )
 
