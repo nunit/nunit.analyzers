@@ -20,6 +20,8 @@ namespace NUnit.Analyzers.Operations
             this.expressionOperation = expressionOperation;
         }
 
+        public IOperation Operation => this.expressionOperation;
+
         public ConstraintExpressionPart[] ConstraintParts
         {
             get
