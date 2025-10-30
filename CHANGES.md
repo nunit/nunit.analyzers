@@ -1,4 +1,25 @@
-﻿# NUnit Analyzers 4.11 - October 28, 2025
+﻿# NUnit Analyzers 4.11.1 - October 30, 2025
+
+This release of the NUnit Analyzers fixes a regression related to the analysis of nullable enum parameters in
+`NUnit1001` and `NUnit1031`. The release also contains a new analyzer and codefix for unnecessary usage of lambda
+expressions in asserts.
+
+The release contains contributions from the following users (in alphabetical order):
+* @MaceWindu
+* @maksim-sovkov
+* @manfred-brands
+
+Issues Resolved
+
+Features and Enhancements
+* #927 Add new rule for unnecessary use of lambda expressions
+
+Bugs
+* #939 NUnit1001 - false positive for arguments with nullable enum parameters
+* #938 [NUnit1031] False positive for nullable structs
+
+
+# NUnit Analyzers 4.11 - October 28, 2025
 
 This release of the NUnit Analyzers includes improvements and fixes related to `IDisposable` handling and initialization 
 in `SetUp` and `OneTimeSetUp` methods. It also introduces the ability to configure additional methods that should be 
