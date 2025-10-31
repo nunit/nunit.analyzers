@@ -1123,7 +1123,7 @@ using System.Collections.Generic;");
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 var actual = {actual};
-                Assert.That(actual, Is.Not.NaN);
+                Assert.That(actual, ↓Is.Not.NaN);
             ");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
@@ -1136,7 +1136,7 @@ using System.Collections.Generic;");
         {
             var testCode = TestUtility.WrapInTestMethod(@$"
                 var actual = {actual};
-                Assert.That(actual, Is.Positive.And.↓Not.NaN);
+                Assert.That(actual, Is.Positive.Or.↓NaN);
             ");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
@@ -1148,6 +1148,7 @@ using System.Collections.Generic;");
             var testCode = TestUtility.WrapInTestMethod(@$"
                 double? actual = Math.PI;
                 Assert.That(actual, Is.Not.NaN);
+                Assert.That(actual, Is.EqualTo(Math.PI));
             ");
 
             RoslynAssert.Valid(analyzer, testCode);
