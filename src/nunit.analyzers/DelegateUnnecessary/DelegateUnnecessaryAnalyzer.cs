@@ -36,27 +36,28 @@ namespace NUnit.Analyzers.DelegateUnnecessary
                 return;
             }
 
-            foreach (var constraintPart in constraintExpression.ConstraintParts)
+            Operations.ConstraintExpressionPart[] constraintParts = constraintExpression.ConstraintParts;
+            if (constraintParts.Length == 0 ||
+                constraintParts[0].HelperClass?.Name == NUnitFrameworkConstants.NameOfThrows ||
+                constraintParts.Any(constraintPart => constraintPart.Suffixes.Any(IsDelayedConstraint)))
             {
-                if (constraintPart.HelperClass?.Name != NUnitFrameworkConstants.NameOfThrows &&
-                    !constraintPart.Suffixes.Any(IsDelayedConstraint))
-                {
-                    ImmutableDictionary<string, string?>? properties = null;
-
-                    if (actualOperation.Type?.ToString()?.Contains("System.Threading.Tasks.Task") is true)
-                    {
-                        var builder = ImmutableDictionary.CreateBuilder<string, string?>();
-                        builder.Add(AnalyzerPropertyKeys.IsAsync, null);
-                        properties = builder.ToImmutable();
-                    }
-
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        Descriptor,
-                        actualOperation.Syntax.GetLocation(),
-                        properties,
-                        actualOperation.ToString()));
-                }
+                return;
             }
+
+            ImmutableDictionary<string, string?>? properties = null;
+
+            if (actualOperation.Type?.ToString()?.Contains("System.Threading.Tasks.Task") is true)
+            {
+                var builder = ImmutableDictionary.CreateBuilder<string, string?>();
+                builder.Add(AnalyzerPropertyKeys.IsAsync, null);
+                properties = builder.ToImmutable();
+            }
+
+            context.ReportDiagnostic(Diagnostic.Create(
+                Descriptor,
+                actualOperation.Syntax.GetLocation(),
+                properties,
+                actualOperation.ToString()));
         }
 
         private static bool IsDelayedConstraint(IOperation operation)
