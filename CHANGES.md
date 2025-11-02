@@ -7,6 +7,7 @@ are used on incompatible types.
 The release contains contributions from the following users (in alphabetical order):
 * @MaceWindu
 * @manfred-brands
+* @stevenaw
 
 Issues Resolved
 
