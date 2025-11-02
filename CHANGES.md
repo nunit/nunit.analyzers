@@ -1,4 +1,19 @@
-﻿# NUnit Analyzers 4.11.1 - October 30, 2025
+﻿# NUnit Analyzers 4.11.2 - November 2, 2025
+
+This release of the NUnit Analyzers fixes a problem in the `NUnit2057` analyzer for unnecessary use of lambda 
+expressions.
+
+The release contains contributions from the following users (in alphabetical order):
+* @MaceWindu
+* @manfred-brands
+
+Issues Resolved
+
+Bugs
+* #945 [NUnit2057] Reported for Throws assert
+
+
+# NUnit Analyzers 4.11.1 - October 30, 2025
 
 This release of the NUnit Analyzers fixes a regression related to the analysis of nullable enum parameters in
 `NUnit1001` and `NUnit1031`. The release also contains a new analyzer and codefix for unnecessary usage of lambda
