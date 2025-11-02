@@ -44,6 +44,19 @@ namespace NUnit.Analyzers.Tests.DelegateUnnecessary
             RoslynAssert.Valid(analyzer, testCode);
         }
 
+        [TestCase("Throws.InstanceOf<InvalidOperationException>().Or.InstanceOf<ArgumentException>()")]
+        [TestCase("Throws.InvalidOperationException.With.Message.EqualTo(\"Oops!\")")]
+        [TestCase("Is.Null.Or.EqualTo(42).After(100).MilliSeconds")]
+        public void AnalyzeWhenNecessaryDelegateProvidedMultipleConstraints(string constraint)
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+                Assert.That(MyOperation, {constraint});
+                int? MyOperation() => throw new InvalidOperationException(""Oops!"");
+            ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
         [Test]
         public void AnalyzeWhenNecessaryDelegateLocalProvided()
         {
