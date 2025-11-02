@@ -1,7 +1,7 @@
 ﻿# NUnit Analyzers 4.11.2 - November 2, 2025
 
 This release of the NUnit Analyzers fixes a problem in the `NUnit2057` analyzer for unnecessary use of lambda 
-expressions. The release also extends `NUnit2021` so that it can determining if `Is.NaN` or `Is.Not.NaN` constraints
+expressions. The release also extends `NUnit2021` so that it can determine if `Is.NaN` or `Is.Not.NaN` constraints
 are used on incompatible types.
 
 The release contains contributions from the following users (in alphabetical order):
