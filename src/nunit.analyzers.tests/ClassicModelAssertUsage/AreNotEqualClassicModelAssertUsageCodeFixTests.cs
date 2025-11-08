@@ -217,5 +217,44 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription,
                 settings: settings);
         }
+
+        [Test]
+        public void CodeFixDoesNotUseIsEmpty()
+        {
+            var code = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class TestClass
+    {
+        [Test]
+        public void TestMethod()
+        {
+            var rangeValue = Range.Empty;
+            ↓ClassicAssert.AreNotEqual(Range.Empty, rangeValue);
+        }
+
+        public record struct Range(int Start, int End)
+        {
+            public static Range Empty { get; } = new Range(0, 0);
+        }
+    }");
+
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class TestClass
+    {
+        [Test]
+        public void TestMethod()
+        {
+            var rangeValue = Range.Empty;
+            Assert.That(rangeValue, Is.Not.EqualTo(Range.Empty));
+        }
+
+        public record struct Range(int Start, int End)
+        {
+            public static Range Empty { get; } = new Range(0, 0);
+        }
+    }");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+                fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
     }
 }

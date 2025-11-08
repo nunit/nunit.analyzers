@@ -409,5 +409,89 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription,
                 settings: settings);
         }
+
+        [Test]
+        public void CodeFixUsesIsEmpty()
+        {
+            const string usingSystemCollectionsImmutable = "using System.Collections.Generic;";
+
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        [Test]
+        public void TestMethod()
+        {{
+            MyCollection value = new MyCollection();
+            ↓ClassicAssert.AreEqual(MyCollection.Empty, value);
+        }}
+
+        public class MyCollection : List<int>
+        {{
+            public static readonly MyCollection Empty = new MyCollection();
+        }}",
+            usingSystemCollectionsImmutable);
+
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
+        [Test]
+        public void TestMethod()
+        {{
+            MyCollection value = new MyCollection();
+            Assert.That(value, Is.Empty);
+        }}
+
+        public class MyCollection : List<int>
+        {{
+            public static readonly MyCollection Empty = new MyCollection();
+        }}",
+            usingSystemCollectionsImmutable);
+
+            IEnumerable<MetadataReference> existingReferences = Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>();
+
+            Settings settings = Settings.Default
+                                        .WithMetadataReferences(existingReferences.Concat(MetadataReferences.Transitive(typeof(ImmutableArray<>))));
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+                fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription,
+                settings: settings);
+        }
+
+        [Test]
+        public void CodeFixDoesNotUseIsEmpty()
+        {
+            var code = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class TestClass
+    {
+        [Test]
+        public void TestMethod()
+        {
+            var rangeValue = Range.Empty;
+            ↓ClassicAssert.AreEqual(Range.Empty, rangeValue);
+        }
+
+        public enum Range
+        {
+            Empty,
+            Full
+        }
+    }");
+
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    public class TestClass
+    {
+        [Test]
+        public void TestMethod()
+        {
+            var rangeValue = Range.Empty;
+            Assert.That(rangeValue, Is.EqualTo(Range.Empty));
+        }
+
+        public enum Range
+        {
+            Empty,
+            Full
+        }
+    }");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
+                fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+        }
     }
 }
