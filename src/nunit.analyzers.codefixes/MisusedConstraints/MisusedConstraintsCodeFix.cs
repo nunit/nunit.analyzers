@@ -40,23 +40,13 @@ namespace NUnit.Analyzers.MisusedConstraints
             if (argument is null)
                 return;
 
-            ExpressionSyntax expression = IdentifierName(NUnitFrameworkConstants.NameOfIs);
-
-            expression = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                expression,
-                IdentifierName(NUnitFrameworkConstants.NameOfIsNot));
-            expression = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                expression,
-                IdentifierName(NUnitFrameworkConstants.NameOfIsNull));
-            expression = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                expression,
-                IdentifierName(NUnitFrameworkConstants.NameOfConstraintExpressionAnd));
-            expression = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                expression,
-                IdentifierName(NUnitFrameworkConstants.NameOfIsNot));
-            expression = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
-                expression,
-                IdentifierName(NUnitFrameworkConstants.NameOfIsEmpty));
+            ExpressionSyntax expression = CreateExpressionSyntax(
+                NUnitFrameworkConstants.NameOfIs,
+                NUnitFrameworkConstants.NameOfIsNot,
+                NUnitFrameworkConstants.NameOfIsNull,
+                NUnitFrameworkConstants.NameOfConstraintExpressionAnd,
+                NUnitFrameworkConstants.NameOfIsNot,
+                NUnitFrameworkConstants.NameOfIsEmpty);
 
             var newRoot = root
                 .ReplaceNode(argument.Expression, expression);
@@ -67,6 +57,19 @@ namespace NUnit.Analyzers.MisusedConstraints
                 FixMisusedConstraint);
 
             context.RegisterCodeFix(codeAction, context.Diagnostics);
+        }
+
+        private static ExpressionSyntax CreateExpressionSyntax(string initialIdentifier, params string[] identifierNames)
+        {
+            ExpressionSyntax expression = IdentifierName(initialIdentifier);
+            foreach (var member in identifierNames)
+            {
+                expression = MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                    expression,
+                    IdentifierName(member));
+            }
+
+            return expression;
         }
     }
 }
