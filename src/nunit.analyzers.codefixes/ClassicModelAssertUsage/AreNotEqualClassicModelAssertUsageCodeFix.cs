@@ -6,7 +6,6 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.Helpers;
 
 namespace NUnit.Analyzers.ClassicModelAssertUsage
 {
@@ -24,7 +23,9 @@ namespace NUnit.Analyzers.ClassicModelAssertUsage
             var expectedArgument = argumentNamesToArguments[NUnitFrameworkConstants.NameOfExpectedParameter].WithNameColon(null);
             ExpressionSyntax constraint;
 
-            if (CodeFixHelper.IsEmpty(expectedArgument.Expression))
+            bool isEmpty = !string.IsNullOrEmpty(diagnostic.Properties[AnalyzerPropertyKeys.IsEmptyCandidate]);
+
+            if (isEmpty)
             {
                 constraint = SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
