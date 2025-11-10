@@ -25,8 +25,10 @@ namespace NUnit.Analyzers.Tests.InstanceOf
         [TestCase("\"some string\"", "string", "")]
         [TestCase("Task.FromResult(0)", "Task<int>", "")]
         [TestCase("\"some string\"", "string", ", Is.True")]
+        [TestCase("\"some string\"", "string", ", Is.Not.True")]
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.True")]
         [TestCase("\"some string\"", "string", ", Is.False")]
+        [TestCase("\"some string\"", "string", ", Is.Not.True")]
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.False")]
         public void VerifyInstanceOfCodeFix(string instanceValue, string typeExpression, string constraintString)
         {
@@ -34,7 +36,8 @@ namespace NUnit.Analyzers.Tests.InstanceOf
                 @$"var instance = {instanceValue};
                 Assert.That(↓instance is {typeExpression}{constraintString});");
 
-            var expectedConstraint = constraintString == ", Is.False" ? "Is.Not.InstanceOf" : "Is.InstanceOf";
+            var expectedConstraint = constraintString is ", Is.False" or ", Is.Not.True" ?
+                "Is.Not.InstanceOf" : "Is.InstanceOf";
             var fixedCode = TestUtility.WrapInTestMethod(
                 @$"var instance = {instanceValue};
                 Assert.That(instance, {expectedConstraint}<{typeExpression}>());");
