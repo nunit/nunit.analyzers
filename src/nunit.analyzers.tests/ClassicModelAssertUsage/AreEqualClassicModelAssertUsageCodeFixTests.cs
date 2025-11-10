@@ -413,7 +413,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void CodeFixUsesIsEmpty()
         {
-            const string usingSystemCollectionsImmutable = "using System.Collections.Generic;";
+            const string usingSystemCollectionsGeneric = "using System.Collections.Generic;";
 
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [Test]
@@ -427,7 +427,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {{
             public static readonly MyCollection Empty = new MyCollection();
         }}",
-            usingSystemCollectionsImmutable);
+            usingSystemCollectionsGeneric);
 
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
         [Test]
@@ -441,16 +441,10 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {{
             public static readonly MyCollection Empty = new MyCollection();
         }}",
-            usingSystemCollectionsImmutable);
-
-            IEnumerable<MetadataReference> existingReferences = Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>();
-
-            Settings settings = Settings.Default
-                                        .WithMetadataReferences(existingReferences.Concat(MetadataReferences.Transitive(typeof(ImmutableArray<>))));
+            usingSystemCollectionsGeneric);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription,
-                settings: settings);
+                fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
