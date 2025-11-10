@@ -104,6 +104,7 @@ namespace NUnit.Analyzers.Constants
         internal const string InstanceOf = "NUnit2055";
         internal const string UseAssertEnterMultipleScope = "NUnit2056";
         internal const string DelegateUnnecessary = "NUnit2057";
+        internal const string MisusedConstraints = "NUnit2058";
 
         #endregion Assertion
 
