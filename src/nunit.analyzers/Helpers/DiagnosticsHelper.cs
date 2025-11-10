@@ -37,7 +37,8 @@ namespace NUnit.Analyzers.Helpers
 
             if (operation is ILiteralOperation literalOperation &&
                 literalOperation.ConstantValue.HasValue &&
-                string.IsNullOrEmpty(literalOperation.ConstantValue.ToString()))
+                literalOperation.ConstantValue.Value is string s &&
+                string.IsNullOrEmpty(s))
             {
                 // Argument empty string literal.
                 return true;
@@ -80,7 +81,7 @@ namespace NUnit.Analyzers.Helpers
                     return true;
                 }
 
-                string typeString = type.ToString()!;
+                string? typeString = type.ToString();
                 if (typeString is "System.Guid"
                                or "System.IO.DirectoryInfo")
                 {
@@ -95,7 +96,8 @@ namespace NUnit.Analyzers.Helpers
                     return true;
                 }
 
-                if (type is INamedTypeSymbol namedType && namedType.MemberNames.Contains("Count"))
+                if (type is INamedTypeSymbol namedType &&
+                    namedType.MemberNames.Contains("Count"))
                 {
                     // Type has a Count property.
                     return true;
