@@ -28,7 +28,7 @@ namespace NUnit.Analyzers.Tests.InstanceOf
         [TestCase("\"some string\"", "string", ", Is.Not.True")]
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.True")]
         [TestCase("\"some string\"", "string", ", Is.False")]
-        [TestCase("\"some string\"", "string", ", Is.Not.True")]
+        [TestCase("\"some string\"", "string", ", Is.Not.False")]
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.False")]
         public void VerifyInstanceOfCodeFix(string instanceValue, string typeExpression, string constraintString)
         {
