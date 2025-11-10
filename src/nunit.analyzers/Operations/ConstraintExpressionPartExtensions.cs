@@ -9,5 +9,17 @@ namespace NUnit.Analyzers.Operations
         {
             return constraintPartExpression.GetSuffixesNames().Any(s => s == NUnitFrameworkConstants.NameOfEqualConstraintUsing);
         }
+
+        public static bool? IsTrueOrFalse(this ConstraintExpressionPart constraintExpressionPart)
+        {
+            bool not = constraintExpressionPart.GetPrefix(NUnitFrameworkConstants.NameOfIsNot) is not null;
+
+            return constraintExpressionPart.GetConstraintName() switch
+            {
+                NUnitFrameworkConstants.NameOfIsTrue => !not,
+                NUnitFrameworkConstants.NameOfIsFalse => not,
+                _ => null,
+            };
+        }
     }
 }

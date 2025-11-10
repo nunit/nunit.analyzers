@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -12,15 +13,15 @@ namespace NUnit.Analyzers.Operations
     /// </summary>
     internal class ConstraintExpression
     {
-        private readonly IOperation expressionOperation;
+        private readonly IOperation? expressionOperation;
         private ConstraintExpressionPart[]? constraintParts;
 
-        public ConstraintExpression(IOperation expressionOperation)
+        public ConstraintExpression(IOperation? expressionOperation)
         {
             this.expressionOperation = expressionOperation;
         }
 
-        public IOperation Operation => this.expressionOperation;
+        public IOperation? Operation => this.expressionOperation;
 
         public ConstraintExpressionPart[] ConstraintParts
         {
@@ -28,9 +29,11 @@ namespace NUnit.Analyzers.Operations
             {
                 if (this.constraintParts is null)
                 {
-                    this.constraintParts = SplitConstraintByOperators(this.expressionOperation)
-                        .Select(part => new ConstraintExpressionPart(part))
-                        .ToArray();
+                    this.constraintParts = this.expressionOperation is null
+                        ? Array.Empty<ConstraintExpressionPart>()
+                        : SplitConstraintByOperators(this.expressionOperation)
+                            .Select(part => new ConstraintExpressionPart(part))
+                            .ToArray();
                 }
 
                 return this.constraintParts;
