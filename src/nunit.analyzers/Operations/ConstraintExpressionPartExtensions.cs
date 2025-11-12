@@ -12,7 +12,8 @@ namespace NUnit.Analyzers.Operations
 
         public static bool? IsTrueOrFalse(this ConstraintExpressionPart constraintExpressionPart)
         {
-            bool not = constraintExpressionPart.GetPrefix(NUnitFrameworkConstants.NameOfIsNot) is not null;
+            int notCount = constraintExpressionPart.GetPrefixesNames().Count(name => name == NUnitFrameworkConstants.NameOfIsNot);
+            bool not = notCount % 2 == 1;
 
             return constraintExpressionPart.GetConstraintName() switch
             {
