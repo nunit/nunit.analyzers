@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Extensions;
-
+using NUnit.Analyzers.Helpers;
+using NUnit.Analyzers.Operations;
 using static NUnit.Analyzers.Constants.NUnitFrameworkConstants;
 using static NUnit.Analyzers.Constants.NUnitLegacyFrameworkConstants;
 
@@ -69,49 +69,44 @@ namespace NUnit.Analyzers.ConstraintUsage
                 return;
             }
 
-            var constraintExpression = assertOperation.GetArgumentOperation(NameOfExpressionParameter);
-
-            // Constraint should be either absent, or Is.True, or Is.False
-            if (constraintExpression is not null)
+            if (AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
+                out var actualOperation, out var constraintExpression))
             {
-                if (!(constraintExpression is IPropertyReferenceOperation propertyReference
-                    && propertyReference.Property.ContainingType.Name == NameOfIs
-                    && (propertyReference.Property.Name == NameOfIsTrue
-                        || propertyReference.Property.Name == NameOfIsFalse)))
-                {
-                    return;
-                }
+                bool? isTrue = constraintExpression.IsTrueOrFalse();
 
-                if (propertyReference.Property.Name == NameOfIsFalse)
-                {
+                if (isTrue is null)
+                    return; // Neither true nor false, cannot analyze.
+
+                if (isTrue is false)
                     negated = !negated;
-                }
+            }
+            else
+            {
+                // Classic Assert methods like Assert.IsTrue(condition)
+                actualOperation = assertOperation.GetArgumentOperation(NameOfConditionParameter);
             }
 
-            var actual = assertOperation.GetArgumentOperation(NameOfActualParameter)
-                ?? assertOperation.GetArgumentOperation(NameOfConditionParameter);
-
-            if (actual is null)
+            if (actualOperation is null)
                 return;
 
-            if (IsPrefixNotOperation(actual, out var unwrappedActual))
+            if (IsPrefixNotOperation(actualOperation, out var unwrappedActual))
             {
                 negated = !negated;
             }
 
-            var (descriptor, suggestedConstraint, swapOperands) = this.GetDiagnosticDataWithPossibleSwapOperands(context, unwrappedActual ?? actual, negated);
+            var (descriptor, suggestedConstraint, swapOperands) = this.GetDiagnosticDataWithPossibleSwapOperands(context, unwrappedActual, negated);
 
             if (descriptor is not null && suggestedConstraint is not null)
             {
                 var properties = ImmutableDictionary.CreateBuilder<string, string?>();
                 properties.Add(SuggestedConstraintString, suggestedConstraint);
                 properties.Add(SwapOperands, swapOperands.ToString());
-                var diagnostic = Diagnostic.Create(descriptor, actual.Syntax.GetLocation(), properties.ToImmutable(), suggestedConstraint);
+                var diagnostic = Diagnostic.Create(descriptor, actualOperation.Syntax.GetLocation(), properties.ToImmutable(), suggestedConstraint);
                 context.ReportDiagnostic(diagnostic);
             }
         }
 
-        private static bool IsPrefixNotOperation(IOperation operation, [NotNullWhen(true)] out IOperation? operand)
+        private static bool IsPrefixNotOperation(IOperation operation, out IOperation operand)
         {
             if (operation is IUnaryOperation unaryOperation
                 && unaryOperation.OperatorKind == UnaryOperatorKind.Not)
@@ -121,7 +116,7 @@ namespace NUnit.Analyzers.ConstraintUsage
             }
             else
             {
-                operand = null;
+                operand = operation;
                 return false;
             }
         }

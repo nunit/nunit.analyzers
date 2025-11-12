@@ -24,10 +24,21 @@ namespace NUnit.Analyzers.Helpers
             [NotNullWhen(true)] out ConstraintExpression? constraintExpression)
         {
             if (assertOperation.TargetMethod.Name == NUnitFrameworkConstants.NameOfAssertThat
-                && assertOperation.Arguments.Length >= 2)
+                && assertOperation.Arguments.Length >= 1)
             {
+                // The parameter name of the actual operation is not consistent in NUnit.
+                // It could be `condition`, `code`, `del` or `actual`.
+                // For now we retrieve it by index
                 actualOperation = assertOperation.Arguments[0].Value;
-                constraintExpression = new ConstraintExpression(assertOperation.Arguments[1].Value);
+
+                // The parameter name of the constraint parameter is not consistent in NUnit
+                // It could be `expr`, `expession` or `constraint`.
+                // If the first parameter is named 'condition', then the constraint is omitted.
+                constraintExpression =
+                    assertOperation.Arguments.Length == 1 ||
+                    assertOperation.TargetMethod.Parameters[0].Name == NUnitFrameworkConstants.NameOfConditionParameter
+                    ? new ConstraintExpression(null)
+                    : new ConstraintExpression(assertOperation.Arguments[1].Value);
                 return true;
             }
             else

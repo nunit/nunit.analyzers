@@ -25,16 +25,29 @@ namespace NUnit.Analyzers.Tests.InstanceOf
         [TestCase("\"some string\"", "string", "")]
         [TestCase("Task.FromResult(0)", "Task<int>", "")]
         [TestCase("\"some string\"", "string", ", Is.True")]
+        [TestCase("\"some string\"", "string", ", Is.Not.Not.True")]
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.True")]
+        [TestCase("\"some string\"", "string", ", Is.Not.False")]
+        public void VerifyInstanceOfCodeFix(string instanceValue, string typeExpression, string actualConstraint)
+        {
+            VerifyInstanceOfCodeFix(instanceValue, typeExpression, actualConstraint, "Is.InstanceOf");
+        }
+
+        [TestCase("\"some string\"", "string", ", Is.Not.True")]
         [TestCase("\"some string\"", "string", ", Is.False")]
+        [TestCase("\"some string\"", "string", ", Is.Not.Not.False")]
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.False")]
-        public void VerifyInstanceOfCodeFix(string instanceValue, string typeExpression, string constraintString)
+        public void VerifyNotInstanceOfCodeFix(string instanceValue, string typeExpression, string actualConstraint)
+        {
+            VerifyInstanceOfCodeFix(instanceValue, typeExpression, actualConstraint, "Is.Not.InstanceOf");
+        }
+
+        private static void VerifyInstanceOfCodeFix(string instanceValue, string typeExpression, string actualConstraint, string expectedConstraint)
         {
             var code = TestUtility.WrapInTestMethod(
                 @$"var instance = {instanceValue};
-                Assert.That(↓instance is {typeExpression}{constraintString});");
+                Assert.That(↓instance is {typeExpression}{actualConstraint});");
 
-            var expectedConstraint = constraintString == ", Is.False" ? "Is.Not.InstanceOf" : "Is.InstanceOf";
             var fixedCode = TestUtility.WrapInTestMethod(
                 @$"var instance = {instanceValue};
                 Assert.That(instance, {expectedConstraint}<{typeExpression}>());");

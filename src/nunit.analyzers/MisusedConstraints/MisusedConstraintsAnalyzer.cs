@@ -41,7 +41,7 @@ namespace NUnit.Analyzers.MisusedConstraints
                 return;
             }
 
-            if (actualOperation is null)
+            if (actualOperation is null || constraintExpression.Operation is null)
                 return;
 
             // Consider the whole constraint expression, not just individual parts,

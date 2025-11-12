@@ -3,7 +3,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.Extensions;
+using NUnit.Analyzers.Helpers;
+using NUnit.Analyzers.Operations;
 
 namespace NUnit.Analyzers.InstanceOf
 {
@@ -24,13 +25,16 @@ namespace NUnit.Analyzers.InstanceOf
 
         protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            var actualOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfActualParameter)
-                ?? assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfConditionParameter);
+            if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
+                out var actualOperation, out var constraintExpression))
+            {
+                return;
+            }
 
             if (actualOperation is null)
                 return;
 
-            var isConstraintTrue = IsConstraintIsTrueOrEmpty(assertOperation);
+            var isConstraintTrue = constraintExpression.IsTrueOrFalse();
 
             if (actualOperation is IIsTypeOperation isTypeOperation && isConstraintTrue is not null)
             {
@@ -43,27 +47,6 @@ namespace NUnit.Analyzers.InstanceOf
                     properties.ToImmutable(),
                     isTypeOperation.TypeOperand.ToString()));
             }
-        }
-
-        private static bool? IsConstraintIsTrueOrEmpty(IInvocationOperation assertOperation)
-        {
-            var expectedOperation = assertOperation.GetArgumentOperation(NUnitFrameworkConstants.NameOfExpressionParameter);
-
-            if (expectedOperation is null)
-                return true;
-
-            if (expectedOperation is not IPropertyReferenceOperation propertyReference
-                || propertyReference.Property.ContainingType.Name != NUnitFrameworkConstants.NameOfIs)
-            {
-                return null;
-            }
-
-            return propertyReference.Property.Name switch
-            {
-                NUnitFrameworkConstants.NameOfIsTrue => true,
-                NUnitFrameworkConstants.NameOfIsFalse => false,
-                _ => null
-            };
         }
     }
 }

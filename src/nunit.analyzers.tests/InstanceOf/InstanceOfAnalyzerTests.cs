@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.InstanceOf
 {
-    public class InstanceOfTests
+    public class InstanceOfAnalyzerTests
     {
         private static readonly DiagnosticAnalyzer analyzer = new InstanceOfAnalyzer();
         private static readonly ExpectedDiagnostic expectedDiagnostic =
@@ -15,6 +15,7 @@ namespace NUnit.Analyzers.Tests.InstanceOf
         [TestCase("\"some string\"", "string", "")]
         [TestCase("Task.FromResult(0)", "Task<int>", "")]
         [TestCase("\"some string\"", "string", ", Is.True")]
+        [TestCase("\"some string\"", "string", ", Is.Not.False")]
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.True")]
         [TestCase("\"some string\"", "string", ", Is.False")]
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.False")]
@@ -39,6 +40,15 @@ namespace NUnit.Analyzers.Tests.InstanceOf
                 var instance = {instanceValue};
                 Assert.That(instance is {typeExpression} myPatternVariable{constraintString});");
 
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void ShouldNotRaiseForClassicAssert()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var instance = ""some string"";
+                ClassicAssert.IsTrue(instance is string);");
             RoslynAssert.Valid(analyzer, testCode);
         }
     }
