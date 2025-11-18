@@ -552,6 +552,34 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
+        public void AnalyzeWhenNumberOfParametersOfTestWillFitIntoParamsArray()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource
+    {
+        [TestCaseSource(↓nameof(TestData))]
+        public void ShortName(params int[] x)
+        {
+            Assert.That(x.Length, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData(int maximum)
+        {
+            for (int i = 1; i <= maximum; i++)
+            {
+                yield return i;
+            }
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            var expectedDiagnostic = ExpectedDiagnostic
+                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters)
+                .WithMessage("The TestCaseSource provides '1' parameter(s), but the Test method expects '0' parameter(s)");
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
