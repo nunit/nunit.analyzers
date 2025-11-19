@@ -552,6 +552,81 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
+        public void NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArray()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource
+    {
+        [TestCaseSource(↓nameof(TestData))]
+        public void ShortName(params int[] x)
+        {
+            Assert.That(x.Length, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData()
+        {
+            for (int i = 1; i <= 3; i++)
+            {
+                yield return i;
+            }
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            RoslynAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArrayForGenericMethod()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource
+    {
+        [TestCaseSource(↓nameof(TestData))]
+        public void ShortName<T>(params T[] x)
+        {
+            Assert.That(x.Length, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData()
+        {
+            for (int i = 1; i <= 3; i++)
+            {
+                yield return i;
+            }
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            RoslynAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoWarningWhenNumberOfParametersOfTestWillFitIntoOptionalParams()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource
+    {
+        [TestCaseSource(↓nameof(TestData))]
+        public void ShortName(int a, int b = 2)
+        {
+            Assert.That(x.Length, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData()
+        {
+            for (int i = 1; i <= 3; i++)
+            {
+                yield return i;
+            }
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            RoslynAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
