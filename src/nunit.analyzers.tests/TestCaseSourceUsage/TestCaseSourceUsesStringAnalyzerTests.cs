@@ -636,7 +636,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCaseSource(nameof(TestData))]
         public static void TestLotsOfNonRequiredParams(params int[] z)
         {
-            Assert.That(z, Is.Not.Default);
+            Assert.That(z, Is.Not.Empty);
         }
 
         static IEnumerable<int[]> TestData()
