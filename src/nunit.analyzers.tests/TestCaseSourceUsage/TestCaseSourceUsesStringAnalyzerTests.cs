@@ -558,7 +558,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     [TestFixture]
     public class NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArray
     {
-        [TestCaseSource(↓nameof(TestData))]
+        [TestCaseSource(nameof(TestData))]
         public void ShortName(params int[] x)
         {
             Assert.That(x.Length, Is.GreaterThanOrEqualTo(0));
@@ -573,7 +573,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }", additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -583,7 +583,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     [TestFixture]
     public class NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArrayForGenericMethod
     {
-        [TestCaseSource(↓nameof(TestData))]
+        [TestCaseSource(nameof(TestData))]
         public void ShortName<T>(params T[] x)
         {
             Assert.That(x.Length, Is.GreaterThanOrEqualTo(0));
@@ -598,7 +598,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }", additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -608,16 +608,10 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     [TestFixture]
     public class NoWarningWhenNumberOfParametersOfTestWillFitIntoOptionalParams
     {
-        [TestCaseSource(↓nameof(TestData))]
+        [TestCaseSource(nameof(TestData))]
         public void ShortName(int a, int b = 2)
         {
-            Assert.That(x.Length, Is.GreaterThanOrEqualTo(0));
-        }
-
-        [TestCaseSource(↓nameof(TestData))]
-        public void ShortName(int a = 1, int b = 2)
-        {
-            Assert.That(x.Length, Is.GreaterThanOrEqualTo(0));
+            Assert.That(a, Is.GreaterThanOrEqualTo(b));
         }
 
         static IEnumerable<int> TestData()
@@ -629,7 +623,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }", additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -639,7 +633,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
     [TestFixture]
     public class NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArrayFlatArgs
     {
-        [TestCaseSource(↓nameof(TestData))]
+        [TestCaseSource(nameof(TestData))]
         public static void TestLotsOfNonRequiredParams(params int[] z)
         {
             Assert.That(z, Is.Not.Default);
@@ -651,7 +645,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
     }", additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
