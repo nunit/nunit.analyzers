@@ -552,6 +552,103 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         }
 
         [Test]
+        public void NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArray()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArray
+    {
+        [TestCaseSource(nameof(TestData))]
+        public void ShortName(params int[] x)
+        {
+            Assert.That(x.Length, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData()
+        {
+            for (int i = 1; i <= 3; i++)
+            {
+                yield return i;
+            }
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArrayForGenericMethod()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArrayForGenericMethod
+    {
+        [TestCaseSource(nameof(TestData))]
+        public void ShortName<T>(params T[] x)
+        {
+            Assert.That(x.Length, Is.GreaterThanOrEqualTo(0));
+        }
+
+        static IEnumerable<int> TestData()
+        {
+            for (int i = 1; i <= 3; i++)
+            {
+                yield return i;
+            }
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoWarningWhenNumberOfParametersOfTestWillFitIntoOptionalParams()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class NoWarningWhenNumberOfParametersOfTestWillFitIntoOptionalParams
+    {
+        [TestCaseSource(nameof(TestData))]
+        public void ShortName(int a, int b = 2)
+        {
+            Assert.That(a, Is.GreaterThanOrEqualTo(b));
+        }
+
+        static IEnumerable<int> TestData()
+        {
+            for (int i = 1; i <= 3; i++)
+            {
+                yield return i;
+            }
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArrayFlatArgs()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [TestFixture]
+    public class NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArrayFlatArgs
+    {
+        [TestCaseSource(nameof(TestData))]
+        public static void TestLotsOfNonRequiredParams(params int[] z)
+        {
+            Assert.That(z, Is.Not.Empty);
+        }
+
+        static IEnumerable<int[]> TestData()
+        {
+            yield return new int[] { 2, 4, 6, 8 };
+        }
+    }", additionalUsings: "using System.Collections.Generic;");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"

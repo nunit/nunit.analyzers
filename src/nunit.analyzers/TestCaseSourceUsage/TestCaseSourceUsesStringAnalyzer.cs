@@ -248,7 +248,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                             var hasCancelAfterAttribute = testMethod.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType)) ||
                                 testMethod.ContainingType.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
 
-                            var (methodRequiredParameters, methodOptionalParameters, _) = testMethod.GetParameterCounts(hasCancelAfterAttribute, cancellationTokenType);
+                            var (methodRequiredParameters, methodOptionalParameters, methodParamsParameters) = testMethod.GetParameterCounts(hasCancelAfterAttribute, cancellationTokenType);
 
                             if (elementType.SpecialType != SpecialType.System_String && (elementType.SpecialType == SpecialType.System_Object || elementType.IsIEnumerable(out _) ||
                                 IsOrDerivesFrom(elementType, context.SemanticModel.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseParameters))))
@@ -257,7 +257,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                                 // The object could hide an array, possibly with a variable number of elements: TestCaseData.Argument.
                                 // Potentially we could examine the body of the TestCaseSource to see if we can determine the exact amount.
                                 // For complex method that is certainly beyond the scope of this.
-                                if (methodRequiredParameters + methodOptionalParameters < 1 && !testMethod.IsGenericMethod)
+                                if (methodRequiredParameters + methodOptionalParameters + methodParamsParameters < 1 && !testMethod.IsGenericMethod)
                                 {
                                     context.ReportDiagnostic(Diagnostic.Create(
                                             mismatchInNumberOfTestMethodParameters,
@@ -268,15 +268,7 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                             }
                             else
                             {
-                                if (methodRequiredParameters != 1)
-                                {
-                                    context.ReportDiagnostic(Diagnostic.Create(
-                                            mismatchInNumberOfTestMethodParameters,
-                                            syntaxNode.GetLocation(),
-                                            1,
-                                            methodRequiredParameters));
-                                }
-                                else
+                                if (methodRequiredParameters == 1)
                                 {
                                     IParameterSymbol testMethodParameter = testMethod.Parameters.First();
 
@@ -289,6 +281,17 @@ namespace NUnit.Analyzers.TestCaseSourceUsage
                                                 testMethodParameter.Type,
                                                 testMethodParameter.Name));
                                     }
+                                }
+                                else if (methodRequiredParameters > 1 ||
+                                    (methodRequiredParameters + methodOptionalParameters + methodParamsParameters == 0))
+                                {
+                                    // more than one required parameter is always a mismatch
+                                    // zero parameters of any kind is also a mismatch
+                                    context.ReportDiagnostic(Diagnostic.Create(
+                                            mismatchInNumberOfTestMethodParameters,
+                                            syntaxNode.GetLocation(),
+                                            1,
+                                            methodRequiredParameters));
                                 }
                             }
                         }
