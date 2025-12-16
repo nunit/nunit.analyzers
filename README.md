@@ -28,11 +28,17 @@ The other analyzer looks for classic model assertions (e.g. `Assert.AreEqual()`,
 
 ## Which version works with Unity Test Framework ##
 
-If your Unity project is made by Unity under 2021.2, then use NUnit.Analyzers v2.x.
+Use the following version depending on your project's Unity version:
 
-If your Unity project is made by Unity 2021.2 or later, then use NUnit.Analyzers v3.3 (v3.4 or later of the analyzers does not work with Unity).
+- Unity 2022.2 or newer: NUnit.Analyzer v3.9.0
+- Unity 2021.2 or newer: NUnit.Analyzer v3.3.0
+- Unity 2020.2 or newer: NUnit.Analyzer v2.10.0
 
-You should use an analyzer built with the same version of Microsoft.CodeAnalysis.CSharp as the one embedded in the Unity Editor.
+> !NOTE  
+> Unity uses specific versions of Microsoft.CodeAnalysis.CSharp, which means not all analyzer versions work with all Unity versions.
+
+> !NOTE  
+> Unity Test Framework is based on NUnit3.5
 
 ## License ##
 
