@@ -561,7 +561,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCaseSource(nameof(TestData))]
         public void ShortName(params int[] x)
         {
-            Assert.That(x.Length, Is.GreaterThanOrEqualTo(0));
+            Assert.That(x, Has.Length.GreaterThanOrEqualTo(0));
         }
 
         static IEnumerable<int> TestData()
