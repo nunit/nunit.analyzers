@@ -366,5 +366,20 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
         }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWhenActualArgumentIsMultipleLines()
+        {
+            var code = TestUtility.WrapInTestMethod($@"
+            var someVeryLongActualVariableName = ""abc"";
+            Assert.That(↓someVeryLongActualVariableName
+                        .Equals(""abc""), Is.True);");
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            var someVeryLongActualVariableName = ""abc"";
+            Assert.That(someVeryLongActualVariableName, Is.EqualTo(""abc""));");
+
+            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+        }
     }
 }

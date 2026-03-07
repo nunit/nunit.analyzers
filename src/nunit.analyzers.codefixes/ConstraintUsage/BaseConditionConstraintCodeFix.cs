@@ -128,7 +128,7 @@ namespace NUnit.Analyzers.ConstraintUsage
 
             var actualArgument = SyntaxFactory.Argument(actual);
             var actualArgumentWithCorrectTrivia = conditionNode is not null
-                ? actualArgument.WithLeadingTrivia(conditionNode.GetLeadingTrivia()) // ignore the trailing trivia, as there is a following argument
+                ? actualArgument.WithLeadingTrivia(conditionNode.GetLeadingTrivia()).WithoutTrailingTrivia() // remove the trailing trivia, as there is a following argument
                 : actualArgument;
 
             var lastOriginalArgument = assertNode.ArgumentList.Arguments.Last();

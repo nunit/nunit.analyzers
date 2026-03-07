@@ -156,5 +156,20 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             RoslynAssert.CodeFix(analyzer, fix, doesNotContainDiagnostic, testCode, fixedCode);
         }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWhenActualArgumentIsMultipleLines()
+        {
+            var testCode = TestUtility.WrapInTestMethod($@"
+            ClassicAssert.IsFalse(↓new[] {{ 1, 2, 3 }}
+                                  .Contains(1), ""message"");",
+                additionalUsings: "using System.Linq;");
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(new[] {{ 1, 2, 3 }}, Does.Not.Contain(1), ""message"");",
+                additionalUsings: "using System.Linq;");
+
+            RoslynAssert.CodeFix(analyzer, fix, doesNotContainDiagnostic, testCode, fixedCode);
+        }
     }
 }
