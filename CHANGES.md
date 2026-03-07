@@ -1,4 +1,36 @@
-﻿# NUnit Analyzers 4.11.2 - November 2, 2025
+﻿# NUnit Analyzers 4.12 - March 3, 2026
+
+This release of the NUnit Analyzers improves `NUnit1029` to account for `TestCaseSource`
+support for params and optional arguments. It also introduces a new analyzer for incorrect
+usage of `Is.Not.Null.Or.Empty`, fixes regressions in `NUnit2005` and `NUnit2055`, and updates
+NUnit package dependencies.
+
+The release contains contributions from the following users (in alphabetical order):
+* @Dreamescaper
+* @manfred-brands
+* @mikkelbu
+* @nowsprinting
+* @philipp-naused
+* @stevenaw
+
+Issues Resolved
+
+Features and Enhancements
+* #957 Relax NUnit1029 for TestCaseSource where method accepts a single "params" array
+* #189 Warning when `Is.Not.Null.Or.Empty` used
+
+Bugs
+* #953 Code fix for `NUnit2055` can generate invalid code for classic asserts
+* #952 Code fix for `NUnit2005` tries to use `Is.Empty` constraint on incompatible types.
+
+Tooling, Process, and Documentation
+* #973 chore: Bump NUnit version
+* #970 chore: Bump NUnit to version 4.5.0
+* #967 Fix note about works with Unity Test Framework
+* #937 chore: bump version
+
+
+# NUnit Analyzers 4.11.2 - November 2, 2025
 
 This release of the NUnit Analyzers fixes a problem in the `NUnit2057` analyzer for unnecessary use of lambda 
 expressions. The release also extends `NUnit2021` so that it can determine if `Is.NaN` or `Is.Not.NaN` constraints
@@ -1268,3 +1300,4 @@ Process and tooling
  * #185 chore: Bump version
  * #192 Add missing information to nuget package
  * #194 fix: Replace invalid tokens in suffix
+
