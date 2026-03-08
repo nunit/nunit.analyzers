@@ -178,5 +178,24 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
 
             RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
         }
+
+        [Test]
+        public void CodeFixMaintainsReasonableTriviaWhenActualArgumentIsMultipleLines()
+        {
+            var code = TestUtility.WrapInTestMethod($@"
+            Assert.That(↓SomeReallyLongMethodName()
+                        .Contains(""Lorem ipsum dolor sit amet, consectetur adipiscing elit,""),
+                        Is.True);
+
+            string SomeReallyLongMethodName() => ""Long string"";");
+
+            var fixedCode = TestUtility.WrapInTestMethod($@"
+            Assert.That(SomeReallyLongMethodName(),
+                        Does.Contain(""Lorem ipsum dolor sit amet, consectetur adipiscing elit,""));
+
+            string SomeReallyLongMethodName() => ""Long string"";");
+
+            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(AnalyzerIdentifiers.StringContainsConstraintUsage), code, fixedCode);
+        }
     }
 }
