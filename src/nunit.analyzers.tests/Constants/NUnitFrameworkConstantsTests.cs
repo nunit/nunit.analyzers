@@ -160,6 +160,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.FullNameOfActualValueDelegate), typeof(ActualValueDelegate<>)),
             (nameof(NUnitFrameworkConstants.FullNameOfDelayedConstraint), typeof(DelayedConstraint)),
             (nameof(NUnitFrameworkConstants.FullNameOfTestDelegate), typeof(TestDelegate)),
+            (nameof(NUnitFrameworkConstants.FullNameOfAsyncTestDelegate), typeof(AsyncTestDelegate)),
             (nameof(NUnitFrameworkConstants.FullNameOfThrows), typeof(Throws)),
         ];
 

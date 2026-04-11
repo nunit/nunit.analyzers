@@ -289,9 +289,9 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
             var testCode = TestUtility.WrapInTestMethod(@"
                 Func<string> actual = () => """";
                 var expected = """";
-                Assert.That(actual, Is.SameAs(↓expected));");
+                Assert.That(actual, Is.SameAs(expected));");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]

@@ -138,7 +138,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 Action<bool> action = b => {{ }};
                 Assert.That(() => action(true), ↓{constraint});");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -156,19 +156,21 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
 
             Assert.Multiple(() =>
             {
-                Assert.That(function, Is.Not.Null);
-                Assert.That(functionCalled, Is.False);
-
-#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(() => function, Is.Not.Null);
-#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(functionCalled, Is.False);
 
-#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
+#if NUNIT5
+                Assert.That(function, Is.False);
+                Assert.That(functionCalled, Is.True);
+                functionCalled = false;
+#else
 #pragma warning disable NUnit2023 // Invalid NullConstraint usage
-                Assert.That(() => function(), Is.Not.Null);
+                Assert.That(function, Is.Not.Null);
 #pragma warning restore NUnit2023 // Invalid NullConstraint usage
-#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
+                Assert.That(functionCalled, Is.False);
+#endif
+
+                Assert.That(() => function(), Is.False);
                 Assert.That(functionCalled, Is.True);
             });
         }
@@ -188,20 +190,18 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
 
             Assert.Multiple(() =>
             {
+#pragma warning disable NUnit2023 // Invalid NullConstraint usage
                 Assert.That(asyncFunction, Is.Not.Null);
                 Assert.That(functionCalled, Is.False);
 
 #pragma warning disable NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(() => asyncFunction, Is.Not.Null);
-#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(functionCalled, Is.False);
 
-#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
-#pragma warning disable NUnit2023 // Invalid NullConstraint usage
                 Assert.That(() => asyncFunction(), Is.Not.Null);
+                Assert.That(functionCalled, Is.True);
 #pragma warning restore NUnit2023 // Invalid NullConstraint usage
 #pragma warning restore NUnit2057 // Unnecessary DelegateCreation
-                Assert.That(functionCalled, Is.True);
             });
         }
 
@@ -216,24 +216,21 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
 
             Assert.Multiple(() =>
             {
+#pragma warning disable NUnit2023 // Invalid NullConstraint usage
                 Assert.That(action, Is.Not.Null);
                 Assert.That(actionCalled, Is.False);
 
 #pragma warning disable NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(() => action, Is.Not.Null);
-#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(actionCalled, Is.False);
 
-#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
-#pragma warning disable NUnit2023 // Invalid NullConstraint usage
                 Assert.That(() => action(), Is.Not.Null);
-#pragma warning restore NUnit2023 // Invalid NullConstraint usage
-#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
-
 #if EXPECT_TEST_DELEGATE_TO_BE_CALLED
-            // The above test succeeds, but does not call the action!
-            Assert.That(actionCalled, Is.True);
+                // The above test succeeds, but does not call the action!
+                Assert.That(actionCalled, Is.True);
 #endif
+#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
+#pragma warning restore NUnit2023 // Invalid NullConstraint usage
             });
         }
     }

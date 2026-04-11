@@ -396,9 +396,9 @@ using System.Collections.Generic;");
             var testCode = TestUtility.WrapInTestMethod(@"
                 Func<string> actual = () => """";
                 var expected = """";
-                Assert.That(actual, Is.EqualTo(↓expected));");
+                Assert.That(actual, Is.EqualTo(expected));");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
@@ -1151,6 +1151,28 @@ using System.Collections.Generic;");
                 Assert.That(actual, Is.EqualTo(Math.PI));
             ");
 
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeOnFuncReturningDouble()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                Func<double> actual = () => Math.PI;
+                Assert.That(actual, Is.Not.NaN);
+                Assert.That(actual, Is.EqualTo(Math.PI));
+            ");
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeOnAsyncFuncReturningDouble()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@$"
+                Func<Task<double>> actual = () => Task.FromResult(Math.PI);
+                Assert.That(actual, Is.Not.NaN);
+                Assert.That(actual, Is.EqualTo(Math.PI));
+            ");
             RoslynAssert.Valid(analyzer, testCode);
         }
     }
