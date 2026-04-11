@@ -132,16 +132,17 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
 
         [TestCase("Is.Null")]
         [TestCase("Is.Not.Null")]
-        public void AnalyzeWhenActualIsTestDelegate(string constraint)
+        public void ValidWhenActualIsTestDelegate(string constraint)
         {
             var testCode = TestUtility.WrapInTestMethod($@"
                 Action<bool> action = b => {{ }};
-                Assert.That(() => action(true), ↓{constraint});");
+                Assert.That(() => action(true), {constraint});");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
+        [Explicit("These test are to see what NUnit does with delegates in different circumstances")]
         public void ActualNUnitFunction()
         {
             bool functionCalled = false;
@@ -156,24 +157,27 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
 
             Assert.Multiple(() =>
             {
-                Assert.That(function, Is.Not.Null);
-                Assert.That(functionCalled, Is.False);
-
-#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(() => function, Is.Not.Null);
-#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(functionCalled, Is.False);
 
-#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
+#if NUNIT5
+                Assert.That(function, Is.False);
+                Assert.That(functionCalled, Is.True);
+                functionCalled = false;
+#else
 #pragma warning disable NUnit2023 // Invalid NullConstraint usage
-                Assert.That(() => function(), Is.Not.Null);
+                Assert.That(function, Is.Not.Null);
 #pragma warning restore NUnit2023 // Invalid NullConstraint usage
-#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
+                Assert.That(functionCalled, Is.False);
+#endif
+
+                Assert.That(() => function(), Is.False);
                 Assert.That(functionCalled, Is.True);
             });
         }
 
         [Test]
+        [Explicit("These test are to see what NUnit does with delegates in different circumstances")]
         public void ActualNUnitAsyncFunction()
         {
             bool functionCalled = false;
@@ -188,24 +192,60 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
 
             Assert.Multiple(() =>
             {
+                Assert.That(() => asyncFunction, Is.Not.Null);
+                Assert.That(functionCalled, Is.False);
+
+#pragma warning disable NUnit2023 // Invalid NullConstraint usage
+#if NUNIT5
+                Assert.That(asyncFunction, Is.False);
+                Assert.That(functionCalled, Is.True);
+#else
                 Assert.That(asyncFunction, Is.Not.Null);
                 Assert.That(functionCalled, Is.False);
+#endif
 
-#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
-                Assert.That(() => asyncFunction, Is.Not.Null);
-#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
-                Assert.That(functionCalled, Is.False);
-
-#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
-#pragma warning disable NUnit2023 // Invalid NullConstraint usage
                 Assert.That(() => asyncFunction(), Is.Not.Null);
-#pragma warning restore NUnit2023 // Invalid NullConstraint usage
-#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(functionCalled, Is.True);
+#pragma warning restore NUnit2023 // Invalid NullConstraint usage
             });
         }
 
         [Test]
+        [Explicit("These test are to see what NUnit does with delegates in different circumstances")]
+        public void ActualNUnitAsyncAction()
+        {
+            bool actionCalled = false;
+
+#pragma warning disable IDE0039 // Use local function
+            AsyncTestDelegate asyncAction = () =>
+            {
+                actionCalled = true;
+                return Task.CompletedTask;
+            };
+#pragma warning restore IDE0039 // Use local function
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(() => asyncAction, Is.Not.Null);
+                Assert.That(actionCalled, Is.False);
+
+#pragma warning disable NUnit2023 // Invalid NullConstraint usage
+#if NUNIT5
+                Assert.That(asyncAction, Is.False);
+                Assert.That(actionCalled, Is.True);
+#else
+                Assert.That(asyncAction, Is.Not.Null);
+                Assert.That(actionCalled, Is.False);
+#endif
+
+                Assert.That(() => asyncAction(), Is.Null);
+                Assert.That(actionCalled, Is.True);
+#pragma warning restore NUnit2023 // Invalid NullConstraint usage
+            });
+        }
+
+        [Test]
+        [Explicit("These test are to see what NUnit does with delegates in different circumstances")]
         public void ActualNUnitForAction()
         {
             bool actionCalled = false;
@@ -219,20 +259,13 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
                 Assert.That(action, Is.Not.Null);
                 Assert.That(actionCalled, Is.False);
 
-#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(() => action, Is.Not.Null);
-#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
                 Assert.That(actionCalled, Is.False);
 
-#pragma warning disable NUnit2057 // Unnecessary DelegateCreation
-#pragma warning disable NUnit2023 // Invalid NullConstraint usage
                 Assert.That(() => action(), Is.Not.Null);
-#pragma warning restore NUnit2023 // Invalid NullConstraint usage
-#pragma warning restore NUnit2057 // Unnecessary DelegateCreation
-
 #if EXPECT_TEST_DELEGATE_TO_BE_CALLED
-            // The above test succeeds, but does not call the action!
-            Assert.That(actionCalled, Is.True);
+                // The above test succeeds, but does not call the action!
+                Assert.That(actionCalled, Is.True);
 #endif
             });
         }
