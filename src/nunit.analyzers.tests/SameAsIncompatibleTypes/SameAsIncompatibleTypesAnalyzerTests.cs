@@ -284,7 +284,7 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
         }
 
         [Test]
-        public void AnalyzeWhenActualAndExpectedTypesAreSameWithFuncActualValue()
+        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithFuncActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 Func<string> actual = () => """";

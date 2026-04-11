@@ -391,7 +391,7 @@ using System.Collections.Generic;");
         }
 
         [Test]
-        public void AnalyzeWhenActualAndExpectedTypesAreSameWithFuncActualValue()
+        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithFuncActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod(@"
                 Func<string> actual = () => """";

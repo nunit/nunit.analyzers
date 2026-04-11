@@ -57,7 +57,6 @@ namespace NUnit.Analyzers.Helpers
             {
                 var fullTypeName = namedType.GetFullMetadataName();
                 if (fullTypeName is NUnitFrameworkConstants.FullNameOfActualValueDelegate
-                                 or NUnitFrameworkConstants.FullNameOfAsyncTestDelegate
                                  or "System.Func`1")
                 {
                     ITypeSymbol returnType = namedType.DelegateInvokeMethod!.ReturnType;
@@ -65,7 +64,8 @@ namespace NUnit.Analyzers.Helpers
                     if (returnType.IsAwaitable(out ITypeSymbol? awaitReturnType))
                         returnType = awaitReturnType;
 
-                    return returnType;
+                    // Func<Task> returns Void, so don't consider that as the actual type.
+                    return returnType.SpecialType == SpecialType.System_Void ? actualType : returnType;
                 }
             }
 
