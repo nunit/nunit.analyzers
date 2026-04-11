@@ -142,6 +142,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         }
 
         [Test]
+        [Explicit("These test are to see what NUnit does with delegates in different circumstances")]
         public void ActualNUnitFunction()
         {
             bool functionCalled = false;
@@ -176,6 +177,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         }
 
         [Test]
+        [Explicit("These test are to see what NUnit does with delegates in different circumstances")]
         public void ActualNUnitAsyncFunction()
         {
             bool functionCalled = false;
@@ -209,6 +211,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         }
 
         [Test]
+        [Explicit("These test are to see what NUnit does with delegates in different circumstances")]
         public void ActualNUnitAsyncAction()
         {
             bool actionCalled = false;
@@ -242,6 +245,7 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         }
 
         [Test]
+        [Explicit("These test are to see what NUnit does with delegates in different circumstances")]
         public void ActualNUnitForAction()
         {
             bool actionCalled = false;
