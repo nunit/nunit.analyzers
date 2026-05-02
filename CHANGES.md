@@ -1,4 +1,31 @@
-﻿# NUnit Analyzers 4.12 - March 3, 2026
+﻿# NUnit Analyzers 4.13 - May 2, 2026
+
+This release of the NUnit Analyzers updates analyzer handling for the NUnit 4.6 API change that replaces
+`ActualValueDelegate<>` with `Func<>` - see https://github.com/nunit/nunit/issues/4824 for more information.
+Analyzers now also consider the return type of `Func<>` in assertions. The release also includes one bug fix and
+some dependency updates.
+
+The release contains contributions from the following users (in alphabetical order):
+* @manfred-brands
+* @mikkelbu
+* @RenderMichael
+
+Issues Resolved
+
+Features and Enhancements
+* #982 Recognized Func<T> return values
+
+Bugs
+* #968 Whitespace issue in Does.Contain fixer when assert spans multiple lines
+
+Tooling, Process, and Documentation
+* #978 Bump cake.tool from 6.0.0 to 6.1.0
+* #976 chore: Correct documentation
+* #975 chore: bump version
+* #956 Bump cake.tool from 4.0.0 to 6.0.0
+
+
+# NUnit Analyzers 4.12 - March 3, 2026
 
 This release of the NUnit Analyzers improves `NUnit1029` to account for `TestCaseSource`
 support for params and optional arguments. It also introduces a new analyzer for incorrect
