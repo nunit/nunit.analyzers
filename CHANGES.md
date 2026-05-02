@@ -13,12 +13,13 @@ The release contains contributions from the following users (in alphabetical ord
 Issues Resolved
 
 Features and Enhancements
-* #982 Recognized Func<T> return values
+* #982 Recognized `Func<T>` return values
 
 Bugs
 * #968 Whitespace issue in Does.Contain fixer when assert spans multiple lines
 
 Tooling, Process, and Documentation
+* #985 chore: Bump year to 2026 in copyrights
 * #978 Bump cake.tool from 6.0.0 to 6.1.0
 * #976 chore: Correct documentation
 * #975 chore: bump version
