@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -260,7 +261,7 @@ namespace NUnit.Analyzers.Helpers
                 compilationUnit?.Usings.Any(IsUsingSystemThreadingTasks) is true ||
                 namespaceDeclaration?.Usings.Any(IsUsingSystemThreadingTasks) is true;
 
-            var taskTypeName = GetTaskTypeSyntax(systemThreadingTasksUsingExists);
+            var taskTypeName = GetTaskTypeSyntax(methodDeclaration.ReturnType, systemThreadingTasksUsingExists);
 
             var newMethodDeclaration = methodDeclaration
                 .WithModifiers(methodDeclaration.Modifiers.Add(SyntaxFactory.Token(SyntaxKind.AsyncKeyword)))
@@ -270,25 +271,35 @@ namespace NUnit.Analyzers.Helpers
         }
 
         internal const string SystemThreadingTasksNamespace = "System.Threading.Tasks";
-        internal const string TaskTypeName = "Task";
 
         private static bool IsUsingSystemThreadingTasks(UsingDirectiveSyntax u) =>
             u.Name.ToString() == SystemThreadingTasksNamespace;
 
-        private static TypeSyntax GetTaskTypeSyntax(bool systemThreadingTasksUsingExists)
-            => systemThreadingTasksUsingExists
-                ? SyntaxFactory.ParseTypeName(TaskTypeName)
-                : QualifiedNameFromParts("System", "Threading", "Tasks", TaskTypeName);
-
-        private static NameSyntax QualifiedNameFromParts(params string[] parts)
+        private static TypeSyntax GetTaskTypeSyntax(TypeSyntax methodReturnType, bool systemThreadingTasksUsingExists)
         {
-            NameSyntax name = SyntaxFactory.IdentifierName(parts[0]);
-            for (int i = 1; i < parts.Length; i++)
+            bool isVoidReturnType = methodReturnType is PredefinedTypeSyntax predefinedType &&
+                                    predefinedType.Keyword.IsKind(SyntaxKind.VoidKeyword);
+
+            var task = SyntaxFactory.Identifier(nameof(Task));
+            TypeSyntax updatedReturnType =
+                isVoidReturnType ?
+                SyntaxFactory.IdentifierName(task) :
+                SyntaxFactory.GenericName(task,
+                SyntaxFactory.TypeArgumentList(
+                    SyntaxFactory.SeparatedList(new TypeSyntax[] { methodReturnType })));
+
+            if (systemThreadingTasksUsingExists)
             {
-                name = SyntaxFactory.QualifiedName(name, SyntaxFactory.IdentifierName(parts[i]));
+                return updatedReturnType;
             }
 
-            return name;
+            NameSyntax tasks = SyntaxFactory.QualifiedName(
+                    SyntaxFactory.QualifiedName(
+                        SyntaxFactory.IdentifierName("System"),
+                        SyntaxFactory.IdentifierName("Threading")),
+                    SyntaxFactory.IdentifierName("Tasks"));
+
+            return SyntaxFactory.QualifiedName(tasks, (SimpleNameSyntax)updatedReturnType);
         }
     }
 }

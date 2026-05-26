@@ -190,11 +190,10 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             ");
 
             RoslynAssert.Suppressed(suppressor,
-                new[]
-                {
+                [
                     ExpectedDiagnostic.Create("CS8600", 24, 31),
                     ExpectedDiagnostic.Create("CS8604", 25, 32),
-                },
+                ],
                 testCode);
         }
 
@@ -218,11 +217,10 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             ");
 
             RoslynAssert.Suppressed(suppressor,
-                new[]
-                {
+                [
                     ExpectedDiagnostic.Create("CS8600", 25, 24),
                     ExpectedDiagnostic.Create("CS8604", 26, 32),
-                },
+                ],
                 testCode);
         }
 
@@ -244,11 +242,10 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             ");
 
             RoslynAssert.Suppressed(suppressor,
-                new[]
-                {
+                [
                     ExpectedDiagnostic.Create("CS8600", 24, 32),
                     ExpectedDiagnostic.Create("CS8604", 24, 32),
-                },
+                ],
                 testCode);
         }
 
@@ -504,6 +501,16 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase("Exception?", "ThrowsAsync")]
         public void ThrowsAsyncLocalDeclaration(string type, string assert)
         {
+#if NUNIT5
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
+                [Test]
+                public async Task Test()
+                {{
+                    {type} ex = await Assert.{assert}<Exception>(() => Task.Delay(0));
+                    string m = ↓ex.Message;
+                }}
+            ");
+#else
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
                 [Test]
                 public void Test()
@@ -512,6 +519,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     string m = ↓ex.Message;
                 }}
             ");
+#endif
 
             RoslynAssert.Suppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),

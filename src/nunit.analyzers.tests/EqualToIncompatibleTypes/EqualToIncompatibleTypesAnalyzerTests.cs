@@ -13,10 +13,10 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualToIncompatibleTypes);
 
-        private static readonly string[] NumericTypes = new[]
-        {
+        private static readonly string[] NumericTypes =
+        [
             "decimal", "double", "float", "int", "uint", "long", "ulong", "short", "ushort"
-        };
+        ];
 
         [Test]
         public void AnalyzeWhenIncompatibleTypesProvided()

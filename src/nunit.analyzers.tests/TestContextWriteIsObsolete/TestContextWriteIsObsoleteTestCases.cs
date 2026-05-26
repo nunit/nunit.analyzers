@@ -3,7 +3,7 @@ namespace NUnit.Analyzers.Tests.TestContextWriteIsObsolete
     internal static class TestContextWriteIsObsoleteTestCases
     {
         public static readonly string[] WriteInvocations =
-        {
+        [
             "Write(true)",
             "Write('!')",
             "Write(new char[] { '!', '!' })",
@@ -41,6 +41,6 @@ namespace NUnit.Analyzers.Tests.TestContextWriteIsObsolete
             "WriteLine(\"{0} + {1}\", 1, 2)",
             "WriteLine(\"{0} + {1} = {2}\", 1, 2, 3)",
             "WriteLine(\"{0} + {1} = {2} + {3}\", 1, 2, 2, 1)",
-        };
+        ];
     }
 }

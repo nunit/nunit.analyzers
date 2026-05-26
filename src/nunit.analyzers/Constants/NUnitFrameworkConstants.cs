@@ -108,7 +108,6 @@ namespace NUnit.Analyzers.Constants
 
         public const string NameOfConstraint = "Constraint";
 
-        public const string FullNameOfSameAsConstraint = "NUnit.Framework.Constraints.SameAsConstraint";
         public const string FullNameOfSomeItemsConstraint = "NUnit.Framework.Constraints.SomeItemsConstraint";
         public const string FullNameOfEqualToConstraint = "NUnit.Framework.Constraints.EqualConstraint";
         public const string FullNameOfEndsWithConstraint = "NUnit.Framework.Constraints.EndsWithConstraint";
@@ -120,10 +119,7 @@ namespace NUnit.Analyzers.Constants
         public const string FullNameOfSubPathConstraint = "NUnit.Framework.Constraints.SubPathConstraint";
         public const string FullNameOfSubstringConstraint = "NUnit.Framework.Constraints.SubstringConstraint";
         public const string FullNameOfContainsConstraint = "NUnit.Framework.Constraints.ContainsConstraint";
-        public const string FullNameOfActualValueDelegate = "NUnit.Framework.Constraints.ActualValueDelegate`1";
         public const string FullNameOfDelayedConstraint = "NUnit.Framework.Constraints.DelayedConstraint";
-        public const string FullNameOfTestDelegate = "NUnit.Framework.TestDelegate";
-        public const string FullNameOfAsyncTestDelegate = "NUnit.Framework.AsyncTestDelegate";
         public const string FullNameOfThrows = "NUnit.Framework.Throws";
 
         public const string PrefixOfAllEqualToConstraints = "NUnit.Framework.Constraints.Equal";

@@ -13,7 +13,7 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.SomeItemsIncompatibleTypes);
 
-        private static readonly string[] ConstraintExpressions = new[] { "Does.Contain", "Contains.Item" };
+        private static readonly string[] ConstraintExpressions = ["Does.Contain", "Contains.Item"];
 
         private readonly string constraint;
 

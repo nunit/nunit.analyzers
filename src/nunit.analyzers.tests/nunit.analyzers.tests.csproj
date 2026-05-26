@@ -5,9 +5,26 @@
     <NUnitVersion Condition="'$(NUnitVersion)'==''">4</NUnitVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(NUnitVersion)' == '4'">
+  <PropertyGroup Condition="'$(NUnitVersion)' >= '5'">
+    <DefineConstants>$(DefineConstants);NUNIT5</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(NUnitVersion)' >= '4'">
     <DefineConstants>$(DefineConstants);NUNIT4</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(NUnitVersion)' == '5'">
+    <PackageReference Include="NUnit" Version="5.0.0-alpha.100.9" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(NUnitVersion)' == '4'">
+    <!-- Don't upgrade to 4.6.x. This requires upgrading Roslyn from 4.X to 5.X which brings it own set of issues -->
+    <PackageReference Include="NUnit" Version="4.5.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(NUnitVersion)' == '3'">
+    <PackageReference Include="NUnit" Version="3.14.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.1.0" />
@@ -19,14 +36,6 @@
     <PackageReference Include="Gu.Roslyn.Asserts.Analyzers" Version="4.0.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(NUnitVersion)' == '4'">
-    <PackageReference Include="NUnit" Version="4.5.1" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(NUnitVersion)' == '3'">
-    <PackageReference Include="NUnit" Version="3.14.0" />
   </ItemGroup>
 
   <ItemGroup>

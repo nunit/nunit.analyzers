@@ -13,17 +13,17 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.NonTestMethodIsPublic);
 
-        private static IEnumerable<string> TestMethodRelatedAttributes => new string[]
-        {
+        private static IEnumerable<string> TestMethodRelatedAttributes =>
+        [
             "Test",
             "OneTimeSetUp",
             "OneTimeTearDown",
             "SetUp",
             "TearDown"
-        };
+        ];
 
-        private static IEnumerable<string> NonPrivateModifiers => new string[]
-        {
+        private static IEnumerable<string> NonPrivateModifiers =>
+        [
             "public",
             "internal",
             "protected internal",
@@ -31,7 +31,7 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
             "static public",
             "static internal",
             "static protected internal",
-        };
+        ];
 
         [Test]
         public void AnalyzeWhenNonTestClassHasPublicMethod()

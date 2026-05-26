@@ -11,6 +11,7 @@ namespace NUnit.Analyzers.Constants
 
         public const string NameOfMultipleAsync = "MultipleAsync";
         public const string NameOfEnterMultipleScope = "EnterMultipleScope";
+        public const string NameOfAssertThatAsync = "ThatAsync";
 
         public const string NameOfCancelAfterAttribute = "CancelAfterAttribute";
 

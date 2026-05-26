@@ -426,6 +426,13 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
         private static bool IsKnownToBeNotNull(ExpressionSyntax? expression)
         {
+            if (expression is AwaitExpressionSyntax awaitExpression)
+            {
+                // Get the expression being awaited.
+                // Assert.ThrowsAsync returns a Task that is not null, but the actual value is only known after awaiting.
+                expression = awaitExpression.Expression;
+            }
+
             // For now, we only know that Assert.Throws either returns not-null or throws
             return AssertHelper.IsAssert(expression,
                 NUnitFrameworkConstants.NameOfAssertThrows,

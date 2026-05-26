@@ -13,16 +13,16 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestMethodIsNotPublic);
 
-        private static IEnumerable<string> SetUpTearDownMethodRelatedAttributes => new string[]
-        {
+        private static IEnumerable<string> SetUpTearDownMethodRelatedAttributes =>
+        [
             "OneTimeSetUp",
             "OneTimeTearDown",
             "SetUp",
             "TearDown"
-        };
+        ];
 
-        private static IEnumerable<string> NonPublicModifiers => new string[]
-        {
+        private static IEnumerable<string> NonPublicModifiers =>
+        [
             "",
             "private",
             "protected",
@@ -44,10 +44,10 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
 
             "protected static internal",
             "private static protected",
-        };
+        ];
 
-        private static IEnumerable<string> NonPublicOrFamilyModifiers => new string[]
-        {
+        private static IEnumerable<string> NonPublicOrFamilyModifiers =>
+        [
             "",
             "private",
             "internal",
@@ -66,7 +66,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
 
             "protected static internal",
             "private static protected",
-        };
+        ];
 
         [TestCaseSource(nameof(SetUpTearDownMethodRelatedAttributes))]
         public void AnalyzeWhenSetUpTearDownMethodIsPublic(string attribute)

@@ -11,6 +11,7 @@ namespace NUnit.Analyzers.Constants
         internal const string SpecificConstraint = nameof(AnalyzerPropertyKeys.SpecificConstraint);
 
         internal const string IsAsync = nameof(AnalyzerPropertyKeys.IsAsync);
+        internal const string IsTaskT = nameof(AnalyzerPropertyKeys.IsTaskT);
 
         internal const string IsEmptyCandidate = nameof(AnalyzerPropertyKeys.IsEmptyCandidate);
     }
