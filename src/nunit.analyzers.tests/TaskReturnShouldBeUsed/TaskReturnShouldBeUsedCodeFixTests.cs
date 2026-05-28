@@ -205,6 +205,24 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
+
+        [Test]
+        public void AnalyzeWhenReturned()
+        {
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public Exception? AssertAsync()
+        {
+            return ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+        }");
+
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public async Task<Exception?> AssertAsync()
+        {
+            return await Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+        }");
+
+            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+        }
 #endif
     }
 }

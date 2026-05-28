@@ -19,7 +19,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         {
             // Find the NetAnalyzers assembly (note version should match the one referenced)
             string netAnalyzersPath = Path.Combine(PathHelper.GetNuGetPackageDirectory(),
-                "microsoft.codeanalysis.netanalyzers/8.0.0/analyzers/dotnet/cs/Microsoft.CodeAnalysis.NetAnalyzers.dll");
+                "microsoft.codeanalysis.netanalyzers/10.0.100/analyzers/dotnet/Microsoft.CodeAnalysis.NetAnalyzers.dll");
             Assembly netAnalyzerAssembly = Assembly.LoadFrom(netAnalyzersPath);
             Type analyzerType = netAnalyzerAssembly.GetType("Microsoft.CodeQuality.Analyzers.ApiDesignGuidelines.TypesThatOwnDisposableFieldsShouldBeDisposableAnalyzer", true)!;
             this.analyzer = (DiagnosticAnalyzer)Activator.CreateInstance(analyzerType)!;

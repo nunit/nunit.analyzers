@@ -277,6 +277,17 @@ namespace NUnit.Analyzers.Helpers
 
         private static TypeSyntax GetTaskTypeSyntax(TypeSyntax methodReturnType, bool systemThreadingTasksUsingExists)
         {
+            bool isTaskReturnType = methodReturnType is IdentifierNameSyntax identifierName &&
+                                    identifierName.Identifier.Text == nameof(Task);
+            bool isTaskOfTReturnType = methodReturnType is GenericNameSyntax genericName &&
+                                        genericName.Identifier.Text == nameof(Task) &&
+                                        genericName.TypeArgumentList.Arguments.Count == 1;
+
+            if (isTaskReturnType || isTaskOfTReturnType)
+            {
+                return methodReturnType;
+            }
+
             bool isVoidReturnType = methodReturnType is PredefinedTypeSyntax predefinedType &&
                                     predefinedType.Keyword.IsKind(SyntaxKind.VoidKeyword);
 

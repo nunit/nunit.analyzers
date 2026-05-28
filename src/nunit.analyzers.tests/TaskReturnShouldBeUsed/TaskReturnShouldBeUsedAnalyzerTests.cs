@@ -55,6 +55,18 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         }
 
         [Test]
+        public void NoDiagnosticsWhenTaskIsReturned()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public Task AssertAsync()
+        {
+            return Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
+        }");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenReturnIgnored()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
@@ -193,6 +205,19 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         {
             Exception? exception;
             exception = ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+        }");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode,
+                Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors));
+        }
+
+        [Test]
+        public void AnalyzeWhenReturned()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+        public Exception? AssertAsync()
+        {
+            return ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
         }");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode,

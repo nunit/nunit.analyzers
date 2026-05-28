@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>NUnit.Analyzers.Tests</RootNamespace>
     <TargetFrameworks>net8.0;net462</TargetFrameworks>
-    <NUnitVersion Condition="'$(NUnitVersion)'==''">4</NUnitVersion>
+    <NUnitVersion Condition="'$(NUnitVersion)'==''">5</NUnitVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(NUnitVersion)' >= '5'">
@@ -35,7 +35,7 @@
     <PackageReference Include="Gu.Roslyn.Asserts" Version="4.3.0" />
     <PackageReference Include="Gu.Roslyn.Asserts.Analyzers" Version="4.0.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

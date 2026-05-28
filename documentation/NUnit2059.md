@@ -34,6 +34,7 @@ Any existing code needs to add an `await` to observe the returned Task and
 change the return type of the test method to `async Task` if necessary.
 
 Before:
+
 ```csharp
 [Test]
 public void TestMethod()
@@ -44,6 +45,7 @@ public void TestMethod()
 ```
 
 After:
+
 ```csharp
 [Test]
 public async Task TestMethod()
@@ -53,7 +55,7 @@ public async Task TestMethod()
 }
 ```
 
-The rules has an associated codefix that will make any possible changes,
+The rule has an associated codefix that will make any possible changes,
 including changing the return type from `void` to `async Task` if possible,
 and adding the `await` keyword.
 
@@ -65,6 +67,7 @@ as the method likely uses `return Task.FromXXX` or
 returns a Task return from another method.
 
 Before:
+
 ```csharp
 [Test]
 public override void TestMethod()
@@ -74,6 +77,7 @@ public override void TestMethod()
 ```
 
 After:
+
 ```csharp
 [Test]
 public override void TestMethod()

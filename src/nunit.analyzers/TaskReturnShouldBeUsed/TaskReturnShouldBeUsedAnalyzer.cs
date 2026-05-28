@@ -26,19 +26,29 @@ namespace NUnit.Analyzers.TaskReturnShouldBeUsed
             INamedTypeSymbol? taskType = compilation.GetTypeByMetadataName("System.Threading.Tasks.Task");
             INamedTypeSymbol? taskOfTType = compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1");
 
-            return new TaskTypes(taskType!, taskOfTType!);
+            if (taskType is null || taskOfTType is null)
+            {
+                // If we can't find Task or Task<T> we won't be able to analyze anything, so we return null and skip the analysis.
+                return null;
+            }
+
+            return new TaskTypes(taskType, taskOfTType);
         }
 
         protected override void AnalyzeAssertInvocation(Version nunitVersion, TaskTypes? info, OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
-            // NUnit 3 does not have any Async methods, so we don't need to check anything.
+            // NUnit < 4 doesn't have assertion APIs returning Task/Task<T>, so we don't need to check anything.
             if (info is null || nunitVersion.Major < 4)
                 return;
 
             // Check if the method returns 'Task' (or Task<T>).
             if (assertOperation.TargetMethod.ReturnType is not INamedTypeSymbol operationReturnType ||
                 info.IsTaskOrTaskOfT(operationReturnType) is false ||
-                assertOperation.Parent is IAwaitOperation or IInvocationOperation or IPropertyReferenceOperation or IAssignmentOperation)
+                assertOperation.Parent is IAwaitOperation
+                                       or IInvocationOperation
+                                       or IPropertyReferenceOperation
+                                       or IAssignmentOperation
+                                       or IReturnOperation)
             {
                 // The method either does not return Task/Task<T>,
                 // or the invocation is already being awaited,

@@ -48,11 +48,11 @@ namespace NUnit.Analyzers.TaskReturnShouldBeUsed
 
             var properties = context.Diagnostics[0].Properties;
 
-            MethodDeclarationSyntax methodDeclaration = parent.Ancestors().OfType<MethodDeclarationSyntax>().First();
+            MethodDeclarationSyntax? methodDeclaration = parent.FirstAncestorOrSelf<MethodDeclarationSyntax>();
             if (!properties.TryGetValue(AnalyzerPropertyKeys.IsAsync, out string? isAsync))
             {
                 // The method is not async nor does it return Task, but it should return Task.
-                if (IsOverride(methodDeclaration))
+                if (methodDeclaration is null || IsOverride(methodDeclaration))
                 {
                     // We cannot change the method return type to be 'Task' if it is an override.
                     newRoot = UseTaskResult(root, invocationExpression, properties);

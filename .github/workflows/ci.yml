@@ -13,9 +13,9 @@ jobs:
     name: "Markdown linting"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v6
         name: Check out the code
-      - uses: actions/setup-node@main
+      - uses: actions/setup-node@v6
         name: Setup node
         with:
           node-version: "18"
@@ -27,9 +27,9 @@ jobs:
     name: "Spell check"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v6
         name: Check out the code
-      - uses: actions/setup-node@main
+      - uses: actions/setup-node@v6
         name: Setup node
         with:
           node-version: "18"
@@ -40,9 +40,9 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v6
       - name: Setup .NET
-        uses: actions/setup-dotnet@main
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: ./global.json
 
