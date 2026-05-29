@@ -102,8 +102,9 @@ namespace NUnit.Analyzers.TaskReturnShouldBeUsed
                         exclude = "task";
                     }
 
-                    if (!variableDeclarator.Symbol.Name.Contains(include, StringComparison.OrdinalIgnoreCase) ||
-                        variableDeclarator.Symbol.Name.Contains(exclude, StringComparison.OrdinalIgnoreCase))
+                    // No case-insentive contains on netstandard2.0, nut IndexOf has an overload with StringComparison argument
+                    if (variableDeclarator.Symbol.Name.IndexOf(include, StringComparison.OrdinalIgnoreCase) < 0 ||
+                        variableDeclarator.Symbol.Name.IndexOf(exclude, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         // Either the variable does not include the include string (e.g. "ex")
                         // or it includes the exclude string (e.g. "task"),

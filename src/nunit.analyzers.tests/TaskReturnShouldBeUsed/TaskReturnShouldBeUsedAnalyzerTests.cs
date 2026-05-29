@@ -1,4 +1,8 @@
 #if NUNIT4
+#if NUNIT5
+using System;
+using System.Text;
+#endif
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
@@ -153,11 +157,18 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
 
             if (include is not null || exclude is not null)
             {
-                var analyzerConfig = new System.Text.StringBuilder();
+                var analyzerConfig = new StringBuilder();
                 if (include is not null)
-                    analyzerConfig.AppendLine($"dotnet_diagnostic.{AnalyzerIdentifiers.TaskReturnShouldBeUsed}.raise_for_var_declaration_containing = {include}");
+                {
+                    analyzerConfig.AppendLine(FormattableString.Invariant(
+                        $"dotnet_diagnostic.{AnalyzerIdentifiers.TaskReturnShouldBeUsed}.raise_for_var_declaration_containing = {include}"));
+                }
+
                 if (exclude is not null)
-                    analyzerConfig.AppendLine($"dotnet_diagnostic.{AnalyzerIdentifiers.TaskReturnShouldBeUsed}.do_not_raise_for_var_declaration_containing = {exclude}");
+                {
+                    analyzerConfig.AppendLine(FormattableString.Invariant(
+                        $"dotnet_diagnostic.{AnalyzerIdentifiers.TaskReturnShouldBeUsed}.do_not_raise_for_var_declaration_containing = {exclude}"));
+                }
 
                 settings = Settings.Default.WithAnalyzerConfig(analyzerConfig.ToString());
             }
@@ -184,11 +195,18 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
 
             if (include is not null || exclude is not null)
             {
-                var analyzerConfig = new System.Text.StringBuilder();
+                var analyzerConfig = new StringBuilder();
                 if (include is not null)
-                    analyzerConfig.AppendLine($"dotnet_diagnostic.{AnalyzerIdentifiers.TaskReturnShouldBeUsed}.raise_for_var_declaration_containing = {include}");
+                {
+                    analyzerConfig.AppendLine(FormattableString.Invariant(
+                        $"dotnet_diagnostic.{AnalyzerIdentifiers.TaskReturnShouldBeUsed}.raise_for_var_declaration_containing = {include}"));
+                }
+
                 if (exclude is not null)
-                    analyzerConfig.AppendLine($"dotnet_diagnostic.{AnalyzerIdentifiers.TaskReturnShouldBeUsed}.do_not_raise_for_var_declaration_containing = {exclude}");
+                {
+                    analyzerConfig.AppendLine(FormattableString.Invariant(
+                        $"dotnet_diagnostic.{AnalyzerIdentifiers.TaskReturnShouldBeUsed}.do_not_raise_for_var_declaration_containing = {exclude}"));
+                }
 
                 settings = Settings.Default.WithAnalyzerConfig(analyzerConfig.ToString());
             }
@@ -224,6 +242,6 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
                 Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors));
         }
 #endif
-    }
+                }
 }
 #endif

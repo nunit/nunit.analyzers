@@ -97,7 +97,7 @@ namespace NUnit.Analyzers.TaskReturnShouldBeUsed
                 updatedExpression = SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     invocationExpression,
-                    SyntaxFactory.IdentifierName(nameof(Task<>.Result)));
+                    SyntaxFactory.IdentifierName(nameof(Task<string>.Result)));
             }
             else
             {

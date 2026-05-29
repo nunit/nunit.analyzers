@@ -25,7 +25,7 @@ namespace NUnit.Analyzers.Tests.Constants
 
             (nameof(NUnitV4FrameworkConstants.NameOfCancelAfterAttribute), nameof(CancelAfterAttribute)),
 
-            (nameof(NUnitV4FrameworkConstants.NameOfUsingPropertiesComparer), nameof(EqualConstraint<>.UsingPropertiesComparer)),
+            (nameof(NUnitV4FrameworkConstants.NameOfUsingPropertiesComparer), nameof(EqualConstraint<string>.UsingPropertiesComparer)),
         ];
 
         public static readonly (string Constant, Type Type)[] FullNameOfTypeSource =
