@@ -447,7 +447,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             }
         }", "using System.Collections;");
 
-            var solution = CodeFactory.CreateSolution(new[] { testCode, testDataCode });
+            var solution = CodeFactory.CreateSolution([testCode, testDataCode]);
 
             RoslynAssert.Valid(analyzer, solution);
         }

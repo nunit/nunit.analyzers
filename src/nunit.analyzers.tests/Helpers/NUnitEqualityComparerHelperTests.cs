@@ -13,11 +13,11 @@ namespace NUnit.Analyzers.Tests.Helpers
 {
     public class NUnitEqualityComparerHelperTests
     {
-        private static readonly Type[] NumericTypes = new[]
-        {
+        private static readonly Type[] NumericTypes =
+        [
             typeof(decimal), typeof(double), typeof(float), typeof(int), typeof(uint),
             typeof(long), typeof(ulong), typeof(short), typeof(ushort)
-        };
+        ];
 
         [TestCase(typeof(string), typeof(int))]
         [TestCase(typeof(string), typeof(bool))]

@@ -57,6 +57,20 @@ namespace NUnit.Analyzers.Tests.DelegateUnnecessary
             RoslynAssert.Valid(analyzer, testCode);
         }
 
+#if NUNIT5
+        [Test]
+        public void AnalyzeWhenNecessaryDelegateLocalProvided()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                Action action = MyOperation;
+                Assert.That(action, Throws.InvalidOperationException);
+
+                static void MyOperation() => throw new InvalidOperationException();
+            ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+#else
         [Test]
         public void AnalyzeWhenNecessaryDelegateLocalProvided()
         {
@@ -69,6 +83,7 @@ namespace NUnit.Analyzers.Tests.DelegateUnnecessary
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+#endif
 
         [Test]
         public void AnalyzeWhenNecessaryDelegateParameterProvided()

@@ -62,7 +62,7 @@ namespace NUnit.Analyzers.Tests
             var tree = CSharpSyntaxTree.ParseText(code);
 
             var compilation = CSharpCompilation.Create(Guid.NewGuid().ToString("N"),
-                syntaxTrees: new[] { tree },
+                syntaxTrees: [tree],
                 references: Settings.Default.MetadataReferences,
                 options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 

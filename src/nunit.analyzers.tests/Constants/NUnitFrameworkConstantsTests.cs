@@ -145,7 +145,6 @@ namespace NUnit.Analyzers.Tests.Constants
 
             (nameof(NUnitFrameworkConstants.FullNameOfTypeTestContext), typeof(TestContext)),
 
-            (nameof(NUnitFrameworkConstants.FullNameOfSameAsConstraint), typeof(SameAsConstraint)),
             (nameof(NUnitFrameworkConstants.FullNameOfSomeItemsConstraint), typeof(SomeItemsConstraint)),
             (nameof(NUnitFrameworkConstants.FullNameOfEqualToConstraint), typeof(EqualConstraint)),
             (nameof(NUnitFrameworkConstants.FullNameOfEndsWithConstraint), typeof(EndsWithConstraint)),
@@ -157,10 +156,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.FullNameOfSubPathConstraint), typeof(SubPathConstraint)),
             (nameof(NUnitFrameworkConstants.FullNameOfSubstringConstraint), typeof(SubstringConstraint)),
             (nameof(NUnitFrameworkConstants.FullNameOfContainsConstraint), typeof(ContainsConstraint)),
-            (nameof(NUnitFrameworkConstants.FullNameOfActualValueDelegate), typeof(ActualValueDelegate<>)),
             (nameof(NUnitFrameworkConstants.FullNameOfDelayedConstraint), typeof(DelayedConstraint)),
-            (nameof(NUnitFrameworkConstants.FullNameOfTestDelegate), typeof(TestDelegate)),
-            (nameof(NUnitFrameworkConstants.FullNameOfAsyncTestDelegate), typeof(AsyncTestDelegate)),
             (nameof(NUnitFrameworkConstants.FullNameOfThrows), typeof(Throws)),
         ];
 

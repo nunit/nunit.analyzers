@@ -21,6 +21,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitV4FrameworkConstants.NameOfIsDefault), nameof(Is.Default)),
             (nameof(NUnitV4FrameworkConstants.NameOfMultipleAsync), nameof(Assert.MultipleAsync)),
             (nameof(NUnitV4FrameworkConstants.NameOfEnterMultipleScope), nameof(Assert.EnterMultipleScope)),
+            (nameof(NUnitV4FrameworkConstants.NameOfAssertThatAsync), nameof(Assert.ThatAsync)),
 
             (nameof(NUnitV4FrameworkConstants.NameOfCancelAfterAttribute), nameof(CancelAfterAttribute)),
 

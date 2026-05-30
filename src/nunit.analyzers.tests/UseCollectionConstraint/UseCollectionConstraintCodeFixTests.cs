@@ -16,13 +16,13 @@ namespace NUnit.Analyzers.Tests.UseCollectionConstraint
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.UsePropertyConstraint);
 
         private static readonly string[] NumericContraints =
-        {
+        [
             "EqualTo(3)",
             "GreaterThan(1)",
             "LessThan(5)",
             "GreaterThanOrEqualTo(3).And.LessThanOrEqualTo(9)",
             "Not.LessThan(5)",
-        };
+        ];
 
         [Test]
         public void VerifyGetFixableDiagnosticIds()

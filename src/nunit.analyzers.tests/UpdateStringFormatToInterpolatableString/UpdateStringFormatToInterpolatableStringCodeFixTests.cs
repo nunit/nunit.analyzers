@@ -15,11 +15,11 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.UpdateStringFormatToInterpolatableString);
 
-        private static readonly string[] AssertAndAssume = new[]
-        {
+        private static readonly string[] AssertAndAssume =
+        [
             NUnitFrameworkConstants.NameOfAssert,
             NUnitFrameworkConstants.NameOfAssume,
-        };
+        ];
 
         [Test]
         public void VerifyGetFixableDiagnosticIds()

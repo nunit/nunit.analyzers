@@ -12,8 +12,8 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
         private static readonly ExpectedDiagnostic expectedDiagnostic =
             ExpectedDiagnostic.Create(AnalyzerIdentifiers.StringConstraintWrongActualType);
 
-        private static readonly string[] StringConstraints = new[]
-        {
+        private static readonly string[] StringConstraints =
+        [
             "Does.StartWith(\"12\")",
             "Does.EndWith(\"34\")",
             "Does.Match(@\"\\d+\")",
@@ -25,7 +25,7 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
             @"Is.SamePath(@""C:\repos\nunit.analyzers"")",
             @"Is.SamePathOrUnder(@""C:\repos"")",
             @"Is.SubPathOf(@""C:\"")"
-        };
+        ];
 
         [Test]
         public void AnalyzeWhenNonStringValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)

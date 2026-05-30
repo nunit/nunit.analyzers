@@ -22,8 +22,14 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-        protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
+        protected override void AnalyzeAssertInvocation(Version nunitVersion, OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
+            if (nunitVersion.Major >= 5)
+            {
+                // NUnit 5 uses a class constraint hence these rules are not needed as the user code will not even compile.
+                return;
+            }
+
             IOperation? actualOperation;
             IOperation? expectedOperation;
 
@@ -54,7 +60,8 @@ namespace NUnit.Analyzers.SameAsOnValueTypes
                     var constraintMethod = constraintPartExpression.GetConstraintMethod();
 
                     if (constraintMethod?.Name != NUnitFrameworkConstants.NameOfIsSameAs
-                        || constraintMethod.ReturnType?.GetFullMetadataName() != NUnitFrameworkConstants.FullNameOfSameAsConstraint)
+                        || constraintMethod.ReturnType?.GetFullMetadataName()
+                                                       .StartsWith(NUnitPreV5FrameworkConstants.FullNameOfSameAsConstraint, StringComparison.Ordinal) is not true)
                     {
                         continue;
                     }

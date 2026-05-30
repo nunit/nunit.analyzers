@@ -1,3 +1,4 @@
+#if !NUNIT5 // NUnit 5 uses a class constraint hence these rules are not needed as the user code will not even compile.
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -140,3 +141,4 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         }
     }
 }
+#endif

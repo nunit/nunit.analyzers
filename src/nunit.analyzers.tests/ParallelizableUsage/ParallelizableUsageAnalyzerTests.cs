@@ -17,7 +17,7 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
         private readonly DiagnosticAnalyzer analyzer = new ParallelizableUsageAnalyzer();
 
         private static IEnumerable<ParallelScope> ParallelScopesExceptFixtures =>
-            new ParallelScope[] { ParallelScope.All, ParallelScope.Children, ParallelScope.Self };
+            [ParallelScope.All, ParallelScope.Children, ParallelScope.Self];
 
         [Test]
         public void VerifySupportedDiagnostics()

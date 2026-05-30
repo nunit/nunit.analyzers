@@ -14,21 +14,21 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         private readonly DiagnosticAnalyzer analyzer = new UpdateStringFormatToInterpolatableStringAnalyzer();
         private readonly ExpectedDiagnostic diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.UpdateStringFormatToInterpolatableString);
 
-        private static readonly string[] AssertAndAssume = new[]
-        {
+        private static readonly string[] AssertAndAssume =
+        [
             NUnitFrameworkConstants.NameOfAssert,
             NUnitFrameworkConstants.NameOfAssume,
-        };
+        ];
 
-        private static IEnumerable<string> NoArgumentsAsserts { get; } = new[]
-        {
+        private static IEnumerable<string> NoArgumentsAsserts { get; } =
+        [
             NUnitFrameworkConstants.NameOfAssertPass,
             NUnitFrameworkConstants.NameOfAssertFail,
             NUnitFrameworkConstants.NameOfAssertIgnore,
             NUnitFrameworkConstants.NameOfAssertInconclusive,
-        };
+        ];
 
-        private static IEnumerable<string> OneArgumentsAsserts { get; } = NoArgumentsAsserts.Concat(new[] { NUnitFrameworkConstants.NameOfAssertWarn });
+        private static IEnumerable<string> OneArgumentsAsserts { get; } = NoArgumentsAsserts.Concat([NUnitFrameworkConstants.NameOfAssertWarn]);
 
         [TestCaseSource(nameof(NoArgumentsAsserts))]
         public void AnalyzeWhenNoArgumentsAreUsed(string method)

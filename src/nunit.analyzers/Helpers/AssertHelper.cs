@@ -56,7 +56,7 @@ namespace NUnit.Analyzers.Helpers
             if (actualType is INamedTypeSymbol namedType)
             {
                 var fullTypeName = namedType.GetFullMetadataName();
-                if (fullTypeName is NUnitFrameworkConstants.FullNameOfActualValueDelegate
+                if (fullTypeName is NUnitPreV5FrameworkConstants.FullNameOfActualValueDelegate
                                  or "System.Func`1")
                 {
                     ITypeSymbol returnType = namedType.DelegateInvokeMethod!.ReturnType;

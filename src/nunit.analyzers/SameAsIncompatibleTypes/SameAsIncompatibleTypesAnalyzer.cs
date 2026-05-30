@@ -55,7 +55,8 @@ namespace NUnit.Analyzers.SameAsIncompatibleTypes
                     var constraintMethod = constraintPartExpression.GetConstraintMethod();
 
                     if (constraintMethod?.Name != NUnitFrameworkConstants.NameOfIsSameAs
-                        || constraintMethod.ReturnType?.GetFullMetadataName() != NUnitFrameworkConstants.FullNameOfSameAsConstraint)
+                        || constraintMethod.ReturnType?.GetFullMetadataName()
+                                                       .StartsWith(NUnitPreV5FrameworkConstants.FullNameOfSameAsConstraint, StringComparison.Ordinal) is not true)
                     {
                         continue;
                     }
