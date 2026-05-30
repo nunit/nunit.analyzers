@@ -54,6 +54,7 @@ namespace NUnit.Analyzers.TaskReturnShouldBeUsed
                 // or the invocation is already being awaited,
                 // or the invocation is having .Wait() or .Result called on it.
                 // or the invocation is being assigned to a variable of type Task/Task<T>.
+                // or the result of the method is being returned from the containing method.
                 // either way we don't need to report a diagnostic.
                 return;
             }
@@ -88,9 +89,7 @@ namespace NUnit.Analyzers.TaskReturnShouldBeUsed
                     if (!options.TryGetValue("dotnet_diagnostic.NUnit2059.raise_for_var_declaration_containing", out string? include))
                     {
                         // This is an heuristic to fix cases like:
-                        // var ex = Assert.ThrowsAsync<Exception>(() => SomeMethodAsync());
-                        //      var exceptionTask = Assert.ThrowsAsync<Exception>(() => SomeMethodAsync());
-                        //      Exception? exception = await exceptionTask;
+                        //      var ex = Assert.ThrowsAsync<Exception>(() => SomeMethodAsync());
                         include = "ex";
                     }
 
@@ -102,7 +101,7 @@ namespace NUnit.Analyzers.TaskReturnShouldBeUsed
                         exclude = "task";
                     }
 
-                    // No case-insentive contains on netstandard2.0, nut IndexOf has an overload with StringComparison argument
+                    // No case-insentive contains on netstandard2.0, but IndexOf has an overload with StringComparison argument
                     if (variableDeclarator.Symbol.Name.IndexOf(include, StringComparison.OrdinalIgnoreCase) < 0 ||
                         variableDeclarator.Symbol.Name.IndexOf(exclude, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
