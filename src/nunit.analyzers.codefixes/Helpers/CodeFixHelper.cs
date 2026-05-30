@@ -292,12 +292,11 @@ namespace NUnit.Analyzers.Helpers
                                     predefinedType.Keyword.IsKind(SyntaxKind.VoidKeyword);
 
             var task = SyntaxFactory.Identifier(nameof(Task));
-            TypeSyntax updatedReturnType =
-                isVoidReturnType ?
-                SyntaxFactory.IdentifierName(task) :
-                SyntaxFactory.GenericName(task,
-                SyntaxFactory.TypeArgumentList(
-                    SyntaxFactory.SeparatedList(new TypeSyntax[] { methodReturnType })));
+            TypeSyntax updatedReturnType = isVoidReturnType
+                ? SyntaxFactory.IdentifierName(task)
+                : SyntaxFactory.GenericName(task,
+                    SyntaxFactory.TypeArgumentList(
+                        SyntaxFactory.SeparatedList([methodReturnType])));
 
             if (systemThreadingTasksUsingExists)
             {

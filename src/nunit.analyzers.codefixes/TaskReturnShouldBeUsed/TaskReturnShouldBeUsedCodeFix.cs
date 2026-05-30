@@ -108,22 +108,6 @@ namespace NUnit.Analyzers.TaskReturnShouldBeUsed
                         SyntaxFactory.IdentifierName(nameof(Task.Wait))));
             }
 
-            /*
-            SyntaxNode updatedParent;
-            if (parent is ExpressionStatementSyntax expressionStatement)
-            {
-                updatedParent = expressionStatement.WithExpression(updatedExpression);
-            }
-            else if (parent is AssignmentExpressionSyntax assignmentExpression)
-            {
-                updatedParent = assignmentExpression.WithRight(updatedExpression);
-            }
-            else
-            {
-                updatedParent = parent.ReplaceNode(invocationExpression, updatedExpression);
-            }
-            */
-
             SyntaxNode newRoot = root.ReplaceNode(invocationExpression, updatedExpression);
             return newRoot;
         }
