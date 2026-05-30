@@ -3,7 +3,7 @@ namespace NUnit.Analyzers.Constants
     /// <summary>
     /// String constants for relevant NUnit concepts (classes, fields, properties etc.)
     /// so that we do not need have a dependency on NUnit from the analyzer project.
-    /// These are constants for NUnit v3 and later.
+    /// These are constants for NUnit v3 and v4 but were removed from v5.
     /// </summary>
     internal abstract class NUnitPreV5FrameworkConstants
     {

@@ -88,8 +88,6 @@ namespace NUnit.Analyzers.TaskReturnShouldBeUsed
 
         private static SyntaxNode UseTaskResult(SyntaxNode root, InvocationExpressionSyntax invocationExpression, ImmutableDictionary<string, string?> properties)
         {
-            // We cannot change the method declaration to be 'async Task' if it is an override,
-            // Instead, we can only add 'Wait()' or '.Result() to the statement.
             ExpressionSyntax updatedExpression;
 
             if (properties.ContainsKey(AnalyzerPropertyKeys.IsTaskT))
