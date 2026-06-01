@@ -11,7 +11,7 @@ The release contains contributions from the following users (in alphabetical ord
 Issues Resolved
 
 Features and Enhancements
-* #988 Recognize that Assert.ThrowAsync etc now return a Task that needs awaiting.
+* #988 Recognize that Assert.ThrowsAsync etc now return a Task that needs awaiting.
 
 Tooling, Process, and Documentation
 * #990 Bump cake.tool from 6.1.0 to 6.2.0
