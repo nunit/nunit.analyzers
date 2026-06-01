@@ -1,4 +1,24 @@
-﻿# NUnit Analyzers 4.13 - May 2, 2026
+﻿# NUnit Analyzers 4.14 - June 1, 2026
+
+This release of the NUnit Analyzers adds a new analyzer and associated codefix - `NUnit2059` - that helps ensure that
+async assertion methods in NUnit version 5 and higher - i.e. `Assert.ThrowsAsync`, `Assert.CatchAsync`, and
+`Assert.DoesNotThrowAsync` - have their results observed, as these methods are awaitable from NUnit version 5.
+
+The release contains contributions from the following users (in alphabetical order):
+* @manfred-brands
+* @mikkelbu
+
+Issues Resolved
+
+Features and Enhancements
+* #988 Recognize that Assert.ThrowAsync etc now return a Task that needs awaiting.
+
+Tooling, Process, and Documentation
+* #990 Bump cake.tool from 6.1.0 to 6.2.0
+* #987 chore: bump version and correct errors in CHANGES.md
+
+
+# NUnit Analyzers 4.13 - May 2, 2026
 
 This release of the NUnit Analyzers updates analyzer handling for the NUnit 4.6 API change that replaces
 `ActualValueDelegate<>` with `Func<>` - see https://github.com/nunit/nunit/issues/4824 for more information.
