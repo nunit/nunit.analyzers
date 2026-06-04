@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(NUnitVersion)' == '5'">
-    <PackageReference Include="NUnit" Version="5.0.0-alpha.100.9" />
+    <PackageReference Include="NUnit" Version="5.0.0-alpha.100.13" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(NUnitVersion)' == '4'">
