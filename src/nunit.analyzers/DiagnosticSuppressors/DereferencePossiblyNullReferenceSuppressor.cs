@@ -329,17 +329,44 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     break;
 
                 case BlockSyntax block:
-                    return IsValidatedNotNullByPreviousStatementInSameBlock(possibleNullReference, block, null);
+                    if (IsValidatedNotNullByPreviousStatementInSameBlock(possibleNullReference, block, null))
+                        return true;
+                    break;
 
                 case UsingStatementSyntax usingStatement:
                     return IsValidatedNotNullByStatement(possibleNullReference, usingStatement.Statement);
 
+                case LockStatementSyntax lockStatement:
+                    return IsValidatedNotNullByStatement(possibleNullReference, lockStatement.Statement);
+
+                case TryStatementSyntax tryStatement:
+                    // The try block always runs, so if the variable is validated there, we assume the happy path that it is validated.
+                    if (IsValidatedNotNullByStatement(possibleNullReference, tryStatement.Block) is true)
+                        return true;
+                    if (tryStatement.Finally is not null)
+                    {
+                        // Finally statement always runs, so if the variable is validated there, we can assume it is validated.
+                        if (IsValidatedNotNullByStatement(possibleNullReference, tryStatement.Finally.Block) is true)
+                            return true;
+                    }
+
+                    break;
+                case IfStatementSyntax:
+                case SwitchStatementSyntax:
+                case WhileStatementSyntax:
+                case DoStatementSyntax:
+                case ForStatementSyntax:
+                case ForEachStatementSyntax:
+                case GotoStatementSyntax:
+                    // We can't handle conditionals or loops here, so we return false, stopping further analysis of previous statements.
+                    return false;
+
                 default:
-                    // We can't handle conditionals or loops here, so we just return false.
+                    // Other statements don't affect nullability, so we continue looking at previous statements.
                     break;
             }
 
-            // Unknown statement type or not validated.
+            // Not yet determined.
             return null;
         }
 
