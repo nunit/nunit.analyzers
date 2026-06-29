@@ -794,6 +794,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     var e = GetPossibleException();
                     try
                     {
+                        MethodThatMightThrowAnException();
                         Assert.That(e, Is.Not.Null);
                     }
                     catch
@@ -805,9 +806,17 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 }
 
                 private Exception? GetPossibleException() => new Exception();
+
+                private void MethodThatMightThrowAnException()
+                {
+                    if (DateTime.UtcNow.Hour < 6)
+                    {
+                        throw new Exception("Test");
+                    }
+                }
             """);
 
-            RoslynAssert.Suppressed(suppressor,
+            RoslynAssert.NotSuppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
                 testCode);
         }
@@ -864,6 +873,31 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             """);
 
             RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
+        [Test]
+        public void VariableResetInsideLockStatement()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                [Test]
+                public void Test()
+                {
+                    var e = GetPossibleException();
+                    Assert.That(e, Is.Not.Null);
+                    lock (this)
+                    {
+                        e = null;
+                    }
+
+                    Assert.That(↓e.Message, Is.EqualTo("Test"));
+                }
+
+                private Exception? GetPossibleException() => new Exception();
+            """);
+
+            RoslynAssert.NotSuppressed(suppressor,
                 ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
                 testCode);
         }
