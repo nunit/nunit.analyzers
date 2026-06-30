@@ -81,7 +81,8 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
 
         private static bool IsDisposeMethod(IMethodSymbol method)
         {
-            return method.IsInterfaceImplementation("System.IDisposable");
+            return method.IsInterfaceImplementation("System.IDisposable") ||
+                   method.IsInterfaceImplementation("System.IAsyncDisposable");
         }
     }
 }

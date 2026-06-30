@@ -174,6 +174,59 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         }
 
         [Test]
+        public void AnalyzeWhenMethodIsExplicitDisposeAsync()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        public sealed class TestClass : IAsyncDisposable
+        {
+            [Test]
+            public void TestMethod() { }
+
+            ValueTask IAsyncDisposable.DisposeAsync() => default(ValueTask);
+        }
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenMethodIsDisposeAsync()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        public sealed class TestClass : IAsyncDisposable
+        {
+            [Test]
+            public void TestMethod() { }
+
+            public ValueTask DisposeAsync() => default(ValueTask);
+        }
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenMethodIsDisposeAsyncOverride()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        public class BaseClass : IAsyncDisposable
+        {
+            public virtual ValueTask DisposeAsync() => default(ValueTask);
+        }
+
+        public sealed class DerivedClass : BaseClass
+        {
+            [Test]
+            public void TestMethod() { }
+
+            public override ValueTask DisposeAsync() => default(ValueTask);
+        }
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenMethodIsBaseClassOverride()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"

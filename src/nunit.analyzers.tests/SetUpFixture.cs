@@ -1,3 +1,4 @@
+using System;
 using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
@@ -16,10 +17,10 @@ namespace NUnit.Analyzers.Tests
         {
             Settings.Default = Settings.Default
 #if NUNIT4
-                .WithMetadataReferences(MetadataReferences.Transitive(typeof(Assert), typeof(ClassicAssert)))
+                .WithMetadataReferences(MetadataReferences.Transitive(typeof(Assert), typeof(ClassicAssert), typeof(IAsyncDisposable)))
                 .WithParseOption(new CSharpParseOptions(LanguageVersion.Preview).WithPreprocessorSymbols("NUNIT4"));
 #else
-                .WithMetadataReferences(MetadataReferences.Transitive(typeof(Assert)))
+                .WithMetadataReferences(MetadataReferences.Transitive(typeof(Assert), typeof(IAsyncDisposable)))
                 .WithParseOption(new CSharpParseOptions(LanguageVersion.Preview).WithPreprocessorSymbols("NUNIT3"));
 #endif
         }
