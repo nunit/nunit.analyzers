@@ -5,7 +5,8 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 {
-    public class DereferencePossiblyNullReferenceSuppressorTests
+    [TestFixture]
+    public sealed class DereferencePossiblyNullReferenceSuppressorTests
     {
         private const string ABDefinition = @"
             private static A? GetA(bool create) => create ? new A() : default(A);
@@ -13,7 +14,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             private static B? GetB(bool create) => create ? new B() : default(B);
 
             private static A? GetAB(string? text) => new A { B = new B { Text = text } };
-                
+
             private class A
             {
                 public B? B { get; set; }
@@ -32,9 +33,9 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
         private static readonly AssertMultiple[] Multiples =
         [
-            new AssertMultiple("Assert.Multiple(() =>", ");"),
+            new AssertMultiple("Multiple", "Assert.Multiple(() =>", ");"),
 #if NUNIT4
-            new AssertMultiple("using (Assert.EnterMultipleScope())", "")
+            new AssertMultiple("EnterMultipleScope", "using (Assert.EnterMultipleScope())", ""),
 #endif
         ];
 
@@ -649,6 +650,54 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         }
 
         [TestCaseSource(nameof(Multiples))]
+        public void VariableAssertedOutsideAssertMultipleUsedAfter(AssertMultiple multiple)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                [Test]
+                public void Test()
+                {
+                    var e = GetPossibleException();
+                    Assert.That(e, Is.Not.Null);
+                    {{multiple.Start}}
+                    {
+                    }{{multiple.End}}
+
+                    Assert.That(↓e.InnerException, Is.Null);
+                }
+
+                private Exception? GetPossibleException() => new Exception();
+            """);
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
+        [TestCaseSource(nameof(Multiples))]
+        public void VariableAssertedInsideAssertMultipleUsedAfter(AssertMultiple multiple)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                [Test]
+                public void Test()
+                {
+                    var e = GetPossibleException();
+                    {{multiple.Start}}
+                    {
+                        Assert.That(e, Is.Not.Null);
+                    }{{multiple.End}}
+
+                    Assert.That(↓e.InnerException, Is.Null);
+                }
+
+                private Exception? GetPossibleException() => new Exception();
+            """);
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
+        [TestCaseSource(nameof(Multiples))]
         public void VariableAssignedOutsideAssertMultipleUsedInside(AssertMultiple multiple)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -662,6 +711,187 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                         Assert.That(e.InnerException, Is.Null);
                         Assert.That(e.StackTrace, Is.Not.Empty);
                     }{{multiple.End}}
+                }
+
+                private Exception? GetPossibleException() => new Exception();
+            """);
+
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
+#pragma warning disable SA1201 // Elements should appear in the correct order
+        private static readonly TestCaseData[] UnsupportedConditionalStatementsTestCases =
+#pragma warning restore SA1201 // Elements should appear in the correct order
+        [
+            new TestCaseData("if (DateTime.UtcNow.Hour < 12)").SetArgDisplayNames("if"),
+            new TestCaseData("for (int i = 0; i < 5; i++)").SetArgDisplayNames("for"),
+            new TestCaseData("int i = 0; while (i++ < 5)").SetArgDisplayNames("while"),
+        ];
+
+        [TestCaseSource(nameof(UnsupportedConditionalStatementsTestCases))]
+        public void VariableAssertedInsideUnsupportedConditionalStatement(string statement)
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                [Test]
+                public void Test()
+                {
+                    var e = GetPossibleException();
+                    {{statement}}
+                    {
+                        Assert.That(e, Is.Not.Null);
+                    }
+
+                    Assert.That(↓e.Message, Is.EqualTo("Test"));
+                }
+
+                private Exception? GetPossibleException() => new Exception();
+            """);
+
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
+        [Test]
+        public void VariableAssertedInsideUnsupportedConditionalStatement()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                [Test]
+                public void Test()
+                {
+                    var e = GetPossibleException();
+                    switch (DateTime.UtcNow.Hour)
+                    {
+                        case 1:
+                        case 2:
+                        case 3:
+                            break;
+                        default:
+                            Assert.That(e, Is.Not.Null);
+                            break;
+                    }
+
+                    Assert.That(↓e.Message, Is.EqualTo("Test"));
+                }
+
+                private Exception? GetPossibleException() => new Exception();
+            """);
+
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
+        [Test]
+        public void VariableAssertedInsideTryStatement()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                [Test]
+                public void Test()
+                {
+                    var e = GetPossibleException();
+                    try
+                    {
+                        MethodThatMightThrowAnException();
+                        Assert.That(e, Is.Not.Null);
+                    }
+                    catch
+                    {
+                        Assert.Fail("Should not throw");
+                    }
+
+                    Assert.That(↓e.Message, Is.EqualTo("Test"));
+                }
+
+                private Exception? GetPossibleException() => new Exception();
+
+                private void MethodThatMightThrowAnException()
+                {
+                    if (DateTime.UtcNow.Hour < 6)
+                    {
+                        throw new Exception("Test");
+                    }
+                }
+            """);
+
+            RoslynAssert.NotSuppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
+        [Test]
+        public void VariableAssertedInsideTryFinallyStatement()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                [Test]
+                public void Test()
+                {
+                    var e = GetPossibleException();
+                    try
+                    {
+                        Assert.That(DateTime.UtcNow.Hour, Is.GreaterThan(6));
+                    }
+                    catch
+                    {
+                        Assert.Fail("Should not throw");
+                    }
+                    finally
+                    {
+                        Assert.That(e, Is.Not.Null);
+                    }
+
+                    Assert.That(↓e.Message, Is.EqualTo("Test"));
+                }
+
+                private Exception? GetPossibleException() => new Exception();
+            """);
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
+        [Test]
+        public void VariableAssertedInsideLockStatement()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                [Test]
+                public void Test()
+                {
+                    var e = GetPossibleException();
+                    lock (this)
+                    {
+                        Assert.That(e, Is.Not.Null);
+                    }
+
+                    Assert.That(↓e.Message, Is.EqualTo("Test"));
+                }
+
+                private Exception? GetPossibleException() => new Exception();
+            """);
+
+            RoslynAssert.Suppressed(suppressor,
+                ExpectedDiagnostic.Create(DereferencePossiblyNullReferenceSuppressor.SuppressionDescriptors["CS8602"]),
+                testCode);
+        }
+
+        [Test]
+        public void VariableResetInsideLockStatement()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                [Test]
+                public void Test()
+                {
+                    var e = GetPossibleException();
+                    Assert.That(e, Is.Not.Null);
+                    lock (this)
+                    {
+                        e = null;
+                    }
+
+                    Assert.That(↓e.Message, Is.EqualTo("Test"));
                 }
 
                 private Exception? GetPossibleException() => new Exception();
@@ -1060,7 +1290,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 private sealed class HasString
                 {
                     public HasString(string? inner)
-                    {                   
+                    {
                         Inner = inner;
                     }
 
@@ -1141,6 +1371,9 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 testCode);
         }
 
-        public record struct AssertMultiple(string Start, string End);
+        public record struct AssertMultiple(string Name, string Start, string End)
+        {
+            public override readonly string ToString() => this.Name;
+        }
     }
 }

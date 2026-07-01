@@ -134,7 +134,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 if (!AssertHelper.IsInsideAssertMultiple(statement))
                 {
                     if (IsKnownToBeNotNull(currentNode) ||
-                        (block is not null && IsValidatedNotNullByPreviousStatementInSameBlock(possibleNullReference, block, statement)))
+                        (block is not null && IsValidatedNotNullByPreviousStatementInSameBlock(possibleNullReference, block, statement) is true))
                     {
                         return true;
                     }
@@ -255,7 +255,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             return null;
         }
 
-        private static bool IsValidatedNotNullByPreviousStatementInSameBlock(string possibleNullReference, BlockSyntax block, StatementSyntax? statement)
+        private static bool? IsValidatedNotNullByPreviousStatementInSameBlock(string possibleNullReference, BlockSyntax block, StatementSyntax? statement)
         {
             var siblings = block.Statements;
             int nodeIndex;
@@ -288,7 +288,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 // Keep looking in previous statements.
             }
 
-            return false;
+            return null;
         }
 
         private static bool? IsValidatedNotNullByStatement(string possibleNullReference, StatementSyntax statement)
@@ -334,12 +334,41 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 case UsingStatementSyntax usingStatement:
                     return IsValidatedNotNullByStatement(possibleNullReference, usingStatement.Statement);
 
+                case LockStatementSyntax lockStatement:
+                    return IsValidatedNotNullByStatement(possibleNullReference, lockStatement.Statement);
+
+                case TryStatementSyntax tryStatement:
+                    // The try block always starts, but could be aborted anywhere,
+                    // so if the variable is validated there we cannot assume the happy path that it is validated.
+                    // We ignore the whole try/catch block and only look at the finally.
+                    if (tryStatement.Finally is not null)
+                    {
+                        // Finally statement always runs, so if the variable is validated there, we can assume it is validated.
+                        return IsValidatedNotNullByStatement(possibleNullReference, tryStatement.Finally.Block);
+                    }
+                    else
+                    {
+                        // No finally, we cannot assume the variable is validated.
+                        // Stopping further analysis of previous statements.
+                        return false;
+                    }
+
+                case IfStatementSyntax:
+                case SwitchStatementSyntax:
+                case WhileStatementSyntax:
+                case DoStatementSyntax:
+                case ForStatementSyntax:
+                case ForEachStatementSyntax:
+                case GotoStatementSyntax:
+                    // We can't handle conditionals or loops here, so we return false, stopping further analysis of previous statements.
+                    return false;
+
                 default:
-                    // We can't handle conditionals or loops here, so we just return false.
+                    // Other statements don't affect nullability, so we continue looking at previous statements.
                     break;
             }
 
-            // Unknown statement type or not validated.
+            // Not yet determined.
             return null;
         }
 
@@ -403,7 +432,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     {
                         if (anonymousFunction.Block is not null)
                         {
-                            if (IsValidatedNotNullByPreviousStatementInSameBlock(possibleNullReference, anonymousFunction.Block, null))
+                            if (IsValidatedNotNullByPreviousStatementInSameBlock(possibleNullReference, anonymousFunction.Block, null) is true)
                                 return true;
                         }
                         else if (anonymousFunction.ExpressionBody is not null)
