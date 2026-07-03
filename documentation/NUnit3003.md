@@ -1,6 +1,6 @@
 # NUnit3003
 
-## Class is an NUnit TestFixture and is instantiated using reflection
+## Class is an NUnit TestFixture or TestData source and is instantiated using reflection
 
 | Topic    | Value
 | :--      | :--
@@ -59,7 +59,7 @@ For more info about rulesets see [MSDN](https://learn.microsoft.com/en-us/visual
 This is currently not working. Waiting for [Roslyn](https://github.com/dotnet/roslyn/issues/49727)
 
 ```ini
-# NUnit3003: Class is an NUnit TestFixture and is instantiated using reflection
+# NUnit3003: Class is an NUnit TestFixture or TestData source and is instantiated using reflection
 dotnet_diagnostic.NUnit3003.severity = none
 ```
 <!-- end generated config severity -->

@@ -83,5 +83,28 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             await TestHelpers.Suppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
         }
+
+        [Test]
+        public async Task TestClassUsedAsSource()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                internal sealed class FooSource : IEnumerable
+                {
+                    public IEnumerator GetEnumerator() => Enumerable.Empty<object>().GetEnumerator();
+                }
+
+                [TestFixture]
+                public sealed class FooFixture
+                {
+                    [TestCaseSource(typeof(FooSource))]
+                    public void Foo(object o)
+                    {
+                        Assert.That(o, Is.Not.Null);
+                    }
+                }
+                """, "using System.Collections; using System.Linq;");
+
+            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
+        }
     }
 }
