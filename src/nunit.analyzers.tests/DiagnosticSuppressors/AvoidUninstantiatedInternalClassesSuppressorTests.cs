@@ -51,6 +51,17 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             }
         ";
 
+        private const string TestDataClass = @"
+            internal sealed class TestData : IEnumerable
+            {
+                public IEnumerator GetEnumerator()
+                {
+                    yield return ""Hello"";
+                    yield return ""World"";
+                }
+            }
+        ";
+
         private static readonly DiagnosticSuppressor suppressor = new AvoidUninstantiatedInternalClassSuppressor();
         private DiagnosticAnalyzer analyzer;
 
@@ -85,24 +96,64 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         }
 
         [Test]
-        public async Task TestClassUsedAsSource()
+        public async Task TestClassNotUsedAsTestSource()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(TestDataClass, "using System.Collections;");
+
+            await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
+        }
+
+        [Test]
+        public async Task TestClassUsedAsTestCaseSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
-                internal sealed class FooSource : IEnumerable
-                {
-                    public IEnumerator GetEnumerator() => Enumerable.Empty<object>().GetEnumerator();
-                }
-
+                {{TestDataClass}}
+                
                 [TestFixture]
-                public sealed class FooFixture
+                public sealed class TestFixture
                 {
-                    [TestCaseSource(typeof(FooSource))]
-                    public void Foo(object o)
+                    [TestCaseSource(typeof(TestData))]
+                    public void ParameterizedTestMethod(string value)
                     {
-                        Assert.That(o, Is.Not.Null);
+                        Assert.That(value, Is.Not.Null);
+                        Assert.That(value, Has.Length.EqualTo(5));
                     }
                 }
-                """, "using System.Collections; using System.Linq;");
+                
+                """, "using System.Collections;");
+
+            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
+        }
+
+        [Test]
+        public async Task TestClassUsedAsTestFixtureSource()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                {{TestDataClass}}
+                
+                [TestFixtureSource(typeof(TestData))]
+                public sealed class ParameterizedTestFixture
+                {
+                    private readonly string value;
+
+                    public ParameterizedTestFixture(string value)
+                    {
+                        this.value = value;
+                    }
+
+                    [Test]
+                    public void MustBeNotNull()
+                    {
+                        Assert.That(value, Is.Not.Null);
+                    }
+
+                    [Test]
+                    public void MustBeFiveCharactersLong()
+                    {
+                        Assert.That(value, Has.Length.EqualTo(5));
+                    }
+                }
+                """, "using System.Collections;");
 
             await TestHelpers.Suppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
         }
