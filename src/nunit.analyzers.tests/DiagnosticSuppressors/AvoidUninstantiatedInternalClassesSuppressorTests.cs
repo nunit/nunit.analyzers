@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.DiagnosticSuppressors;
 using NUnit.Framework;
@@ -100,6 +101,9 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             }
         ";
 
+        private static readonly Settings settingSearchingAllSourcesForTestCaseUsages =
+            Settings.Default.WithAnalyzerConfig("dotnet_diagnostic.NUnit3003.search_all_code_for_use_as_data_source = true");
+
         private static readonly DiagnosticSuppressor suppressor = new AvoidUninstantiatedInternalClassSuppressor();
         private DiagnosticAnalyzer analyzer;
 
@@ -138,7 +142,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(TestDataClass, "using System.Collections;");
 
-            await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
+            await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode, settingSearchingAllSourcesForTestCaseUsages).ConfigureAwait(true);
         }
 
         [Test]
@@ -147,9 +151,9 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 {{TestDataClass}}
                 {{TestFixtureWithParameterizedTestMethod}}
-                """, "using System.Collections;");
+                """, additionalUsings: "using System.Collections;");
 
-            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
+            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode, settingSearchingAllSourcesForTestCaseUsages).ConfigureAwait(true);
         }
 
         [Test]
@@ -158,19 +162,27 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 {{TestDataClass}}
                 {{ParameterizedTestFixture}}
-                """, "using System.Collections;");
+                """, additionalUsings: "using System.Collections;");
 
-            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
+            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode, settingSearchingAllSourcesForTestCaseUsages).ConfigureAwait(true);
         }
 
         [Test]
         public async Task TestClassUsedInMultipleSourceFiles()
         {
-            var testDataCode = TestUtility.WrapClassInNamespaceAndAddUsing(TestDataClass, "using System.Collections;");
+            var testDataCode = TestUtility.WrapClassInNamespaceAndAddUsing(TestDataClass, additionalUsings: "using System.Collections;");
             var testFixtureCode = TestUtility.WrapClassInNamespaceAndAddUsing(TestFixtureWithParameterizedTestMethod);
             var parameterizedTestFixtureCode = TestUtility.WrapClassInNamespaceAndAddUsing(ParameterizedTestFixture);
 
-            await TestHelpers.Suppressed(this.analyzer, suppressor, [testDataCode, testFixtureCode, parameterizedTestFixtureCode]).ConfigureAwait(true);
+            await TestHelpers.Suppressed(this.analyzer, suppressor, [testDataCode, testFixtureCode, parameterizedTestFixtureCode], settingSearchingAllSourcesForTestCaseUsages).ConfigureAwait(true);
+
+            // Test that the suppressor does not suppress when the setting is not set
+            await TestHelpers.NotSuppressed(this.analyzer, suppressor, [testDataCode, testFixtureCode, parameterizedTestFixtureCode],
+                Settings.Default).ConfigureAwait(true);
+
+            // Test that the suppressor does not suppress when the setting is explicitly disabled
+            await TestHelpers.NotSuppressed(this.analyzer, suppressor, [testDataCode, testFixtureCode, parameterizedTestFixtureCode],
+                Settings.Default.WithAnalyzerConfig("dotnet_diagnostic.NUnit3003.search_all_code_for_use_as_data_source = false")).ConfigureAwait(true);
         }
     }
 }

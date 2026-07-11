@@ -54,7 +54,12 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     {
                         // We need to check if the compilation contains any references to the type symbol in a Source attribute
                         // Collate all the non-fixture types that we have seen so far, so we only need to check the source once for all instances.
-                        nonFixtureTypes[typeSymbol] = diagnostic;
+                        AnalyzerConfigOptions options = context.Options.AnalyzerConfigOptionsProvider.GetOptions(sourceTree);
+                        if (options.TryGetValue("dotnet_diagnostic.NUnit3003.search_all_code_for_use_as_data_source", out string? value) &&
+                            value is "true")
+                        {
+                            nonFixtureTypes[typeSymbol] = diagnostic;
+                        }
                     }
                 }
             }

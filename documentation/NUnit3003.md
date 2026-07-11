@@ -91,6 +91,18 @@ public sealed class ParameterizedTestFixture(string value)
 }
 ```
 
+As this requires scanning all sources to check for usages of the class, this is an expensive operation.
+By default it is disabled, but can be enabled with the following configuration in a .editorconfig file:
+
+```ini
+dotnet_diagnostic.NUnit3003.search_all_code_for_use_as_data_source = true
+```
+
+Note that the use of an IEnumerable as a test data source is not the only way to supply arguments
+to a parameterized test or test fixture.
+This can also be done using a static method,
+static property or static field, which would then not trigger CA1812 in the first place.
+
 <!-- start generated config severity -->
 ## Configure severity
 
