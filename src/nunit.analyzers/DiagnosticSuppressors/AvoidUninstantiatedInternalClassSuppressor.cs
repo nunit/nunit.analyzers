@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -21,6 +22,8 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
         public override void ReportSuppressions(SuppressionAnalysisContext context)
         {
+            ConcurrentDictionary<INamedTypeSymbol, Diagnostic> nonFixtureTypes = new(SymbolEqualityComparer.Default);
+
             foreach (var diagnostic in context.ReportedDiagnostics)
             {
                 SyntaxTree? sourceTree = diagnostic.Location.SourceTree;
@@ -49,36 +52,46 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     }
                     else
                     {
-                        // Check is the compilation contains any references to the type symbol in a Source attribute
-                        // Like TestCaseSource(typeof(XXX)), TestFixtureSource(typeof(XXX))
-
-                        // First look for a usage in the same syntax tree (aka the same source file)
-                        if (SyntaxTreeContainsUsage(context, sourceTree, typeSymbol))
-                        {
-                            SuppressDiagnostic(context, diagnostic);
-                            continue;
-                        }
-
-                        // Then look for a usage in any other syntax tree (aka any other source file)
-                        foreach (var syntaxTree in context.Compilation.SyntaxTrees)
-                        {
-                            if (syntaxTree == sourceTree)
-                            {
-                                // We already looked for a usage in this syntax tree, so we can skip it
-                                continue;
-                            }
-
-                            if (SyntaxTreeContainsUsage(context, syntaxTree, typeSymbol))
-                            {
-                                SuppressDiagnostic(context, diagnostic);
-                                break;
-                            }
-                        }
+                        // We need to check if the compilation contains any references to the type symbol in a Source attribute
+                        // Collate all the non-fixture types that we have seen so far, so we only need to check the source once for all instances.
+                        nonFixtureTypes[typeSymbol] = diagnostic;
                     }
                 }
             }
 
-            static bool SyntaxTreeContainsUsage(SuppressionAnalysisContext context, SyntaxTree syntaxTree, INamedTypeSymbol typeSymbol)
+            if (!nonFixtureTypes.IsEmpty)
+            {
+                INamedTypeSymbol? testCaseSourceAttributeType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute);
+                INamedTypeSymbol? testFixtureSourceAttributeType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestFixtureSourceAttribute);
+
+                if (testCaseSourceAttributeType is null || testFixtureSourceAttributeType is null)
+                {
+                    // Code doesn't reference NUnit.Framework, so we can skip the rest of the analysis
+                    return;
+                }
+
+                // Now look for a usage in any syntax tree in the compilation for any of the non-fixture types we have seen so far
+                foreach (var syntaxTree in context.Compilation.SyntaxTrees)
+                {
+                    SuppressDiagnosticsIfTypeIsUsedInNUnitSourceAttribute(
+                        context,
+                        testCaseSourceAttributeType,
+                        testFixtureSourceAttributeType,
+                        nonFixtureTypes,
+                        syntaxTree);
+
+                    // If all the non-fixture types have been found in a source attribute, we can stop looking through the syntax trees
+                    if (nonFixtureTypes.IsEmpty)
+                        break;
+                }
+            }
+
+            static void SuppressDiagnosticsIfTypeIsUsedInNUnitSourceAttribute(
+                SuppressionAnalysisContext context,
+                INamedTypeSymbol testCaseSourceAttributeType,
+                INamedTypeSymbol testFixtureSourceAttributeType,
+                ConcurrentDictionary<INamedTypeSymbol, Diagnostic> nonFixtureTypes,
+                SyntaxTree syntaxTree)
             {
                 SyntaxNode root = syntaxTree.GetRoot(context.CancellationToken);
                 SemanticModel semanticModel = context.GetSemanticModel(syntaxTree);
@@ -87,33 +100,30 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 foreach (var attribute in root.DescendantNodes(s => s is not StatementSyntax)
                                               .OfType<AttributeSyntax>())
                 {
-                    // We are looking for typeof expressions as the only parameter in attributes on method declarations
+                    // We are looking for typeof expressions as the only argument
                     if (attribute.ArgumentList is null || attribute.ArgumentList.Arguments.Count != 1)
                         continue;
 
                     var firstArgument = attribute.ArgumentList.Arguments[0];
                     if (firstArgument.Expression is TypeOfExpressionSyntax typeOfExpression)
                     {
-                        var symbolInfo = semanticModel.GetSymbolInfo(typeOfExpression.Type, context.CancellationToken);
-                        if (symbolInfo.Symbol is INamedTypeSymbol namedTypeSymbol &&
-                            SymbolEqualityComparer.Default.Equals(namedTypeSymbol, typeSymbol))
+                        // Make sure that the attribute is one of the NUnit attributes (TestCaseSource, TestFixtureSource)
+                        // that instantiate the class to get an enumeration of values
+                        var attributeConstructor = semanticModel.GetSymbolInfo(attribute, context.CancellationToken).Symbol as IMethodSymbol;
+                        var attributeType = attributeConstructor?.ContainingType;
+                        if (attributeType is not null &&
+                            (SymbolEqualityComparer.Default.Equals(attributeType, testCaseSourceAttributeType) ||
+                            SymbolEqualityComparer.Default.Equals(attributeType, testFixtureSourceAttributeType)))
                         {
-                            // Make sure that the attribute is one of the NUnit attributes (TestCaseSource, TestFixtureSource)
-                            // that instantiate the class to get an enumeration of values
-                            var attributeConstructor = semanticModel.GetSymbolInfo(attribute, context.CancellationToken).Symbol as IMethodSymbol;
-                            var attributeType = attributeConstructor?.ContainingType;
-                            if (attributeType is not null &&
-                                attributeType.ContainingAssembly.Name is NUnitFrameworkConstants.NUnitFrameworkAssemblyName &&
-                                attributeType.Name is NUnitFrameworkConstants.NameOfTestCaseSourceAttribute
-                                                   or NUnitFrameworkConstants.NameOfTestFixtureSourceAttribute)
+                            var referencedType = semanticModel.GetSymbolInfo(typeOfExpression.Type, context.CancellationToken).Symbol as INamedTypeSymbol;
+                            if (referencedType is not null &&
+                                nonFixtureTypes.TryRemove(referencedType, out Diagnostic? diagnostic))
                             {
-                                return true;
+                                SuppressDiagnostic(context, diagnostic);
                             }
                         }
                     }
                 }
-
-                return false;
             }
 
             static void SuppressDiagnostic(SuppressionAnalysisContext context, Diagnostic diagnostic)

@@ -126,6 +126,7 @@ namespace NUnit.Analyzers.Constants
 
         public const string NameOfTestFixtureAttribute = "TestFixtureAttribute";
         public const string NameOfTestFixtureSourceAttribute = "TestFixtureSourceAttribute";
+        public const string FullNameOfTypeTestFixtureSourceAttribute = "NUnit.Framework.TestFixtureSourceAttribute";
 
         public const string NameOfTestCaseAttribute = "TestCaseAttribute";
         public const string NameOfTestCaseSourceAttribute = "TestCaseSourceAttribute";

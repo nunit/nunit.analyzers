@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,10 +14,11 @@ namespace NUnit.Analyzers.Tests
     internal static class TestHelpers
     {
         internal static Compilation CreateCompilation(string? code = null, Settings? settings = null)
+            => CreateCompilation(code is null ? null : [code], settings);
+
+        internal static Compilation CreateCompilation(string[]? code, Settings? settings = null)
         {
-            var syntaxTrees = code is null
-                ? null
-                : new[] { CSharpSyntaxTree.ParseText(code) };
+            IEnumerable<SyntaxTree>? syntaxTrees = code?.Select(text => CSharpSyntaxTree.ParseText(text));
 
             settings ??= Settings.Default;
 
@@ -26,7 +28,7 @@ namespace NUnit.Analyzers.Tests
                 options: settings.CompilationOptions);
         }
 
-        internal static async Task SuppressedOrNot(DiagnosticAnalyzer analyzer, DiagnosticSuppressor suppressor, string code, bool isSuppressed, Settings? settings = null)
+        internal static async Task SuppressedOrNot(DiagnosticAnalyzer analyzer, DiagnosticSuppressor suppressor, string[] code, bool isSuppressed, Settings? settings = null)
         {
             string id = analyzer.SupportedDiagnostics[0].Id;
             Assert.That(suppressor.SupportedSuppressions.Select(x => x.SuppressedDiagnosticId), Does.Contain(id));
@@ -51,11 +53,17 @@ namespace NUnit.Analyzers.Tests
             Assert.That(diagnostics[0].IsSuppressed, Is.EqualTo(isSuppressed));
         }
 
-        internal static Task NotSuppressed(DiagnosticAnalyzer analyzer, DiagnosticSuppressor suppressor, string code, Settings? settings = null)
+        internal static Task NotSuppressed(DiagnosticAnalyzer analyzer, DiagnosticSuppressor suppressor, string[] code, Settings? settings = null)
             => SuppressedOrNot(analyzer, suppressor, code, false, settings);
 
-        internal static Task Suppressed(DiagnosticAnalyzer analyzer, DiagnosticSuppressor suppressor, string code, Settings? settings = null)
+        internal static Task NotSuppressed(DiagnosticAnalyzer analyzer, DiagnosticSuppressor suppressor, string code, Settings? settings = null)
+            => SuppressedOrNot(analyzer, suppressor, [code], false, settings);
+
+        internal static Task Suppressed(DiagnosticAnalyzer analyzer, DiagnosticSuppressor suppressor, string[] code, Settings? settings = null)
             => SuppressedOrNot(analyzer, suppressor, code, true, settings);
+
+        internal static Task Suppressed(DiagnosticAnalyzer analyzer, DiagnosticSuppressor suppressor, string code, Settings? settings = null)
+            => SuppressedOrNot(analyzer, suppressor, [code], true, settings);
 
         internal static (SyntaxTree Tree, Compilation Compilation) GetTreeAndCompilation(string code)
         {

@@ -126,6 +126,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.FullNameOfTypeIs), typeof(Is)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeTestCaseAttribute), typeof(TestCaseAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute), typeof(TestCaseSourceAttribute)),
+            (nameof(NUnitFrameworkConstants.FullNameOfTypeTestFixtureSourceAttribute), typeof(TestFixtureSourceAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeTestAttribute), typeof(TestAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeParallelizableAttribute), typeof(ParallelizableAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeRangeAttribute), typeof(RangeAttribute)),
