@@ -70,9 +70,15 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 }
 
                 // Verify that the name found is actually a field or a property name.
-                var classDeclaration = node.Ancestors().OfType<ClassDeclarationSyntax>().First();
-                var fieldDeclarations = classDeclaration.Members.OfType<FieldDeclarationSyntax>();
-                var propertyDeclarations = classDeclaration.Members.OfType<PropertyDeclarationSyntax>();
+                var typeDeclaration = node.Ancestors().OfType<TypeDeclarationSyntax>().FirstOrDefault();
+                if (typeDeclaration is null)
+                {
+                    // This should never happen as CS8618 only deals with fields and properties, but just in case.
+                    continue;
+                }
+
+                var fieldDeclarations = typeDeclaration.Members.OfType<FieldDeclarationSyntax>();
+                var propertyDeclarations = typeDeclaration.Members.OfType<PropertyDeclarationSyntax>();
 
                 if (!fieldDeclarations.SelectMany(x => x.Declaration.Variables).Any(x => x.Identifier.Text == fieldOrPropertyName) &&
                     !propertyDeclarations.Any(x => x.Identifier.Text == fieldOrPropertyName))
@@ -84,7 +90,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
                 // Sometimes virtual method are called from base class SetUp methods.
                 // Allow the users to specify these as well.
-                AnalyzerConfigOptions options = context.Options.AnalyzerConfigOptionsProvider.GetOptions(classDeclaration.SyntaxTree);
+                AnalyzerConfigOptions options = context.Options.AnalyzerConfigOptionsProvider.GetOptions(typeDeclaration.SyntaxTree);
 
                 options.GetAdditionalSetUpTearDownMethods(
                     out ImmutableHashSet<string> additionalOneTimeSetUpMethods,
@@ -92,7 +98,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     out ImmutableHashSet<string> additionalSetUpMethods,
                     out _);
 
-                var methods = classDeclaration.Members.OfType<MethodDeclarationSyntax>();
+                var methods = typeDeclaration.Members.OfType<MethodDeclarationSyntax>();
                 foreach (var method in methods)
                 {
                     var declaredMethod = model.GetDeclaredSymbol(method) as IMethodSymbol;
@@ -110,7 +116,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                     {
                         // Check for assignment to this field.
                         HashSet<SyntaxNode> visitedMethods = new();
-                        if (IsAssignedIn(model, classDeclaration, visitedMethods, method.ExpressionBody, method.Body, fieldOrPropertyName))
+                        if (IsAssignedIn(model, typeDeclaration, visitedMethods, method.ExpressionBody, method.Body, fieldOrPropertyName))
                         {
                             context.ReportSuppression(Suppression.Create(NullableFieldOrPropertyInitializedInSetUp, diagnostic));
                         }
@@ -121,7 +127,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
         private static bool IsAssignedIn(
             SemanticModel model,
-            ClassDeclarationSyntax classDeclaration,
+            TypeDeclarationSyntax typeDeclaration,
             HashSet<SyntaxNode> visitedMethods,
             ArrowExpressionClauseSyntax? expressionBody,
             BlockSyntax? block,
@@ -129,12 +135,12 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
         {
             if (expressionBody is not null)
             {
-                return IsAssignedIn(model, classDeclaration, visitedMethods, expressionBody.Expression, fieldOrPropertyName);
+                return IsAssignedIn(model, typeDeclaration, visitedMethods, expressionBody.Expression, fieldOrPropertyName);
             }
 
             if (block is not null)
             {
-                return IsAssignedIn(model, classDeclaration, visitedMethods, block, fieldOrPropertyName);
+                return IsAssignedIn(model, typeDeclaration, visitedMethods, block, fieldOrPropertyName);
             }
 
             return false;
@@ -142,7 +148,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
         private static bool IsAssignedIn(
             SemanticModel model,
-            ClassDeclarationSyntax classDeclaration,
+            TypeDeclarationSyntax typeDeclaration,
             HashSet<SyntaxNode> visitedMethods,
             StatementSyntax statement,
             string fieldOrPropertyName)
@@ -150,18 +156,18 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             switch (statement)
             {
                 case ExpressionStatementSyntax expressionStatement:
-                    return IsAssignedIn(model, classDeclaration, visitedMethods, expressionStatement.Expression, fieldOrPropertyName);
+                    return IsAssignedIn(model, typeDeclaration, visitedMethods, expressionStatement.Expression, fieldOrPropertyName);
 
                 case BlockSyntax block:
-                    return IsAssignedIn(model, classDeclaration, visitedMethods, block.Statements, fieldOrPropertyName);
+                    return IsAssignedIn(model, typeDeclaration, visitedMethods, block.Statements, fieldOrPropertyName);
 
                 case TryStatementSyntax tryStatement:
-                    return IsAssignedIn(model, classDeclaration, visitedMethods, tryStatement.Block, fieldOrPropertyName) ||
+                    return IsAssignedIn(model, typeDeclaration, visitedMethods, tryStatement.Block, fieldOrPropertyName) ||
                         (tryStatement.Finally is not null &&
-                        IsAssignedIn(model, classDeclaration, visitedMethods, tryStatement.Finally.Block, fieldOrPropertyName));
+                        IsAssignedIn(model, typeDeclaration, visitedMethods, tryStatement.Finally.Block, fieldOrPropertyName));
 
                 case UsingStatementSyntax usingStatement:
-                    return IsAssignedIn(model, classDeclaration, visitedMethods, usingStatement.Statement, fieldOrPropertyName);
+                    return IsAssignedIn(model, typeDeclaration, visitedMethods, usingStatement.Statement, fieldOrPropertyName);
 
                 default:
                     // Any conditional statement does not guarantee assignment.
@@ -171,14 +177,14 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
         private static bool IsAssignedIn(
             SemanticModel model,
-            ClassDeclarationSyntax classDeclaration,
+            TypeDeclarationSyntax typeDeclaration,
             HashSet<SyntaxNode> visitedMethods,
             SyntaxList<StatementSyntax> statements,
             string fieldOrPropertyName)
         {
             foreach (var statement in statements)
             {
-                if (IsAssignedIn(model, classDeclaration, visitedMethods, statement, fieldOrPropertyName))
+                if (IsAssignedIn(model, typeDeclaration, visitedMethods, statement, fieldOrPropertyName))
                     return true;
             }
 
@@ -187,7 +193,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
         private static bool IsAssignedIn(
             SemanticModel model,
-            ClassDeclarationSyntax classDeclaration,
+            TypeDeclarationSyntax typeDeclaration,
             HashSet<SyntaxNode> visitedMethods,
             InvocationExpressionSyntax invocationExpression,
             string fieldOrPropertyName)
@@ -201,12 +207,12 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
             if (syntaxNode is MethodDeclarationSyntax method)
             {
-                if (method.Parent == classDeclaration)
+                if (method.Parent == typeDeclaration)
                 {
                     // We only get here if the method is in our source code and our class.
                     if (visitedMethods.Add(method))
                     {
-                        return IsAssignedIn(model, classDeclaration, visitedMethods, method.ExpressionBody, method.Body, fieldOrPropertyName);
+                        return IsAssignedIn(model, typeDeclaration, visitedMethods, method.ExpressionBody, method.Body, fieldOrPropertyName);
                     }
                 }
             }
@@ -214,7 +220,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
             {
                 if (visitedMethods.Add(localFunction))
                 {
-                    return IsAssignedIn(model, classDeclaration, visitedMethods, localFunction.ExpressionBody, localFunction.Body, fieldOrPropertyName);
+                    return IsAssignedIn(model, typeDeclaration, visitedMethods, localFunction.ExpressionBody, localFunction.Body, fieldOrPropertyName);
                 }
             }
 
@@ -223,7 +229,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
         private static bool IsAssignedIn(
             SemanticModel model,
-            ClassDeclarationSyntax classDeclaration,
+            TypeDeclarationSyntax typeDeclaration,
             HashSet<SyntaxNode> visitedMethods,
             ExpressionSyntax? expressionStatement,
             string fieldOrPropertyName)
@@ -271,7 +277,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 string? identifier = GetIdentifier(invocationExpression.Expression);
 
                 if (!string.IsNullOrEmpty(identifier) &&
-                    IsAssignedIn(model, classDeclaration, visitedMethods, invocationExpression, fieldOrPropertyName))
+                    IsAssignedIn(model, typeDeclaration, visitedMethods, invocationExpression, fieldOrPropertyName))
                 {
                     return true;
                 }
