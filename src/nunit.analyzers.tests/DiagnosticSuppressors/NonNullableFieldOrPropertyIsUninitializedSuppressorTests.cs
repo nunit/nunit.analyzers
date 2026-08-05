@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 {
-    // Declared 'record' to proof it works even though useless in this context.
+    // Declared as a 'record' to prove it works even though it's useless in this context.
     internal sealed record NonNullableFieldOrPropertyIsUninitializedSuppressorTests
     {
         private static readonly DiagnosticSuppressor suppressor = new NonNullableFieldOrPropertyIsUninitializedSuppressor();
