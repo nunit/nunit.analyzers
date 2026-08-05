@@ -45,7 +45,7 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
             {
                 if (method.IsTestRelatedMethod(context.Compilation))
                     hasTestMethods = true;
-                else if (IsPublicOrInternalMethod(method) && !IsOverride(method) && !IsDisposeMethod(method))
+                else if (IsPublicOrInternalMethod(method) && !IsOverride(method) && !IsDisposeMethod(method) && !IsCompilerGenerated(method))
                     publicNonTestMethods.Add(method);
             }
 
@@ -83,6 +83,15 @@ namespace NUnit.Analyzers.NonTestMethodAccessibilityLevel
         {
             return method.IsInterfaceImplementation("System.IDisposable") ||
                    method.IsInterfaceImplementation("System.IAsyncDisposable");
+        }
+
+        private static bool IsCompilerGenerated(IMethodSymbol method)
+        {
+            return method.IsImplicitlyDeclared ||
+                   method.GetAttributes()
+                         .Any(a => a.AttributeClass is INamedTypeSymbol namedType &&
+                                   namedType.Name == "CompilerGeneratedAttribute" &&
+                                   namedType.ContainingNamespace?.ToDisplayString() == "System.Runtime.CompilerServices");
         }
     }
 }
