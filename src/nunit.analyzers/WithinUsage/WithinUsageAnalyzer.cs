@@ -13,7 +13,7 @@ using NUnit.Analyzers.Helpers;
 namespace NUnit.Analyzers.WithinUsage
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class WithinUsageAnalyzer : BaseAssertionAnalyzer
+    public class WithinUsageAnalyzer : BaseAssertionAnalyzer<WithinUsageAnalyzer.AdditionalNumericTypes>
     {
         private static readonly string[] SupportedIsMethods =
         [
@@ -34,8 +34,20 @@ namespace NUnit.Analyzers.WithinUsage
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(descriptor);
 
-        protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
+        protected override AdditionalNumericTypes GetAdditionalInfoAtCompilationStart(Compilation compilation)
         {
+            INamedTypeSymbol? halfType = compilation.GetTypeByMetadataName("System.Half");
+            INamedTypeSymbol? int128Type = compilation.GetTypeByMetadataName("System.Int128");
+            INamedTypeSymbol? uint128Type = compilation.GetTypeByMetadataName("System.UInt128");
+
+            return new AdditionalNumericTypes(halfType, int128Type, uint128Type);
+        }
+
+        protected override void AnalyzeAssertInvocation(Version nunitVersion, AdditionalNumericTypes? info, OperationAnalysisContext context, IInvocationOperation assertOperation)
+        {
+            if (nunitVersion.Major < 5)
+                info = null;
+
             if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation, out _, out var constraintExpression))
             {
                 return;
@@ -56,10 +68,10 @@ namespace NUnit.Analyzers.WithinUsage
 
                 var expectedType = constraintPart.GetExpectedArgument()?.Type;
 
-                if (expectedType is null || expectedType.TypeKind == TypeKind.Error)
+                if (expectedType is null || expectedType.TypeKind is TypeKind.Error or TypeKind.TypeParameter)
                     return;
 
-                if (!IsTypeSupported(expectedType))
+                if (!IsTypeSupported(expectedType) && (info is null || !info.IsTypeSupported(expectedType)))
                 {
                     var syntax = withinSuffix.Syntax is InvocationExpressionSyntax expressionSyntax &&
                         expressionSyntax.Expression is MemberAccessExpressionSyntax memberAccessSyntax
@@ -97,6 +109,9 @@ namespace NUnit.Analyzers.WithinUsage
             {
                 return true;
             }
+
+            if (type.IsNativeIntegerType)
+                return true;
 
             if (type.SpecialType == SpecialType.System_Object)
                 return true; // We have no idea of the underlying type.
@@ -165,6 +180,30 @@ namespace NUnit.Analyzers.WithinUsage
 
             // If the type overrides Equals, NUnit won't use tolerance
             return type.GetMembers("Equals").Length == 0;
+        }
+
+        public sealed class AdditionalNumericTypes
+        {
+            internal AdditionalNumericTypes(
+                INamedTypeSymbol? halfType,
+                INamedTypeSymbol? int128Type,
+                INamedTypeSymbol? uint128Type)
+            {
+                this.HalfType = halfType;
+                this.Int128Type = int128Type;
+                this.Uint128Type = uint128Type;
+            }
+
+            public INamedTypeSymbol? HalfType { get; }
+            public INamedTypeSymbol? Int128Type { get; }
+            public INamedTypeSymbol? Uint128Type { get; }
+
+            public bool IsTypeSupported(ITypeSymbol type)
+            {
+                return SymbolEqualityComparer.Default.Equals(type, this.HalfType) ||
+                       SymbolEqualityComparer.Default.Equals(type, this.Int128Type) ||
+                       SymbolEqualityComparer.Default.Equals(type, this.Uint128Type);
+            }
         }
     }
 }

@@ -70,6 +70,37 @@ namespace NUnit.Analyzers.Tests.WithinUsage
 #endif
 
         [Test]
+        public void AnalyzeWhenUsingGenericParameters()
+        {
+            string testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [TestCase(1.0, 1.05)]
+                public void Test<T>(T a, T b)
+                {
+                    Assert.That(a, Is.EqualTo(b).Within(0.1));
+                }");
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+#if NUNIT5
+
+#if !NETFRAMEWORK
+        [TestCase("Half")]
+        [TestCase("Int128")]
+        [TestCase("UInt128")]
+#endif
+        [TestCase("nint")]
+        [TestCase("nuint")]
+        public void AnalyzeWhenUsingNewType(string typeName)
+        {
+            string testCode = TestUtility.WrapInTestMethod($@"
+                {typeName} a = ({typeName})30;
+                {typeName} b = ({typeName})50;
+                Assert.That(a, Is.EqualTo(b).Within(0.1));");
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+#endif
+
+        [Test]
         public void AnalyzeWhenAppliedToEqualityConstraintForArraysOfValidTypes()
         {
             string testCode = TestUtility.WrapInTestMethod(@"
