@@ -69,7 +69,7 @@ namespace NUnit.Analyzers.WithinUsage
                 var expectedType = constraintPart.GetExpectedArgument()?.Type;
 
                 if (expectedType is null || expectedType.TypeKind is TypeKind.Error or TypeKind.TypeParameter)
-                    return;
+                    continue;
 
                 if (!IsTypeSupported(expectedType) && (info is null || !info.IsTypeSupported(expectedType)))
                 {

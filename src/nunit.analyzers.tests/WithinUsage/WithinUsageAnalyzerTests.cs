@@ -38,7 +38,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         public void AnalyzeWhenAppliedToEqualityConstraintForStrings(string constraintName)
         {
             string testCode = TestUtility.WrapInTestMethod(
-                $@"Assert.That(""1"", Is.{constraintName}(""1"").↓Within(0.1));");
+                $@"Assert.That(""1"", Is.Not.Empty.And.{constraintName}(""1"").↓Within(0.1));");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -70,7 +70,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
 #endif
 
         [Test]
-        public void AnalyzeWhenUsingGenericParameters()
+        public void AnalyzeWhenUsingAllGenericParameters()
         {
             string testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
                 [TestCase(1.0, 1.05)]
@@ -79,6 +79,19 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                     Assert.That(a, Is.EqualTo(b).Within(0.1));
                 }");
             RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenUsingSomeGenericParameters()
+        {
+            string testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [TestCase(1.0, 1.05)]
+                public void Test<T>(T a, T b)
+                    where T : struct
+                {
+                    Assert.That(a, Is.EqualTo(b).Within(0.1).And.Not.LessThan(""0.0"").↓Within(""5""));
+                }");
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
 #if NUNIT5
