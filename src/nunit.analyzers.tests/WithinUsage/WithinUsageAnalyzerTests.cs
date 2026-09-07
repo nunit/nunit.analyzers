@@ -159,11 +159,17 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         [Test]
         public void AnalyzeWhenAppliedToEqualityConstraintForMixedCompatibleTuples()
         {
+#if NUNIT5 && !NETFRAMEWORK
+            string testCode = TestUtility.WrapInTestMethod(@"
+                var a = (1, ""1"");
+                var b = ((Half)1.01, ""1"");
+                Assert.That(a, Is.EqualTo(b).Within(0.1));");
+#else
             string testCode = TestUtility.WrapInTestMethod(@"
                 var a = (1, ""1"");
                 var b = (1.01, ""1"");
                 Assert.That(a, Is.EqualTo(b).Within(0.1));");
-
+#endif
             RoslynAssert.Valid(analyzer, testCode);
         }
 
@@ -374,6 +380,12 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         [TestCase("double")]
         [TestCase("int")]
         [TestCase("TimeSpan")]
+        [TestCase("nint")]
+#if NUNIT5 && !NETFRAMEWORK
+        [TestCase("Half")]
+        [TestCase("Int128")]
+        [TestCase("UInt128")]
+#endif
         public void AnalyzeWhenAppliedToEqualityConstraintForNullableValidTypes(string type)
         {
             string testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"

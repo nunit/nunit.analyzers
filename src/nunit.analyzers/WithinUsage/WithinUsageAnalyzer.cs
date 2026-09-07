@@ -71,7 +71,7 @@ namespace NUnit.Analyzers.WithinUsage
                 if (expectedType is null || expectedType.TypeKind is TypeKind.Error or TypeKind.TypeParameter)
                     continue;
 
-                if (!IsTypeSupported(expectedType) && (info is null || !info.IsTypeSupported(expectedType)))
+                if (!IsTypeSupported(expectedType, info, null))
                 {
                     var syntax = withinSuffix.Syntax is InvocationExpressionSyntax expressionSyntax &&
                         expressionSyntax.Expression is MemberAccessExpressionSyntax memberAccessSyntax
@@ -85,7 +85,7 @@ namespace NUnit.Analyzers.WithinUsage
             }
         }
 
-        private static bool IsTypeSupported(ITypeSymbol type, HashSet<ITypeSymbol>? checkedTypes = null)
+        private static bool IsTypeSupported(ITypeSymbol type, AdditionalNumericTypes? additionalNumericTypes, HashSet<ITypeSymbol>? checkedTypes)
         {
             // Protection against possible infinite recursion
             checkedTypes ??= new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default);
@@ -122,7 +122,10 @@ namespace NUnit.Analyzers.WithinUsage
             if (type.TypeKind == TypeKind.Enum)
                 return false;
 
-            if (type is IArrayTypeSymbol arrayType && IsTypeSupported(arrayType.ElementType, checkedTypes))
+            if (additionalNumericTypes is not null && additionalNumericTypes.IsTypeSupported(type))
+                return true;
+
+            if (type is IArrayTypeSymbol arrayType && IsTypeSupported(arrayType.ElementType, additionalNumericTypes, checkedTypes))
                 return true;
 
             if (type is not INamedTypeSymbol namedType)
@@ -135,7 +138,7 @@ namespace NUnit.Analyzers.WithinUsage
                 string interfaceTypeName = interfaceType.GetFullMetadataName();
                 if (interfaceTypeName.StartsWith("System.Collections.Generic.IEnumerable`", StringComparison.Ordinal))
                 {
-                    return IsTypeSupported(interfaceType.TypeArguments[0], checkedTypes);
+                    return IsTypeSupported(interfaceType.TypeArguments[0], additionalNumericTypes, checkedTypes);
                 }
 
                 if (interfaceTypeName.Equals("System.Collections.IEnumerable", StringComparison.Ordinal))
@@ -144,14 +147,14 @@ namespace NUnit.Analyzers.WithinUsage
 
             // Allowed - tuples having any element of any supported type
             if (namedType.IsTupleType)
-                return namedType.TupleElements.Any(e => IsTypeSupported(e.Type, checkedTypes));
+                return namedType.TupleElements.Any(e => IsTypeSupported(e.Type, additionalNumericTypes, checkedTypes));
 
             string fullName = namedType.GetFullMetadataName();
 
             if (fullName.StartsWith("System.Tuple`", StringComparison.Ordinal) ||
                 fullName.StartsWith("System.ValueTuple", StringComparison.Ordinal))
             {
-                return namedType.TypeArguments.Any(t => IsTypeSupported(t, checkedTypes));
+                return namedType.TypeArguments.Any(t => IsTypeSupported(t, additionalNumericTypes, checkedTypes));
             }
 
             if (fullName.Equals("System.TimeSpan", StringComparison.Ordinal))
@@ -163,13 +166,13 @@ namespace NUnit.Analyzers.WithinUsage
             // Check for Nullable<T>
             if (fullName.Equals("System.Nullable`1", StringComparison.Ordinal))
             {
-                return IsTypeSupported(namedType.TypeArguments[0]);
+                return IsTypeSupported(namedType.TypeArguments[0], additionalNumericTypes, checkedTypes);
             }
 
             if (fullName.StartsWith("System.Collections.Generic.KeyValuePair`", StringComparison.Ordinal))
             {
                 // We pass tolerance to the Value Type.
-                return IsTypeSupported(namedType.TypeArguments[1], checkedTypes);
+                return IsTypeSupported(namedType.TypeArguments[1], additionalNumericTypes, checkedTypes);
             }
 
             if (implementsNonGenericIEnumerable ||
