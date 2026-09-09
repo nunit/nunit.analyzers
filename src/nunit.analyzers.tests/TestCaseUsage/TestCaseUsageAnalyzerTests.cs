@@ -970,6 +970,31 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
+        public void AnalyzeWhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnBaseClass()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+    [CancelAfter(50)]
+    public abstract class BaseClass
+    {
+    }
+
+    [TestFixture]
+    public class TestClass : BaseClass
+    {
+        [TestCase(100)]
+        public async Task InfiniteLoopWithCancelAfter(int delayInMs, CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(delayInMs, cancellationToken).ConfigureAwait(false);
+            }
+        }
+    }", "using System.Threading;");
+
+            RoslynAssert.Valid(this.analyzer, testCode);
+        }
+
+        [Test]
         public void AnalyzeWhenTestMethodHasNoImplicitlySuppliedCancellationTokenParameter()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
