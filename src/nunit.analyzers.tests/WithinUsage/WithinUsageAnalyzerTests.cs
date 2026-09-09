@@ -119,7 +119,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
             string testCode = TestUtility.WrapInTestMethod($@"
                 IntPtr a = (IntPtr)30;
                 IntPtr b = (IntPtr)50;
-                Assert.That(a, Is.EqualTo(b).Within(0.1));");
+                Assert.That(a, Is.EqualTo(b).↓Within(0.1));");
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
