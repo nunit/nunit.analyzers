@@ -120,7 +120,7 @@ namespace NUnit.Analyzers.TestMethodUsage
             {
                 var testAttribute = methodAttributes.SingleOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, testType));
                 var hasCancelAfterAttribute = methodAttributes.Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType)) ||
-                    methodSymbol.ContainingType.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
+                    methodSymbol.ContainingType.GetAllAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, cancelAfterType));
 
                 if (testAttribute is not null)
                 {
