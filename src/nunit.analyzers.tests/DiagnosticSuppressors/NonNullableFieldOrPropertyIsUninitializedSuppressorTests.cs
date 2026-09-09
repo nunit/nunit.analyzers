@@ -535,10 +535,10 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         }
 
         [TestCaseSource(nameof(TypeDeclarations))]
-        public void ShouldIgnoreUnrelatedTypeDeclarations(string type)
+        public void ShouldIgnoreUnrelatedTypeDeclarations(string typeDeclaration)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
-                public {{type}} TestType
+                public {{typeDeclaration}} TestType
                 {
                     public string ↓Field;
                 }
