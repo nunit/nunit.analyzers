@@ -241,5 +241,19 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+        [Test]
+        public void AnalyzeWhenMethodIsCompilerGenerated()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+        public sealed record MyTestClass
+        {
+            [Test]
+            public void TestMethod() { }
+        }
+        ");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
     }
 }

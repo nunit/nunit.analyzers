@@ -5,23 +5,30 @@ using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 {
-    public class NonNullableFieldOrPropertyIsUninitializedSuppressorTests
+    // Declared as a 'record' to prove it works even though it's useless in this context.
+    internal sealed record NonNullableFieldOrPropertyIsUninitializedSuppressorTests
     {
         private static readonly DiagnosticSuppressor suppressor = new NonNullableFieldOrPropertyIsUninitializedSuppressor();
 
-        [Test]
-        public void FieldNotAssigned()
-        {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                private string ↓field;
+        private static readonly string[] TypeDeclarations = ["class", "record"];
 
-                [Test]
-                public void Test()
+        [TestCaseSource(nameof(TypeDeclarations))]
+        public void FieldNotAssigned(string typeDeclaration)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                [TestFixture]
+                public {{typeDeclaration}} TestClass
                 {
-                    field = string.Empty;
-                    Assert.That(field, Is.Not.Null);
+                    private string ↓field;
+
+                    [Test]
+                    public void Test()
+                    {
+                        field = string.Empty;
+                        Assert.That(field, Is.Not.Null);
+                    }
                 }
-            ");
+                """);
 
             RoslynAssert.NotSuppressed(suppressor, testCode);
         }
@@ -153,18 +160,22 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             RoslynAssert.Suppressed(suppressor, testCode);
         }
 
-        [Test]
-        public void PropertyNotAssigned()
+        [TestCaseSource(nameof(TypeDeclarations))]
+        public void PropertyNotAssigned(string typeDeclaration)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                protected string ↓Property {{ get; private set; }}
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                [TestFixture]
+                public {{typeDeclaration}} TestClass
+                {
+                    protected string ↓Property { get; private set; }
 
-                [Test]
-                public void Test()
-                {{
-                    Assert.That(Property, Is.Not.Null);
-                }}
-            ");
+                    [Test]
+                    public void Test()
+                    {
+                        Assert.That(Property, Is.Not.Null);
+                    }
+                }
+                """);
 
             RoslynAssert.NotSuppressed(suppressor, testCode);
         }
@@ -521,6 +532,19 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             string analyzerConfig = $"dotnet_diagnostic.NUnit.{configuration} = OnSetUp";
             Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
             RoslynAssert.Suppressed(suppressor, testCode, settings);
+        }
+
+        [TestCaseSource(nameof(TypeDeclarations))]
+        public void ShouldIgnoreUnrelatedTypeDeclarations(string typeDeclaration)
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public {{typeDeclaration}} TestType
+                {
+                    public string ↓Field;
+                }
+                """);
+
+            RoslynAssert.NotSuppressed(suppressor, testCode);
         }
     }
 }
