@@ -38,7 +38,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         public void AnalyzeWhenAppliedToEqualityConstraintForStrings(string constraintName)
         {
             string testCode = TestUtility.WrapInTestMethod(
-                $@"Assert.That(""1"", Is.{constraintName}(""1"").↓Within(0.1));");
+                $@"Assert.That(""1"", Is.Not.Empty.And.{constraintName}(""1"").↓Within(0.1));");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -68,6 +68,60 @@ namespace NUnit.Analyzers.Tests.WithinUsage
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 #endif
+
+        [Test]
+        public void AnalyzeWhenUsingAllGenericParameters()
+        {
+            string testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [TestCase(1.0, 1.05)]
+                public void Test<T>(T a, T b)
+                {
+                    Assert.That(a, Is.EqualTo(b).Within(0.1));
+                }");
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+
+        [Test]
+        public void AnalyzeWhenUsingSomeGenericParameters()
+        {
+            string testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
+                [TestCase(1.0, 1.05)]
+                public void Test<T>(T a, T b)
+                    where T : struct
+                {
+                    Assert.That(a, Is.EqualTo(b).Within(0.1).And.Not.LessThan(""0.0"").↓Within(""5""));
+                }");
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+
+#if NUNIT5
+
+#if !NETFRAMEWORK
+        [TestCase("Half")]
+        [TestCase("Int128")]
+        [TestCase("UInt128")]
+#endif
+        [TestCase("nint")]
+        [TestCase("nuint")]
+        public void AnalyzeWhenUsingNewType(string typeName)
+        {
+            string testCode = TestUtility.WrapInTestMethod($@"
+                {typeName} a = ({typeName})30;
+                {typeName} b = ({typeName})50;
+                Assert.That(a, Is.EqualTo(b).Within(0.1));");
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+#endif
+
+        [Test]
+        public void AnalyzeWhenUsingIntPtr()
+        {
+            string testCode = TestUtility.WrapInTestMethod($@"
+                IntPtr a = (IntPtr)30;
+                IntPtr b = (IntPtr)50;
+                Assert.That(a, Is.EqualTo(b).↓Within(0.1));");
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
 
         [Test]
         public void AnalyzeWhenAppliedToEqualityConstraintForArraysOfValidTypes()
@@ -105,11 +159,17 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         [Test]
         public void AnalyzeWhenAppliedToEqualityConstraintForMixedCompatibleTuples()
         {
+#if NUNIT5 && !NETFRAMEWORK
+            string testCode = TestUtility.WrapInTestMethod(@"
+                var a = (1, ""1"");
+                var b = ((Half)1.01, ""1"");
+                Assert.That(a, Is.EqualTo(b).Within(0.1));");
+#else
             string testCode = TestUtility.WrapInTestMethod(@"
                 var a = (1, ""1"");
                 var b = (1.01, ""1"");
                 Assert.That(a, Is.EqualTo(b).Within(0.1));");
-
+#endif
             RoslynAssert.Valid(analyzer, testCode);
         }
 
@@ -320,6 +380,12 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         [TestCase("double")]
         [TestCase("int")]
         [TestCase("TimeSpan")]
+        [TestCase("nint")]
+#if NUNIT5 && !NETFRAMEWORK
+        [TestCase("Half")]
+        [TestCase("Int128")]
+        [TestCase("UInt128")]
+#endif
         public void AnalyzeWhenAppliedToEqualityConstraintForNullableValidTypes(string type)
         {
             string testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
