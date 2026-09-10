@@ -1,6 +1,6 @@
 # NUnit3003
 
-## Class is an NUnit TestFixture and is instantiated using reflection
+## Class is an NUnit TestFixture or TestData source and is instantiated using reflection
 
 | Topic    | Value
 | :--      | :--
@@ -12,7 +12,7 @@
 
 ## Description
 
-Class is a NUnit TestFixture and called by reflection
+Class is an NUnit TestFixture or TestData source and is instantiated using reflection
 
 ## Motivation
 
@@ -20,7 +20,88 @@ The default roslyn analyzer has rule
 [CA1812](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1812)
 which warns about internal classes not being used.
 That analyzer doesn't know about NUnit test classes.
-This suppressor catches the error, verifies the class is an NUnit TestFixture and if so suppresses the error.
+This suppressor catches the error,
+verifies the class is an NUnit TestFixture or TestData source and if so suppresses the error.
+
+NUnit test fixtures can be marked internal but this will cause the CA1812 warning to be raised.
+This suppressor will suppress the warning for internal test fixtures.
+
+```csharp
+[TestFixture]
+internal class MyTestFixture
+{
+    [Test]
+    public void TestMethod()
+    {
+        Assert.Pass();
+    }
+}
+```
+
+Test data source classes can be marked internal but this will cause the CA1812 warning to be raised.
+This suppressor will suppress the warning for internal test data sources that are actually used by test fixtures.
+
+Given the following test data source class:
+
+```csharp
+using System.Collections;
+
+internal sealed class TestData : IEnumerable
+{
+    public IEnumerator GetEnumerator()
+    {
+        yield return "Hello";
+        yield return "World";
+    }
+}
+```
+
+Where this class is used to supply arguments to a test method like this:
+
+```csharp
+[TestFixture]
+internal sealed class TestFixture
+{
+    [TestCaseSource(typeof(TestData))]
+    public void ParameterizedTestMethod(string value)
+    {
+        Assert.That(value, Is.Not.Null);
+        Assert.That(value, Has.Length.EqualTo(5));
+    }
+}
+```
+
+or where it is used to supply arguments to a parameterized test fixture like this:
+
+```csharp
+[TestFixtureSource(typeof(TestData))]
+public sealed class ParameterizedTestFixture(string value)
+{
+    [Test]
+    public void MustBeNotNull()
+    {
+        Assert.That(value, Is.Not.Null);
+    }
+
+    [Test]
+    public void MustBeFiveCharactersLong()
+    {
+        Assert.That(value, Has.Length.EqualTo(5));
+    }
+}
+```
+
+As this requires scanning all sources to check for usages of the class, this is an expensive operation.
+By default it is disabled, but can be enabled with the following configuration in a .editorconfig file:
+
+```ini
+dotnet_diagnostic.NUnit3003.search_all_code_for_use_as_data_source = true
+```
+
+Note that the use of an IEnumerable as a test data source is not the only way to supply arguments
+to a parameterized test or test fixture.
+This can also be done using a static method,
+static property or static field, which would then not trigger CA1812 in the first place.
 
 <!-- start generated config severity -->
 ## Configure severity
@@ -59,7 +140,7 @@ For more info about rulesets see [MSDN](https://learn.microsoft.com/en-us/visual
 This is currently not working. Waiting for [Roslyn](https://github.com/dotnet/roslyn/issues/49727)
 
 ```ini
-# NUnit3003: Class is an NUnit TestFixture and is instantiated using reflection
+# NUnit3003: Class is an NUnit TestFixture or TestData source and is instantiated using reflection
 dotnet_diagnostic.NUnit3003.severity = none
 ```
 <!-- end generated config severity -->

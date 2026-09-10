@@ -133,7 +133,7 @@ builds (version 3.0.0 and above) which require Visual Studio 2019 (version 16.3)
 | :--      | :--         | :--:  | :--:   | :--:   |
 | [NUnit3001](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3001.md) | Expression was checked in an ClassicAssert.NotNull, ClassicAssert.IsNotNull or Assert.That call | :white_check_mark: | :information_source: | :x: |
 | [NUnit3002](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3002.md) | Field/Property is initialized in SetUp or OneTimeSetUp method | :white_check_mark: | :information_source: | :x: |
-| [NUnit3003](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3003.md) | Class is an NUnit TestFixture and is instantiated using reflection | :white_check_mark: | :information_source: | :x: |
+| [NUnit3003](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3003.md) | Class is an NUnit TestFixture or TestData source and is instantiated using reflection | :white_check_mark: | :information_source: | :x: |
 | [NUnit3004](https://github.com/nunit/nunit.analyzers/tree/master/documentation/NUnit3004.md) | Field should be Disposed in TearDown or OneTimeTearDown method | :white_check_mark: | :information_source: | :x: |
 
 ## Style Rules (NUnit4001 - )

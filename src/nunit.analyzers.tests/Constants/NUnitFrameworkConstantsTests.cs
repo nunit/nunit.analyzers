@@ -93,6 +93,9 @@ namespace NUnit.Analyzers.Tests.Constants
 
             (nameof(NUnitFrameworkConstants.NameOfConstraint), nameof(Constraint)),
 
+            (nameof(NUnitFrameworkConstants.NameOfTestFixtureAttribute), nameof(TestFixtureAttribute)),
+            (nameof(NUnitFrameworkConstants.NameOfTestFixtureSourceAttribute), nameof(TestFixtureSourceAttribute)),
+
             (nameof(NUnitFrameworkConstants.NameOfTestCaseAttribute), nameof(TestCaseAttribute)),
             (nameof(NUnitFrameworkConstants.NameOfTestCaseSourceAttribute), nameof(TestCaseSourceAttribute)),
             (nameof(NUnitFrameworkConstants.NameOfTestAttribute), nameof(TestAttribute)),
@@ -123,6 +126,7 @@ namespace NUnit.Analyzers.Tests.Constants
             (nameof(NUnitFrameworkConstants.FullNameOfTypeIs), typeof(Is)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeTestCaseAttribute), typeof(TestCaseAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute), typeof(TestCaseSourceAttribute)),
+            (nameof(NUnitFrameworkConstants.FullNameOfTypeTestFixtureSourceAttribute), typeof(TestFixtureSourceAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeTestAttribute), typeof(TestAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeParallelizableAttribute), typeof(ParallelizableAttribute)),
             (nameof(NUnitFrameworkConstants.FullNameOfTypeRangeAttribute), typeof(RangeAttribute)),
