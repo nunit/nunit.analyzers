@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq;
@@ -56,7 +57,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                         // Collate all the non-fixture types that we have seen so far, so we only need to check the source once for all instances.
                         AnalyzerConfigOptions options = context.Options.AnalyzerConfigOptionsProvider.GetOptions(sourceTree);
                         if (options.TryGetValue("dotnet_diagnostic.NUnit3003.search_all_code_for_use_as_data_source", out string? value) &&
-                            value is "true")
+                            value.Equals("true", StringComparison.OrdinalIgnoreCase))
                         {
                             nonFixtureTypes[typeSymbol] = diagnostic;
                         }
@@ -69,7 +70,7 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
                 INamedTypeSymbol? testCaseSourceAttributeType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestCaseSourceAttribute);
                 INamedTypeSymbol? testFixtureSourceAttributeType = context.Compilation.GetTypeByMetadataName(NUnitFrameworkConstants.FullNameOfTypeTestFixtureSourceAttribute);
 
-                if (testCaseSourceAttributeType is null || testFixtureSourceAttributeType is null)
+                if (testCaseSourceAttributeType is null && testFixtureSourceAttributeType is null)
                 {
                     // Code doesn't reference NUnit.Framework, so we can skip the rest of the analysis
                     return;
@@ -93,8 +94,8 @@ namespace NUnit.Analyzers.DiagnosticSuppressors
 
             static void SuppressDiagnosticsIfTypeIsUsedInNUnitSourceAttribute(
                 SuppressionAnalysisContext context,
-                INamedTypeSymbol testCaseSourceAttributeType,
-                INamedTypeSymbol testFixtureSourceAttributeType,
+                INamedTypeSymbol? testCaseSourceAttributeType,
+                INamedTypeSymbol? testFixtureSourceAttributeType,
                 ConcurrentDictionary<INamedTypeSymbol, Diagnostic> nonFixtureTypes,
                 SyntaxTree syntaxTree)
             {
