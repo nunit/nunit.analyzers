@@ -25,23 +25,25 @@ public class SimplifyValuesCodeFixTests
     [Test]
     public void SimplifyValuesForEnum()
     {
-        var code = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class SimplifyValuesForEnum
-    {
-        public enum TestEnum { A, B, C }
+        var code = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class SimplifyValuesForEnum
+            {
+                public enum TestEnum { A, B, C }
 
-        [Test]
-        public void Test([↓Values(TestEnum.A, TestEnum.B, TestEnum.C)] TestEnum e) { }
-    }");
+                [Test]
+                public void Test([↓Values(TestEnum.A, TestEnum.B, TestEnum.C)] TestEnum e) { }
+            }
+        """);
 
-        var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class SimplifyValuesForEnum
-    {
-        public enum TestEnum { A, B, C }
+        var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class SimplifyValuesForEnum
+            {
+                public enum TestEnum { A, B, C }
 
-        [Test]
-        public void Test([Values] TestEnum e) { }
-    }");
+                [Test]
+                public void Test([Values] TestEnum e) { }
+            }
+        """);
 
         RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: SimplifyValuesCodeFix.SimplifyValuesTitle);
     }
@@ -49,19 +51,21 @@ public class SimplifyValuesCodeFixTests
     [Test]
     public void SimplifyValuesForBoolean()
     {
-        var code = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class SimplifyValuesForBoolean
-    {
-        [Test]
-        public void Test([↓Values(true, false)] bool b) { }
-    }");
+        var code = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class SimplifyValuesForBoolean
+            {
+                [Test]
+                public void Test([↓Values(true, false)] bool b) { }
+            }
+        """);
 
-        var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class SimplifyValuesForBoolean
-    {
-        [Test]
-        public void Test([Values] bool b) { }
-    }");
+        var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class SimplifyValuesForBoolean
+            {
+                [Test]
+                public void Test([Values] bool b) { }
+            }
+        """);
 
         RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: SimplifyValuesCodeFix.SimplifyValuesTitle);
     }
@@ -69,19 +73,21 @@ public class SimplifyValuesCodeFixTests
     [Test]
     public void SimplifyValuesForNullableBoolean()
     {
-        var code = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class SimplifyValuesForBoolean
-    {
-        [Test]
-        public void Test([↓Values(null, true, false)] bool? b) { }
-    }");
+        var code = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class SimplifyValuesForBoolean
+            {
+                [Test]
+                public void Test([↓Values(null, true, false)] bool? b) { }
+            }
+        """);
 
-        var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class SimplifyValuesForBoolean
-    {
-        [Test]
-        public void Test([Values] bool? b) { }
-    }");
+        var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class SimplifyValuesForBoolean
+            {
+                [Test]
+                public void Test([Values] bool? b) { }
+            }
+        """);
 
         RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: SimplifyValuesCodeFix.SimplifyValuesTitle);
     }
@@ -89,23 +95,25 @@ public class SimplifyValuesCodeFixTests
     [Test]
     public void SimplifyValuesForNullableEnum()
     {
-        var code = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class SimplifyValuesForNullableEnum
-    {
-        public enum TestEnum { A, B, C }
+        var code = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class SimplifyValuesForNullableEnum
+            {
+                public enum TestEnum { A, B, C }
 
-        [Test]
-        public void Test([↓Values(TestEnum.A, TestEnum.B, TestEnum.C, null)] TestEnum? e) { }
-    }");
+                [Test]
+                public void Test([↓Values(TestEnum.A, TestEnum.B, TestEnum.C, null)] TestEnum? e) { }
+            }
+        """);
 
-        var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class SimplifyValuesForNullableEnum
-    {
-        public enum TestEnum { A, B, C }
+        var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class SimplifyValuesForNullableEnum
+            {
+                public enum TestEnum { A, B, C }
 
-        [Test]
-        public void Test([Values] TestEnum? e) { }
-    }");
+                [Test]
+                public void Test([Values] TestEnum? e) { }
+            }
+        """);
 
         RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: SimplifyValuesCodeFix.SimplifyValuesTitle);
     }

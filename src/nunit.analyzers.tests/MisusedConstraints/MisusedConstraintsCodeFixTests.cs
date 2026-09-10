@@ -18,15 +18,17 @@ namespace NUnit.Analyzers.Tests.MisusedConstraints
         [Test]
         public void AnalyzeIsNotNullOrEmpty()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                string s = string.Empty;
-                Assert.That(s, ↓Is.Not.Null.Or.Empty);
-            ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        string s = string.Empty;
+                        Assert.That(s, ↓Is.Not.Null.Or.Empty);
 
-            var fixedCode = TestUtility.WrapInTestMethod(@"
-                string s = string.Empty;
-                Assert.That(s, Is.Not.Null.And.Not.Empty);
-            ");
+            """);
+
+            var fixedCode = TestUtility.WrapInTestMethod("""
+                        string s = string.Empty;
+                        Assert.That(s, Is.Not.Null.And.Not.Empty);
+
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }

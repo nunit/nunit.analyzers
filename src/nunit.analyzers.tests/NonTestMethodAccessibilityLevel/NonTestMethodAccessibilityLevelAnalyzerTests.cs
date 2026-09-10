@@ -36,70 +36,76 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         [Test]
         public void AnalyzeWhenNonTestClassHasPublicMethod()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void AssertMethod() {{ }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void AssertMethod() { }
+            """);
             RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
         public void AnalyzeWhenNonTestMethodIsNotPublic()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        public void TestMethod() {{ AssertMethod(); }}
-        private void AssertMethod() {{ }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    public void TestMethod() { AssertMethod(); }
+                    private void AssertMethod() { }
+            """);
             RoslynAssert.Valid(analyzer, testCode);
         }
 
         [Test]
         public void AnalyzeWhenNonTestMethodIsProtected()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        public void TestMethod() {{ AssertMethod(); }}
-        protected virtual void AssertMethod() {{ }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    public void TestMethod() { AssertMethod(); }
+                    protected virtual void AssertMethod() { }
+            """);
             RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCaseSource(nameof(TestMethodRelatedAttributes))]
         public void AnalyzeWhenAuxiliaryTestMethodIsPublic(string attribute)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        public void TestMethod() {{ }}
-        [{attribute}]
-        public void AuxiliaryMethod() {{ }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    public void TestMethod() { }
+                    [{{attribute}}]
+                    public void AuxiliaryMethod() { }
+            """);
             RoslynAssert.Valid(analyzer, testCode);
         }
 
         [TestCaseSource(nameof(NonPrivateModifiers))]
         public void AnalyzeWhenNonTestMethodIsPublicOrInternal(string modifiers)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        public void TestMethod(int i) {{ AssertMethod(); }}
-        {modifiers} void ↓AssertMethod() {{ }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    public void TestMethod(int i) { AssertMethod(); }
+                    {{modifiers}} void ↓AssertMethod() { }
+            """);
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
         [TestCaseSource(nameof(TestMethodRelatedAttributes))]
         public void AnalyzeWhenTestMethodIsPublicAndOverridden(string attribute)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-        public class BaseTestClass
-        {{
-            [{attribute}]
-            public virtual void TestMethod() {{ }}
-        }}
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public class BaseTestClass
+                {
+                    [{{attribute}}]
+                    public virtual void TestMethod() { }
+                }
 
-        public sealed class DerivedTestClass : BaseTestClass
-        {{
-            public override void TestMethod() {{ }}
+                public sealed class DerivedTestClass : BaseTestClass
+                {
+                    public override void TestMethod() { }
 
-            [Test]
-            public void OtherTestMethod() {{ }}
-        }}
-        ");
+                    [Test]
+                    public void OtherTestMethod() { }
+                }
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -107,15 +113,16 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         [Test]
         public void AnalyzeConstructor()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-        public sealed class TestClass
-        {
-            public TestClass() {}
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class TestClass
+                {
+                    public TestClass() {}
 
-            [Test]
-            public void TestMethod() { }
-        }
-        ");
+                    [Test]
+                    public void TestMethod() { }
+                }
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -123,15 +130,16 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         [Test]
         public void AnalyzeWhenMethodIsExplicitDispose()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-        public sealed class TestClass : IDisposable
-        {
-            [Test]
-            public void TestMethod() { }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class TestClass : IDisposable
+                {
+                    [Test]
+                    public void TestMethod() { }
 
-            void IDisposable.Dispose() { }
-        }
-        ");
+                    void IDisposable.Dispose() { }
+                }
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -139,15 +147,16 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         [Test]
         public void AnalyzeWhenMethodIsDispose()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-        public sealed class TestClass : IDisposable
-        {
-            [Test]
-            public void TestMethod() { }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class TestClass : IDisposable
+                {
+                    [Test]
+                    public void TestMethod() { }
 
-            public void Dispose() { }
-        }
-        ");
+                    public void Dispose() { }
+                }
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -155,20 +164,21 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         [Test]
         public void AnalyzeWhenMethodIsDisposeOverride()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-        public class BaseClass : IDisposable
-        {
-            public virtual void Dispose() { }
-        }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public class BaseClass : IDisposable
+                {
+                    public virtual void Dispose() { }
+                }
 
-        public sealed class DerivedClass : BaseClass
-        {
-            [Test]
-            public void TestMethod() { }
+                public sealed class DerivedClass : BaseClass
+                {
+                    [Test]
+                    public void TestMethod() { }
 
-            public override void Dispose() { }
-        }
-        ");
+                    public override void Dispose() { }
+                }
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -176,15 +186,16 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         [Test]
         public void AnalyzeWhenMethodIsExplicitDisposeAsync()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-        public sealed class TestClass : IAsyncDisposable
-        {
-            [Test]
-            public void TestMethod() { }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class TestClass : IAsyncDisposable
+                {
+                    [Test]
+                    public void TestMethod() { }
 
-            ValueTask IAsyncDisposable.DisposeAsync() => default(ValueTask);
-        }
-        ");
+                    ValueTask IAsyncDisposable.DisposeAsync() => default(ValueTask);
+                }
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -192,15 +203,16 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         [Test]
         public void AnalyzeWhenMethodIsDisposeAsync()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-        public sealed class TestClass : IAsyncDisposable
-        {
-            [Test]
-            public void TestMethod() { }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class TestClass : IAsyncDisposable
+                {
+                    [Test]
+                    public void TestMethod() { }
 
-            public ValueTask DisposeAsync() => default(ValueTask);
-        }
-        ");
+                    public ValueTask DisposeAsync() => default(ValueTask);
+                }
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -208,20 +220,21 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         [Test]
         public void AnalyzeWhenMethodIsDisposeAsyncOverride()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-        public class BaseClass : IAsyncDisposable
-        {
-            public virtual ValueTask DisposeAsync() => default(ValueTask);
-        }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public class BaseClass : IAsyncDisposable
+                {
+                    public virtual ValueTask DisposeAsync() => default(ValueTask);
+                }
 
-        public sealed class DerivedClass : BaseClass
-        {
-            [Test]
-            public void TestMethod() { }
+                public sealed class DerivedClass : BaseClass
+                {
+                    [Test]
+                    public void TestMethod() { }
 
-            public override ValueTask DisposeAsync() => default(ValueTask);
-        }
-        ");
+                    public override ValueTask DisposeAsync() => default(ValueTask);
+                }
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -229,15 +242,16 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         [Test]
         public void AnalyzeWhenMethodIsBaseClassOverride()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-        public sealed class MyTestClass
-        {
-            [Test]
-            public void TestMethod() { }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class MyTestClass
+                {
+                    [Test]
+                    public void TestMethod() { }
 
-            public override string ToString() => ""My Test Class"";
-        }
-        ");
+                    public override string ToString() => "My Test Class";
+                }
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -245,13 +259,14 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         [Test]
         public void AnalyzeWhenMethodIsCompilerGenerated()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-        public sealed record MyTestClass
-        {
-            [Test]
-            public void TestMethod() { }
-        }
-        ");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed record MyTestClass
+                {
+                    [Test]
+                    public void TestMethod() { }
+                }
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }

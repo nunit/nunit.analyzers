@@ -28,21 +28,22 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [Test]
         public async Task FieldNotDisposed()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                private IDisposable? field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    private IDisposable? field;
 
-                [Test]
-                public void Test()
-                {
-                    field = new DummyDisposable();
-                    Assert.That(field, Is.Not.Null);
-                }
+                    [Test]
+                    public void Test()
+                    {
+                        field = new DummyDisposable();
+                        Assert.That(field, Is.Not.Null);
+                    }
 
-                private sealed class DummyDisposable : IDisposable
-                {
-                    public void Dispose() {}
-                }
-            ");
+                    private sealed class DummyDisposable : IDisposable
+                    {
+                        public void Dispose() {}
+                    }
+
+            """);
 
             // This rule doesn't care. Actual checking is done in DisposeFieldsInTearDownAnalyzer
             await TestHelpers.Suppressed(this.analyzer, suppressor, testCode);
@@ -52,39 +53,40 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase(NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute, "this.")]
         public async Task FieldDisposed(string attribute, string prefix)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@$"
-                private IDisposable? field1;
-                private IDisposable? field2;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private IDisposable? field1;
+                    private IDisposable? field2;
 
-                [{attribute}]
-                public void CleanUp()
-                {{
-                    {prefix}field1?.Dispose();
-                    if ({prefix}field2 is not null)
-                    {{
-                        {prefix}field2.Dispose();
-                    }}
-                }}
+                    [{{attribute}}]
+                    public void CleanUp()
+                    {
+                        {{prefix}}field1?.Dispose();
+                        if ({{prefix}}field2 is not null)
+                        {
+                            {{prefix}}field2.Dispose();
+                        }
+                    }
 
-                [Test]
-                public void Test1()
-                {{
-                    {prefix}field1 = new DummyDisposable();
-                    Assert.That({prefix}field1, Is.Not.Null);
-                }}
+                    [Test]
+                    public void Test1()
+                    {
+                        {{prefix}}field1 = new DummyDisposable();
+                        Assert.That({{prefix}}field1, Is.Not.Null);
+                    }
 
-                [Test]
-                public void Test2()
-                {{
-                    {prefix}field2 = new DummyDisposable();
-                    Assert.That({prefix}field2, Is.Not.Null);
-                }}
+                    [Test]
+                    public void Test2()
+                    {
+                        {{prefix}}field2 = new DummyDisposable();
+                        Assert.That({{prefix}}field2, Is.Not.Null);
+                    }
 
-                private sealed class DummyDisposable : IDisposable
-                {{
-                    public void Dispose() {{}}
-                }}
-            ");
+                    private sealed class DummyDisposable : IDisposable
+                    {
+                        public void Dispose() {}
+                    }
+
+            """);
 
             await TestHelpers.Suppressed(this.analyzer, suppressor, testCode);
         }
@@ -92,29 +94,30 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [Test]
         public async Task ShouldNotSuppressWhenInstancePerTestCase()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
-            public class TestClass
-            {
-                private readonly IDisposable? field;
-
-                public TestClass()
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
+                public class TestClass
                 {
-                    field = new DummyDisposable();
+                    private readonly IDisposable? field;
+
+                    public TestClass()
+                    {
+                        field = new DummyDisposable();
+                    }
+
+                    [Test]
+                    public void Test()
+                    {
+                        Assert.That(field, Is.Not.Null);
+                    }
+
+                    private sealed class DummyDisposable : IDisposable
+                    {
+                        public void Dispose() {}
+                    }
                 }
 
-                [Test]
-                public void Test()
-                {
-                    Assert.That(field, Is.Not.Null);
-                }
-
-                private sealed class DummyDisposable : IDisposable
-                {
-                    public void Dispose() {}
-                }
-            }
-            ");
+            """);
 
             // InstancePerTestCase mean test should use IDisposable
             await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode);

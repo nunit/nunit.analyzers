@@ -27,15 +27,17 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         [TestCaseSource(nameof(NonPrivateModifiers))]
         public void FixesPublicAccessModifiers(string modifiers, string modifiersAfter)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        public void TestMethod() {{ AssertMethod(); }}
-        {modifiers} void ↓AssertMethod() {{ }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    public void TestMethod() { AssertMethod(); }
+                    {{modifiers}} void ↓AssertMethod() { }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        public void TestMethod() {{ AssertMethod(); }}
-        {modifiersAfter} void AssertMethod() {{ }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    public void TestMethod() { AssertMethod(); }
+                    {{modifiersAfter}} void AssertMethod() { }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }

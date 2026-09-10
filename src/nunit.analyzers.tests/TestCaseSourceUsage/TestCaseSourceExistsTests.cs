@@ -14,14 +14,15 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [Test]
         public void ErrorsWhenSourceDoesNotExists()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class Tests
-    {
-        [TestCaseSource(↓""Missing"")]
-        public void Test()
-        {
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public class Tests
+                {
+                    [TestCaseSource(↓"Missing")]
+                    public void Test()
+                    {
+                    }
+                }
+            """);
             var message = "The TestCaseSource argument 'Missing' does not specify an existing member";
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
         }
@@ -29,20 +30,21 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [Test]
         public void NoErrorsWhenSourceExists()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    internal class Base
-    {
-        protected static IEnumerable<string> TargetFrameworks { get; } = new[] { ""net48"", ""netcoreapp3.1"" };
-    }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                internal class Base
+                {
+                    protected static IEnumerable<string> TargetFrameworks { get; } = new[] { "net48", "netcoreapp3.1" };
+                }
 
-    internal class Tests : Base
-    {
-        [TestCaseSource(nameof(TargetFrameworks))]
-        public void Test(string targetFramework)
-        {
-            ClassicAssert.IsNotNull(targetFramework);
-        }
-    }", "using System.Collections.Generic;");
+                internal class Tests : Base
+                {
+                    [TestCaseSource(nameof(TargetFrameworks))]
+                    public void Test(string targetFramework)
+                    {
+                        ClassicAssert.IsNotNull(targetFramework);
+                    }
+                }
+            """, "using System.Collections.Generic;");
 
             RoslynAssert.Valid(analyzer, testCode);
         }

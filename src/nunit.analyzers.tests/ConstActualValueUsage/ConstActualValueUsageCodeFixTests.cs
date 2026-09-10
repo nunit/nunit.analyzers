@@ -27,19 +27,21 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         [TestCase(nameof(ClassicAssert.AreNotSame))]
         public void LiteralArgumentIsProvidedForClassicAssertCodeFix(string classicAssertMethod)
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    int expected = 5;
-                    ClassicAssert.{classicAssertMethod}(expected, ↓1);
-                }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        int expected = 5;
+                        ClassicAssert.{{classicAssertMethod}}(expected, ↓1);
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    int expected = 5;
-                    ClassicAssert.{classicAssertMethod}(1, expected);
-                }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        int expected = 5;
+                        ClassicAssert.{{classicAssertMethod}}(1, expected);
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
@@ -51,21 +53,23 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         [TestCase(nameof(ClassicAssert.AreNotSame))]
         public void LiteralArgumentIsProvidedForClassicAssertCodeFixWithNewLine(string classicAssertMethod)
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    int expected = 5;
-                    ClassicAssert.{classicAssertMethod}(expected,
-                        ↓1);
-                }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        int expected = 5;
+                        ClassicAssert.{{classicAssertMethod}}(expected,
+                            ↓1);
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    int expected = 5;
-                    ClassicAssert.{classicAssertMethod}(1,
-                        expected);
-                }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        int expected = 5;
+                        ClassicAssert.{{classicAssertMethod}}(1,
+                            expected);
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
@@ -74,19 +78,21 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         [TestCase(nameof(ClassicAssert.AreEqual))]
         public void LiteralArgumentIsProvidedForClassicAssertWithDeltaCodeFix(string classicAssertMethod)
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    int expected = 5;
-                    ClassicAssert.{classicAssertMethod}(expected, ↓1, double.Epsilon);
-                }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        int expected = 5;
+                        ClassicAssert.{{classicAssertMethod}}(expected, ↓1, double.Epsilon);
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    int expected = 5;
-                    ClassicAssert.{classicAssertMethod}(1, expected, double.Epsilon);
-                }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        int expected = 5;
+                        ClassicAssert.{{classicAssertMethod}}(1, expected, double.Epsilon);
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
@@ -95,19 +101,21 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         [Test]
         public void LiteralNamedArgumentIsProvidedForAreEqualCodeFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                public void Test()
-                {
-                    int expected = 5;
-                    ClassicAssert.AreEqual(actual: ↓1, expected: expected);
-                }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void Test()
+                    {
+                        int expected = 5;
+                        ClassicAssert.AreEqual(actual: ↓1, expected: expected);
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                public void Test()
-                {
-                    int expected = 5;
-                    ClassicAssert.AreEqual(actual: expected, expected: 1);
-                }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void Test()
+                    {
+                        int expected = 5;
+                        ClassicAssert.AreEqual(actual: expected, expected: 1);
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
@@ -121,19 +129,21 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         [TestCase("Not.SamePath")]
         public void LiteralArgumentIsProvidedForAssertThatCodeFix(string isConstraint)
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    var expected = ""abc"";
-                    Assert.That(↓""a"", Is.{isConstraint}(expected));
-                }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        var expected = "abc";
+                        Assert.That(↓"a", Is.{{isConstraint}}(expected));
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    var expected = ""abc"";
-                    Assert.That(expected, Is.{isConstraint}(""a""));
-                }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        var expected = "abc";
+                        Assert.That(expected, Is.{{isConstraint}}("a"));
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
@@ -142,19 +152,21 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         [Test]
         public void LiteralArgumentIsProvidedForAssertThatWithinCodeFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    double expected = 5d;
-                    Assert.That(↓1d, Is.EqualTo(expected).Within(double.Epsilon));
-                }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        double expected = 5d;
+                        Assert.That(↓1d, Is.EqualTo(expected).Within(double.Epsilon));
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    double expected = 5d;
-                    Assert.That(expected, Is.EqualTo(1d).Within(double.Epsilon));
-                }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        double expected = 5d;
+                        Assert.That(expected, Is.EqualTo(1d).Within(double.Epsilon));
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
@@ -164,12 +176,13 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         [TestCase(nameof(Is.LessThan))]
         public void NoCodeFixForNonSymmetricAssertThat(string isConstraint)
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    var expected = 5;
-                    Assert.That(↓4, Is.{isConstraint}(expected));
-                }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        var expected = 5;
+                        Assert.That(↓4, Is.{{isConstraint}}(expected));
+                    }
+            """);
 
             RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, code);
         }
@@ -177,12 +190,13 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         [Test]
         public void NoCodeFixForCombinedAssertThat()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    var expected = 5;
-                    Assert.That(↓4, Is.Not.EqualTo(3).And.Not.EqualTo(expected));
-                }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        var expected = 5;
+                        Assert.That(↓4, Is.Not.EqualTo(3).And.Not.EqualTo(expected));
+                    }
+            """);
 
             RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, code);
         }
@@ -199,19 +213,21 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         [TestCase(nameof(StringAssert.DoesNotStartWith))]
         public void LiteralArgumentIsProvidedForClassicStringAssertCodeFix(string classicAssertMethod)
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    string actual = ""act"";
-                    StringAssert.{classicAssertMethod}(actual, ↓""exp"");
-                }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        string actual = "act";
+                        StringAssert.{{classicAssertMethod}}(actual, ↓"exp");
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    string actual = ""act"";
-                    StringAssert.{classicAssertMethod}(""exp"", actual);
-                }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        string actual = "act";
+                        StringAssert.{{classicAssertMethod}}("exp", actual);
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);
@@ -220,19 +236,21 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
         [Test]
         public void LiteralNamedArgumentIsProvidedForStringAssertContainsCodeFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                public void Test()
-                {
-                    string actual = ""act"";
-                    StringAssert.Contains(actual: ↓""exp"", expected: actual);
-                }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void Test()
+                    {
+                        string actual = "act";
+                        StringAssert.Contains(actual: ↓"exp", expected: actual);
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                public void Test()
-                {
-                    string actual = ""act"";
-                    StringAssert.Contains(actual: actual, expected: ""exp"");
-                }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void Test()
+                    {
+                        string actual = "act";
+                        StringAssert.Contains(actual: actual, expected: "exp");
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: ConstActualValueUsageCodeFix.SwapArgumentsDescription);

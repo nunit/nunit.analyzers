@@ -15,9 +15,10 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         [Test]
         public void AnalyzeWhenLambdaProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(() => throw new InvalidOperationException(), Throws.InstanceOf<InvalidOperationException>());
-            ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(() => throw new InvalidOperationException(), Throws.InstanceOf<InvalidOperationException>());
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -25,9 +26,10 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         [Test]
         public void AnalyzeWhenAsyncLambdaProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(() => Task.Delay(-2), Throws.InstanceOf<ArgumentException>());
-            ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(() => Task.Delay(-2), Throws.InstanceOf<ArgumentException>());
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -35,11 +37,12 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         [Test]
         public void AnalyzeWhenDelegateProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(MyOperation, Throws.InstanceOf<InvalidOperationException>());
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(MyOperation, Throws.InstanceOf<InvalidOperationException>());
 
-                void MyOperation() => throw new InvalidOperationException();
-            ");
+                        void MyOperation() => throw new InvalidOperationException();
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -48,12 +51,13 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         [Test]
         public void AnalyzeWhenDelegateLocalProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Action action = MyOperation;
-                Assert.That(action, Throws.InvalidOperationException);
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Action action = MyOperation;
+                        Assert.That(action, Throws.InvalidOperationException);
 
-                static void MyOperation() => throw new InvalidOperationException();
-            ");
+                        static void MyOperation() => throw new InvalidOperationException();
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -61,12 +65,13 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         [Test]
         public void AnalyzeWhenDelegateLocalProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                TestDelegate action = MyOperation;
-                Assert.That(action, Throws.InvalidOperationException);
+            var testCode = TestUtility.WrapInTestMethod("""
+                        TestDelegate action = MyOperation;
+                        Assert.That(action, Throws.InvalidOperationException);
 
-                static void MyOperation() => throw new InvalidOperationException();
-            ");
+                        static void MyOperation() => throw new InvalidOperationException();
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -75,12 +80,13 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         [Test]
         public void AnalyzeWhenDelegateParameterProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                AssertSupported(MyOperation);
+            var testCode = TestUtility.WrapInTestMethod("""
+                        AssertSupported(MyOperation);
 
-                static void AssertSupported(Action test) => Assert.That(test, Throws.InvalidOperationException);
-                static void MyOperation() => throw new InvalidOperationException();
-            ");
+                        static void AssertSupported(Action test) => Assert.That(test, Throws.InvalidOperationException);
+                        static void MyOperation() => throw new InvalidOperationException();
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -88,11 +94,12 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         [Test]
         public void AnalyzeWhenAsyncDelegateProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(MyAsyncOperation, Throws.InstanceOf<InvalidOperationException>());
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(MyAsyncOperation, Throws.InstanceOf<InvalidOperationException>());
 
-                Task MyAsyncOperation() => throw new InvalidOperationException();
-            ");
+                        Task MyAsyncOperation() => throw new InvalidOperationException();
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -100,11 +107,12 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         [Test]
         public void AnalyzeWhenNoDelegateProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(↓MyOperation(), Throws.InstanceOf<InvalidOperationException>());
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(↓MyOperation(), Throws.InstanceOf<InvalidOperationException>());
 
-                int MyOperation() => throw new InvalidOperationException();
-            ");
+                        int MyOperation() => throw new InvalidOperationException();
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -112,11 +120,12 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         [Test]
         public void AnalyzeWhenNoAsyncDelegateProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(↓MyAsyncOperation(), Throws.InstanceOf<InvalidOperationException>());
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(↓MyAsyncOperation(), Throws.InstanceOf<InvalidOperationException>());
 
-                Task MyAsyncOperation() => throw new InvalidOperationException();
-            ");
+                        Task MyAsyncOperation() => throw new InvalidOperationException();
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -124,11 +133,12 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         [Test]
         public void AnalyzeWhenDelayedConstraint()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                int i = 0;
-                int actualFunc() => i++;
-                Assert.That(↓actualFunc(), Is.EqualTo(5).After(1000, 10));
-            ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        int i = 0;
+                        int actualFunc() => i++;
+                        Assert.That(↓actualFunc(), Is.EqualTo(5).After(1000, 10));
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -136,11 +146,12 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
         [Test]
         public void AnalyzeWhenDelayedConstraintWithDimensionedDelayInterval()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                int i = 0;
-                int actualFunc() => i++;
-                Assert.That(↓actualFunc(), Is.EqualTo(5).After(1).Minutes);
-            ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        int i = 0;
+                        int actualFunc() => i++;
+                        Assert.That(↓actualFunc(), Is.EqualTo(5).After(1).Minutes);
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }

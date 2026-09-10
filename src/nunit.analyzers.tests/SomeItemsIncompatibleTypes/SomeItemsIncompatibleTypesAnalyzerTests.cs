@@ -67,14 +67,15 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
         [Test]
         public void ValidWhenCollectionOfCollectionsIsProvidedAsActualAndCollectionAsExpected()
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = new List<IEnumerable<int>>
-                {{
-                    new [] {{ 1, 2 }},
-                    new List<int> {{ 2, 3 }},
-                    new [] {{ 3, 4 }}
-                }};
-                Assert.That(actual, {this.constraint}(new[] {{ 2, 3 }}));",
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = new List<IEnumerable<int>>
+                        {
+                            new [] { 1, 2 },
+                            new List<int> { 2, 3 },
+                            new [] { 3, 4 }
+                        };
+                        Assert.That(actual, {{this.constraint}}(new[] { 2, 3 }));
+            """,
                 additionalUsings: "using System.Collections.Generic;");
 
             RoslynAssert.Valid(analyzer, testCode);
@@ -120,10 +121,11 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
         [Test]
         public void ValidWhenCustomEqualityMethodIsUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                var actual = new[] {{ ""1"", ""2"", ""3"" }};
-                Func<string, int, bool> func = (a, b) => true;
-                Assert.That(actual, {this.constraint}(1).Using(func));");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = new[] { "1", "2", "3" };
+                        Func<string, int, bool> func = (a, b) => true;
+                        Assert.That(actual, {{this.constraint}}(1).Using(func));
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -131,9 +133,10 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
         [Test]
         public void IgnoredWhenUntypedCustomComparerProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = new[] {{ ""1"", ""2"", ""3"" }};
-                Assert.That(actual, {this.constraint}(1).Using((IEqualityComparer)StringComparer.Ordinal));",
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = new[] { "1", "2", "3" };
+                        Assert.That(actual, {{this.constraint}}(1).Using((IEqualityComparer)StringComparer.Ordinal));
+            """,
                 "using System.Collections;");
 
             RoslynAssert.Valid(analyzer, testCode);
@@ -142,9 +145,10 @@ namespace NUnit.Analyzers.Tests.SomeItemsIncompatibleTypes
         [Test]
         public void AnalyzeWhenTypedCustomComparerProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = new[] {{ ""1"", ""2"", ""3"" }};
-                Assert.That(actual, ↓{this.constraint}(1).Using((IEqualityComparer<string>)StringComparer.Ordinal));",
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = new[] { "1", "2", "3" };
+                        Assert.That(actual, ↓{{this.constraint}}(1).Using((IEqualityComparer<string>)StringComparer.Ordinal));
+            """,
                 "using System.Collections.Generic;");
 
             RoslynAssert.Diagnostics(analyzer,

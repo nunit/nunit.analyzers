@@ -17,24 +17,25 @@ namespace NUnit.Analyzers.Tests.Extensions
         public async Task CanAssignToTests(string arguments, string methodParameterType,
             string attributeParameterType, Constraint expectedResult)
         {
-            var testCode = $@"
-using System;
+            var testCode = $$"""
+                using System;
 
-namespace NUnit.Analyzers.Tests.Targets.Extensions
-{{
-    public sealed class CanAssignToWhenArgumentIsNullAndTargetIsReferenceType
-    {{
-        [Arguments({arguments})]
-        public void Foo({methodParameterType} a) {{ }}
+                namespace NUnit.Analyzers.Tests.Targets.Extensions
+                {
+                    public sealed class CanAssignToWhenArgumentIsNullAndTargetIsReferenceType
+                    {
+                        [Arguments({{arguments}})]
+                        public void Foo({{methodParameterType}} a) { }
 
-        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-        public sealed class ArgumentsAttribute : Attribute
-        {{
-            public ArgumentsAttribute({attributeParameterType} x) {{ }}
-        }}
-    }}
-}}";
-            var (typedConstant, typeSymbol, compilation) = await GetAttributeConstantAsync(testCode);
+                        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+                        public sealed class ArgumentsAttribute : Attribute
+                        {
+                            public ArgumentsAttribute({{attributeParameterType}} x) { }
+                        }
+                    }
+                }
+            """;
+            var (typedConstant, typeSymbol, compilation) = await GetAttributeConstantAsync(testCode).ConfigureAwait(false);
 
             Assert.That(typedConstant.CanAssignTo(typeSymbol, compilation), expectedResult);
         }

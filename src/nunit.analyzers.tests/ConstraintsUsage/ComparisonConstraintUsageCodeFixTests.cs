@@ -34,13 +34,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         public void FixesComparisonOperator([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
             var constraint = operatorTokensToConstraints[operatorToken];
-            var code = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(↓actual {operatorToken} 9);");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(↓actual {{operatorToken}} 9);
+            """);
 
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(actual, {constraint}(9));");
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(actual, {{constraint}}(9));
+            """);
 
             var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
                 string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
@@ -52,13 +54,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         public void FixesComparisonOperatorWithIsTrue([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
             var constraint = operatorTokensToConstraints[operatorToken];
-            var code = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(↓actual {operatorToken} 9, Is.True);");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(↓actual {{operatorToken}} 9, Is.True);
+            """);
 
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(actual, {constraint}(9));");
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(actual, {{constraint}}(9));
+            """);
 
             var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
                 string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
@@ -70,13 +74,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         public void FixesWhenComparisonOperatorUsedWithIsFalse([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
             var constraint = operatorTokensToConstraintsReversed[operatorToken];
-            var code = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(↓actual {operatorToken} 9, Is.False);");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(↓actual {{operatorToken}} 9, Is.False);
+            """);
 
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(actual, {constraint}(9));");
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(actual, {{constraint}}(9));
+            """);
 
             var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
                 string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
@@ -88,13 +94,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         public void FixesWhenComparisonOperatorUseConstantOnLeftHandSide([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
             var constraint = operatorTokensToConstraintsReversed[operatorToken];
-            var code = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(↓9 {operatorToken} actual, Is.True);");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(↓9 {{operatorToken}} actual, Is.True);
+            """);
 
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(actual, {constraint}(9));");
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(actual, {{constraint}}(9));
+            """);
 
             var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
                 string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
@@ -106,17 +114,19 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
             var constraint = operatorTokensToConstraintsReversed[operatorToken];
-            var code = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(
-                ↓actual {operatorToken} 9,
-                Is.False);");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(
+                            ↓actual {{operatorToken}} 9,
+                            Is.False);
+            """);
 
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(
-                actual,
-                {constraint}(9));");
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(
+                            actual,
+                            {{constraint}}(9));
+            """);
 
             var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
                 string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
@@ -128,18 +138,20 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
             var constraint = operatorTokensToConstraints[operatorToken];
-            var code = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(
-                ↓actual {operatorToken} 9
-            );");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(
+                            ↓actual {{operatorToken}} 9
+                        );
+            """);
 
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(
-                actual,
-                {constraint}(9)
-            );");
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(
+                            actual,
+                            {{constraint}}(9)
+                        );
+            """);
 
             var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
                 string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
@@ -154,15 +166,17 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         {
             var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
             var constraint = operatorTokensToConstraints[operatorToken];
-            var code = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(
-                ↓actual {operatorToken} 9, ""message""{optionalNewline});");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(
+                            ↓actual {{operatorToken}} 9, "message"{{optionalNewline}});
+            """);
 
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            int actual = 5;
-            Assert.That(
-                actual, {constraint}(9), ""message""{optionalNewline});");
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(
+                            actual, {{constraint}}(9), "message"{{optionalNewline}});
+            """);
 
             var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
                 string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));

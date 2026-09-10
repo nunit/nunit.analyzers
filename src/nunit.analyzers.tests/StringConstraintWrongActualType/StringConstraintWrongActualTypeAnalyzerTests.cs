@@ -22,17 +22,18 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
             "Does.Not.Match(@\"\\d+\")",
             "Contains.Substring(\"23\")",
             "new NUnit.Framework.Constraints.EmptyStringConstraint()",
-            @"Is.SamePath(@""C:\repos\nunit.analyzers"")",
-            @"Is.SamePathOrUnder(@""C:\repos"")",
-            @"Is.SubPathOf(@""C:\"")"
+            """Is.SamePath(@"C:\repos\nunit.analyzers")""",
+            """Is.SamePathOrUnder(@"C:\repos")""",
+            """Is.SubPathOf(@"C:\")"""
         ];
 
         [Test]
         public void AnalyzeWhenNonStringValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = 1234;
-                Assert.That(actual, ↓{stringConstraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = 1234;
+                        Assert.That(actual, ↓{{stringConstraint}});
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -40,9 +41,10 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
         [Test]
         public void AnalyzeWhenStringTaskValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = Task.FromResult(""1234"");
-                Assert.That(actual, ↓{stringConstraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = Task.FromResult("1234");
+                        Assert.That(actual, ↓{{stringConstraint}});
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -50,9 +52,10 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
         [Test]
         public void ValidWhenStringValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = ""1234"";
-                Assert.That(actual, {stringConstraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = "1234";
+                        Assert.That(actual, {{stringConstraint}});
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -60,9 +63,10 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
         [Test]
         public void ValidWhenStringDelegateProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = ""1234"";
-                Assert.That(() => actual, {stringConstraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = "1234";
+                        Assert.That(() => actual, {{stringConstraint}});
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -70,9 +74,10 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
         [Test]
         public void ValidWhenStringTaskDelegateProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = Task.FromResult(""1234"");
-                Assert.That(() => actual, {stringConstraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = Task.FromResult("1234");
+                        Assert.That(() => actual, {{stringConstraint}});
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -80,9 +85,10 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
         [Test]
         public void ValidWhenValueConvertedToStringProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = 1234;
-                Assert.That(actual.ToString(), {stringConstraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = 1234;
+                        Assert.That(actual.ToString(), {{stringConstraint}});
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -90,9 +96,10 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
         [Test]
         public void ValidWhenAllOperatorUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = new[] {{""11"", ""12"", ""13""}};
-                Assert.That(actual, Has.All.StartsWith(""1""));");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = new[] {"11", "12", "13"};
+                        Assert.That(actual, Has.All.StartsWith("1"));
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }

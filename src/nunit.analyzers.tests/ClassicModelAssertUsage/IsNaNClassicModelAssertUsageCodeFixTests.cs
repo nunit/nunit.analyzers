@@ -27,100 +27,110 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyIsNaNFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = double.NaN;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            ↓ClassicAssert.IsNaN(expr);
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = double.NaN;
+                        ↓ClassicAssert.IsNaN(expr);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            Assert.That(expr, Is.NaN);
-        }");
+                        Assert.That(expr, Is.NaN);
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyIsNaNFixWithMessage()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = double.NaN;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            ↓ClassicAssert.IsNaN(expr, ""message"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = double.NaN;
+                        ↓ClassicAssert.IsNaN(expr, "message");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            Assert.That(expr, Is.NaN, ""message"");
-        }");
+                        Assert.That(expr, Is.NaN, "message");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyIsNaNFixWithMessageAndOneArgumentForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = double.NaN;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            ↓ClassicAssert.IsNaN(expr, ""message-id: {0}"", Guid.NewGuid());
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = double.NaN;
+                        ↓ClassicAssert.IsNaN(expr, "message-id: {0}", Guid.NewGuid());
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            Assert.That(expr, Is.NaN, $""message-id: {Guid.NewGuid()}"");
-        }");
+                        Assert.That(expr, Is.NaN, $"message-id: {Guid.NewGuid()}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyIsNaNFixWithMessageAndTwoArgumentsForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = double.NaN;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            ↓ClassicAssert.IsNaN(expr, ""{0}, {1}"", ""first"", ""second"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = double.NaN;
+                        ↓ClassicAssert.IsNaN(expr, "{0}, {1}", "first", "second");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            Assert.That(expr, Is.NaN, $""{""first""}, {""second""}"");
-        }");
+                        Assert.That(expr, Is.NaN, $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyIsNaNFixWithMessageAndArrayParamsInNonstandardOrder()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = double.NaN;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            ↓ClassicAssert.IsNaN(args: new[] { ""first"", ""second"" }, aDouble: expr, message: ""{0}, {1}"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = double.NaN;
+                        ↓ClassicAssert.IsNaN(args: new[] { "first", "second" }, aDouble: expr, message: "{0}, {1}");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            Assert.That(expr, Is.NaN, $""{""first""}, {""second""}"");
-        }");
+                        Assert.That(expr, Is.NaN, $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -130,23 +140,25 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var commaAndMessage = hasMessage
                 ? ",\r\n                \"message\""
                 : string.Empty;
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expr = double.NaN;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            ↓ClassicAssert.IsNaN(
-                expr{commaAndMessage});
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expr = double.NaN;
+                        ↓ClassicAssert.IsNaN(
+                            expr{{commaAndMessage}});
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            Assert.That(
-                expr,
-                Is.NaN{commaAndMessage});
-        }}");
+                        Assert.That(
+                            expr,
+                            Is.NaN{{commaAndMessage}});
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -156,25 +168,27 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var commaAndMessage = hasMessage
                 ? ",\r\n                \"message\""
                 : string.Empty;
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expr = double.NaN;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            ↓ClassicAssert.IsNaN(
-                expr{commaAndMessage}
-            );
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expr = double.NaN;
+                        ↓ClassicAssert.IsNaN(
+                            expr{{commaAndMessage}}
+                        );
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            Assert.That(
-                expr,
-                Is.NaN{commaAndMessage}
-            );
-        }}");
+                        Assert.That(
+                            expr,
+                            Is.NaN{{commaAndMessage}}
+                        );
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -182,22 +196,24 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
         {
             var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expr = double.NaN;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            ↓ClassicAssert.IsNaN(
-                expr, ""message""{optionalNewline});
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expr = double.NaN;
+                        ↓ClassicAssert.IsNaN(
+                            expr, "message"{{optionalNewline}});
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expr = double.NaN;
 
-            Assert.That(
-                expr, Is.NaN, ""message""{optionalNewline});
-        }}");
+                        Assert.That(
+                            expr, Is.NaN, "message"{{optionalNewline}});
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }

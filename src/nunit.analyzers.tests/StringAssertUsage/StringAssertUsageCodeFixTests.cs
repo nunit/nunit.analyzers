@@ -20,64 +20,74 @@ namespace NUnit.Analyzers.Tests.StringAssertUsage
         [TestCaseSource(nameof(StringAsserts))]
         public void AnalyzeWhenNoArgumentsAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            ↓StringAssert.{method}(""expected"", ""actual"");
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            Assert.That(""actual"", {GetAdjustedConstraint(method)});
-            ");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        ↓StringAssert.{{method}}("expected", "actual");
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        Assert.That("actual", {{GetAdjustedConstraint(method)}});
+
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
         [TestCaseSource(nameof(StringAsserts))]
         public void AnalyzeWhenOnlyMessageArgumentIsUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            ↓StringAssert.{method}(""expected"", ""actual"", ""message"");
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            Assert.That(""actual"", {GetAdjustedConstraint(method)}, ""message"");
-            ");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        ↓StringAssert.{{method}}("expected", "actual", "message");
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        Assert.That("actual", {{GetAdjustedConstraint(method)}}, "message");
+
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
         [TestCaseSource(nameof(StringAsserts))]
         public void AnalyzeWhenFormatAndArgumentsAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            ↓StringAssert.{method}(""expected"", ""actual"", ""Because of {{0}}"", ""message"");
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            Assert.That(""actual"", {GetAdjustedConstraint(method)}, $""Because of {{""message""}}"");
-            ");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        ↓StringAssert.{{method}}("expected", "actual", "Because of {0}", "message");
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        Assert.That("actual", {{GetAdjustedConstraint(method)}}, $"Because of {"message"}");
+
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
         [TestCaseSource(nameof(StringAsserts))]
         public void AnalyzeWhenFormatAndArgsArrayAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            object[] args = {{ ""message"" }};
-            ↓StringAssert.{method}(""expected"", ""actual"", ""Because of {{0}}"", args);
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            object[] args = {{ ""message"" }};
-            Assert.That(""actual"", {GetAdjustedConstraint(method)}, () => string.Format(""Because of {{0}}"", args));
-            ");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        object[] args = { "message" };
+                        ↓StringAssert.{{method}}("expected", "actual", "Because of {0}", args);
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        object[] args = { "message" };
+                        Assert.That("actual", {{GetAdjustedConstraint(method)}}, () => string.Format("Because of {0}", args));
+
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
         [TestCaseSource(nameof(StringAsserts))]
         public void AnalyzeWhenFormatVariableAndArgumentsAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            ↓StringAssert.{method}(""expected"", ""actual"", GetLocalizedFormatSpecification(), ""message"");
-            static string GetLocalizedFormatSpecification() => ""Because of {{0}}"";
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            Assert.That(""actual"", {GetAdjustedConstraint(method)}, () => string.Format(GetLocalizedFormatSpecification(), ""message""));
-            static string GetLocalizedFormatSpecification() => ""Because of {{0}}"";
-            ");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        ↓StringAssert.{{method}}("expected", "actual", GetLocalizedFormatSpecification(), "message");
+                        static string GetLocalizedFormatSpecification() => "Because of {0}";
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        Assert.That("actual", {{GetAdjustedConstraint(method)}}, () => string.Format(GetLocalizedFormatSpecification(), "message"));
+                        static string GetLocalizedFormatSpecification() => "Because of {0}";
+
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 
@@ -85,10 +95,12 @@ namespace NUnit.Analyzers.Tests.StringAssertUsage
         public void AnalyzeWhenFormatAndArgumentsAreUsedOutOfOrder(string method)
         {
             var firstParameterName = StringAssertUsageCodeFix.StringAssertToExpectedParameterName[method];
-            var code = TestUtility.WrapInTestMethod(@$"
-            ↓StringAssert.{method}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", actual: ""actual"", {firstParameterName}: ""expected"");");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            Assert.That(""actual"", {GetAdjustedConstraint(method)}, $""{{""first""}}, {{""second""}}"");");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        ↓StringAssert.{{method}}(args: new[] { "first", "second" }, message: "{0}, {1}", actual: "actual", {{firstParameterName}}: "expected");
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        Assert.That("actual", {{GetAdjustedConstraint(method)}}, $"{"first"}, {"second"}");
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
 

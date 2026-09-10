@@ -17,17 +17,19 @@ namespace NUnit.Analyzers.Tests.TestContextWriteIsObsolete
         [TestCaseSource(typeof(TestContextWriteIsObsoleteTestCases), nameof(TestContextWriteIsObsoleteTestCases.WriteInvocations))]
         public void AnyWriteMethod(string writeMethodAndParameters)
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    ↓TestContext.{writeMethodAndParameters};
-                }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        ↓TestContext.{{writeMethodAndParameters}};
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    TestContext.Out.{writeMethodAndParameters};
-                }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        TestContext.Out.{{writeMethodAndParameters}};
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: TestContextWriteIsObsoleteCodeFix.InsertOutDescription);

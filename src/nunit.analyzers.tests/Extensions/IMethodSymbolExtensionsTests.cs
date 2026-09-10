@@ -15,15 +15,16 @@ namespace NUnit.Analyzers.Tests.Extensions
         [Test]
         public async Task GetParameterCounts()
         {
-            var testCode = @"
-namespace NUnit.Analyzers.Tests.Targets.Extensions
-{
-    public sealed class IMethodSymbolExtensionsTestsGetParameterCounts
-    {
-        public void Foo(int a1, int a2, int a3, string b1 = ""b1"", string b2 = ""b2"", params char[] c) { }
-    }
-}";
-            var (method, _) = await GetMethodSymbolAsync(testCode);
+            var testCode = """
+                namespace NUnit.Analyzers.Tests.Targets.Extensions
+                {
+                    public sealed class IMethodSymbolExtensionsTestsGetParameterCounts
+                    {
+                        public void Foo(int a1, int a2, int a3, string b1 = "b1", string b2 = "b2", params char[] c) { }
+                    }
+                }
+            """;
+            var (method, _) = await GetMethodSymbolAsync(testCode).ConfigureAwait(false);
             var (requiredParameters, optionalParameters, paramsCount) = method.GetParameterCounts(false, null);
 
             Assert.Multiple(() =>
@@ -37,17 +38,18 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         [Test]
         public async Task GetParameterCountsWithCancellationToken([Values] bool hasCancelAfter)
         {
-            var testCode = @"
-using System.Threading;
+            var testCode = """
+                using System.Threading;
 
-namespace NUnit.Analyzers.Tests.Targets.Extensions
-{
-    public sealed class IMethodSymbolExtensionsTestsGetParameterCounts
-    {
-        public void Foo(int a1, int a2, int a3, CancellationToken cancellationToken) { }
-    }
-}";
-            var (method, compilation) = await GetMethodSymbolAsync(testCode);
+                namespace NUnit.Analyzers.Tests.Targets.Extensions
+                {
+                    public sealed class IMethodSymbolExtensionsTestsGetParameterCounts
+                    {
+                        public void Foo(int a1, int a2, int a3, CancellationToken cancellationToken) { }
+                    }
+                }
+            """;
+            var (method, compilation) = await GetMethodSymbolAsync(testCode).ConfigureAwait(false);
             INamedTypeSymbol? cancellationTokenType = compilation.GetTypeByMetadataName(NUnitV4FrameworkConstants.FullNameOfCancellationToken);
 
             var (requiredParameters, optionalParameters, paramsCount) = method.GetParameterCounts(hasCancelAfter, cancellationTokenType);

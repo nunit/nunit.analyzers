@@ -16,9 +16,10 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
         [TestCase(nameof(Is.EquivalentTo))]
         public void AnalyzeWhenSameVariableProvided(string constraintMethod)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var str = ""test"";
-                Assert.That(str, Is.{constraintMethod}(↓str));");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var str = "test";
+                        Assert.That(str, Is.{{constraintMethod}}(↓str));
+            """);
 
             var message = "The actual and the expected argument is the same 'str'";
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
@@ -27,9 +28,10 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
         [Test]
         public void AnalyzeWhenSameExpressionProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var str = ""test"";
-                Assert.That(str.Trim(), Is.EqualTo(↓str.Trim()));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var str = "test";
+                        Assert.That(str.Trim(), Is.EqualTo(↓str.Trim()));
+            """);
 
             var message = "The actual and the expected argument is the same 'str.Trim()'";
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
@@ -38,9 +40,10 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
         [Test]
         public void AnalyzeForTwoCombinedConstraintsViaProperty()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var str = ""test"";
-                Assert.That(str, Is.EqualTo(↓str).And.EquivalentTo(↓str));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var str = "test";
+                        Assert.That(str, Is.EqualTo(↓str).And.EquivalentTo(↓str));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -48,13 +51,14 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
         [Test]
         public void AnalyzeForMultipleCombinedConstraintsViaProperty()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var str = ""test"";
-                var str2 = ""test2"";
-                Assert.That(str, Is.EqualTo(↓str)
-                    .Or.Contains(str2)
-                    .Or.EquivalentTo(↓str)
-                    .And.StartsWith(↓str));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var str = "test";
+                        var str2 = "test2";
+                        Assert.That(str, Is.EqualTo(↓str)
+                            .Or.Contains(str2)
+                            .Or.EquivalentTo(↓str)
+                            .And.StartsWith(↓str));
+            """);
 
             var message = "The actual and the expected argument is the same 'str'";
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
@@ -63,9 +67,10 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
         [Test]
         public void AnalyzeForTwoCombinedConstraintsViaOperator()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var str = ""test"";
-                Assert.That(str, Is.EqualTo(↓str) | Is.EquivalentTo(↓str));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var str = "test";
+                        Assert.That(str, Is.EqualTo(↓str) | Is.EquivalentTo(↓str));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -73,13 +78,14 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
         [Test]
         public void AnalyzeForMultipleCombinedConstraintsViaOperator()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var str = ""test"";
-                var str2 = ""test2"";
-                Assert.That(str, Is.EqualTo(↓str) 
-                    | Is.EquivalentTo(str2)
-                    & Does.Contain(↓str)
-                    | Does.StartWith(↓str));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var str = "test";
+                        var str2 = "test2";
+                        Assert.That(str, Is.EqualTo(↓str) 
+                            | Is.EquivalentTo(str2)
+                            & Does.Contain(↓str)
+                            | Does.StartWith(↓str));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -88,10 +94,11 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
         [TestCase(nameof(Is.EquivalentTo))]
         public void ValidWhenDifferentVariablesProvided(string constraintMethod)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var str1 = ""test1"";
-                var str2 = ""test2"";
-                Assert.That(str1, Is.{constraintMethod}(str2));");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var str1 = "test1";
+                        var str2 = "test2";
+                        Assert.That(str1, Is.{{constraintMethod}}(str2));
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -99,9 +106,10 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
         [Test]
         public void ValidWhenDifferentExpressionsProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var str = ""test"";
-                Assert.That(str.Trim(), Is.EqualTo(str.TrimEnd()));");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var str = "test";
+                        Assert.That(str.Trim(), Is.EqualTo(str.TrimEnd()));
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }

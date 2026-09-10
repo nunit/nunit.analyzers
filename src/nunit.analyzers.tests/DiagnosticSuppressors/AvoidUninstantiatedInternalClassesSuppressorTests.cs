@@ -11,7 +11,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 {
     internal class AvoidUninstantiatedInternalClassesSuppressorTests
     {
-        private const string CalculatorClass = @"
+        private const string CalculatorClass = """
             internal sealed class Calculator
             {
                 private readonly Calculation _calculation;
@@ -29,9 +29,10 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     Subtract,
                 }
             }
-        ";
 
-        private const string CalculatorTest = @"
+        """;
+
+        private const string CalculatorTest = """
             internal sealed class CalculatorTests
             {
                 [Test]
@@ -50,20 +51,22 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     Assert.That(result, Is.EqualTo(-1));
                 }
             }
-        ";
 
-        private const string TestDataClass = @"
+        """;
+
+        private const string TestDataClass = """
             internal sealed class TestData : IEnumerable
             {
                 public IEnumerator GetEnumerator()
                 {
-                    yield return ""Hello"";
-                    yield return ""World"";
+                    yield return "Hello";
+                    yield return "World";
                 }
             }
-        ";
 
-        private const string TestFixtureWithParameterizedTestMethod = @"
+        """;
+
+        private const string TestFixtureWithParameterizedTestMethod = """
             [TestFixture]
             public sealed class TestFixture
             {
@@ -74,9 +77,10 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     Assert.That(value, Has.Length.EqualTo(5));
                 }
             }
-         ";
 
-        private const string ParameterizedTestFixture = @"
+        """;
+
+        private const string ParameterizedTestFixture = """
             [TestFixtureSource(typeof(TestData))]
             public sealed class ParameterizedTestFixture
             {
@@ -99,7 +103,8 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     Assert.That(value, Has.Length.EqualTo(5));
                 }
             }
-        ";
+
+        """;
 
         private static readonly Settings settingSearchingAllSourcesForTestCaseUsages =
             Settings.Default.WithAnalyzerConfig("dotnet_diagnostic.NUnit3003.search_all_code_for_use_as_data_source = true");
@@ -129,10 +134,11 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [Test]
         public async Task TestClass()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-                {CalculatorClass}
-                {CalculatorTest}
-            ");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                {{CalculatorClass}}
+                {{CalculatorTest}}
+
+            """);
 
             await TestHelpers.Suppressed(this.analyzer, suppressor, testCode);
         }

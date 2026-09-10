@@ -27,33 +27,35 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
         [TestCaseSource(nameof(testMethodRelatedAttributes))]
         public void FixWhenBaseFixtureIsNotAbstract(string modifiers, string attribute)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    // Base Fixture
-    {modifiers}class ↓BaseFixture
-    {{
-        [{attribute}]
-        public void BaseFixtureMethod() {{ }}
-    }}
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                // Base Fixture
+                {{modifiers}}class ↓BaseFixture
+                {
+                    [{{attribute}}]
+                    public void BaseFixtureMethod() { }
+                }
 
-    {modifiers}class DerivedFixture : BaseFixture
-    {{
-        [Test]
-        public void DerivedFixtureMethod() {{ }}
-    }}");
+                {{modifiers}}class DerivedFixture : BaseFixture
+                {
+                    [Test]
+                    public void DerivedFixtureMethod() { }
+                }
+            """);
 
-            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    // Base Fixture
-    {modifiers}abstract class BaseFixture
-    {{
-        [{attribute}]
-        public void BaseFixtureMethod() {{ }}
-    }}
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                // Base Fixture
+                {{modifiers}}abstract class BaseFixture
+                {
+                    [{{attribute}}]
+                    public void BaseFixtureMethod() { }
+                }
 
-    {modifiers}class DerivedFixture : BaseFixture
-    {{
-        [Test]
-        public void DerivedFixtureMethod() {{ }}
-    }}");
+                {{modifiers}}class DerivedFixture : BaseFixture
+                {
+                    [Test]
+                    public void DerivedFixtureMethod() { }
+                }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }

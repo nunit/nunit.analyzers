@@ -31,80 +31,90 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyAreNotEqualFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            ↓ClassicAssert.AreNotEqual(2d, 3d);
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(3d, Is.Not.EqualTo(2d));
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.AreNotEqual(2d, 3d);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(3d, Is.Not.EqualTo(2d));
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyAreNotEqualFixWithMessage()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            ↓ClassicAssert.AreNotEqual(2d, 3d, ""message"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(3d, Is.Not.EqualTo(2d), ""message"");
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.AreNotEqual(2d, 3d, "message");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(3d, Is.Not.EqualTo(2d), "message");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyAreNotEqualFixWithMessageAndOneArgumentForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            ↓ClassicAssert.AreNotEqual(2d, 3d, ""message-id: {0}"", Guid.NewGuid());
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(3d, Is.Not.EqualTo(2d), $""message-id: {Guid.NewGuid()}"");
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.AreNotEqual(2d, 3d, "message-id: {0}", Guid.NewGuid());
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(3d, Is.Not.EqualTo(2d), $"message-id: {Guid.NewGuid()}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyAreNotEqualFixWithMessageAndTwoArgumentsForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            ↓ClassicAssert.AreNotEqual(2d, 3d, ""{0}, {1}"", ""first"", ""second"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(3d, Is.Not.EqualTo(2d), $""{""first""}, {""second""}"");
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.AreNotEqual(2d, 3d, "{0}, {1}", "first", "second");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(3d, Is.Not.EqualTo(2d), $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyAreNotEqualFixWithMessageAndArrayParamsInNonstandardOrder()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            ↓ClassicAssert.AreNotEqual(args: new[] { ""first"", ""second"" }, actual: ""actual"", message: ""{0}, {1}"", expected: ""expected"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(""actual"", Is.Not.EqualTo(""expected""), $""{""first""}, {""second""}"");
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.AreNotEqual(args: new[] { "first", "second" }, actual: "actual", message: "{0}, {1}", expected: "expected");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That("actual", Is.Not.EqualTo("expected"), $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -114,15 +124,17 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var commaAndMessage = hasMessage
                 ? ",\r\n                \"message\""
                 : string.Empty;
-            var code = TestUtility.WrapInTestMethod($@"
-            ↓ClassicAssert.AreNotEqual(
-                2d,
-                3d{commaAndMessage});");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        ↓ClassicAssert.AreNotEqual(
+                            2d,
+                            3d{{commaAndMessage}});
+            """);
 
-            var fixedCode = TestUtility.WrapInTestMethod($@"
-            Assert.That(
-                3d,
-                Is.Not.EqualTo(2d){commaAndMessage});");
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        Assert.That(
+                            3d,
+                            Is.Not.EqualTo(2d){{commaAndMessage}});
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
@@ -133,17 +145,19 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var commaAndMessage = hasMessage
                 ? ",\r\n                \"message\""
                 : string.Empty;
-            var code = TestUtility.WrapInTestMethod($@"
-            ↓ClassicAssert.AreNotEqual(
-                2d,
-                3d{commaAndMessage}
-            );");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        ↓ClassicAssert.AreNotEqual(
+                            2d,
+                            3d{{commaAndMessage}}
+                        );
+            """);
 
-            var fixedCode = TestUtility.WrapInTestMethod($@"
-            Assert.That(
-                3d,
-                Is.Not.EqualTo(2d){commaAndMessage}
-            );");
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        Assert.That(
+                            3d,
+                            Is.Not.EqualTo(2d){{commaAndMessage}}
+                        );
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
@@ -152,13 +166,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
         {
             var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
-            var code = TestUtility.WrapInTestMethod($@"
-            ↓ClassicAssert.AreNotEqual(
-                2d, 3d{optionalNewline});");
+            var code = TestUtility.WrapInTestMethod($$"""
+                        ↓ClassicAssert.AreNotEqual(
+                            2d, 3d{{optionalNewline}});
+            """);
 
-            var fixedCode = TestUtility.WrapInTestMethod($@"
-            Assert.That(
-                3d, Is.Not.EqualTo(2d){optionalNewline});");
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        Assert.That(
+                            3d, Is.Not.EqualTo(2d){{optionalNewline}});
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
@@ -171,14 +187,16 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [TestCase("Enumerable.Empty<int>()", "using System.Linq;")]
         public void CodeFixUsesIsEmpty(string expected, string? additionalUsings = null)
         {
-            var code = TestUtility.WrapInTestMethod($@"
-            string value = ""Value"";
-            ↓ClassicAssert.AreNotEqual({expected}, value);",
+            var code = TestUtility.WrapInTestMethod($$"""
+                        string value = "Value";
+                        ↓ClassicAssert.AreNotEqual({{expected}}, value);
+            """,
             additionalUsings);
 
-            var fixedCode = TestUtility.WrapInTestMethod($@"
-            string value = ""Value"";
-            Assert.That(value, Is.Not.Empty);",
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        string value = "Value";
+                        Assert.That(value, Is.Not.Empty);
+            """,
             additionalUsings);
 
             IEnumerable<MetadataReference> existingReferences = Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>();
@@ -198,14 +216,16 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             const string usingSystemCollectionsImmutable = "using System.Collections.Immutable;";
 
-            var code = TestUtility.WrapInTestMethod($@"
-            string value = ""Value"";
-            ↓ClassicAssert.AreNotEqual({expected}, value);",
+            var code = TestUtility.WrapInTestMethod($$"""
+                        string value = "Value";
+                        ↓ClassicAssert.AreNotEqual({{expected}}, value);
+            """,
             usingSystemCollectionsImmutable);
 
-            var fixedCode = TestUtility.WrapInTestMethod($@"
-            string value = ""Value"";
-            Assert.That(value, Is.Not.Empty);",
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        string value = "Value";
+                        Assert.That(value, Is.Not.Empty);
+            """,
             usingSystemCollectionsImmutable);
 
             IEnumerable<MetadataReference> existingReferences = Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>();
@@ -221,37 +241,39 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void CodeFixDoesNotUseIsEmpty()
         {
-            var code = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class TestClass
-    {
-        [Test]
-        public void TestMethod()
-        {
-            var rangeValue = Range.Empty;
-            ↓ClassicAssert.AreNotEqual(Range.Empty, rangeValue);
-        }
+            var code = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public class TestClass
+                {
+                    [Test]
+                    public void TestMethod()
+                    {
+                        var rangeValue = Range.Empty;
+                        ↓ClassicAssert.AreNotEqual(Range.Empty, rangeValue);
+                    }
 
-        public record struct Range(int Start, int End)
-        {
-            public static Range Empty { get; } = new Range(0, 0);
-        }
-    }");
+                    public record struct Range(int Start, int End)
+                    {
+                        public static Range Empty { get; } = new Range(0, 0);
+                    }
+                }
+            """);
 
-            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class TestClass
-    {
-        [Test]
-        public void TestMethod()
-        {
-            var rangeValue = Range.Empty;
-            Assert.That(rangeValue, Is.Not.EqualTo(Range.Empty));
-        }
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public class TestClass
+                {
+                    [Test]
+                    public void TestMethod()
+                    {
+                        var rangeValue = Range.Empty;
+                        Assert.That(rangeValue, Is.Not.EqualTo(Range.Empty));
+                    }
 
-        public record struct Range(int Start, int End)
-        {
-            public static Range Empty { get; } = new Range(0, 0);
-        }
-    }");
+                    public record struct Range(int Start, int End)
+                    {
+                        public static Range Empty { get; } = new Range(0, 0);
+                    }
+                }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);

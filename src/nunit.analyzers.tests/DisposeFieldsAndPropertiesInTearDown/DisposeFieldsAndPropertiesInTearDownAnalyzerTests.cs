@@ -8,30 +8,33 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
 {
     public sealed class DisposeFieldsAndPropertiesInTearDownAnalyzerTests
     {
-        private const string DummyDisposable = @"
-        sealed class DummyDisposable : IDisposable
-        {
-            public void Dispose() {}
-        }";
+        private const string DummyDisposable = """
+            sealed class DummyDisposable : IDisposable
+            {
+                public void Dispose() {}
+            }
+        """;
 
-        private const string DummyExplicitDisposable = @"
-        sealed class DummyExplicitDisposable : IAnotherInterface, IDisposable
-        {
-            void IDisposable.Dispose() {}
-        }
-        public interface IAnotherInterface
-        {
-        }";
+        private const string DummyExplicitDisposable = """
+            sealed class DummyExplicitDisposable : IAnotherInterface, IDisposable
+            {
+                void IDisposable.Dispose() {}
+            }
+            public interface IAnotherInterface
+            {
+            }
+        """;
 
         // CA2000 allows transfer of ownership using ICollection<IDisposable>.Add
-        private const string Disposer = @"
-        private sealed class Disposer : IDisposable
-        {
-            public void Dispose() {}
+        private const string Disposer = """
+            private sealed class Disposer : IDisposable
+            {
+                public void Dispose() {}
 
-            public T? Add<T>(T? resource) => resource;
-        }
-        ";
+                public T? Add<T>(T? resource) => resource;
+            }
+
+        """;
 
         private static readonly DiagnosticAnalyzer analyzer = new DisposeFieldsAndPropertiesInTearDownAnalyzer();
         private static readonly ExpectedDiagnostic expectedDiagnostic =
@@ -42,23 +45,24 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             [Values("", "OneTime")] string attributePrefix,
             [Values("", "this.")] string prefix)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private IDisposable? field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private IDisposable? field;
 
-        [{attributePrefix}SetUp]
-        public void SetUpMethod()
-        {{
-            {prefix}field = new DummyDisposable();
-        }}
+                    [{{attributePrefix}}SetUp]
+                    public void SetUpMethod()
+                    {
+                        {{prefix}}field = new DummyDisposable();
+                    }
 
-        [{attributePrefix}TearDown]
-        public void TearDownMethod()
-        {{
-            {prefix}field?.Dispose();
-        }}
+                    [{{attributePrefix}}TearDown]
+                    public void TearDownMethod()
+                    {
+                        {{prefix}}field?.Dispose();
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -67,18 +71,19 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [TestCase("System.IDisposable")]
         public void AnalyzeWhenFieldIsConditionallyDisposedUsingIsIDisposable(string interfaceName)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private object field = new DummyDisposable();
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private object field = new DummyDisposable();
 
-        [OneTimeTearDown]
-        public void TearDownMethod()
-        {{
-            if (field is {interfaceName} disposable)
-                disposable.Dispose();
-        }}
+                    [OneTimeTearDown]
+                    public void TearDownMethod()
+                    {
+                        if (field is {{interfaceName}} disposable)
+                            disposable.Dispose();
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -87,17 +92,18 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [TestCase("System.IDisposable")]
         public void AnalyzeWhenFieldIsConditionallyDisposedUsingAsIDisposable(string interfaceName)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private object field = new DummyDisposable();
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private object field = new DummyDisposable();
 
-        [OneTimeTearDown]
-        public void TearDownMethod()
-        {{
-            (field as {interfaceName})?.Dispose();
-        }}
+                    [OneTimeTearDown]
+                    public void TearDownMethod()
+                    {
+                        (field as {{interfaceName}})?.Dispose();
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -105,17 +111,18 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenFieldWithInitializerIsDisposedInOneTimeTearDownMethod()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private IDisposable field = new DummyDisposable();
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private IDisposable field = new DummyDisposable();
 
-        [OneTimeTearDown]
-        public void TearDownMethod()
-        {{
-            field.Dispose();
-        }}
+                    [OneTimeTearDown]
+                    public void TearDownMethod()
+                    {
+                        field.Dispose();
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -123,22 +130,23 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenFieldSetInConstructorIsDisposedInOneTimeTearDownMethod()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private IDisposable field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private IDisposable field;
 
-        public TestClass()
-        {{
-            field = new DummyDisposable();
-        }}
+                    public TestClass()
+                    {
+                        field = new DummyDisposable();
+                    }
 
-        [OneTimeTearDown]
-        public void TearDownMethod()
-        {{
-            field.Dispose();
-        }}
+                    [OneTimeTearDown]
+                    public void TearDownMethod()
+                    {
+                        field.Dispose();
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -146,22 +154,23 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenExplicitlyInterfaceImplementedDisposableFieldSetInConstructorIsDisposedInOneTimeTearDownMethod()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private IAnotherInterface field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private IAnotherInterface field;
 
-        public TestClass()
-        {{
-            field = new DummyExplicitDisposable();
-        }}
+                    public TestClass()
+                    {
+                        field = new DummyExplicitDisposable();
+                    }
 
-        [OneTimeTearDown]
-        public void TearDownMethod()
-        {{
-            ((IDisposable)field).Dispose();
-        }}
+                    [OneTimeTearDown]
+                    public void TearDownMethod()
+                    {
+                        ((IDisposable)field).Dispose();
+                    }
 
-        {DummyExplicitDisposable}
-        ");
+                    {{DummyExplicitDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -170,23 +179,24 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [TestCase("OneTime", "")]
         public void AnalyzeWhenFieldIsDisposedInWrongMethod(string attributePrefix1, string attributePrefix2)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private IDisposable? ↓field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private IDisposable? ↓field;
 
-        [{attributePrefix1}SetUp]
-        public void SetUpMethod()
-        {{
-            field = new DummyDisposable();
-        }}
+                    [{{attributePrefix1}}SetUp]
+                    public void SetUpMethod()
+                    {
+                        field = new DummyDisposable();
+                    }
 
-        [{attributePrefix2}TearDown]
-        public void TearDownMethod()
-        {{
-            field?.Dispose();
-        }}
+                    [{{attributePrefix2}}TearDown]
+                    public void TearDownMethod()
+                    {
+                        field?.Dispose();
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -195,23 +205,24 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [TestCase("Test")]
         public void AnalyzeWhenFieldIsNotDisposed(string attribute)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private object? ↓field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private object? ↓field;
 
-        [{attribute}]
-        public void SomeMethod()
-        {{
-            field = new DummyDisposable();
-        }}
+                    [{{attribute}}]
+                    public void SomeMethod()
+                    {
+                        field = new DummyDisposable();
+                    }
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            field = null;
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        field = null;
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -219,28 +230,29 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenFieldInitializedInLocalFunctionIsNotDisposed()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private object? ↓field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private object? ↓field;
 
-        [SetUp]
-        public void SetUp()
-        {{
-            Initialize();
+                    [SetUp]
+                    public void SetUp()
+                    {
+                        Initialize();
 
-            void Initialize()
-            {{
-                field = new DummyDisposable();
-            }}
-        }}
+                        void Initialize()
+                        {
+                            field = new DummyDisposable();
+                        }
+                    }
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            field = null;
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        field = null;
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -249,21 +261,22 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [TestCase("Test")]
         public void AnalyzeWhenFieldTypeParameterIsNotDisposed(string attribute)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-        public class TestClass<T>
-            where T : IDisposable, new()
-        {{
-            private T? ↓field;
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public class TestClass<T>
+                    where T : IDisposable, new()
+                {
+                    private T? ↓field;
 
-            [{attribute}]
-            public void SomeMethod()
-            {{
-                field = new T();
-            }}
+                    [{{attribute}}]
+                    public void SomeMethod()
+                    {
+                        field = new T();
+                    }
 
-            {DummyDisposable}
-        }}
-        ");
+                    {{DummyDisposable}}
+                }
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -271,17 +284,18 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenFieldWithInitializerIsNotDisposed()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private object? ↓field = new DummyDisposable();
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private object? ↓field = new DummyDisposable();
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            field = null;
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        field = null;
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -289,19 +303,20 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenFieldSetInConstructorIsNotDisposed()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private object? ↓field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private object? ↓field;
 
-        public TestClass() => field = new DummyDisposable();
+                    public TestClass() => field = new DummyDisposable();
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            field = null;
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        field = null;
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -309,19 +324,20 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenReadOnlyFieldSetInConstructorIsNotDisposed()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private readonly object? ↓field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private readonly object? ↓field;
 
-        public TestClass() => field = new DummyDisposable();
+                    public TestClass() => field = new DummyDisposable();
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            Assert.That(field, Is.Not.Null);
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        Assert.That(field, Is.Not.Null);
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -329,33 +345,34 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void FieldConditionallyAssignedInCalledLocalFunction()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private object? ↓field;
-        private bool initializeField;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private object? ↓field;
+                    private bool initializeField;
 
-        public TestClass(bool initializeField) => this.initializeField = initializeField;
+                    public TestClass(bool initializeField) => this.initializeField = initializeField;
 
-        [SetUp]
-        public async Task SetUp()
-        {{
-            if (initializeField)
-                await InitializeField().ConfigureAwait(false);
-        }}
+                    [SetUp]
+                    public async Task SetUp()
+                    {
+                        if (initializeField)
+                            await InitializeField().ConfigureAwait(false);
+                    }
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            field = null;
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        field = null;
+                    }
 
-        private Task InitializeField()
-        {{
-            field = new DummyDisposable();
-            return Task.CompletedTask;
-        }}
+                    private Task InitializeField()
+                    {
+                        field = new DummyDisposable();
+                        return Task.CompletedTask;
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -364,29 +381,30 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         public void AnalyzeWhenPropertyBackingFieldIsDisposed(
             [Values("field", "Property")] string fieldOrProperty)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private IDisposable? field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private IDisposable? field;
 
-        private IDisposable? Property
-        {{
-            get => field;
-            set => this.field = value;
-        }}
+                    private IDisposable? Property
+                    {
+                        get => field;
+                        set => this.field = value;
+                    }
 
-        [SetUp]
-        public void SetUpMethod()
-        {{
-            {fieldOrProperty} = new DummyDisposable();
-        }}
+                    [SetUp]
+                    public void SetUpMethod()
+                    {
+                        {{fieldOrProperty}} = new DummyDisposable();
+                    }
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            {fieldOrProperty}?.Dispose();
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        {{fieldOrProperty}}?.Dispose();
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -394,35 +412,36 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenFieldIsDisposedInSpecialExtensionMethod()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    public class TestClass
-    {{
-        private object? field;
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public class TestClass
+                {
+                    private object? field;
 
-        [SetUp]
-        public void SetUpMethod()
-        {{
-            field = new DummyDisposable();
-        }}
+                    [SetUp]
+                    public void SetUpMethod()
+                    {
+                        field = new DummyDisposable();
+                    }
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            field.DisposeIfDisposable();
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        field.DisposeIfDisposable();
+                    }
 
-        {DummyDisposable}
-    }}
+                    {{DummyDisposable}}
+                }
 
-    public static class DisposableExtensions
-    {{
-        public static void DisposeIfDisposable<T>(this T instance)
-        {{
-            if (instance is IDisposable disposable)
-                disposable.Dispose();
-        }}
-    }}
-        ");
+                public static class DisposableExtensions
+                {
+                    public static void DisposeIfDisposable<T>(this T instance)
+                    {
+                        if (instance is IDisposable disposable)
+                            disposable.Dispose();
+                    }
+                }
+
+            """);
 
             const string analyzerConfig = "dotnet_diagnostic.NUnit1032.additional_dispose_methods = DisposeIfDisposable";
             Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
@@ -432,29 +451,30 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenFieldIsDisposedInSpecialMethodWithParameter()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private object? field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private object? field;
 
-        [SetUp]
-        public void SetUpMethod()
-        {{
-            field = new DummyDisposable();
-        }}
+                    [SetUp]
+                    public void SetUpMethod()
+                    {
+                        field = new DummyDisposable();
+                    }
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            Release(field);
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        Release(field);
+                    }
 
-        private void Release<T>(T instance)
-        {{
-            if (instance is IDisposable disposable)
-                disposable.Dispose();
-        }}
-        
-        {DummyDisposable}
-        ");
+                    private void Release<T>(T instance)
+                    {
+                        if (instance is IDisposable disposable)
+                            disposable.Dispose();
+                    }
+
+                    {{DummyDisposable}}
+
+            """);
 
             const string analyzerConfig = "dotnet_diagnostic.NUnit1032.additional_dispose_methods = Release";
             Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
@@ -464,28 +484,29 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenFieldIsDisposedInMemberMethod()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private IDisposable? field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private IDisposable? field;
 
-        [SetUp]
-        public void SetUpMethod()
-        {{
-            field = new DummyDisposable();
-        }}
+                    [SetUp]
+                    public void SetUpMethod()
+                    {
+                        field = new DummyDisposable();
+                    }
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            CleanUp();
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        CleanUp();
+                    }
 
-        private void CleanUp()
-        {{
-            field?.Dispose();
-        }}
-        
-        {DummyDisposable}
-        ");
+                    private void CleanUp()
+                    {
+                        field?.Dispose();
+                    }
+
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -493,28 +514,29 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenFieldIsDisposedInLocalMethod()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private IDisposable? field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private IDisposable? field;
 
-        [SetUp]
-        public void SetUpMethod()
-        {{
-            field = new DummyDisposable();
-        }}
+                    [SetUp]
+                    public void SetUpMethod()
+                    {
+                        field = new DummyDisposable();
+                    }
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            CleanUp();
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        CleanUp();
 
-            void CleanUp()
-            {{
-                field?.Dispose();
-            }}
-        }}
-        
-        {DummyDisposable}
-        ");
+                        void CleanUp()
+                        {
+                            field?.Dispose();
+                        }
+                    }
+
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -522,29 +544,30 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenFieldIsDisposedUsingFactoryWithParameter()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    public class TestClass
-    {{
-        private IFactory<DummyDisposable> _factory;
-        private DummyDisposable? _field;
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public class TestClass
+                {
+                    private IFactory<DummyDisposable> _factory;
+                    private DummyDisposable? _field;
 
-        public TestClass(IFactory<DummyDisposable> factory) => _factory = factory;
+                    public TestClass(IFactory<DummyDisposable> factory) => _factory = factory;
 
-        [SetUp]
-        public void SetUpMethod() => _field = _factory.Create();
+                    [SetUp]
+                    public void SetUpMethod() => _field = _factory.Create();
 
-        [TearDown]
-        public void TearDownMethod() => _factory.Release(_field!);
-    }}
+                    [TearDown]
+                    public void TearDownMethod() => _factory.Release(_field!);
+                }
 
-    public {DummyDisposable}
+                public {{DummyDisposable}}
 
-    public interface IFactory<T>
-    {{
-        T Create();
-        void Release(T instance);
-    }}
-        ");
+                public interface IFactory<T>
+                {
+                    T Create();
+                    void Release(T instance);
+                }
+
+            """);
 
             const string analyzerConfig = "dotnet_diagnostic.NUnit1032.additional_dispose_methods = Release";
             Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
@@ -556,23 +579,24 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             [Values("", "OneTime")] string attributePrefix,
             [Values("", "this.")] string prefix)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        protected IDisposable? Property {{ get; private set; }}
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    protected IDisposable? Property { get; private set; }
 
-        [{attributePrefix}SetUp]
-        public void SetUpMethod()
-        {{
-            {prefix}Property = new DummyDisposable();
-        }}
+                    [{{attributePrefix}}SetUp]
+                    public void SetUpMethod()
+                    {
+                        {{prefix}}Property = new DummyDisposable();
+                    }
 
-        [{attributePrefix}TearDown]
-        public void TearDownMethod()
-        {{
-            {prefix}Property?.Dispose();
-        }}
+                    [{{attributePrefix}}TearDown]
+                    public void TearDownMethod()
+                    {
+                        {{prefix}}Property?.Dispose();
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -580,17 +604,18 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenPropertyWithInitializerIsDisposedInOneTimeTearDownMethod()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private IDisposable Property {{ get; }} = new DummyDisposable();
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private IDisposable Property { get; } = new DummyDisposable();
 
-        [OneTimeTearDown]
-        public void TearDownMethod()
-        {{
-            Property.Dispose();
-        }}
+                    [OneTimeTearDown]
+                    public void TearDownMethod()
+                    {
+                        Property.Dispose();
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -598,22 +623,23 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenPropertySetInConstructorIsDisposedInOneTimeTearDownMethod()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private IDisposable Property {{ get; }}
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private IDisposable Property { get; }
 
-        public TestClass()
-        {{
-            Property = new DummyDisposable();
-        }}
+                    public TestClass()
+                    {
+                        Property = new DummyDisposable();
+                    }
 
-        [OneTimeTearDown]
-        public void TearDownMethod()
-        {{
-            Property.Dispose();
-        }}
+                    [OneTimeTearDown]
+                    public void TearDownMethod()
+                    {
+                        Property.Dispose();
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -622,23 +648,24 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [TestCase("OneTime", "")]
         public void AnalyzeWhenPropertyIsDisposedInWrongMethod(string attributePrefix1, string attributePrefix2)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-         ↓protected IDisposable? Property {{ get; private set; }}
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                     ↓protected IDisposable? Property { get; private set; }
 
-        [{attributePrefix1}SetUp]
-        public void SetUpMethod()
-        {{
-            Property = new DummyDisposable();
-        }}
+                    [{{attributePrefix1}}SetUp]
+                    public void SetUpMethod()
+                    {
+                        Property = new DummyDisposable();
+                    }
 
-        [{attributePrefix2}TearDown]
-        public void TearDownMethod()
-        {{
-            Property?.Dispose();
-        }}
+                    [{{attributePrefix2}}TearDown]
+                    public void TearDownMethod()
+                    {
+                        Property?.Dispose();
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -647,23 +674,24 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [TestCase("Test")]
         public void AnalyzeWhenPropertyIsNotDisposed(string attribute)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        ↓protected object? Property {{ get; private set; }}
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    ↓protected object? Property { get; private set; }
 
-        [{attribute}]
-        public void SomeMethod()
-        {{
-            Property = new DummyDisposable();
-        }}
+                    [{{attribute}}]
+                    public void SomeMethod()
+                    {
+                        Property = new DummyDisposable();
+                    }
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            Property = null;
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        Property = null;
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -671,17 +699,18 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenPropertyWithInitializerIsNotDisposed()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        ↓protected object? Property {{ get; private set; }} = new DummyDisposable();
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    ↓protected object? Property { get; private set; } = new DummyDisposable();
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            Property = null;
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        Property = null;
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -689,17 +718,18 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenReadOnlyPropertyWithInitializerIsNotDisposed()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        ↓protected object? Property {{ get; }} = new DummyDisposable();
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    ↓protected object? Property { get; } = new DummyDisposable();
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            Assert.That(Property, Is.Not.Null);
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        Assert.That(Property, Is.Not.Null);
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -707,19 +737,20 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenPropertySetInConstructorIsNotDisposed()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        ↓protected object? Property {{ get; private set; }}
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    ↓protected object? Property { get; private set; }
 
-        public TestClass() => Property = new DummyDisposable();
+                    public TestClass() => Property = new DummyDisposable();
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            Property = null;
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        Property = null;
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -727,19 +758,20 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenReadOnlyPropertySetInConstructorIsNotDisposed()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        ↓protected object? Property {{ get; }}
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    ↓protected object? Property { get; }
 
-        public TestClass() => Property = new DummyDisposable();
+                    public TestClass() => Property = new DummyDisposable();
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            Assert.That(Property, Is.Not.Null);
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        Assert.That(Property, Is.Not.Null);
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -748,27 +780,28 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [TestCase("OneTime")]
         public void AnalyzeWhenFieldIsDisposedUsingDisposer(string attributePrefix)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private Disposer? disposer;
-        private object? field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private Disposer? disposer;
+                    private object? field;
 
-        [{attributePrefix}SetUp]
-        public void SetUpMethod()
-        {{
-            disposer = new Disposer();
-            field = disposer.Add(new DummyDisposable());
-        }}
+                    [{{attributePrefix}}SetUp]
+                    public void SetUpMethod()
+                    {
+                        disposer = new Disposer();
+                        field = disposer.Add(new DummyDisposable());
+                    }
 
-        [{attributePrefix}TearDown]
-        public void TearDownMethod()
-        {{
-            disposer?.Dispose();
-        }}
+                    [{{attributePrefix}}TearDown]
+                    public void TearDownMethod()
+                    {
+                        disposer?.Dispose();
+                    }
 
-        {DummyDisposable}
+                    {{DummyDisposable}}
 
-        {Disposer}
-        ");
+                    {{Disposer}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -776,32 +809,33 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenFieldIsDisposedInTryOrFinallyStatement()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private IDisposable? field1;
-        private IDisposable? field2;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private IDisposable? field1;
+                    private IDisposable? field2;
 
-        [SetUp]
-        public void SetUpMethod()
-        {{
-            field1 = new DummyDisposable();
-            field2 = new DummyDisposable();
-        }}
+                    [SetUp]
+                    public void SetUpMethod()
+                    {
+                        field1 = new DummyDisposable();
+                        field2 = new DummyDisposable();
+                    }
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            try
-            {{
-                field1?.Dispose();
-            }}
-            finally
-            {{
-                field2?.Dispose();
-            }}
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        try
+                        {
+                            field1?.Dispose();
+                        }
+                        finally
+                        {
+                            field2?.Dispose();
+                        }
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -810,27 +844,28 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [TestCase("Close")]
         public void AnalyzeWhenFieldIsDisposedUsing(string method)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private DummyWriter? field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private DummyWriter? field;
 
-        [SetUp]
-        public void SetUpMethod()
-        {{
-            field = new DummyWriter();
-        }}
+                    [SetUp]
+                    public void SetUpMethod()
+                    {
+                        field = new DummyWriter();
+                    }
 
-        [TearDown]
-        public void TearDownMethod()
-        {{
-            field?.{method}();
-        }}
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        field?.{{method}}();
+                    }
 
-        private sealed class DummyWriter : IDisposable
-        {{
-            public void Dispose() {{}}
+                    private sealed class DummyWriter : IDisposable
+                    {
+                        public void Dispose() {}
 
-            public void Close() => Dispose();
-        }}");
+                        public void Close() => Dispose();
+                    }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -838,30 +873,31 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenFieldIsCopied()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        private NestedDisposable? field1;
-        private IDisposable? field2;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    private NestedDisposable? field1;
+                    private IDisposable? field2;
 
-        [SetUp]
-        public void SetUpMethod()
-        {
-            field1 = new NestedDisposable();
-            field2 = field1.Member;
-        }
+                    [SetUp]
+                    public void SetUpMethod()
+                    {
+                        field1 = new NestedDisposable();
+                        field2 = field1.Member;
+                    }
 
-        [TearDown]
-        public void TearDownMethod()
-        {
-            field1?.Dispose();
-        }
+                    [TearDown]
+                    public void TearDownMethod()
+                    {
+                        field1?.Dispose();
+                    }
 
-        private sealed class NestedDisposable : IDisposable
-        {
-            public IDisposable Member { get; } = new DummyDisposable();
+                    private sealed class NestedDisposable : IDisposable
+                    {
+                        public IDisposable Member { get; } = new DummyDisposable();
 
-            public void Dispose() => Member.Dispose();
-        }
-        " + DummyDisposable);
+                        public void Dispose() => Member.Dispose();
+                    }
+
+            """ + "\n" + DummyDisposable);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -871,17 +907,18 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [TestCase("new System.IO.StringReader(\"NUnit.Analyzers\")")]
         public void AnalyzeWhenFieldDoesNotNeedDisposing(string expressionSyntax)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private IDisposable? field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private IDisposable? field;
 
-        [SetUp]
-        public void SetUpMethod()
-        {{
-            field = {expressionSyntax};
-        }}
+                    [SetUp]
+                    public void SetUpMethod()
+                    {
+                        field = {{expressionSyntax}};
+                    }
 
-        {DummyDisposable}
-        ");
+                    {{DummyDisposable}}
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -889,19 +926,20 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void AnalyzeWhenClassIsNotAnNUnitTestFixture()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-        public sealed class NotATestClass
-        {{
-            private IDisposable? field;
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public sealed class NotATestClass
+                {
+                    private IDisposable? field;
 
-            public void SomeMethod()
-            {{
-                field = new DummyDisposable();
-            }}
+                    public void SomeMethod()
+                    {
+                        field = new DummyDisposable();
+                    }
 
-            {DummyDisposable}
-        }}
-        ");
+                    {{DummyDisposable}}
+                }
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -913,28 +951,29 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
             [Values("", "this.")] string prefix,
             [Values("", ".ConfigureAwait(false)")] string configureAwait)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private DummyAsyncWriter? field;
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private DummyAsyncWriter? field;
 
-        [SetUp]
-        public void SetUpMethod()
-        {{
-            field = new DummyAsyncWriter();
-        }}
+                    [SetUp]
+                    public void SetUpMethod()
+                    {
+                        field = new DummyAsyncWriter();
+                    }
 
-        [TearDown]
-        public async Task TearDownMethod()
-        {{
-            if (field is not null)
-                await {prefix}field.{method}(){configureAwait};
-        }}
+                    [TearDown]
+                    public async Task TearDownMethod()
+                    {
+                        if (field is not null)
+                            await {{prefix}}field.{{method}}(){{configureAwait}};
+                    }
 
-        private sealed class DummyAsyncWriter : IAsyncDisposable
-        {{
-            public ValueTask DisposeAsync() => default(ValueTask);
+                    private sealed class DummyAsyncWriter : IAsyncDisposable
+                    {
+                        public ValueTask DisposeAsync() => default(ValueTask);
 
-            public Task CloseAsync() => DisposeAsync().AsTask();
-        }}");
+                        public Task CloseAsync() => DisposeAsync().AsTask();
+                    }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -943,26 +982,27 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void ShouldNotAnalyzeWhenInstancePerTestCase()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@$"
-            [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
-            public class TestClass
-            {{
-                private readonly IDisposable? field;
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
+                public class TestClass
+                {
+                    private readonly IDisposable? field;
 
-                public TestClass()
-                {{
-                    field = new DummyDisposable();
-                }}
+                    public TestClass()
+                    {
+                        field = new DummyDisposable();
+                    }
 
-                [Test]
-                public void Test()
-                {{
-                    Assert.That(field, Is.Not.Null);
-                }}
+                    [Test]
+                    public void Test()
+                    {
+                        Assert.That(field, Is.Not.Null);
+                    }
 
-                {DummyDisposable}
-            }}
-            ");
+                    {{DummyDisposable}}
+                }
+
+            """);
 
             // InstancePerTestCase mean test should use IDisposable
             RoslynAssert.Valid(analyzer, testCode);
@@ -971,24 +1011,25 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void ShouldDealWithDirectRecursiveMethods()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                private Dictionary<string, bool> _values = new();
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    private Dictionary<string, bool> _values = new();
 
-                [Test]
-                public void MinimalRepro()
-                {
-                    Recurse(""help"");
-                }
-
-                private void Recurse(string one, bool keepGoing = true)
-                {
-                    _values[one] = keepGoing;
-                    if (keepGoing)
+                    [Test]
+                    public void MinimalRepro()
                     {
-                        Recurse(one, false);
+                        Recurse("help");
                     }
-                }
-            ", "using System.Collections.Generic;");
+
+                    private void Recurse(string one, bool keepGoing = true)
+                    {
+                        _values[one] = keepGoing;
+                        if (keepGoing)
+                        {
+                            Recurse(one, false);
+                        }
+                    }
+
+            """, "using System.Collections.Generic;");
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -996,33 +1037,34 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void ShouldDealWithIndirectRecursiveMethods()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                private Dictionary<string, string> _values = new();
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    private Dictionary<string, string> _values = new();
 
-                [Test]
-                public void Indirect()
-                {
-                    A(""help"");
-                }
-
-                private void A(string one, bool keepGoing = true)
-                {
-                    if (keepGoing)
+                    [Test]
+                    public void Indirect()
                     {
-                        _values[one] = nameof(A);
-                        B(one, false);
+                        A("help");
                     }
-                }
 
-                private void B(string one, bool keepGoing)
-                {
-                    if (keepGoing)
+                    private void A(string one, bool keepGoing = true)
                     {
-                        _values[one] = nameof(B);
-                        A(one, false);
+                        if (keepGoing)
+                        {
+                            _values[one] = nameof(A);
+                            B(one, false);
+                        }
                     }
-                }
-            ", "using System.Collections.Generic;");
+
+                    private void B(string one, bool keepGoing)
+                    {
+                        if (keepGoing)
+                        {
+                            _values[one] = nameof(B);
+                            A(one, false);
+                        }
+                    }
+
+            """, "using System.Collections.Generic;");
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -1031,20 +1073,21 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [TestCase("static")]
         public void StaticFieldsNeedDisposingInOneTimeTearDown(string modifier)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-        public {modifier} class StaticFields
-        {{
-            private static readonly IDisposable? ↓field = new DummyDisposable();
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public {{modifier}} class StaticFields
+                {
+                    private static readonly IDisposable? ↓field = new DummyDisposable();
 
-            [Test]
-            public {modifier} void TestMethod()
-            {{
-                Assert.That(field, Is.Not.Null);
-            }}
+                    [Test]
+                    public {{modifier}} void TestMethod()
+                    {
+                        Assert.That(field, Is.Not.Null);
+                    }
 
-            {DummyDisposable}
-        }}
-        ");
+                    {{DummyDisposable}}
+                }
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -1053,26 +1096,27 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [TestCase("static")]
         public void StaticFieldsAreDisposed(string modifier)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-        public {modifier} class StaticFields
-        {{
-            private static readonly IDisposable? field = new DummyDisposable();
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public {{modifier}} class StaticFields
+                {
+                    private static readonly IDisposable? field = new DummyDisposable();
 
-            [OneTimeTearDown]
-            public {modifier} void OneTimeTearDown()
-            {{
-                field?.Dispose();
-            }}
+                    [OneTimeTearDown]
+                    public {{modifier}} void OneTimeTearDown()
+                    {
+                        field?.Dispose();
+                    }
 
-            [Test]
-            public {modifier} void TestMethod()
-            {{
-                Assert.That(field, Is.Not.Null);
-            }}
+                    [Test]
+                    public {{modifier}} void TestMethod()
+                    {
+                        Assert.That(field, Is.Not.Null);
+                    }
 
-            {DummyDisposable}
-        }}
-        ");
+                    {{DummyDisposable}}
+                }
+
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -1080,33 +1124,34 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void EarlyOutForNonSetableFieldsAndProperties()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-        public partial class TestFixture
-        {
-            public const double ToleranceConstant = 1E-10;
-
-            public static readonly double ToleranceReadOnlyField = 1E-10;
-
-            public static double ToleranceExpressionProperty => 1E-10;
-
-            public static double ToleranceReadOnlyProperty { get; } = 1E-10;
-
-            public static object ToleranceGetOnlyExpressionProperty
-            {
-                get => 1E-10;
-            }
-
-            public static object ToleranceGetOnlyProperty
-            {
-                get
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public partial class TestFixture
                 {
-                    return 1E-10;
-                }
-            }
+                    public const double ToleranceConstant = 1E-10;
 
-            [Test]
-            public void SomeTest() => throw new NotImplementedException();
-        }");
+                    public static readonly double ToleranceReadOnlyField = 1E-10;
+
+                    public static double ToleranceExpressionProperty => 1E-10;
+
+                    public static double ToleranceReadOnlyProperty { get; } = 1E-10;
+
+                    public static object ToleranceGetOnlyExpressionProperty
+                    {
+                        get => 1E-10;
+                    }
+
+                    public static object ToleranceGetOnlyProperty
+                    {
+                        get
+                        {
+                            return 1E-10;
+                        }
+                    }
+
+                    [Test]
+                    public void SomeTest() => throw new NotImplementedException();
+                }
+            """);
 
             int earlyOutCount = DisposeFieldsAndPropertiesInTearDownAnalyzer.EarlyOutCount;
             RoslynAssert.Valid(analyzer, testCode);
@@ -1116,43 +1161,45 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void DoesNotThrowExceptionsWhenUsingPartialClasses()
         {
-            var testCodePart1 = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-        public partial class TestFixture
-        {{
-            private const double Tolerance = 1E-10;
+            var testCodePart1 = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public partial class TestFixture
+                {
+                    private const double Tolerance = 1E-10;
 
-            private IDisposable? field;
+                    private IDisposable? field;
 
-            private static IDisposable? Property {{ get; set; }}
+                    private static IDisposable? Property { get; set; }
 
-            [SetUp]
-            public void SetUp()
-            {{
-                Property = new DummyDisposable();
-            }}
+                    [SetUp]
+                    public void SetUp()
+                    {
+                        Property = new DummyDisposable();
+                    }
 
-            [TearDown]
-            public void TearDown()
-            {{
-                Property?.Dispose();
-            }}
+                    [TearDown]
+                    public void TearDown()
+                    {
+                        Property?.Dispose();
+                    }
 
-            private static void SomeAsserts() => throw new InvalidOperationException();
+                    private static void SomeAsserts() => throw new InvalidOperationException();
 
-            {DummyDisposable}
-        }}");
+                    {{DummyDisposable}}
+                }
+            """);
 
-            var testCodePart2 = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-        public partial class TestFixture
-        {
-            [Test]
-            public void SomeTest()
-            {
-                // field needs Disposal, but as TearDown is in a different source 'file' we cannot check if it is.
-                field = new DummyDisposable();
-                SomeAsserts();
-            }
-        }");
+            var testCodePart2 = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public partial class TestFixture
+                {
+                    [Test]
+                    public void SomeTest()
+                    {
+                        // field needs Disposal, but as TearDown is in a different source 'file' we cannot check if it is.
+                        field = new DummyDisposable();
+                        SomeAsserts();
+                    }
+                }
+            """);
 
             RoslynAssert.Valid(analyzer, testCodePart1, testCodePart2);
         }
@@ -1160,37 +1207,38 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [Test]
         public void DoesNotThrowExceptionsWhenUsingExplicitProperties()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-        [TestFixture]
-        public abstract class Test : IDataProvider
-        {
-            private DataReader DataReader;
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                [TestFixture]
+                public abstract class Test : IDataProvider
+                {
+                    private DataReader DataReader;
 
-            DataReader IDataProvider.DataReader
-            {
-                get => DataReader;
-                set => DataReader = value;
-            }
+                    DataReader IDataProvider.DataReader
+                    {
+                        get => DataReader;
+                        set => DataReader = value;
+                    }
 
-            protected Test() => DataReader = new DataReader(this);
+                    protected Test() => DataReader = new DataReader(this);
 
-            [OneTimeSetUp]
-            public void SetListener() => throw new NotImplementedException();
-        }
+                    [OneTimeSetUp]
+                    public void SetListener() => throw new NotImplementedException();
+                }
 
-        public interface IDataProvider
-        {
-            DataReader DataReader
-            {
-                get;
-                set;
-            }
-        }
+                public interface IDataProvider
+                {
+                    DataReader DataReader
+                    {
+                        get;
+                        set;
+                    }
+                }
 
-        public sealed class DataReader
-        {
-            public DataReader(IDataProvider provider) => throw new NotImplementedException();
-        }");
+                public sealed class DataReader
+                {
+                    public DataReader(IDataProvider provider) => throw new NotImplementedException();
+                }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -1199,53 +1247,54 @@ namespace NUnit.Analyzers.Tests.DisposeFieldsInTearDown
         [TestCase("one_time_")]
         public void DoesNotFireWhenAdditionalSetUpTearDownMethodsAreConfigured(string prefix)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public abstract class BaseTest
-            {
-	            [SetUp]
-	            public void SetUp()
-	            {
-		            OnSetUp();
-	            }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public abstract class BaseTest
+                {
+                    [SetUp]
+                    public void SetUp()
+                    {
+                        OnSetUp();
+                    }
 
-	            [TearDown]
-	            public void TearDown()
-	            {
-		            OnTearDown();
-	            }
+                    [TearDown]
+                    public void TearDown()
+                    {
+                        OnTearDown();
+                    }
 
-	            protected virtual void OnSetUp()
-	            {
-	            }
+                    protected virtual void OnSetUp()
+                    {
+                    }
 
-	            protected virtual void OnTearDown()
-	            {
-	            }
-            }
+                    protected virtual void OnTearDown()
+                    {
+                    }
+                }
 
-            [TestFixture]
-            public class InheritedTest : BaseTest
-            {
-	            private IDisposable? disposable;
+                [TestFixture]
+                public class InheritedTest : BaseTest
+                {
+                    private IDisposable? disposable;
 
-	            protected override void OnSetUp()
-	            {
-		            base.OnSetUp();
-		            disposable = new DummyDisposable();
-	            }
+                    protected override void OnSetUp()
+                    {
+                        base.OnSetUp();
+                        disposable = new DummyDisposable();
+                    }
 
-	            protected override void OnTearDown()
-	            {
-		            disposable?.Dispose();
-		            base.OnTearDown();
-	            }
-            }
-            " + DummyDisposable);
+                    protected override void OnTearDown()
+                    {
+                        disposable?.Dispose();
+                        base.OnTearDown();
+                    }
+                }
 
-            string analyzerConfig = @$"
-dotnet_diagnostic.NUnit.additional_{prefix}setup_methods = OnSetUp
-dotnet_diagnostic.NUnit.additional_{prefix}teardown_methods = OnTearDown
-";
+            """ + "\n" + DummyDisposable);
+
+            string analyzerConfig = $$"""
+                dotnet_diagnostic.NUnit.additional_{{prefix}}setup_methods = OnSetUp
+                dotnet_diagnostic.NUnit.additional_{{prefix}}teardown_methods = OnTearDown
+            """;
             Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
             RoslynAssert.Valid(analyzer, testCode, settings);
         }
@@ -1253,29 +1302,30 @@ dotnet_diagnostic.NUnit.additional_{prefix}teardown_methods = OnTearDown
         [Test]
         public void DoesFireWhenAdditionalSetUpTearDownMethodsAreNotOverrides()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
 
-            [TestFixture]
-            public class InheritedTest
-            {
-	            private IDisposable? disposable;
+                [TestFixture]
+                public class InheritedTest
+                {
+                    private IDisposable? disposable;
 
-	            protected void OnSetUp()
-	            {
-		            disposable = new DummyDisposable();
-	            }
+                    protected void OnSetUp()
+                    {
+                        disposable = new DummyDisposable();
+                    }
 
-	            protected void OnTearDown()
-	            {
-		            disposable?.Dispose();
-	            }
-            }
-            " + DummyDisposable);
+                    protected void OnTearDown()
+                    {
+                        disposable?.Dispose();
+                    }
+                }
 
-            const string analyzerConfig = @"
-dotnet_diagnostic.NUnit1032.additional_setup_methods = OnSetUp
-dotnet_diagnostic.NUnit1032.additional_teardown_methods = OnTearDown
-";
+            """ + "\n" + DummyDisposable);
+
+            const string analyzerConfig = """
+                dotnet_diagnostic.NUnit1032.additional_setup_methods = OnSetUp
+                dotnet_diagnostic.NUnit1032.additional_teardown_methods = OnTearDown
+            """;
             Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode, settings);
         }
@@ -1283,26 +1333,27 @@ dotnet_diagnostic.NUnit1032.additional_teardown_methods = OnTearDown
         [Test]
         public void ShouldDetectFieldInitializedInUsingStatement()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            [TestFixture]
-            public class TestClass
-            {
-	            private IDisposable? ↓disposable;
-
-                [SetUp]
-                public void SetUp()
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                [TestFixture]
+                public class TestClass
                 {
-                    using (var reader = new StreamReader(""Test.config""))
+                    private IDisposable? ↓disposable;
+
+                    [SetUp]
+                    public void SetUp()
                     {
-                        string configuration = reader.ReadToEnd();
-                        if (configuration == ""CreateDisposable"")
+                        using (var reader = new StreamReader("Test.config"))
                         {
-                            disposable = new DummyDisposable();
+                            string configuration = reader.ReadToEnd();
+                            if (configuration == "CreateDisposable")
+                            {
+                                disposable = new DummyDisposable();
+                            }
                         }
                     }
                 }
-            }
-            " + DummyDisposable, "using System.IO;");
+
+            """ + "\n" + DummyDisposable, "using System.IO;");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }

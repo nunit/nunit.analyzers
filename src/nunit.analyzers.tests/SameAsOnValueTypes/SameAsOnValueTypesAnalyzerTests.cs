@@ -25,11 +25,12 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         [Test]
         public void AnalyzeWhenStructTypesProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var expected = Guid.Empty;
-                var actual = expected;
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var expected = Guid.Empty;
+                        var actual = expected;
 
-                Assert.That(actual, Is.SameAs(↓expected));");
+                        Assert.That(actual, Is.SameAs(↓expected));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -37,10 +38,11 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         [Test]
         public void AnalyzeWhenStructDelegateProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var expected = Guid.Empty;
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var expected = Guid.Empty;
 
-                Assert.That(() => expected, Is.SameAs(↓expected));");
+                        Assert.That(() => expected, Is.SameAs(↓expected));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -48,10 +50,11 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         [Test]
         public void AnalyzeWhenStructTaskProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var expected = Guid.Empty;
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var expected = Guid.Empty;
 
-                Assert.That(Task.FromResult(expected), Is.SameAs(↓expected));");
+                        Assert.That(Task.FromResult(expected), Is.SameAs(↓expected));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -60,7 +63,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeWhenActualIsReferenceTypeAndExpectedIsValueType()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"Assert.That(""3"", Is.Not.SameAs(↓3));");
+                """Assert.That("3", Is.Not.SameAs(↓3));""");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -69,7 +72,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeWhenActualIsValueTypeAndExpectedIsReferenceType()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"Assert.That(↓3, Is.Not.SameAs(""3""));");
+                """Assert.That(↓3, Is.Not.SameAs("3"));""");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -78,7 +81,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeWhenBothArgumentsAreReferenceType()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"Assert.That(""3"", Is.SameAs(""3""));");
+                """Assert.That("3", Is.SameAs("3"));""");
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -86,10 +89,11 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         [Test]
         public void AnalyzeWhenCollectionsWithValueTypesProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new List<int> { 1 };
-                var expected = new [] { 1 };
-                Assert.That(actual, Is.SameAs(expected));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new List<int> { 1 };
+                        var expected = new [] { 1 };
+                        Assert.That(actual, Is.SameAs(expected));
+            """,
                 additionalUsings: "using System.Collections.Generic;");
 
             RoslynAssert.Valid(analyzer, testCode);
@@ -107,11 +111,12 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         [Test]
         public void AnalyzeClassicWhenStructTypesProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var expected = Guid.Empty;
-                var actual = expected;
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var expected = Guid.Empty;
+                        var actual = expected;
 
-                ClassicAssert.AreSame(↓expected, actual);");
+                        ClassicAssert.AreSame(↓expected, actual);
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -120,7 +125,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeClassicWhenActualIsReferenceTypeAndExpectedIsValueType()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"ClassicAssert.AreNotSame(↓3, ""3"");");
+                """ClassicAssert.AreNotSame(↓3, "3");""");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -129,7 +134,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeClassicWhenActualIsValueTypeAndExpectedIsReferenceType()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"ClassicAssert.AreNotSame(""3"", ↓3);");
+                """ClassicAssert.AreNotSame("3", ↓3);""");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -138,7 +143,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeClassicWhenBothArgumentsAreReferenceType()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"ClassicAssert.AreSame(""3"", ""3"");");
+                """ClassicAssert.AreSame("3", "3");""");
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -147,7 +152,7 @@ namespace NUnit.Analyzers.Tests.SameAsOnValueTypes
         public void AnalyzeWhenMoreThanOneConstraintExpressionIsUsed()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                @"Assert.That(""1"", Is.Not.SameAs(""1"") & Is.Not.SameAs(↓2));");
+                """Assert.That("1", Is.Not.SameAs("1") & Is.Not.SameAs(↓2));""");
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }

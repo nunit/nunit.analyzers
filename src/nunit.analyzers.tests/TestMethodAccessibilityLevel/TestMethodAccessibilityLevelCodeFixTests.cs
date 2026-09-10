@@ -41,13 +41,15 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         [TestCaseSource(nameof(NonPublicModifiers))]
         public void FixesNonPublicAccessModifiers(string modifiers, string modifiersAfter)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        {modifiers} void ↓TestMethod(int i) {{ }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    {{modifiers}} void ↓TestMethod(int i) { }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        {modifiersAfter} void TestMethod(int i) {{ }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    {{modifiersAfter}} void TestMethod(int i) { }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }
@@ -55,13 +57,15 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         [Test]
         public void FixesDefaultImplicitAccessModifier()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        void ↓TestMethod(int i) {{ }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    void ↓TestMethod(int i) { }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        public void TestMethod(int i) {{ }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    public void TestMethod(int i) { }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }
@@ -69,13 +73,15 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         [Test]
         public void FixesDefaultImplicitAccessModifierWronglyIndented()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        void ↓TestMethod(int i) {{ }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    void ↓TestMethod(int i) { }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        public void TestMethod(int i) {{ }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    public void TestMethod(int i) { }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }
@@ -83,13 +89,15 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         [Test]
         public void FixesDefaultImplicitAccessModifierAsyncVariant()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        async Task ↓TestMethod(int i) {{ await Task.CompletedTask; }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    async Task ↓TestMethod(int i) { await Task.CompletedTask; }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        public async Task TestMethod(int i) {{ await Task.CompletedTask; }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    public async Task TestMethod(int i) { await Task.CompletedTask; }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
         }

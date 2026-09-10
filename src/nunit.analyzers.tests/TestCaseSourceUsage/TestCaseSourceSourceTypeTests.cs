@@ -16,22 +16,23 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [Test]
         public void AnalyzeWhenTypeOfValidSourceType()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenTypeOfValidSourceType
-    {
-        [TestCaseSource(typeof(MyTests))]
-        public void Test(int input)
-        {
-        }
-    }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public class AnalyzeWhenTypeOfValidSourceType
+                {
+                    [TestCaseSource(typeof(MyTests))]
+                    public void Test(int input)
+                    {
+                    }
+                }
 
-    class MyTests : IEnumerable
-    {
-        public IEnumerator GetEnumerator()
-        {
-            yield return new object[] { 12 };
-        }
-    }",
+                class MyTests : IEnumerable
+                {
+                    public IEnumerator GetEnumerator()
+                    {
+                        yield return new object[] { 12 };
+                    }
+                }
+            """,
     additionalUsings: "using System.Collections;");
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -39,18 +40,19 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [Test]
         public void AnalyzeWhenTypeOfSourceNotImplementingIEnumerable()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenTypeOfSourceNotImplementingIEnumerable
-    {
-        [TestCaseSource(↓typeof(MyTests))]
-        public void Test()
-        {
-        }
-    }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public class AnalyzeWhenTypeOfSourceNotImplementingIEnumerable
+                {
+                    [TestCaseSource(↓typeof(MyTests))]
+                    public void Test()
+                    {
+                    }
+                }
 
-    class MyTests
-    {
-    }");
+                class MyTests
+                {
+                }
+            """);
 
             var expectedDiagnostic = ExpectedDiagnostic
                 .Create(AnalyzerIdentifiers.TestCaseSourceSourceTypeNotIEnumerable)
@@ -61,22 +63,23 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [Test]
         public void AnalyzeWhenTypeOfSourceImplementsIAsyncEnumerable()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenTypeOfSourceImplementsIAsyncEnumerable
-    {
-        [TestCaseSource(typeof(MyTests))]
-        public void Test(int i)
-        {
-        }
-    }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public class AnalyzeWhenTypeOfSourceImplementsIAsyncEnumerable
+                {
+                    [TestCaseSource(typeof(MyTests))]
+                    public void Test(int i)
+                    {
+                    }
+                }
 
-    public sealed class MyTests : IAsyncEnumerable<int>
-    {
-        public IAsyncEnumerator<int> GetAsyncEnumerator(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-    }",
+                public sealed class MyTests : IAsyncEnumerable<int>
+                {
+                    public IAsyncEnumerator<int> GetAsyncEnumerator(CancellationToken cancellationToken = default(CancellationToken))
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
+            """,
         additionalUsings: "using System.Collections.Generic;using System.Threading;");
 
             IEnumerable<MetadataReference> asyncEnumerableMetadata = MetadataReferences.Transitive(typeof(IAsyncEnumerable<>));
@@ -88,24 +91,25 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [Test]
         public void AnalyzeWhenTypeOfSourceNoDefaultConstructor()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-        public class AnalyzeWhenTypeOfSourceNoDefaultConstructor
-        {
-            [TestCaseSource(↓typeof(MyTests))]
-            public void Test()
-            {
-            }
-        }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                    public class AnalyzeWhenTypeOfSourceNoDefaultConstructor
+                    {
+                        [TestCaseSource(↓typeof(MyTests))]
+                        public void Test()
+                        {
+                        }
+                    }
 
-    class MyTests : IEnumerable
-    {
-        public MyTests(int i) {}
+                class MyTests : IEnumerable
+                {
+                    public MyTests(int i) {}
 
-        public IEnumerator GetEnumerator()
-        {
-            yield return new object[] { 12 };
-        }
-    }",
+                    public IEnumerator GetEnumerator()
+                    {
+                        yield return new object[] { 12 };
+                    }
+                }
+            """,
     additionalUsings: "using System.Collections;");
 
             var expectedDiagnostic = ExpectedDiagnostic

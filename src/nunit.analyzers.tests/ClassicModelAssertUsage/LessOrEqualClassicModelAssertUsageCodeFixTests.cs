@@ -27,93 +27,105 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyLessOrEqualFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            ↓ClassicAssert.LessOrEqual(2d, 3d);
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(2d, Is.LessThanOrEqualTo(3d));
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.LessOrEqual(2d, 3d);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(2d, Is.LessThanOrEqualTo(3d));
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyLessOrEqualFixWithMessage()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            ↓ClassicAssert.LessOrEqual(2d, 3d, ""message"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(2d, Is.LessThanOrEqualTo(3d), ""message"");
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.LessOrEqual(2d, 3d, "message");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(2d, Is.LessThanOrEqualTo(3d), "message");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyLessOrEqualFixWithMessageAndOneArgumentForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            ↓ClassicAssert.LessOrEqual(2d, 3d, ""message-id: {0}"", Guid.NewGuid());
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(2d, Is.LessThanOrEqualTo(3d), $""message-id: {Guid.NewGuid()}"");
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.LessOrEqual(2d, 3d, "message-id: {0}", Guid.NewGuid());
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(2d, Is.LessThanOrEqualTo(3d), $"message-id: {Guid.NewGuid()}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyLessOrEqualFixWithMessageAndTwoArgumentsForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            ↓ClassicAssert.LessOrEqual(2d, 3d, ""{0}, {1}"", ""first"", ""second"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(2d, Is.LessThanOrEqualTo(3d), $""{""first""}, {""second""}"");
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.LessOrEqual(2d, 3d, "{0}, {1}", "first", "second");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(2d, Is.LessThanOrEqualTo(3d), $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyLessOrEqualFixWithMessageAndArrayParamsInNonstandardOrder()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            ↓ClassicAssert.LessOrEqual(args: new[] { ""first"", ""second"" }, arg2: 3d, message: ""{0}, {1}"", arg1: 2d);
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(2d, Is.LessThanOrEqualTo(3d), $""{""first""}, {""second""}"");
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.LessOrEqual(args: new[] { "first", "second" }, arg2: 3d, message: "{0}, {1}", arg1: 2d);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(2d, Is.LessThanOrEqualTo(3d), $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void CodeFixPreservesLineBreakBeforeMessage()
         {
-            var code = TestUtility.WrapInTestMethod(@"
-            ↓ClassicAssert.LessOrEqual(2d, 3d,
-                ""message"");");
+            var code = TestUtility.WrapInTestMethod("""
+                        ↓ClassicAssert.LessOrEqual(2d, 3d,
+                            "message");
+            """);
 
-            var fixedCode = TestUtility.WrapInTestMethod(@"
-            Assert.That(2d, Is.LessThanOrEqualTo(3d),
-                ""message"");");
+            var fixedCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(2d, Is.LessThanOrEqualTo(3d),
+                            "message");
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
@@ -121,114 +133,120 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyLessOrEqualWithActualTypeImplicitConversionFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        private struct MyFloat
-        {
-            private readonly float _value;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    private struct MyFloat
+                    {
+                        private readonly float _value;
 
-            public MyFloat(float value) => _value = value;
+                        public MyFloat(float value) => _value = value;
 
-            public static implicit operator float(MyFloat value) => value._value;
-            public static implicit operator MyFloat(float value) => new MyFloat(value);
-        }
-        public void TestMethod()
-        {
-            MyFloat x = 1;
-            float y = 2;
-            ↓ClassicAssert.LessOrEqual(x, y);
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        private struct MyFloat
-        {
-            private readonly float _value;
+                        public static implicit operator float(MyFloat value) => value._value;
+                        public static implicit operator MyFloat(float value) => new MyFloat(value);
+                    }
+                    public void TestMethod()
+                    {
+                        MyFloat x = 1;
+                        float y = 2;
+                        ↓ClassicAssert.LessOrEqual(x, y);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    private struct MyFloat
+                    {
+                        private readonly float _value;
 
-            public MyFloat(float value) => _value = value;
+                        public MyFloat(float value) => _value = value;
 
-            public static implicit operator float(MyFloat value) => value._value;
-            public static implicit operator MyFloat(float value) => new MyFloat(value);
-        }
-        public void TestMethod()
-        {
-            MyFloat x = 1;
-            float y = 2;
-            Assert.That((float)x, Is.LessThanOrEqualTo(y));
-        }");
+                        public static implicit operator float(MyFloat value) => value._value;
+                        public static implicit operator MyFloat(float value) => new MyFloat(value);
+                    }
+                    public void TestMethod()
+                    {
+                        MyFloat x = 1;
+                        float y = 2;
+                        Assert.That((float)x, Is.LessThanOrEqualTo(y));
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyLessOrEqualWithExpectedTypeImplicitConversionFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        private struct MyFloat
-        {
-            private readonly float _value;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    private struct MyFloat
+                    {
+                        private readonly float _value;
 
-            public MyFloat(float value) => _value = value;
+                        public MyFloat(float value) => _value = value;
 
-            public static implicit operator float(MyFloat value) => value._value;
-            public static implicit operator MyFloat(float value) => new MyFloat(value);
-        }
-        public void TestMethod()
-        {
-            float x = 1;
-            MyFloat y = 2;
-            ↓ClassicAssert.LessOrEqual(x, y);
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        private struct MyFloat
-        {
-            private readonly float _value;
+                        public static implicit operator float(MyFloat value) => value._value;
+                        public static implicit operator MyFloat(float value) => new MyFloat(value);
+                    }
+                    public void TestMethod()
+                    {
+                        float x = 1;
+                        MyFloat y = 2;
+                        ↓ClassicAssert.LessOrEqual(x, y);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    private struct MyFloat
+                    {
+                        private readonly float _value;
 
-            public MyFloat(float value) => _value = value;
+                        public MyFloat(float value) => _value = value;
 
-            public static implicit operator float(MyFloat value) => value._value;
-            public static implicit operator MyFloat(float value) => new MyFloat(value);
-        }
-        public void TestMethod()
-        {
-            float x = 1;
-            MyFloat y = 2;
-            Assert.That(x, Is.LessThanOrEqualTo((float)y));
-        }");
+                        public static implicit operator float(MyFloat value) => value._value;
+                        public static implicit operator MyFloat(float value) => new MyFloat(value);
+                    }
+                    public void TestMethod()
+                    {
+                        float x = 1;
+                        MyFloat y = 2;
+                        Assert.That(x, Is.LessThanOrEqualTo((float)y));
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyLessOrEqualWithImplicitConversionFixInNonstandardOrder()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        private struct MyFloat
-        {
-            private readonly float _value;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    private struct MyFloat
+                    {
+                        private readonly float _value;
 
-            public MyFloat(float value) => _value = value;
+                        public MyFloat(float value) => _value = value;
 
-            public static implicit operator float(MyFloat value) => value._value;
-            public static implicit operator MyFloat(float value) => new MyFloat(value);
-        }
-        public void TestMethod()
-        {
-            MyFloat x = 1;
-            MyFloat y = 2;
-            ↓ClassicAssert.LessOrEqual(args: new[] { ""first"", ""second"" }, message: ""{0}, {1}"", arg2: y, arg1: x);
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        private struct MyFloat
-        {
-            private readonly float _value;
+                        public static implicit operator float(MyFloat value) => value._value;
+                        public static implicit operator MyFloat(float value) => new MyFloat(value);
+                    }
+                    public void TestMethod()
+                    {
+                        MyFloat x = 1;
+                        MyFloat y = 2;
+                        ↓ClassicAssert.LessOrEqual(args: new[] { "first", "second" }, message: "{0}, {1}", arg2: y, arg1: x);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    private struct MyFloat
+                    {
+                        private readonly float _value;
 
-            public MyFloat(float value) => _value = value;
+                        public MyFloat(float value) => _value = value;
 
-            public static implicit operator float(MyFloat value) => value._value;
-            public static implicit operator MyFloat(float value) => new MyFloat(value);
-        }
-        public void TestMethod()
-        {
-            MyFloat x = 1;
-            MyFloat y = 2;
-            Assert.That((float)x, Is.LessThanOrEqualTo((float)y), $""{""first""}, {""second""}"");
-        }");
+                        public static implicit operator float(MyFloat value) => value._value;
+                        public static implicit operator MyFloat(float value) => new MyFloat(value);
+                    }
+                    public void TestMethod()
+                    {
+                        MyFloat x = 1;
+                        MyFloat y = 2;
+                        Assert.That((float)x, Is.LessThanOrEqualTo((float)y), $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -238,20 +256,22 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var commaAndMessage = hasMessage
                 ? ",\r\n                \"message\""
                 : string.Empty;
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            ↓ClassicAssert.LessOrEqual(
-                2d,
-                3d{commaAndMessage});
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            Assert.That(
-                2d,
-                Is.LessThanOrEqualTo(3d){commaAndMessage});
-        }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.LessOrEqual(
+                            2d,
+                            3d{{commaAndMessage}});
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        Assert.That(
+                            2d,
+                            Is.LessThanOrEqualTo(3d){{commaAndMessage}});
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -261,22 +281,24 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var commaAndMessage = hasMessage
                 ? ",\r\n                \"message\""
                 : string.Empty;
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            ↓ClassicAssert.LessOrEqual(
-                2d,
-                3d{commaAndMessage}
-            );
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            Assert.That(
-                2d,
-                Is.LessThanOrEqualTo(3d){commaAndMessage}
-            );
-        }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.LessOrEqual(
+                            2d,
+                            3d{{commaAndMessage}}
+                        );
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        Assert.That(
+                            2d,
+                            Is.LessThanOrEqualTo(3d){{commaAndMessage}}
+                        );
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -284,20 +306,22 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
         {
             var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            ↓ClassicAssert.LessOrEqual(
-                2d,
-                3d{optionalNewline});
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            Assert.That(
-                2d,
-                Is.LessThanOrEqualTo(3d){optionalNewline});
-        }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.LessOrEqual(
+                            2d,
+                            3d{{optionalNewline}});
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        Assert.That(
+                            2d,
+                            Is.LessThanOrEqualTo(3d){{optionalNewline}});
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }

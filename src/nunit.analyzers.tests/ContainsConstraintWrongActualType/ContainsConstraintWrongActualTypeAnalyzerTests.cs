@@ -26,9 +26,10 @@ namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
         [Test]
         public void AnalyzeWhenNonStringCollectionActualArgumentProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new[] {1, 2, 3};
-                Assert.That(actual, ↓Does.Contain(""1""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new[] {1, 2, 3};
+                        Assert.That(actual, ↓Does.Contain("1"));
+            """);
 
             RoslynAssert.Diagnostics(analyzer,
                 expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with an actual value of type 'int[]'"),
@@ -58,9 +59,10 @@ namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
         [Test]
         public void ValidWhenStringArrayProvidedAsActual()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new[] {""1"", ""2"", ""3""};
-                Assert.That(actual, Does.Contain(""1""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new[] {"1", "2", "3"};
+                        Assert.That(actual, Does.Contain("1"));
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }

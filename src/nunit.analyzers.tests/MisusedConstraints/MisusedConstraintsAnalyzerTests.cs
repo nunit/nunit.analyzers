@@ -15,10 +15,11 @@ namespace NUnit.Analyzers.Tests.MisusedConstraints
         [Test]
         public void AnalyzeIsNotNullOrEmpty()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                string s = string.Empty;
-                Assert.That(s, ↓Is.Not.Null.Or.Empty);
-            ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        string s = string.Empty;
+                        Assert.That(s, ↓Is.Not.Null.Or.Empty);
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -26,11 +27,12 @@ namespace NUnit.Analyzers.Tests.MisusedConstraints
         [Test]
         public void AnalyzeIsNotNullOrEmptyOverMultipleLines()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                string s = string.Empty;
-                Assert.That(s, ↓Is.Not.Null
-                                  .Or.Empty);
-            ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        string s = string.Empty;
+                        Assert.That(s, ↓Is.Not.Null
+                                          .Or.Empty);
+
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }

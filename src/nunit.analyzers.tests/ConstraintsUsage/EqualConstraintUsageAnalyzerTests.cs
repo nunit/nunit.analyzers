@@ -24,9 +24,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenEqualsOperatorUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(↓actual == ""abc"");");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(↓actual == "abc");
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -34,9 +35,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenNotEqualsOperatorUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(↓actual != ""bcd"");");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(↓actual != "bcd");
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
@@ -44,9 +46,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenIsOperatorUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(↓actual is ""abc"");");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(↓actual is "abc");
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -54,9 +57,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenIsNotOperatorUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(↓actual is not ""bcd"");");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(↓actual is not "bcd");
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
@@ -64,9 +68,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenEqualsInstanceMethodUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(↓actual.Equals(""abc""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(↓actual.Equals("abc"));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -74,9 +79,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenNegatedEqualsInstanceMethodUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(↓!actual.Equals(""bcd""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(↓!actual.Equals("bcd"));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
@@ -84,9 +90,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenEqualsStaticMethodUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(↓Equals(actual,""abc""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(↓Equals(actual,"abc"));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -94,9 +101,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenNegatedEqualsStaticMethodUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(↓!Equals(actual,""abc""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(↓!Equals(actual,"abc"));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
@@ -104,9 +112,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenEqualsMethodUsedWithIsTrue()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(↓actual.Equals(""abc""), Is.True);");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(↓actual.Equals("abc"), Is.True);
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -114,9 +123,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenEqualsMethodUsedWithIsFalse()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(↓actual.Equals(""abc""), Is.False);");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(↓actual.Equals("abc"), Is.False);
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
@@ -124,9 +134,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenEqualsMethodUsedWithAssertTrue()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                ClassicAssert.True(↓actual.Equals(""abc""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        ClassicAssert.True(↓actual.Equals("abc"));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -134,9 +145,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenEqualsMethodUsedWithAssertFalse()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                ClassicAssert.False(↓actual.Equals(""bcd""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        ClassicAssert.False(↓actual.Equals("bcd"));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
@@ -144,9 +156,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenEqualsMethodUsedWithAssertIsTrue()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                ClassicAssert.IsTrue(↓actual.Equals(""abc""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        ClassicAssert.IsTrue(↓actual.Equals("abc"));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -154,9 +167,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenEqualsMethodUsedWithAssertIsFalse()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                ClassicAssert.IsFalse(↓actual.Equals(""bcd""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        ClassicAssert.IsFalse(↓actual.Equals("bcd"));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
@@ -164,9 +178,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeDoubleNegationAsPositive()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                ClassicAssert.IsFalse(↓!actual.Equals(""bcd""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        ClassicAssert.IsFalse(↓!actual.Equals("bcd"));
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -174,9 +189,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenAssertThatIsUsedWithMessage()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(↓actual == ""abc"", ""Assertion message"");");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(↓actual == "abc", "Assertion message");
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -184,9 +200,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenEqualsMethodUsedWithIsTrueWithMessage()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(↓actual.Equals(""abc""), Is.True, ""Assertion message"");");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(↓actual.Equals("abc"), Is.True, "Assertion message");
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -194,9 +211,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenEqualsMethodUsedWithAssertTrueWithMessage()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                ClassicAssert.True(↓actual.Equals(""abc""), ""Assertion message"");");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        ClassicAssert.True(↓actual.Equals("abc"), "Assertion message");
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -204,9 +222,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenEqualsMethodUsedWithAssertFalseWithMessage()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                ClassicAssert.False(↓actual.Equals(""bcd""), ""Assertion message"");");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        ClassicAssert.False(↓actual.Equals("bcd"), "Assertion message");
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isNotEqualToDiagnostic, testCode);
         }
@@ -214,9 +233,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void ValidWhenIsEqualToConstraintUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(actual, Is.EqualTo(""bcd""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(actual, Is.EqualTo("bcd"));
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -224,9 +244,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void ValidWhenIsNotEqualToConstraintUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(actual, Is.Not.EqualTo(""bcd""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(actual, Is.Not.EqualTo("bcd"));
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -234,9 +255,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void ValidOtherMethodUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = ""abc"";
-                Assert.That(actual.Contains(""bc""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(actual.Contains("bc"));
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -245,10 +267,11 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCase("!=")]
         public void UseEqualsOperatorOnRefStruct(string operatorToken)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                var span1 = new[] {{ 1 }}.AsSpan();
-                var span2 = new[] {{ 1 }}.AsSpan();
-                Assert.That(span1 {operatorToken} span2, Is.True);");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var span1 = new[] { 1 }.AsSpan();
+                        var span2 = new[] { 1 }.AsSpan();
+                        Assert.That(span1 {{operatorToken}} span2, Is.True);
+            """);
 
             IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(Span<>));
             IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);
@@ -259,23 +282,24 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void UseEqualsMethodWithRefStructArgument()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    [TestFixture]
-    public class TestClass
-    {
-        [Test]
-        public void TestMethod()
-        {
-            var span1 = new[] { 1 }.AsSpan();
-            var span2 = new[] { 1 }.AsSpan();
-            Assert.That(span1.Equals(span2), Is.True, ""Span comparison"");
-        }
-    }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                [TestFixture]
+                public class TestClass
+                {
+                    [Test]
+                    public void TestMethod()
+                    {
+                        var span1 = new[] { 1 }.AsSpan();
+                        var span2 = new[] { 1 }.AsSpan();
+                        Assert.That(span1.Equals(span2), Is.True, "Span comparison");
+                    }
+                }
 
-    internal static class SpanExtension
-    {
-        public static bool Equals<T>(this Span<T> left, Span<T> right) => left == right;
-    }");
+                internal static class SpanExtension
+                {
+                    public static bool Equals<T>(this Span<T> left, Span<T> right) => left == right;
+                }
+            """);
 
             IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(Span<>));
             IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);
@@ -286,19 +310,20 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void UseEqualsMethodWithRefStructInstance()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    [TestFixture]
-    public class TestClass
-    {
-        [Test]
-        public void TestMethod()
-        {
-            ReadOnlySpan<char> actual = GetPart();
-            Assert.That(actual.Equals(""Text""), Is.True);
-        }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                [TestFixture]
+                public class TestClass
+                {
+                    [Test]
+                    public void TestMethod()
+                    {
+                        ReadOnlySpan<char> actual = GetPart();
+                        Assert.That(actual.Equals("Text"), Is.True);
+                    }
 
-        ReadOnlySpan<char> GetPart() => ""Some Text"".AsSpan(4);
-    }");
+                    ReadOnlySpan<char> GetPart() => "Some Text".AsSpan(4);
+                }
+            """);
 
             IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(ReadOnlySpan<>));
             IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);
@@ -309,23 +334,24 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void EqualsMethodButClassDoesNotImplementIEqualityInterface()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    [TestFixture]
-    public class TestClass
-    {
-        [Test]
-        public void TestMethod()
-        {
-            Foo expected = new Foo();
-            Foo actual = new Foo();
-            Assert.That(actual.Equals(expected), Is.True);
-        }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                [TestFixture]
+                public class TestClass
+                {
+                    [Test]
+                    public void TestMethod()
+                    {
+                        Foo expected = new Foo();
+                        Foo actual = new Foo();
+                        Assert.That(actual.Equals(expected), Is.True);
+                    }
 
-        private sealed class Foo
-        {
-            public bool Equals(Foo other) => true;
-        }
-    }");
+                    private sealed class Foo
+                    {
+                        public bool Equals(Foo other) => true;
+                    }
+                }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -333,23 +359,24 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void EqualsMethodAndClassDoesImplementIEqualityInterface()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    [TestFixture]
-    public class TestClass
-    {
-        [Test]
-        public void TestMethod()
-        {
-            Foo expected = new Foo();
-            Foo actual = new Foo();
-            Assert.That(↓actual.Equals(expected), Is.True);
-        }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                [TestFixture]
+                public class TestClass
+                {
+                    [Test]
+                    public void TestMethod()
+                    {
+                        Foo expected = new Foo();
+                        Foo actual = new Foo();
+                        Assert.That(↓actual.Equals(expected), Is.True);
+                    }
 
-        private sealed class Foo : IEquatable<Foo>
-        {
-            public bool Equals(Foo? other) => true;
-        }
-    }");
+                    private sealed class Foo : IEquatable<Foo>
+                    {
+                        public bool Equals(Foo? other) => true;
+                    }
+                }
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -357,23 +384,24 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void EqualsMethodOnObject()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    [TestFixture]
-    public class TestClass
-    {
-        [Test]
-        public void TestMethod()
-        {
-            object expected = new Foo();
-            Foo actual = new Foo();
-            Assert.That(↓actual.Equals(expected), Is.True);
-        }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                [TestFixture]
+                public class TestClass
+                {
+                    [Test]
+                    public void TestMethod()
+                    {
+                        object expected = new Foo();
+                        Foo actual = new Foo();
+                        Assert.That(↓actual.Equals(expected), Is.True);
+                    }
 
-        private sealed class Foo : IEquatable<Foo>
-        {
-            public bool Equals(Foo? other) => true;
-        }
-    }");
+                    private sealed class Foo : IEquatable<Foo>
+                    {
+                        public bool Equals(Foo? other) => true;
+                    }
+                }
+            """);
 
             RoslynAssert.Diagnostics(analyzer, isEqualToDiagnostic, testCode);
         }
@@ -381,30 +409,31 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void EqualsMethodButClassDoesNotImplementIEqualityInterfaceForOtherClass()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    [TestFixture]
-    public class TestClass
-    {
-        [Test]
-        public void FooIsMyFriend()
-        {
-            Friend expected = new Friend();
-            Foo actual = new Foo();
-            Assert.That(actual.Equals(expected), Is.True);
-        }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                [TestFixture]
+                public class TestClass
+                {
+                    [Test]
+                    public void FooIsMyFriend()
+                    {
+                        Friend expected = new Friend();
+                        Foo actual = new Foo();
+                        Assert.That(actual.Equals(expected), Is.True);
+                    }
 
-        private sealed class Foo : IEquatable<Foo>
-        {
-            public bool Equals(Foo? other) => true;
-            public bool Equals(Friend? other) => true;
-        }
+                    private sealed class Foo : IEquatable<Foo>
+                    {
+                        public bool Equals(Foo? other) => true;
+                        public bool Equals(Friend? other) => true;
+                    }
 
-        private sealed class Friend : IEquatable<Friend>
-        {
-            public bool Equals(Friend? other) => true;
-            public bool Equals(Foo? other) => true;
-        }
-    }");
+                    private sealed class Friend : IEquatable<Friend>
+                    {
+                        public bool Equals(Friend? other) => true;
+                        public bool Equals(Foo? other) => true;
+                    }
+                }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }

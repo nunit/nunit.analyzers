@@ -12,28 +12,29 @@ namespace NUnit.Analyzers.Tests.Extensions
         [Test]
         public async Task GetArguments()
         {
-            var testCode = @"
-using System;
+            var testCode = """
+                using System;
 
-namespace NUnit.Analyzers.Tests.Targets.Extensions
-{
-    public sealed class GetArguments
-    {
-        [Arguments(34, AProperty = 22d, BProperty = 33d)]
-        public void Foo() { }
-    }
+                namespace NUnit.Analyzers.Tests.Targets.Extensions
+                {
+                    public sealed class GetArguments
+                    {
+                        [Arguments(34, AProperty = 22d, BProperty = 33d)]
+                        public void Foo() { }
+                    }
 
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public sealed class ArgumentsAttribute : Attribute
-    {
-        public ArgumentsAttribute(int x) { }
+                    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+                    public sealed class ArgumentsAttribute : Attribute
+                    {
+                        public ArgumentsAttribute(int x) { }
 
-        public double AProperty { get; set; }
+                        public double AProperty { get; set; }
 
-        public double BProperty { get; set; }
-    }
-}";
-            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArguments");
+                        public double BProperty { get; set; }
+                    }
+                }
+            """;
+            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArguments").ConfigureAwait(false);
             var (positionalArguments, namedArguments) = attribute.GetArguments();
 
             Assert.Multiple(() =>
@@ -46,22 +47,23 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         [Test]
         public async Task GetArgumentsWhenNoneExist()
         {
-            var testCode = @"
-using System;
+            var testCode = """
+                using System;
 
-namespace NUnit.Analyzers.Tests.Targets.Extensions
-{
-    public sealed class GetArgumentsWhenNoneExist
-    {
-        [NoArguments]
-        public void Foo() { }
-    }
+                namespace NUnit.Analyzers.Tests.Targets.Extensions
+                {
+                    public sealed class GetArgumentsWhenNoneExist
+                    {
+                        [NoArguments]
+                        public void Foo() { }
+                    }
 
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public sealed class NoArgumentsAttribute : Attribute
-    { }
-}";
-            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArgumentsWhenNoneExist");
+                    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+                    public sealed class NoArgumentsAttribute : Attribute
+                    { }
+                }
+            """;
+            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArgumentsWhenNoneExist").ConfigureAwait(false);
             var (positionalArguments, namedArguments) = attribute.GetArguments();
 
             Assert.Multiple(() =>

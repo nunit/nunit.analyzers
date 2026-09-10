@@ -20,8 +20,9 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenListContainsUsedAssertThat()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(↓new List<int> {1, 2, 3}.Contains(1));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(↓new List<int> {1, 2, 3}.Contains(1));
+            """,
                 additionalUsings: "using System.Collections.Generic;");
 
             RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
@@ -30,8 +31,9 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenListContainsUsedAssertIsTrue()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                ClassicAssert.IsTrue(↓new List<int> {1, 2, 3}.Contains(1));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        ClassicAssert.IsTrue(↓new List<int> {1, 2, 3}.Contains(1));
+            """,
                 additionalUsings: "using System.Collections.Generic;");
 
             RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
@@ -40,8 +42,9 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenListContainsUsedAssertIsFalse()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                ClassicAssert.IsFalse(↓new List<int> {1, 2, 3}.Contains(1));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        ClassicAssert.IsFalse(↓new List<int> {1, 2, 3}.Contains(1));
+            """,
                 additionalUsings: "using System.Collections.Generic;");
 
             RoslynAssert.Diagnostics(analyzer, doesNotContainDiagnostic, testCode);
@@ -50,8 +53,9 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenLinqContainsUsedAssertThat()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(↓new[] {1, 2, 3}.Contains(1));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(↓new[] {1, 2, 3}.Contains(1));
+            """,
                 additionalUsings: "using System.Linq;");
 
             RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
@@ -60,8 +64,9 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenLinqContainsUsedAssertIsTrue()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                ClassicAssert.IsTrue(↓new[] {1, 2, 3}.Contains(1));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        ClassicAssert.IsTrue(↓new[] {1, 2, 3}.Contains(1));
+            """,
                 additionalUsings: "using System.Linq;");
 
             RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
@@ -70,8 +75,9 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void AnalyzeWhenLinqContainsUsedAssertIsFalse()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                ClassicAssert.IsFalse(↓new[] {1, 2, 3}.Contains(1));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        ClassicAssert.IsFalse(↓new[] {1, 2, 3}.Contains(1));
+            """,
                 additionalUsings: "using System.Linq;");
 
             RoslynAssert.Diagnostics(analyzer, doesNotContainDiagnostic, testCode);
@@ -80,8 +86,9 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void NoDiagnosticWhenListOtherMethodsUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(new List<int> { 1, 2, 3 }.Remove(1));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(new List<int> { 1, 2, 3 }.Remove(1));
+            """,
                 additionalUsings: "using System.Collections.Generic;");
 
             RoslynAssert.Valid(analyzer, testCode);
@@ -90,8 +97,9 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [Test]
         public void NoDiagnosticWhenOtherTypesUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(""1, 2, 3"".Contains(""1""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That("1, 2, 3".Contains("1"));
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }

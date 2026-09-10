@@ -27,100 +27,110 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyPositiveFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = default(int);
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            ↓ClassicAssert.Positive(expr);
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = default(int);
+                        ↓ClassicAssert.Positive(expr);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            Assert.That(expr, Is.Positive);
-        }");
+                        Assert.That(expr, Is.Positive);
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyPositiveFixWithMessage()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = default(int);
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            ↓ClassicAssert.Positive(expr, ""message"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = default(int);
+                        ↓ClassicAssert.Positive(expr, "message");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            Assert.That(expr, Is.Positive, ""message"");
-        }");
+                        Assert.That(expr, Is.Positive, "message");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyPositiveFixWithMessageAndOneArgumentForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = default(int);
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            ↓ClassicAssert.Positive(expr, ""message-id: {0}"", Guid.NewGuid());
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = default(int);
+                        ↓ClassicAssert.Positive(expr, "message-id: {0}", Guid.NewGuid());
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            Assert.That(expr, Is.Positive, $""message-id: {Guid.NewGuid()}"");
-        }");
+                        Assert.That(expr, Is.Positive, $"message-id: {Guid.NewGuid()}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyPositiveFixWithMessageAndTwoArgumentsForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = default(int);
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            ↓ClassicAssert.Positive(expr, ""{0}, {1}"", ""first"", ""second"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = default(int);
+                        ↓ClassicAssert.Positive(expr, "{0}, {1}", "first", "second");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            Assert.That(expr, Is.Positive, $""{""first""}, {""second""}"");
-        }");
+                        Assert.That(expr, Is.Positive, $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyPositiveFixWithMessageAndArrayParamsInNonstandardOrder()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = default(int);
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            ↓ClassicAssert.Positive(args: new[] { ""first"", ""second"" }, message: ""{0}, {1}"", actual: expr);
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expr = default(int);
+                        ↓ClassicAssert.Positive(args: new[] { "first", "second" }, message: "{0}, {1}", actual: expr);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            Assert.That(expr, Is.Positive, $""{""first""}, {""second""}"");
-        }");
+                        Assert.That(expr, Is.Positive, $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -130,23 +140,25 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var commaAndMessage = hasMessage
                 ? ",\r\n                \"message\""
                 : string.Empty;
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expr = default(int);
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            ↓ClassicAssert.Positive(
-                expr{commaAndMessage});
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expr = default(int);
+                        ↓ClassicAssert.Positive(
+                            expr{{commaAndMessage}});
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            Assert.That(
-                expr,
-                Is.Positive{commaAndMessage});
-        }}");
+                        Assert.That(
+                            expr,
+                            Is.Positive{{commaAndMessage}});
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -156,25 +168,27 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var commaAndMessage = hasMessage
                 ? ",\r\n                \"message\""
                 : string.Empty;
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expr = default(int);
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            ↓ClassicAssert.Positive(
-                expr{commaAndMessage}
-            );
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expr = default(int);
+                        ↓ClassicAssert.Positive(
+                            expr{{commaAndMessage}}
+                        );
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            Assert.That(
-                expr,
-                Is.Positive{commaAndMessage}
-            );
-        }}");
+                        Assert.That(
+                            expr,
+                            Is.Positive{{commaAndMessage}}
+                        );
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -183,22 +197,24 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
 
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expr = default(int);
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            ↓ClassicAssert.Positive(
-                expr, ""message""{optionalNewline});
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expr = default(int);
+                        ↓ClassicAssert.Positive(
+                            expr, "message"{{optionalNewline}});
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expr = default(int);
 
-            Assert.That(
-                expr, Is.Positive, ""message""{optionalNewline});
-        }}");
+                        Assert.That(
+                            expr, Is.Positive, "message"{{optionalNewline}});
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }

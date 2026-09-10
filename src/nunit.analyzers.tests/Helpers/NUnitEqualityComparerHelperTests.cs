@@ -52,9 +52,10 @@ namespace NUnit.Analyzers.Tests.Helpers
         [Test]
         public void FalseWhenDifferentEnumsProvided()
         {
-            var compilation = TestHelpers.CreateCompilation(@"
+            var compilation = TestHelpers.CreateCompilation("""
                 enum EnumOne { A, B, C }
-                enum EnumTwo { A, B, C }");
+                enum EnumTwo { A, B, C }
+            """);
             var leftTypeSymbol = compilation.GetTypeByMetadataName("EnumOne");
             var rightTypeSymbol = compilation.GetTypeByMetadataName("EnumTwo");
 
@@ -64,9 +65,10 @@ namespace NUnit.Analyzers.Tests.Helpers
         [Test]
         public void FalseWhenDifferentNullableEnumsProvided()
         {
-            var compilation = TestHelpers.CreateCompilation(@"
+            var compilation = TestHelpers.CreateCompilation("""
                 enum EnumOne { A, B, C }
-                enum EnumTwo { A, B, C }");
+                enum EnumTwo { A, B, C }
+            """);
             var nullableTypeSymbol = compilation.GetSpecialType(SpecialType.System_Nullable_T);
             var enumOneSymbol = compilation.GetTypeByMetadataName("EnumOne");
             Assert.That(enumOneSymbol, Is.Not.Null, "Cannot find type 'EnumOne'");
@@ -79,7 +81,7 @@ namespace NUnit.Analyzers.Tests.Helpers
         [Test]
         public void FalseWhenIncompatibleTypesWithCyclicTypesProvided()
         {
-            var compilation = TestHelpers.CreateCompilation(@"
+            var compilation = TestHelpers.CreateCompilation("""
                 class A : IEnumerable<A>
                 {
                     public IEnumerator<A> GetEnumerator() => null;
@@ -90,7 +92,8 @@ namespace NUnit.Analyzers.Tests.Helpers
                 {
                     public IEnumerator<B> GetEnumerator() => null;
                     IEnumerator IEnumerable.GetEnumerator() => null;
-                }");
+                }
+            """);
             var leftTypeSymbol = compilation.GetTypeByMetadataName("A");
             var rightTypeSymbol = compilation.GetTypeByMetadataName("B");
 
@@ -127,9 +130,10 @@ namespace NUnit.Analyzers.Tests.Helpers
         [Test]
         public void TrueWhenOneTypeInheritsAnother()
         {
-            var compilation = TestHelpers.CreateCompilation(@"
+            var compilation = TestHelpers.CreateCompilation("""
                 class A { }
-                class B : A { }");
+                class B : A { }
+            """);
             var leftTypeSymbol = compilation.GetTypeByMetadataName("A");
             var rightTypeSymbol = compilation.GetTypeByMetadataName("B");
 
@@ -151,8 +155,9 @@ namespace NUnit.Analyzers.Tests.Helpers
         [Test]
         public void TrueWhenSameNullableEnumsProvided()
         {
-            var compilation = TestHelpers.CreateCompilation(@"
-                enum EnumOne { A, B, C }");
+            var compilation = TestHelpers.CreateCompilation("""
+                enum EnumOne { A, B, C }
+            """);
             var nullableTypeSymbol = compilation.GetSpecialType(SpecialType.System_Nullable_T);
             var leftTypeSymbol = compilation.GetTypeByMetadataName("EnumOne");
             Assert.That(leftTypeSymbol, Is.Not.Null, "Cannot find type 'EnumOne'");
@@ -177,13 +182,14 @@ namespace NUnit.Analyzers.Tests.Helpers
         [Test]
         public void TrueWhenActualHasIEquatableOfExpected()
         {
-            var compilation = TestHelpers.CreateCompilation(@"
+            var compilation = TestHelpers.CreateCompilation("""
                 class A : System.IEquatable<B>
                 {
                     public bool Equals(B other) => true;
                 }
 
-                class B { }");
+                class B { }
+            """);
             var leftTypeSymbol = compilation.GetTypeByMetadataName("A");
             var rightTypeSymbol = compilation.GetTypeByMetadataName("B");
 

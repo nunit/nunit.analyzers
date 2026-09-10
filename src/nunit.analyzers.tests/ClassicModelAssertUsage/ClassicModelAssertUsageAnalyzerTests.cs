@@ -104,33 +104,35 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void AnalyzeWhenThatIsUsed()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenThatIsUsed
-    {
-        public void Test()
-        {
-            Assert.That(true, Is.True);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenThatIsUsed
+                {
+                    public void Test()
+                    {
+                        Assert.That(true, Is.True);
+                    }
+                }
+            """);
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
         public void AnalyzeWhenInvocationIsNotFromAssert()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenInvocationIsNotFromAssert
-    {
-        public void Test()
-        {
-            ClassicAssert.AreEqual(3, 4);
-        }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenInvocationIsNotFromAssert
+                {
+                    public void Test()
+                    {
+                        ClassicAssert.AreEqual(3, 4);
+                    }
 
-        private static class ClassicAssert
-        {
-            public static bool AreEqual(int a, int b) => false;
-        }
-    }");
+                    private static class ClassicAssert
+                    {
+                        public static bool AreEqual(int a, int b) => false;
+                    }
+                }
+            """);
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
@@ -139,14 +141,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsTrueUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenIsTrueIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.IsTrue(true);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenIsTrueIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.IsTrue(true);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -155,14 +158,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.TrueUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenTrueIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.True(true);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenTrueIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.True(true);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -171,14 +175,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsFalseUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenIsFalseIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.IsFalse(false);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenIsFalseIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.IsFalse(false);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -187,14 +192,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.FalseUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenFalseIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.False(false);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenFalseIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.False(false);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -203,14 +209,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreEqualUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenAreEqualIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.AreEqual(2, 2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenAreEqualIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.AreEqual(2, 2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -219,14 +226,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreEqualUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenAreEqualIsUsedWithTolerance
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.AreEqual(2d, 2d, 0.0000001d);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenAreEqualIsUsedWithTolerance
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.AreEqual(2d, 2d, 0.0000001d);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -235,14 +243,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreNotEqualUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenAreNotEqualIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.AreNotEqual(2, 3);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenAreNotEqualIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.AreNotEqual(2, 3);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -251,14 +260,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreSameUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenAreSameIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.AreSame(2, 3);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenAreSameIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.AreSame(2, 3);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -267,15 +277,16 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNullUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenIsNullIsUsed
-    {
-        public void Test()
-        {
-            object? obj = null;
-            ↓ClassicAssert.IsNull(obj);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenIsNullIsUsed
+                {
+                    public void Test()
+                    {
+                        object? obj = null;
+                        ↓ClassicAssert.IsNull(obj);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -284,15 +295,16 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.NullUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenNullIsUsed
-    {
-        public void Test()
-        {
-            object? obj = null;
-            ↓ClassicAssert.Null(obj);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenNullIsUsed
+                {
+                    public void Test()
+                    {
+                        object? obj = null;
+                        ↓ClassicAssert.Null(obj);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -301,15 +313,16 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotNullUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenIsNotNullIsUsed
-    {
-        public void Test()
-        {
-            object? obj = null;
-            ↓ClassicAssert.IsNotNull(obj);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenIsNotNullIsUsed
+                {
+                    public void Test()
+                    {
+                        object? obj = null;
+                        ↓ClassicAssert.IsNotNull(obj);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -318,26 +331,28 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.NotNullUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenNotNullIsUsed
-    {
-        public void Test()
-        {
-            object? obj = null;
-            ↓ClassicAssert.NotNull(obj);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenNotNullIsUsed
+                {
+                    public void Test()
+                    {
+                        object? obj = null;
+                        ↓ClassicAssert.NotNull(obj);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
         [Test]
         public void AnalyzeWhenInvocationIsNotWithinAMethod()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenInvocationIsNotWithinAMethod
-    {
-        private static readonly string fullTypeName = typeof(string).GetType().FullName!;
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenInvocationIsNotWithinAMethod
+                {
+                    private static readonly string fullTypeName = typeof(string).GetType().FullName!;
+                }
+            """);
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
@@ -346,14 +361,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.GreaterUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenGreaterIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.Greater(2, 3);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenGreaterIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.Greater(2, 3);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -362,14 +378,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.GreaterOrEqualUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenGreaterOrEqualIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.GreaterOrEqual(2, 3);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenGreaterOrEqualIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.GreaterOrEqual(2, 3);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -378,14 +395,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.LessUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenLessIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.Less(2, 3);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenLessIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.Less(2, 3);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -394,14 +412,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.LessOrEqualUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenLessOrEqualIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.LessOrEqual(2, 3);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenLessOrEqualIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.LessOrEqual(2, 3);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -410,14 +429,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreNotSameUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenAreNotSameIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.AreNotSame(2, 3);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenAreNotSameIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.AreNotSame(2, 3);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -426,14 +446,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ZeroUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenZeroIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.Zero(2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenZeroIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.Zero(2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -442,14 +463,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.NotZeroUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenNotZeroIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.NotZero(2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenNotZeroIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.NotZero(2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -458,14 +480,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNaNUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenIsNaNIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.IsNaN(2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenIsNaNIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.IsNaN(2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -474,14 +497,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsEmptyUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenIsEmptyIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.IsEmpty(Array.Empty<object>());
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenIsEmptyIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.IsEmpty(Array.Empty<object>());
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -490,14 +514,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotEmptyUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenIsNotEmptyIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.IsNotEmpty(Array.Empty<object>());
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenIsNotEmptyIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.IsNotEmpty(Array.Empty<object>());
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -506,14 +531,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ContainsUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenContainsIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.Contains(this, Array.Empty<object>());
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenContainsIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.Contains(this, Array.Empty<object>());
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -522,14 +548,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsInstanceOfUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenIsInstanceOfIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.IsInstanceOf(typeof(int), 2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenIsInstanceOfIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.IsInstanceOf(typeof(int), 2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -538,14 +565,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsInstanceOfUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenGenericIsInstanceOfIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.IsInstanceOf<int>(2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenGenericIsInstanceOfIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.IsInstanceOf<int>(2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -554,14 +582,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotInstanceOfUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenIsNotInstanceOfIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.IsNotInstanceOf(typeof(int), 2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenIsNotInstanceOfIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.IsNotInstanceOf(typeof(int), 2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -570,14 +599,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotInstanceOfUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenGenericIsNotInstanceOfIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.IsNotInstanceOf<int>(2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenGenericIsNotInstanceOfIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.IsNotInstanceOf<int>(2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -586,14 +616,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.PositiveUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenPositiveIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.Positive(2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenPositiveIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.Positive(2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -602,14 +633,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.NegativeUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenNegativeIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.Negative(2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenNegativeIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.Negative(2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -618,14 +650,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsAssignableFromUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenIsAssignableFromIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.IsAssignableFrom(typeof(int), 2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenIsAssignableFromIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.IsAssignableFrom(typeof(int), 2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -634,14 +667,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsAssignableFromUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenGenericIsAssignableFromIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.IsAssignableFrom<int>(2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenGenericIsAssignableFromIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.IsAssignableFrom<int>(2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -650,14 +684,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotAssignableFromUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenIsNotAssignableFromIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.IsNotAssignableFrom(typeof(int), 2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenIsNotAssignableFromIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.IsNotAssignableFrom(typeof(int), 2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -666,14 +701,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotAssignableFromUsage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenGenericIsNotAssignableFromIsUsed
-    {
-        public void Test()
-        {
-            ↓ClassicAssert.IsNotAssignableFrom<int>(2);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenGenericIsNotAssignableFromIsUsed
+                {
+                    public void Test()
+                    {
+                        ↓ClassicAssert.IsNotAssignableFrom<int>(2);
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
     }

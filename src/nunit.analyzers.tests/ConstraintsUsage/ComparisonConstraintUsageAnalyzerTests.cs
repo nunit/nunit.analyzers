@@ -21,9 +21,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCase("<", "Is.LessThan")]
         public void AnalyzeWhenComparisonOperatorUsed(string operatorToken, string message)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                int actual = 5;
-                Assert.That(↓actual {operatorToken} 9);");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(↓actual {{operatorToken}} 9);
+            """);
 
             var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
                 string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, message));
@@ -36,9 +37,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCase("<", "Is.LessThan")]
         public void AnalyzeWhenComparisonOperatorUsedWithIsTrue(string operatorToken, string message)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                int actual = 5;
-                Assert.That(↓actual {operatorToken} 9, Is.True);");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(↓actual {{operatorToken}} 9, Is.True);
+            """);
 
             var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
                 string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, message));
@@ -51,9 +53,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCase("<", "Is.GreaterThanOrEqualTo")]
         public void AnalyzeWhenComparisonOperatorUsedWithIsFalse(string operatorToken, string message)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                int actual = 5;
-                Assert.That(↓actual {operatorToken} 9, Is.False);");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(↓actual {{operatorToken}} 9, Is.False);
+            """);
 
             var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
                 string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, message));
@@ -66,9 +69,10 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCase("Is.LessThan")]
         public void ValidWhenConstraintUsed(string constraint)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                int actual = 5;
-                Assert.That(actual, {constraint}(9));");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        int actual = 5;
+                        Assert.That(actual, {{constraint}}(9));
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -79,35 +83,36 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         [TestCase("<")]
         public void ValidOnRefStruct(string operatorToken)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@$"
-    [TestFixture]
-    public class TestClass
-    {{
-        [Test]
-        public void TestMethod()
-        {{
-            ComparableSpan<char> span1 = ""Hello"".AsSpan();
-            ComparableSpan<char> span2 = ""World"".AsSpan();
-            Assert.That(span1 {operatorToken} span2);
-        }}
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                [TestFixture]
+                public class TestClass
+                {
+                    [Test]
+                    public void TestMethod()
+                    {
+                        ComparableSpan<char> span1 = "Hello".AsSpan();
+                        ComparableSpan<char> span2 = "World".AsSpan();
+                        Assert.That(span1 {{operatorToken}} span2);
+                    }
 
-        private ref struct ComparableSpan<T>
-            where T : IComparable
-        {{
-            private readonly ReadOnlySpan<T> span;
+                    private ref struct ComparableSpan<T>
+                        where T : IComparable
+                    {
+                        private readonly ReadOnlySpan<T> span;
 
-            public ComparableSpan(ReadOnlySpan<T> span) => this.span = span;
+                        public ComparableSpan(ReadOnlySpan<T> span) => this.span = span;
 
-            public static implicit operator ReadOnlySpan<T>(ComparableSpan<T> c) => c.span;
-            public static implicit operator ComparableSpan<T>(ReadOnlySpan<T> c) => new(c);
+                        public static implicit operator ReadOnlySpan<T>(ComparableSpan<T> c) => c.span;
+                        public static implicit operator ComparableSpan<T>(ReadOnlySpan<T> c) => new(c);
 
-            public static bool operator <(ComparableSpan<T> left, ComparableSpan<T> right) => false;
-            public static bool operator <=(ComparableSpan<T> left, ComparableSpan<T> right) => false;
+                        public static bool operator <(ComparableSpan<T> left, ComparableSpan<T> right) => false;
+                        public static bool operator <=(ComparableSpan<T> left, ComparableSpan<T> right) => false;
 
-            public static bool operator >(ComparableSpan<T> left, ComparableSpan<T> right) => true;
-            public static bool operator >=(ComparableSpan<T> left, ComparableSpan<T> right) => true;
-        }}
-    }}");
+                        public static bool operator >(ComparableSpan<T> left, ComparableSpan<T> right) => true;
+                        public static bool operator >=(ComparableSpan<T> left, ComparableSpan<T> right) => true;
+                    }
+                }
+            """);
 
             IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(Span<>));
             IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);

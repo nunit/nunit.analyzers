@@ -20,19 +20,21 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void AnalyzeWhenReturnIgnoredInVoidMethod()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public void TestMethod()
-        {
-            ↓Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public void TestMethod()
+                    {
+                        ↓Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public async Task TestMethod()
-        {
-            await Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
-        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public async Task TestMethod()
+                    {
+                        await Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
@@ -40,39 +42,41 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void AnalyzeWhenReturnIgnoredInOverriddenVoidMethod()
         {
-            var code = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public abstract class BaseClass
-    {
-        [Test]
-        public abstract void TestMethod();
-    }
+            var code = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public abstract class BaseClass
+                {
+                    [Test]
+                    public abstract void TestMethod();
+                }
 
-    [TestFixture]
-    public class TestClass : BaseClass
-    {
-        [Test]
-        public override void TestMethod()
-        {
-            ↓Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
-        }
-    }");
+                [TestFixture]
+                public class TestClass : BaseClass
+                {
+                    [Test]
+                    public override void TestMethod()
+                    {
+                        ↓Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
+                    }
+                }
+            """);
 
-            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public abstract class BaseClass
-    {
-        [Test]
-        public abstract void TestMethod();
-    }
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public abstract class BaseClass
+                {
+                    [Test]
+                    public abstract void TestMethod();
+                }
 
-    [TestFixture]
-    public class TestClass : BaseClass
-    {
-        [Test]
-        public override void TestMethod()
-        {
-            Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1)).Wait();
-        }
-    }");
+                [TestFixture]
+                public class TestClass : BaseClass
+                {
+                    [Test]
+                    public override void TestMethod()
+                    {
+                        Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1)).Wait();
+                    }
+                }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
@@ -80,21 +84,23 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void AnalyzeWhenReturnIgnoredInTaskMethod()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public Task TestMethod()
-        {
-            ↓Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
-            return Task.CompletedTask;
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public Task TestMethod()
+                    {
+                        ↓Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
+                        return Task.CompletedTask;
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public Task TestMethod()
-        {
-            Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1)).Wait();
-            return Task.CompletedTask;
-        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public Task TestMethod()
+                    {
+                        Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1)).Wait();
+                        return Task.CompletedTask;
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
@@ -102,21 +108,23 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void AnalyzeWhenReturnIgnoredInAsyncTaskMethod()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public async Task TestMethod()
-        {
-            await Task.Yield();
-            ↓Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public async Task TestMethod()
+                    {
+                        await Task.Yield();
+                        ↓Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public async Task TestMethod()
-        {
-            await Task.Yield();
-            await Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
-        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public async Task TestMethod()
+                    {
+                        await Task.Yield();
+                        await Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
@@ -126,19 +134,21 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [TestCase("var")]
         public void AnalyzeWhenReturnAssignedToVariableDeclaration(string declaredType)
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        public void TestMethod()
-        {{
-            {declaredType} exception = ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    public void TestMethod()
+                    {
+                        {{declaredType}} exception = ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        public async Task TestMethod()
-        {{
-            {declaredType} exception = await Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    public async Task TestMethod()
+                    {
+                        {{declaredType}} exception = await Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
                 settings: Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors));
@@ -147,21 +157,23 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void AnalyzeWhenReturnAssignedToVariable()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public void TestMethod()
-        {
-            Exception? exception;
-            exception = ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public void TestMethod()
+                    {
+                        Exception? exception;
+                        exception = ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public async Task TestMethod()
-        {
-            Exception? exception;
-            exception = await Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public async Task TestMethod()
+                    {
+                        Exception? exception;
+                        exception = await Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
@@ -169,39 +181,41 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void AnalyzeWhenReturnAssignedInOverriddenVoidMethod()
         {
-            var code = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public abstract class BaseClass
-    {
-        [Test]
-        public abstract void TestMethod();
-    }
+            var code = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public abstract class BaseClass
+                {
+                    [Test]
+                    public abstract void TestMethod();
+                }
 
-    [TestFixture]
-    public class TestClass : BaseClass
-    {
-        [Test]
-        public override void TestMethod()
-        {
-            Exception? exception = ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }
-    }");
+                [TestFixture]
+                public class TestClass : BaseClass
+                {
+                    [Test]
+                    public override void TestMethod()
+                    {
+                        Exception? exception = ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+                }
+            """);
 
-            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public abstract class BaseClass
-    {
-        [Test]
-        public abstract void TestMethod();
-    }
+            var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public abstract class BaseClass
+                {
+                    [Test]
+                    public abstract void TestMethod();
+                }
 
-    [TestFixture]
-    public class TestClass : BaseClass
-    {
-        [Test]
-        public override void TestMethod()
-        {
-            Exception? exception = Assert.ThrowsAsync<Exception>(() => Task.FromResult(0)).Result;
-        }
-    }");
+                [TestFixture]
+                public class TestClass : BaseClass
+                {
+                    [Test]
+                    public override void TestMethod()
+                    {
+                        Exception? exception = Assert.ThrowsAsync<Exception>(() => Task.FromResult(0)).Result;
+                    }
+                }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }
@@ -209,17 +223,19 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void AnalyzeWhenReturned()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public Exception? AssertAsync()
-        {
-            return ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public Exception? AssertAsync()
+                    {
+                        return ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public async Task<Exception?> AssertAsync()
-        {
-            return await Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public async Task<Exception?> AssertAsync()
+                    {
+                        return await Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }

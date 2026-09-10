@@ -45,12 +45,16 @@ namespace NUnit.Analyzers.Tests.InstanceOf
         private static void VerifyInstanceOfCodeFix(string instanceValue, string typeExpression, string actualConstraint, string expectedConstraint)
         {
             var code = TestUtility.WrapInTestMethod(
-                @$"var instance = {instanceValue};
-                Assert.That(↓instance is {typeExpression}{actualConstraint});");
+                $$"""
+                            var instance = {{instanceValue}};
+                                            Assert.That(↓instance is {{typeExpression}}{{actualConstraint}});
+                """);
 
             var fixedCode = TestUtility.WrapInTestMethod(
-                @$"var instance = {instanceValue};
-                Assert.That(instance, {expectedConstraint}<{typeExpression}>());");
+                $$"""
+                            var instance = {{instanceValue}};
+                                            Assert.That(instance, {{expectedConstraint}}<{{typeExpression}}>());
+                """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
         }

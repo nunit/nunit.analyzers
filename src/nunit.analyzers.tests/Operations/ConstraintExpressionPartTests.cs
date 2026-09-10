@@ -264,10 +264,11 @@ namespace NUnit.Analyzers.Tests.Operations
         public async Task HasUnknownExpressionsReturnsTrueIfVariablePresent()
         {
             var constraintPart = (await CreateConstraintParts(
-                testMethod: @"
+                testMethod: """
                     var presentExpected = true;
                     var prefix = presentExpected ? Has.Some : Has.None;
-                    Assert.That(new[] {1, 2, 3}, prefix.EqualTo(1));",
+                    Assert.That(new[] {1, 2, 3}, prefix.EqualTo(1));
+                """,
                 expressionString: "prefix.EqualTo(1)"))[0];
 
             Assert.That(constraintPart.HasUnknownExpressions(), Is.True);

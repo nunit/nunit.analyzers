@@ -41,16 +41,18 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            ↓ClassicAssert.{assertion}(true);
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(true, Is.True);
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.{{assertion}}(true);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(true, Is.True);
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -60,16 +62,18 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            ↓ClassicAssert.{assertion}(true, ""message"");
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(true, Is.True, ""message"");
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.{{assertion}}(true, "message");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(true, Is.True, "message");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -79,16 +83,18 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            ↓ClassicAssert.{assertion}(true, ""message-id: {{0}}"", Guid.NewGuid());
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(true, Is.True, $""message-id: {Guid.NewGuid()}"");
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.{{assertion}}(true, "message-id: {0}", Guid.NewGuid());
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(true, Is.True, $"message-id: {Guid.NewGuid()}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -98,16 +104,18 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            ↓ClassicAssert.{assertion}(true, ""{{0}}, {{1}}"", ""first"", ""second"");
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(true, Is.True, $""{""first""}, {""second""}"");
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.{{assertion}}(true, "{0}, {1}", "first", "second");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(true, Is.True, $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -117,16 +125,18 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            ↓ClassicAssert.{assertion}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", condition: true);
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            Assert.That(true, Is.True, $""{""first""}, {""second""}"");
-        }");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.{{assertion}}(args: new[] { "first", "second" }, message: "{0}, {1}", condition: true);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        Assert.That(true, Is.True, $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -136,36 +146,38 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private struct MyBool
-        {{
-            private readonly bool _value;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private struct MyBool
+                    {
+                        private readonly bool _value;
 
-            public MyBool(bool value) => _value = value;
+                        public MyBool(bool value) => _value = value;
 
-            public static implicit operator bool(MyBool value) => value._value;
-            public static implicit operator MyBool(bool value) => new MyBool(value);
-        }}
-        public void TestMethod()
-        {{
-            MyBool x = true;
-            ↓ClassicAssert.{assertion}(x);
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        private struct MyBool
-        {
-            private readonly bool _value;
+                        public static implicit operator bool(MyBool value) => value._value;
+                        public static implicit operator MyBool(bool value) => new MyBool(value);
+                    }
+                    public void TestMethod()
+                    {
+                        MyBool x = true;
+                        ↓ClassicAssert.{{assertion}}(x);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    private struct MyBool
+                    {
+                        private readonly bool _value;
 
-            public MyBool(bool value) => _value = value;
+                        public MyBool(bool value) => _value = value;
 
-            public static implicit operator bool(MyBool value) => value._value;
-            public static implicit operator MyBool(bool value) => new MyBool(value);
-        }
-        public void TestMethod()
-        {
-            MyBool x = true;
-            Assert.That((bool)x, Is.True);
-        }");
+                        public static implicit operator bool(MyBool value) => value._value;
+                        public static implicit operator MyBool(bool value) => new MyBool(value);
+                    }
+                    public void TestMethod()
+                    {
+                        MyBool x = true;
+                        Assert.That((bool)x, Is.True);
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -175,36 +187,38 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         {
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        private struct MyBool
-        {{
-            private readonly bool _value;
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    private struct MyBool
+                    {
+                        private readonly bool _value;
 
-            public MyBool(bool value) => _value = value;
+                        public MyBool(bool value) => _value = value;
 
-            public static implicit operator bool(MyBool value) => value._value;
-            public static implicit operator MyBool(bool value) => new MyBool(value);
-        }}
-        public void TestMethod()
-        {{
-            MyBool x = true;
-            ↓ClassicAssert.{assertion}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", condition: x);
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        private struct MyBool
-        {
-            private readonly bool _value;
+                        public static implicit operator bool(MyBool value) => value._value;
+                        public static implicit operator MyBool(bool value) => new MyBool(value);
+                    }
+                    public void TestMethod()
+                    {
+                        MyBool x = true;
+                        ↓ClassicAssert.{{assertion}}(args: new[] { "first", "second" }, message: "{0}, {1}", condition: x);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    private struct MyBool
+                    {
+                        private readonly bool _value;
 
-            public MyBool(bool value) => _value = value;
+                        public MyBool(bool value) => _value = value;
 
-            public static implicit operator bool(MyBool value) => value._value;
-            public static implicit operator MyBool(bool value) => new MyBool(value);
-        }
-        public void TestMethod()
-        {
-            MyBool x = true;
-            Assert.That((bool)x, Is.True, $""{""first""}, {""second""}"");
-        }");
+                        public static implicit operator bool(MyBool value) => value._value;
+                        public static implicit operator MyBool(bool value) => new MyBool(value);
+                    }
+                    public void TestMethod()
+                    {
+                        MyBool x = true;
+                        Assert.That((bool)x, Is.True, $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -219,19 +233,21 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 : string.Empty;
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            ↓ClassicAssert.{assertion}(
-                true{commaAndMessage});
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            Assert.That(
-                true,
-                Is.True{commaAndMessage});
-        }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.{{assertion}}(
+                            true{{commaAndMessage}});
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        Assert.That(
+                            true,
+                            Is.True{{commaAndMessage}});
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -246,21 +262,23 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                 : string.Empty;
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            ↓ClassicAssert.{assertion}(
-                true{commaAndMessage}
-            );
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            Assert.That(
-                true,
-                Is.True{commaAndMessage}
-            );
-        }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.{{assertion}}(
+                            true{{commaAndMessage}}
+                        );
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        Assert.That(
+                            true,
+                            Is.True{{commaAndMessage}}
+                        );
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -273,18 +291,20 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var assertion = diagnosticIdsToAssertions[diagnosticId];
             var expectedDiagnostic = ExpectedDiagnostic.Create(diagnosticId);
 
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            ↓ClassicAssert.{assertion}(
-                true, ""message""{optionalNewline});
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            Assert.That(
-                true, Is.True, ""message""{optionalNewline});
-        }}");
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        ↓ClassicAssert.{{assertion}}(
+                            true, "message"{{optionalNewline}});
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        Assert.That(
+                            true, Is.True, "message"{{optionalNewline}});
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }

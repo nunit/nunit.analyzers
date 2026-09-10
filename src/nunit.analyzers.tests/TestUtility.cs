@@ -5,51 +5,59 @@ namespace NUnit.Analyzers.Tests
         internal static string WrapClassInNamespaceAndAddUsing(string code,
             string? additionalUsings = null)
         {
-            return $@"
-#pragma warning disable CS8019
-using System;
-using System.Threading.Tasks;
-using NUnit.Framework;
-#if NUNIT4
-using NUnit.Framework.Legacy;
-#else
-using ClassicAssert = NUnit.Framework.Assert;
-#endif
+            return $$"""
+                #pragma warning disable CS8019
+                using System;
+                using System.Threading.Tasks;
+                using NUnit.Framework;
+                #if NUNIT4
+                using NUnit.Framework.Legacy;
+                #else
+                using ClassicAssert = NUnit.Framework.Assert;
+                #endif
 
-#pragma warning restore CS8019
-{additionalUsings}
+                #pragma warning restore CS8019
+                {{additionalUsings}}
 
-namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
-{{{code}
-}}";
+                namespace NUnit.Analyzers.Tests.Targets.TestCaseUsage
+                {
+                {{code}}
+                }
+                """;
         }
 
         internal static string WrapMethodInClassNamespaceAndAddUsings(string method,
             string? additionalUsings = null)
         {
-            return WrapClassInNamespaceAndAddUsing($@"
-    [TestFixture]
-    public class TestClass
-    {{{method}
-    }}", additionalUsings);
+            return WrapClassInNamespaceAndAddUsing($$"""
+                [TestFixture]
+                public class TestClass
+                {
+            {{method}}
+                }
+            """, additionalUsings);
         }
 
         internal static string WrapInTestMethod(string code, string? additionalUsings = null)
         {
-            return WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        public void TestMethod()
-        {{{code}
-        }}", additionalUsings);
+            return WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    public void TestMethod()
+                    {
+            {{code}}
+                    }
+            """, additionalUsings);
         }
 
         internal static string WrapInAsyncTestMethod(string code, string? additionalUsings = null)
         {
-            return WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        public async Task TestMethod()
-        {{{code}
-        }}", additionalUsings);
+            return WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    public async Task TestMethod()
+                    {
+            {{code}}
+                    }
+            """, additionalUsings);
         }
     }
 }

@@ -25,18 +25,19 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
         [TestCaseSource(nameof(testMethodRelatedAttributes))]
         public void AnalyzeWhenBaseFixtureIsAbstract(string attribute)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    public abstract class BaseFixture
-    {{
-        [{attribute}]
-        public void BaseFixtureMethod() {{ }}
-    }}
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public abstract class BaseFixture
+                {
+                    [{{attribute}}]
+                    public void BaseFixtureMethod() { }
+                }
 
-    public class DerivedFixture : BaseFixture
-    {{
-        [Test]
-        public void DerivedFixtureMethod() {{ }}
-    }}");
+                public class DerivedFixture : BaseFixture
+                {
+                    [Test]
+                    public void DerivedFixtureMethod() { }
+                }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -44,18 +45,19 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
         [TestCaseSource(nameof(testMethodRelatedAttributes))]
         public void AnalyzeWhenBaseFixtureIsNotAbstract(string attribute)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    public class ↓BaseFixture
-    {{
-        [{attribute}]
-        public void BaseFixtureMethod() {{ }}
-    }}
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public class ↓BaseFixture
+                {
+                    [{{attribute}}]
+                    public void BaseFixtureMethod() { }
+                }
 
-    public class DerivedFixture : BaseFixture
-    {{
-        [Test]
-        public void DerivedFixtureMethod() {{ }}
-    }}");
+                public class DerivedFixture : BaseFixture
+                {
+                    [Test]
+                    public void DerivedFixtureMethod() { }
+                }
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -63,20 +65,21 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
         [Test]
         public void AnalyzeWhenGenericFixtureIsAbstract()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public abstract class BaseFixture<T>
-    {
-        [Test]
-        public void BaseFixtureMethod() { }
-    }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public abstract class BaseFixture<T>
+                {
+                    [Test]
+                    public void BaseFixtureMethod() { }
+                }
 
-    public class IntFixture : BaseFixture<int>
-    {
-    }
-    
-    public class DoubleFixture : BaseFixture<double>
-    {
-    }");
+                public class IntFixture : BaseFixture<int>
+                {
+                }
+
+                public class DoubleFixture : BaseFixture<double>
+                {
+                }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -84,20 +87,21 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
         [Test]
         public void AnalyzeWhenGenericFixtureIsNotAbstract()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class ↓BaseFixture<T>
-    {
-        [Test]
-        public void BaseFixtureMethod() { }
-    }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public class ↓BaseFixture<T>
+                {
+                    [Test]
+                    public void BaseFixtureMethod() { }
+                }
 
-    public class IntFixture : BaseFixture<int>
-    {
-    }
-    
-    public class DoubleFixture : BaseFixture<double>
-    {
-    }");
+                public class IntFixture : BaseFixture<int>
+                {
+                }
+
+                public class DoubleFixture : BaseFixture<double>
+                {
+                }
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }

@@ -21,9 +21,10 @@ namespace NUnit.Analyzers.Tests.InstanceOf
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.False")]
         public void AnalyzeWhenIsExpression(string instanceValue, string typeExpression, string constraintString)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var instance = {instanceValue};
-                Assert.That(↓instance is {typeExpression}{constraintString});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var instance = {{instanceValue}};
+                        Assert.That(↓instance is {{typeExpression}}{{constraintString}});
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -36,9 +37,10 @@ namespace NUnit.Analyzers.Tests.InstanceOf
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.False")]
         public void ValidWhenIsPatternExpression(string instanceValue, string typeExpression, string constraintString)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var instance = {instanceValue};
-                Assert.That(instance is {typeExpression} myPatternVariable{constraintString});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var instance = {{instanceValue}};
+                        Assert.That(instance is {{typeExpression}} myPatternVariable{{constraintString}});
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -46,9 +48,10 @@ namespace NUnit.Analyzers.Tests.InstanceOf
         [Test]
         public void ShouldNotRaiseForClassicAssert()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var instance = ""some string"";
-                ClassicAssert.IsTrue(instance is string);");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var instance = "some string";
+                        ClassicAssert.IsTrue(instance is string);
+            """);
             RoslynAssert.Valid(analyzer, testCode);
         }
     }

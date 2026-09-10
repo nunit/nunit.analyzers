@@ -27,110 +27,120 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         [Test]
         public void VerifyAreNotSameFix()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expected = new object();
-            var actual = new object();
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            ↓ClassicAssert.AreNotSame(expected, actual);
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expected = new object();
-            var actual = new object();
+                        ↓ClassicAssert.AreNotSame(expected, actual);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            Assert.That(actual, Is.Not.SameAs(expected));
-        }");
+                        Assert.That(actual, Is.Not.SameAs(expected));
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyAreNotSameFixWithMessage()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expected = new object();
-            var actual = new object();
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            ↓ClassicAssert.AreNotSame(expected, actual, ""message"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expected = new object();
-            var actual = new object();
+                        ↓ClassicAssert.AreNotSame(expected, actual, "message");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            Assert.That(actual, Is.Not.SameAs(expected), ""message"");
-        }");
+                        Assert.That(actual, Is.Not.SameAs(expected), "message");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyAreNotSameFixWithMessageAndOneArgumentForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expected = new object();
-            var actual = new object();
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            ↓ClassicAssert.AreNotSame(expected, actual, ""message-id: {0}"", Guid.NewGuid());
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expected = new object();
-            var actual = new object();
+                        ↓ClassicAssert.AreNotSame(expected, actual, "message-id: {0}", Guid.NewGuid());
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            Assert.That(actual, Is.Not.SameAs(expected), $""message-id: {Guid.NewGuid()}"");
-        }");
+                        Assert.That(actual, Is.Not.SameAs(expected), $"message-id: {Guid.NewGuid()}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyAreNotSameFixWithMessageAndTwoArgumentsForParams()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expected = new object();
-            var actual = new object();
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            ↓ClassicAssert.AreNotSame(expected, actual, ""{0}, {1}"", ""first"", ""second"");
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expected = new object();
-            var actual = new object();
+                        ↓ClassicAssert.AreNotSame(expected, actual, "{0}, {1}", "first", "second");
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            Assert.That(actual, Is.Not.SameAs(expected), $""{""first""}, {""second""}"");
-        }");
+                        Assert.That(actual, Is.Not.SameAs(expected), $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
         public void VerifyAreNotSameFixWithMessageAndArrayParamsInNonstandardOrder()
         {
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expected = new object();
-            var actual = new object();
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            ↓ClassicAssert.AreNotSame(args: new[] { ""first"", ""second"" }, actual: actual, message: ""{0}, {1}"", expected: expected);
-        }");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public void TestMethod()
-        {
-            var expected = new object();
-            var actual = new object();
+                        ↓ClassicAssert.AreNotSame(args: new[] { "first", "second" }, actual: actual, message: "{0}, {1}", expected: expected);
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            Assert.That(actual, Is.Not.SameAs(expected), $""{""first""}, {""second""}"");
-        }");
+                        Assert.That(actual, Is.Not.SameAs(expected), $"{"first"}, {"second"}");
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -140,26 +150,28 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var commaAndMessage = hasMessage
                 ? ",\r\n                \"message\""
                 : string.Empty;
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expected = new object();
-            var actual = new object();
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            ↓ClassicAssert.AreNotSame(
-                expected,
-                actual{commaAndMessage});
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expected = new object();
-            var actual = new object();
+                        ↓ClassicAssert.AreNotSame(
+                            expected,
+                            actual{{commaAndMessage}});
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            Assert.That(
-                actual,
-                Is.Not.SameAs(expected){commaAndMessage});
-        }}");
+                        Assert.That(
+                            actual,
+                            Is.Not.SameAs(expected){{commaAndMessage}});
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -169,28 +181,30 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
             var commaAndMessage = hasMessage
                 ? ",\r\n                \"message\""
                 : string.Empty;
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expected = new object();
-            var actual = new object();
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            ↓ClassicAssert.AreNotSame(
-                expected,
-                actual{commaAndMessage}
-            );
-        }}");
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expected = new object();
-            var actual = new object();
+                        ↓ClassicAssert.AreNotSame(
+                            expected,
+                            actual{{commaAndMessage}}
+                        );
+                    }
+            """);
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            Assert.That(
-                actual,
-                Is.Not.SameAs(expected){commaAndMessage}
-            );
-        }}");
+                        Assert.That(
+                            actual,
+                            Is.Not.SameAs(expected){{commaAndMessage}}
+                        );
+                    }
+            """);
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
@@ -198,25 +212,27 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
         {
             var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
-            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expected = new object();
-            var actual = new object();
+            var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            ↓ClassicAssert.AreNotSame(
-                expected, actual{optionalNewline});
-        }}");
+                        ↓ClassicAssert.AreNotSame(
+                            expected, actual{{optionalNewline}});
+                    }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        public void TestMethod()
-        {{
-            var expected = new object();
-            var actual = new object();
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void TestMethod()
+                    {
+                        var expected = new object();
+                        var actual = new object();
 
-            Assert.That(
-                actual, Is.Not.SameAs(expected){optionalNewline});
-        }}");
+                        Assert.That(
+                            actual, Is.Not.SameAs(expected){{optionalNewline}});
+                    }
+            """);
 
             RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }

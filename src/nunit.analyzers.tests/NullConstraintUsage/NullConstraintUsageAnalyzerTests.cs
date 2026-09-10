@@ -16,9 +16,10 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         [TestCase("Is.Not.Null")]
         public void AnalyzeWhenActualIsNonNullableValueType(string constraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = default(int);
-                Assert.That(actual, ↓{constraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = default(int);
+                        Assert.That(actual, ↓{{constraint}});
+            """);
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
 
@@ -26,9 +27,10 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         [TestCase("Is.Not.Null")]
         public void AnalyzeWhenActualIsNonNullableValueTypeDelegate(string constraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = default(int);
-                Assert.That(() => actual, ↓{constraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = default(int);
+                        Assert.That(() => actual, ↓{{constraint}});
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -37,8 +39,9 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         [TestCase("Is.Not.Null")]
         public void AnalyzeWhenActualIsTaskDelegate(string constraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                Assert.That(() => Task.FromResult(3), ↓{constraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        Assert.That(() => Task.FromResult(3), ↓{{constraint}});
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -47,9 +50,10 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         [TestCase("Is.Not.Null")]
         public void ValidWhenActualIsNullableValueType(string constraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                bool? actual = false;
-                Assert.That(actual, {constraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        bool? actual = false;
+                        Assert.That(actual, {{constraint}});
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -58,9 +62,10 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         [TestCase("Is.Not.Null")]
         public void ValidWhenActualIsReferenceType(string constraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = new string[] {{ ""TestString"" }};
-                Assert.That(actual, {constraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = new string[] { "TestString" };
+                        Assert.That(actual, {{constraint}});
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -69,9 +74,10 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         [TestCase("Is.Not.Null")]
         public void ValidWhenActualIsReferenceTypeDelegate(string constraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = new string[] {{ ""TestString"" }};
-                Assert.That(() => actual, {constraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = new string[] { "TestString" };
+                        Assert.That(() => actual, {{constraint}});
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -79,18 +85,19 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         [Test]
         public void ValidWhenUsedWithPropertyOperator()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                public struct TestStruct
-                {
-                    public string RefTypeProp { get; set; }
-                }
-                
-                [Test]
-                public void TestMethod()
-                {
-                    var actual = new TestStruct();
-                    Assert.That(actual, Has.Property(""RefTypeProp"").Null);
-                }");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public struct TestStruct
+                    {
+                        public string RefTypeProp { get; set; }
+                    }
+
+                    [Test]
+                    public void TestMethod()
+                    {
+                        var actual = new TestStruct();
+                        Assert.That(actual, Has.Property("RefTypeProp").Null);
+                    }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -99,9 +106,10 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         [TestCase("Is.Not.Null")]
         public void ValidWhenActualIsTask(string constraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var task = Task.CompletedTask;
-                Assert.That(task, {constraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var task = Task.CompletedTask;
+                        Assert.That(task, {{constraint}});
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -110,9 +118,10 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         [TestCase("Is.Not.Null")]
         public void ValidWhenActualIsAction(string constraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                Action<bool> action = b => {{ }};
-                Assert.That(action, {constraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        Action<bool> action = b => { };
+                        Assert.That(action, {{constraint}});
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -121,9 +130,10 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         [TestCase("Is.Not.Null")]
         public void ValidWhenActualIsFunc(string constraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                Func<bool, bool> function = b => b;
-                Assert.That(function, {constraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        Func<bool, bool> function = b => b;
+                        Assert.That(function, {{constraint}});
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -132,9 +142,10 @@ namespace NUnit.Analyzers.Tests.NullConstraintUsage
         [TestCase("Is.Not.Null")]
         public void ValidWhenActualIsTestDelegate(string constraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                Action<bool> action = b => {{ }};
-                Assert.That(() => action(true), {constraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        Action<bool> action = b => { };
+                        Assert.That(() => action(true), {{constraint}});
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }

@@ -18,27 +18,30 @@ namespace NUnit.Analyzers.Tests.StringAssertUsage
         [TestCaseSource(nameof(StringAsserts))]
         public void AnalyzeWhenNoArgumentsAreUsed(string method)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                ↓StringAssert.{method}(""expected"", ""actual"");
-            ");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        ↓StringAssert.{{method}}("expected", "actual");
+
+            """);
             RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(StringAsserts))]
         public void AnalyzeWhenOnlyMessageArgumentIsUsed(string method)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                ↓StringAssert.{method}(""expected"", ""actual"", ""message"");
-            ");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        ↓StringAssert.{{method}}("expected", "actual", "message");
+
+            """);
             RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }
 
         [TestCaseSource(nameof(StringAsserts))]
         public void AnalyzeWhenFormatAndArgumentsAreUsed(string method)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                ↓StringAssert.{method}(""expected"", ""actual"", ""Because of {{0}}"", ""message"");
-            ");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        ↓StringAssert.{{method}}("expected", "actual", "Because of {0}", "message");
+
+            """);
             RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
         }
     }

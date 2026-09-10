@@ -21,12 +21,13 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void NoDiagnosticsWhenTaskIsAwaited()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public async Task TestMethod()
-        {
-            await Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
-        }");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public async Task TestMethod()
+                    {
+                        await Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
+                    }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -34,12 +35,13 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void NoDiagnosticsWhenTaskIsUsed()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public void TestMethod()
-        {
-            Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1)).Wait();
-        }");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public void TestMethod()
+                    {
+                        Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1)).Wait();
+                    }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -47,13 +49,14 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void NoDiagnosticsWhenTaskIsAssigned()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public void TestMethod()
-        {
-            Task task = Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
-            task.Wait();
-        }");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public void TestMethod()
+                    {
+                        Task task = Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
+                        task.Wait();
+                    }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -61,11 +64,12 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void NoDiagnosticsWhenTaskIsReturned()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public Task AssertAsync()
-        {
-            return Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
-        }");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public Task AssertAsync()
+                    {
+                        return Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
+                    }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -73,12 +77,13 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void AnalyzeWhenReturnIgnored()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public void TestMethod()
-        {
-            ↓Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
-        }");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public void TestMethod()
+                    {
+                        ↓Assert.ThatAsync(() => Task.FromResult(0), Is.LessThan(1));
+                    }
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -87,12 +92,13 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void NoDiagnosticsWhenTaskResultIsUsed()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public void TestMethod()
-        {
-            Exception? exception = Assert.ThrowsAsync<Exception>(() => Task.FromResult(0)).Result;
-        }");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public void TestMethod()
+                    {
+                        Exception? exception = Assert.ThrowsAsync<Exception>(() => Task.FromResult(0)).Result;
+                    }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -100,12 +106,13 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void NoDiagnosticsWhenReturnAssignedToTaskVariableDeclaration()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public void TestMethod()
-        {
-            Task<Exception?> task = Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public void TestMethod()
+                    {
+                        Task<Exception?> task = Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -113,13 +120,14 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void NoDiagnosticsWhenReturnAssignedToTaskVariable()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public void TestMethod()
-        {
-            Task<Exception?> task;
-            task = Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public void TestMethod()
+                    {
+                        Task<Exception?> task;
+                        task = Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }
@@ -128,12 +136,13 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [TestCase("var")]
         public void AnalyzeWhenReturnAssignedToVariableDeclaration(string declaredType)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        public void TestMethod()
-        {{
-            {declaredType} exception = ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    public void TestMethod()
+                    {
+                        {{declaredType}} exception = ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode,
                 Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors));
@@ -146,12 +155,13 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
 #pragma warning restore SA1025 // Code should not contain multiple whitespace in a row
         public void AnalyzeWhenReturnAssignedToIncludedVarDeclaration(string variableName, string? include, string? exclude)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        public void TestMethod()
-        {{
-            var {variableName} = ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    public void TestMethod()
+                    {
+                        var {{variableName}} = ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+            """);
 
             Settings settings = Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors);
 
@@ -184,12 +194,13 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
 #pragma warning restore SA1025 // Code should not contain multiple whitespace in a row
         public void NoDiagnosticsWhenReturnAssignedToExcludedVarDeclaration(string variableName, string? include, string? exclude)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        public void TestMethod()
-        {{
-            var {variableName} = Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    public void TestMethod()
+                    {
+                        var {{variableName}} = Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+            """);
 
             Settings settings = Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors);
 
@@ -217,13 +228,14 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void AnalyzeWhenReturnAssignedToVariable()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        [Test]
-        public void TestMethod()
-        {
-            Exception? exception;
-            exception = ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    [Test]
+                    public void TestMethod()
+                    {
+                        Exception? exception;
+                        exception = ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode,
                 Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors));
@@ -232,11 +244,12 @@ namespace NUnit.Analyzers.Tests.TaskReturnShouldBeUsed
         [Test]
         public void AnalyzeWhenReturned()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-        public Exception? AssertAsync()
-        {
-            return ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
-        }");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public Exception? AssertAsync()
+                    {
+                        return ↓Assert.ThrowsAsync<Exception>(() => Task.FromResult(0));
+                    }
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode,
                 Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors));

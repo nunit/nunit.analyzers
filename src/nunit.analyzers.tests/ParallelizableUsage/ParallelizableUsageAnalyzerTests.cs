@@ -71,9 +71,10 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
         public void AnalyzeWhenAssemblyAttributeIsNotParallelScopeSelf(ParallelScope parallelScope)
         {
             var enumValue = parallelScope.ToString();
-            var testCode = $@"
-using NUnit.Framework;
-[assembly: Parallelizable(ParallelScope.{enumValue})]";
+            var testCode = $$"""
+                using NUnit.Framework;
+                [assembly: Parallelizable(ParallelScope.{{enumValue}})]
+            """;
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
@@ -84,9 +85,10 @@ using NUnit.Framework;
                 AnalyzerIdentifiers.ParallelScopeSelfNoEffectOnAssemblyUsage,
                 ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage);
 
-            var testCode = $@"
-using NUnit.Framework;
-[assembly: ↓Parallelizable(ParallelScope.Self)]";
+            var testCode = $$"""
+                using NUnit.Framework;
+                [assembly: ↓Parallelizable(ParallelScope.Self)]
+            """;
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -97,9 +99,10 @@ using NUnit.Framework;
                 AnalyzerIdentifiers.ParallelScopeSelfNoEffectOnAssemblyUsage,
                 ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage);
 
-            var testCode = $@"
-using NUnit.Framework;
-[assembly: ↓Parallelizable()]";
+            var testCode = $$"""
+                using NUnit.Framework;
+                [assembly: ↓Parallelizable()]
+            """;
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -107,28 +110,30 @@ using NUnit.Framework;
         public void AnalyzeWhenAttributeIsOnClass(ParallelScope parallelScope)
         {
             var enumValue = parallelScope.ToString();
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    [TestFixture]
-    [Parallelizable(ParallelScope.{enumValue})]
-    public sealed class AnalyzeWhenAttributeIsOnClass
-    {{
-    }}");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                [TestFixture]
+                [Parallelizable(ParallelScope.{{enumValue}})]
+                public sealed class AnalyzeWhenAttributeIsOnClass
+                {
+                }
+            """);
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
         [Test]
         public void AnalyzeWhenAttributeIsOnSimpleTestMethodParallelScopeSelf()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    [TestFixture]
-    public sealed class AnalyzeWhenAttributeIsOnSimpleTestMethodParallelScopeSelf
-    {
-        [Test]
-        [Parallelizable(ParallelScope.Self)]
-        public void Test()
-        {
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                [TestFixture]
+                public sealed class AnalyzeWhenAttributeIsOnSimpleTestMethodParallelScopeSelf
+                {
+                    [Test]
+                    [Parallelizable(ParallelScope.Self)]
+                    public void Test()
+                    {
+                    }
+                }
+            """);
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
@@ -141,16 +146,17 @@ using NUnit.Framework;
                 ParallelizableUsageAnalyzerConstants.ParallelScopeChildrenOnNonParameterizedTestMethodMessage);
 
             var enumValue = parallelScope.ToString();
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    [TestFixture]
-    public sealed class AnalyzeWhenAttributeIsOnSimpleTestMethodContainsParallelScopeChildren
-    {{
-        [Test]
-        [↓Parallelizable(ParallelScope.{enumValue})]
-        public void Test()
-        {{
-        }}
-    }}");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                [TestFixture]
+                public sealed class AnalyzeWhenAttributeIsOnSimpleTestMethodContainsParallelScopeChildren
+                {
+                    [Test]
+                    [↓Parallelizable(ParallelScope.{{enumValue}})]
+                    public void Test()
+                    {
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -161,16 +167,17 @@ using NUnit.Framework;
                 AnalyzerIdentifiers.ParallelScopeFixturesOnTestMethodUsage,
                 ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    [TestFixture]
-    public sealed class AnalyzeWhenAttributeIsOnSimpleTestMethodIsParallelScopeFixtures
-    {
-        [Test]
-        [↓Parallelizable(ParallelScope.Fixtures)]
-        public void Test()
-        {
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                [TestFixture]
+                public sealed class AnalyzeWhenAttributeIsOnSimpleTestMethodIsParallelScopeFixtures
+                {
+                    [Test]
+                    [↓Parallelizable(ParallelScope.Fixtures)]
+                    public void Test()
+                    {
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -178,16 +185,17 @@ using NUnit.Framework;
         public void AnalyzeWhenAttributeIsOnTestCaseTestMethodNotParallelScopeFixtures(ParallelScope parallelScope)
         {
             var enumValue = parallelScope.ToString();
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    [TestFixture]
-    public sealed class AnalyzeWhenAttributeIsOnTestCaseTestMethodNotParallelScopeFixtures
-    {{
-        [TestCase(1)]
-        [Parallelizable(ParallelScope.{enumValue})]
-        public void Test(int data)
-        {{
-        }}
-    }}");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                [TestFixture]
+                public sealed class AnalyzeWhenAttributeIsOnTestCaseTestMethodNotParallelScopeFixtures
+                {
+                    [TestCase(1)]
+                    [Parallelizable(ParallelScope.{{enumValue}})]
+                    public void Test(int data)
+                    {
+                    }
+                }
+            """);
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
@@ -198,16 +206,17 @@ using NUnit.Framework;
                 AnalyzerIdentifiers.ParallelScopeFixturesOnTestMethodUsage,
                 ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    [TestFixture]
-    public sealed class AnalyzeWhenAttributeIsOnTestCaseTestMethodIsParallelScopeFixtures
-    {
-        [TestCase(1)]
-        [↓Parallelizable(ParallelScope.Fixtures)]
-        public void Test(int data)
-        {
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                [TestFixture]
+                public sealed class AnalyzeWhenAttributeIsOnTestCaseTestMethodIsParallelScopeFixtures
+                {
+                    [TestCase(1)]
+                    [↓Parallelizable(ParallelScope.Fixtures)]
+                    public void Test(int data)
+                    {
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
 
@@ -215,16 +224,17 @@ using NUnit.Framework;
         public void AnalyzeWhenAttributeIsOnParametricTestMethodNotParallelScopeFixtures(ParallelScope parallelScope)
         {
             var enumValue = parallelScope.ToString();
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    [TestFixture]
-    public sealed class AnalyzeWhenAttributeIsOnParametricTestMethodNotParallelScopeFixtures
-    {{
-        [Test]
-        [Parallelizable(ParallelScope.{enumValue})]
-        public void Test([Values(1, 2, 3)] int data)
-        {{
-        }}
-    }}");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                [TestFixture]
+                public sealed class AnalyzeWhenAttributeIsOnParametricTestMethodNotParallelScopeFixtures
+                {
+                    [Test]
+                    [Parallelizable(ParallelScope.{{enumValue}})]
+                    public void Test([Values(1, 2, 3)] int data)
+                    {
+                    }
+                }
+            """);
             RoslynAssert.Valid(this.analyzer, testCode);
         }
 
@@ -235,16 +245,17 @@ using NUnit.Framework;
                 AnalyzerIdentifiers.ParallelScopeFixturesOnTestMethodUsage,
                 ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage);
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    [TestFixture]
-    public sealed class AnalyzeWhenAttributeIsOnParametricTestMethodIsParallelScopeFixtures
-    {
-        [Test]
-        [↓Parallelizable(ParallelScope.Fixtures)]
-        public void Test([Values(1, 2, 3)] int data)
-        {
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                [TestFixture]
+                public sealed class AnalyzeWhenAttributeIsOnParametricTestMethodIsParallelScopeFixtures
+                {
+                    [Test]
+                    [↓Parallelizable(ParallelScope.Fixtures)]
+                    public void Test([Values(1, 2, 3)] int data)
+                    {
+                    }
+                }
+            """);
             RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
         }
     }

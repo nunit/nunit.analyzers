@@ -15,11 +15,12 @@ namespace NUnit.Analyzers.Tests.TestContextWriteIsObsolete
         [TestCaseSource(typeof(TestContextWriteIsObsoleteTestCases), nameof(TestContextWriteIsObsoleteTestCases.WriteInvocations))]
         public void AnyDirectWriteMethod(string writeMethodAndParameters)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    ↓TestContext.{writeMethodAndParameters};
-                }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        ↓TestContext.{{writeMethodAndParameters}};
+                    }
+            """);
 
             RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
         }
@@ -27,11 +28,12 @@ namespace NUnit.Analyzers.Tests.TestContextWriteIsObsolete
         [TestCaseSource(typeof(TestContextWriteIsObsoleteTestCases), nameof(TestContextWriteIsObsoleteTestCases.WriteInvocations))]
         public void AnyIndirectWriteMethod(string writeMethodAndParameters)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-                public void Test()
-                {{
-                    TestContext.Out.{writeMethodAndParameters};
-                }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    public void Test()
+                    {
+                        TestContext.Out.{{writeMethodAndParameters}};
+                    }
+            """);
 
             RoslynAssert.Valid(analyzer, testCode);
         }

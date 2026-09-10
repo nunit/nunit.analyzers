@@ -130,9 +130,10 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
         [TestCase("Exception actual = null!;", "default(Exception)")]
         public void AnalyzeForReferenceTypeShouldSuggestIsDefaultEvenIfNullabilityDoesntMatch(string initialization, string literal)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                    {initialization}
-                    Assert.That(actual, ↓Is.EqualTo({literal}));");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        {{initialization}}
+                        Assert.That(actual, ↓Is.EqualTo({{literal}}));
+            """);
 
             RoslynAssert.Diagnostics(analyzer,
                 expectedDiagnostic.WithMessage($"Replace 'Is.EqualTo({literal})' with 'Is.Default' constraint"),
@@ -150,9 +151,10 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
 
         private static void AnalyzeForEqualTo(string prefix, string suffix, string literal, string constraint)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                var actual = {literal};
-                Assert.That(actual, ↓{prefix}.EqualTo({literal}){suffix});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = {{literal}};
+                        Assert.That(actual, ↓{{prefix}}.EqualTo({{literal}}){{suffix}});
+            """);
 
             RoslynAssert.Diagnostics(analyzer,
                 expectedDiagnostic.WithMessage($"Replace 'Is.EqualTo({literal})' with 'Is.{constraint}' constraint"),
