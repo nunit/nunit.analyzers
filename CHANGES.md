@@ -1,4 +1,39 @@
-﻿# NUnit Analyzers 4.14 - June 1, 2026
+﻿# NUnit Analyzers 4.15 - September 12, 2026
+
+This release of the NUnit Analyzers adds support for the new numeric types that will
+be supported from NUnit 5. The release also improves `NUnit1027` - by inspecting base fixtures -
+and `NUnit1028` - by also supporting `IAsyncDisposable.DisposeAsync` in addition to the 
+existing `IDisposable.Dispose`. The release also contains bug fixes and bumps of dependencies.
+
+The release contains contributions from the following users (in alphabetical order):
+* @jhavlicek-profinit
+* @killergege
+* @manfred-brands
+* @mikkelbu
+* @ngbrown
+* @ramonsmits
+* @stevenaw
+* @uladz-zubrycki
+
+Issues Resolved
+
+Features and Enhancements
+* #1019 NUnit1027 does not see `[CancelAfter]` inherited from a base fixture
+* #1017 NU2047 reports failure for new numeric types
+* #1001 NUnit1028: Allow DisposeAsync as an exception
+* #999 `[TestCaseSource]` CA1812 suppression
+
+Bugs
+* #1013 Use of `records` crash the `NonNullableFieldOrPropertyIsUninitializedSuppressor` analyzer
+* #998 Assert.EnterMultipleScope clears nullability suppress info
+
+Tooling, Process, and Documentation
+* #1005 Bump Microsoft.NET.Test.Sdk from 18.6.0 to 18.7.0
+* #996 Bump Microsoft.NET.Test.Sdk from 17.14.1 to 18.6.0
+* #993 chore: bump version
+
+
+# NUnit Analyzers 4.14 - June 1, 2026
 
 This release of the NUnit Analyzers adds a new analyzer and associated codefix - `NUnit2059` - that helps ensure that
 async assertion methods in NUnit version 5 and higher - i.e. `Assert.ThrowsAsync`, `Assert.CatchAsync`, and
