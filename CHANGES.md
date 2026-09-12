@@ -1,9 +1,9 @@
 ﻿# NUnit Analyzers 4.15 - September 12, 2026
 
 This release of the NUnit Analyzers adds support for the new numeric types that will
-be supported from NUnit 5. The release also improves `NUnit1027` - by inspecting base fixtures -
-and `NUnit1028` - by also supporting `IAsyncDisposable.DisposeAsync` in addition to the 
-existing `IDisposable.Dispose`. The release also contains bug fixes and bumps of dependencies.
+be supported in NUnit 5. The release also improves `NUnit1027` by inspecting base fixtures,
+and `NUnit1028` by supporting `IAsyncDisposable.DisposeAsync` in addition to the 
+existing `IDisposable.Dispose`. The release also includes bug fixes and dependency updates.
 
 The release contains contributions from the following users (in alphabetical order):
 * @jhavlicek-profinit
