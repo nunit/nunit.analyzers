@@ -500,5 +500,31 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
 
             RoslynAssert.Valid(analyzer, testCode);
         }
+
+#if NUNIT5
+        [Test]
+        public void NoDiagnosticWhenTupleAndValueTupleAreCompared()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var tuple = Tuple.Create(1, 2);
+                var valueTuple = (3, 4);
+                Assert.That(tuple, Is.LessThan(valueTuple));
+                Assert.That(valueTuple, Is.GreaterThan(tuple));");
+
+            RoslynAssert.Valid(analyzer, testCode);
+        }
+#else
+        [Test]
+        public void AnalyzeWhenTupleAndValueTupleAreCompared()
+        {
+            var testCode = TestUtility.WrapInTestMethod(@"
+                var tuple = Tuple.Create(1, 2);
+                var valueTuple = (3, 4);
+                Assert.That(tuple, Is.LessThan(↓valueTuple));
+                Assert.That(valueTuple, Is.GreaterThan(↓tuple));");
+
+            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+        }
+#endif
     }
 }
