@@ -1,16 +1,14 @@
 using System.Globalization;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.ConstraintUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.ConstraintUsage.StringConstraintUsageAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.ConstraintsUsage
 {
     public class StringConstraintUsageAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new StringConstraintUsageAnalyzer();
-
         private static readonly object[] PositiveAssertData = new[]
         {
             new[] { nameof(string.Contains), AnalyzerIdentifiers.StringContainsConstraintUsage, "Does.Contain" },
@@ -26,90 +24,83 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         };
 
         [TestCaseSource(nameof(PositiveAssertData))]
-        public void AnalyzeStringBooleanMethodAssertTrue(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertTrue(string method, string analyzerId, string suggestedConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($$"""ClassicAssert.True(↓"abc".{{method}}("ab"));""");
+            var testCode = TestUtility.WrapInTestMethod($$"""ClassicAssert.True({|#0:"abc".{{method}}("ab")|});""");
 
-            var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
+            var diagnostic = Verify.Diagnostic(analyzerId).WithMessage(string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
+            await Verify.VerifyAnalyzerAsync(testCode, diagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
-        public void AnalyzeStringBooleanMethodAssertIsTrue(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertIsTrue(string method, string analyzerId, string suggestedConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($$"""ClassicAssert.IsTrue(↓"abc".{{method}}("ab"));""");
+            var testCode = TestUtility.WrapInTestMethod($$"""ClassicAssert.IsTrue({|#0:"abc".{{method}}("ab")|});""");
 
-            var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
+            var diagnostic = Verify.Diagnostic(analyzerId).WithMessage(string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
+            await Verify.VerifyAnalyzerAsync(testCode, diagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
-        public void AnalyzeStringBooleanMethodAssertThat(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertThat(string method, string analyzerId, string suggestedConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($$"""Assert.That(↓"abc".{{method}}("ab"));""");
+            var testCode = TestUtility.WrapInTestMethod($$"""Assert.That({|#0:"abc".{{method}}("ab")|});""");
 
-            var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
+            var diagnostic = Verify.Diagnostic(analyzerId).WithMessage(string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
+            await Verify.VerifyAnalyzerAsync(testCode, diagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
-        public void AnalyzeStringBooleanMethodAssertThatIsTrue(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertThatIsTrue(string method, string analyzerId, string suggestedConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($$"""Assert.That(↓"abc".{{method}}("ab"), Is.True);""");
+            var testCode = TestUtility.WrapInTestMethod($$"""Assert.That({|#0:"abc".{{method}}("ab")|}, Is.True);""");
 
-            var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
+            var diagnostic = Verify.Diagnostic(analyzerId).WithMessage(string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
+            await Verify.VerifyAnalyzerAsync(testCode, diagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
-        public void AnalyzeStringBooleanMethodAssertFalse(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertFalse(string method, string analyzerId, string suggestedConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($$"""ClassicAssert.False(↓"abc".{{method}}("ab"));""");
+            var testCode = TestUtility.WrapInTestMethod($$"""ClassicAssert.False({|#0:"abc".{{method}}("ab")|});""");
 
-            var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
+            var diagnostic = Verify.Diagnostic(analyzerId).WithMessage(string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
+            await Verify.VerifyAnalyzerAsync(testCode, diagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
-        public void AnalyzeStringBooleanMethodAssertIsFalse(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertIsFalse(string method, string analyzerId, string suggestedConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($$"""ClassicAssert.IsFalse(↓"abc".{{method}}("ab"));""");
+            var testCode = TestUtility.WrapInTestMethod($$"""ClassicAssert.IsFalse({|#0:"abc".{{method}}("ab")|});""");
 
-            var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
+            var diagnostic = Verify.Diagnostic(analyzerId).WithMessage(string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
+            await Verify.VerifyAnalyzerAsync(testCode, diagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
-        public void AnalyzeStringBooleanMethodAssertThatIsFalse(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertThatIsFalse(string method, string analyzerId, string suggestedConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($$"""Assert.That(↓"abc".{{method}}("ab"), Is.False);""");
+            var testCode = TestUtility.WrapInTestMethod($$"""Assert.That({|#0:"abc".{{method}}("ab")|}, Is.False);""");
 
-            var diagnostic = ExpectedDiagnostic.Create(analyzerId,
-                string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
-            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
+            var diagnostic = Verify.Diagnostic(analyzerId).WithMessage(string.Format(CultureInfo.InvariantCulture, StringConstraintUsageConstants.Message, suggestedConstraint));
+            await Verify.VerifyAnalyzerAsync(testCode, diagnostic.WithLocation(0));
         }
 
         [Test]
-        public void ValidForUnsupportedStringMethods()
+        public async Task ValidForUnsupportedStringMethods()
         {
             var testCode = TestUtility.WrapInTestMethod("""Assert.That("abc".IsNormalized());""");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidForNonStringMethods()
+        public async Task ValidForNonStringMethods()
         {
             var testCode = TestUtility.WrapInTestMethod(
                 """Assert.That(new System.Collections.Generic.List<string> { "a","ab"}.Contains("ab"));""");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

@@ -6,7 +6,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -18,6 +17,10 @@ namespace NUnit.Analyzers.Tests
 {
     public class DocumentationTests
     {
+        private static readonly string RepositoryPath = Path.GetFullPath(Path.Combine(ThisFileDirectory(), "..", ".."));
+
+        private static readonly string DocumentsPath = Path.Combine(RepositoryPath, "documentation");
+
         // Overload of Append(AppendInterpolatedStringHandler) with IFormatProvider not available in .NET 462
 #pragma warning disable CA1305 // Specify IFormatProvider
 
@@ -66,12 +69,6 @@ namespace NUnit.Analyzers.Tests
 
         private static IReadOnlyList<BaseInfo> RulesWithDocs =>
             ((IEnumerable<BaseInfo>)DescriptorsWithDocs).Concat(SuppressorsWithDocs).ToArray();
-
-        private static DirectoryInfo RepositoryDirectory =>
-            SolutionFile.Find("nunit.analyzers.sln").Directory!.Parent!;
-
-        private static DirectoryInfo DocumentsDirectory =>
-            RepositoryDirectory.EnumerateDirectories("documentation", SearchOption.TopDirectoryOnly).Single();
 
         private static Dictionary<DiagnosticSeverity, string> SeverityEmoji => new()
         {
@@ -187,7 +184,7 @@ namespace NUnit.Analyzers.Tests
             var expected = GetTable(info.Stub, headerRow);
             DumpIfRequested(expected);
             var actual = GetTable(info.DocumentationFile.AllText, headerRow);
-            CodeAssert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         [TestCaseSource(nameof(RulesWithDocs))]
@@ -196,7 +193,7 @@ namespace NUnit.Analyzers.Tests
             var expected = GetConfigSeverity(info.Stub);
             DumpIfRequested(expected);
             var actual = GetConfigSeverity(info.DocumentationFile.AllText);
-            CodeAssert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
 
             string GetConfigSeverity(string doc)
             {
@@ -245,8 +242,8 @@ namespace NUnit.Analyzers.Tests
 
             var expected = builder.ToString();
             DumpIfRequested(expected);
-            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), headerRow, tableNumber);
-            CodeAssert.AreEqual(expected, actual);
+            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsPath, "index.md")), headerRow, tableNumber);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         [TestCase(2)]
@@ -275,8 +272,8 @@ namespace NUnit.Analyzers.Tests
 
             var expected = builder.ToString();
             DumpIfRequested(expected);
-            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), headerRow, tableNumber);
-            CodeAssert.AreEqual(expected, actual);
+            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsPath, "index.md")), headerRow, tableNumber);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         private static string GetTable(string doc, string headerRow, int tableNumber = 0)
@@ -330,12 +327,15 @@ namespace NUnit.Analyzers.Tests
 #endif
         }
 
+        private static string ThisFileDirectory([System.Runtime.CompilerServices.CallerFilePath] string file = "")
+            => Path.GetDirectoryName(file)!;
+
         public abstract class BaseInfo
         {
             protected BaseInfo(Type analyzerType, string id)
             {
                 this.Id = id;
-                this.DocumentationFile = new MarkdownFile(Path.Combine(DocumentsDirectory.FullName, id + ".md"));
+                this.DocumentationFile = new MarkdownFile(Path.Combine(DocumentsPath, id + ".md"));
                 this.AnalyzerFile = CodeFile.Find(analyzerType);
             }
 
@@ -613,7 +613,7 @@ namespace NUnit.Analyzers.Tests
 
             public string Name { get; }
 
-            public string Uri => RepoOnMaster + this.Name.Substring(RepositoryDirectory.FullName.Length).Replace('\\', '/');
+            public string Uri => RepoOnMaster + this.Name.Substring(RepositoryPath.Length).Replace('\\', '/');
 
             public static CodeFile Find(Type type)
             {
@@ -627,7 +627,7 @@ namespace NUnit.Analyzers.Tests
                                     .Distinct()
                                     .SelectMany(d => Directory.EnumerateFiles(d, name, SearchOption.TopDirectoryOnly))
                                     .FirstOrDefault() ??
-                               Directory.EnumerateFiles(RepositoryDirectory.FullName, name, SearchOption.AllDirectories)
+                               Directory.EnumerateFiles(RepositoryPath, name, SearchOption.AllDirectories)
                                         .First();
                 return new CodeFile(fileName);
             }

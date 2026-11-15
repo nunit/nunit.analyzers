@@ -1,19 +1,17 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.ConstraintUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.ConstraintUsage.ComparisonConstraintUsageAnalyzer, NUnit.Analyzers.ConstraintUsage.ComparisonConstraintUsageCodeFix>;
 
 namespace NUnit.Analyzers.Tests.ConstraintsUsage
 {
     public class ComparisonConstraintUsageCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new ComparisonConstraintUsageAnalyzer();
-        private static readonly CodeFixProvider fix = new ComparisonConstraintUsageCodeFix();
         private static readonly Dictionary<string, string> operatorTokensToConstraints = new()
         {
             { ">=", "Is.GreaterThanOrEqualTo" },
@@ -31,12 +29,12 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         };
 
         [Test]
-        public void FixesComparisonOperator([ValueSource(nameof(operatorTokens))] string operatorToken)
+        public async Task FixesComparisonOperator([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
             var constraint = operatorTokensToConstraints[operatorToken];
             var code = TestUtility.WrapInTestMethod($$"""
                         int actual = 5;
-                        Assert.That(↓actual {{operatorToken}} 9);
+                        Assert.That({|#0:actual {{operatorToken}} 9|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
@@ -44,19 +42,18 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, {{constraint}}(9));
             """);
 
-            var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
-                string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
+            var diagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ComparisonConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
 
-            RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, diagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void FixesComparisonOperatorWithIsTrue([ValueSource(nameof(operatorTokens))] string operatorToken)
+        public async Task FixesComparisonOperatorWithIsTrue([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
             var constraint = operatorTokensToConstraints[operatorToken];
             var code = TestUtility.WrapInTestMethod($$"""
                         int actual = 5;
-                        Assert.That(↓actual {{operatorToken}} 9, Is.True);
+                        Assert.That({|#0:actual {{operatorToken}} 9|}, Is.True);
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
@@ -64,19 +61,18 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, {{constraint}}(9));
             """);
 
-            var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
-                string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
+            var diagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ComparisonConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
 
-            RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, diagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void FixesWhenComparisonOperatorUsedWithIsFalse([ValueSource(nameof(operatorTokens))] string operatorToken)
+        public async Task FixesWhenComparisonOperatorUsedWithIsFalse([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
             var constraint = operatorTokensToConstraintsReversed[operatorToken];
             var code = TestUtility.WrapInTestMethod($$"""
                         int actual = 5;
-                        Assert.That(↓actual {{operatorToken}} 9, Is.False);
+                        Assert.That({|#0:actual {{operatorToken}} 9|}, Is.False);
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
@@ -84,19 +80,18 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, {{constraint}}(9));
             """);
 
-            var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
-                string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
+            var diagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ComparisonConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
 
-            RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, diagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void FixesWhenComparisonOperatorUseConstantOnLeftHandSide([ValueSource(nameof(operatorTokens))] string operatorToken)
+        public async Task FixesWhenComparisonOperatorUseConstantOnLeftHandSide([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
             var constraint = operatorTokensToConstraintsReversed[operatorToken];
             var code = TestUtility.WrapInTestMethod($$"""
                         int actual = 5;
-                        Assert.That(↓9 {{operatorToken}} actual, Is.True);
+                        Assert.That({|#0:9 {{operatorToken}} actual|}, Is.True);
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
@@ -104,20 +99,19 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, {{constraint}}(9));
             """);
 
-            var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
-                string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
+            var diagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ComparisonConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
 
-            RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, diagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([ValueSource(nameof(operatorTokens))] string operatorToken)
+        public async Task CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
             var constraint = operatorTokensToConstraintsReversed[operatorToken];
             var code = TestUtility.WrapInTestMethod($$"""
                         int actual = 5;
                         Assert.That(
-                            ↓actual {{operatorToken}} 9,
+                            {|#0:actual {{operatorToken}} 9|},
                             Is.False);
             """);
 
@@ -128,20 +122,19 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                             {{constraint}}(9));
             """);
 
-            var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
-                string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
+            var diagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ComparisonConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
 
-            RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, diagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([ValueSource(nameof(operatorTokens))] string operatorToken)
+        public async Task CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([ValueSource(nameof(operatorTokens))] string operatorToken)
         {
             var constraint = operatorTokensToConstraints[operatorToken];
             var code = TestUtility.WrapInTestMethod($$"""
                         int actual = 5;
                         Assert.That(
-                            ↓actual {{operatorToken}} 9
+                            {|#0:actual {{operatorToken}} 9|}
                         );
             """);
 
@@ -153,23 +146,22 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         );
             """);
 
-            var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
-                string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
+            var diagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ComparisonConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
 
-            RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, diagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
+        public async Task CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
             [ValueSource(nameof(operatorTokens))] string operatorToken,
             [Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? $"{Environment.NewLine}            " : string.Empty;
             var constraint = operatorTokensToConstraints[operatorToken];
             var code = TestUtility.WrapInTestMethod($$"""
                         int actual = 5;
                         Assert.That(
-                            ↓actual {{operatorToken}} 9, "message"{{optionalNewline}});
+                            {|#0:actual {{operatorToken}} 9|}, "message"{{optionalNewline}});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
@@ -178,10 +170,9 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                             actual, {{constraint}}(9), "message"{{optionalNewline}});
             """);
 
-            var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
-                string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
+            var diagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ComparisonConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, constraint));
 
-            RoslynAssert.CodeFix(analyzer, fix, diagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, diagnostic.WithLocation(0), fixedCode);
         }
     }
 }

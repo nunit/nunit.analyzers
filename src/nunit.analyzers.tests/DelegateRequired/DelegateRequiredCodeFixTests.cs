@@ -1,34 +1,32 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.DelegateRequired;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.DelegateRequired.DelegateRequiredAnalyzer, NUnit.Analyzers.DelegateRequired.DelegateRequiredCodeFix>;
 
 namespace NUnit.Analyzers.Tests.DelegateRequired
 {
     [TestFixture]
     public sealed class DelegateRequiredCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new DelegateRequiredAnalyzer();
-        private static readonly CodeFixProvider fix = new DelegateRequiredCodeFix();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.DelegateRequired);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.DelegateRequired);
 
         [Test]
         public void VerifyGetFixableDiagnosticIds()
         {
             var fix = new DelegateRequiredCodeFix();
-            var ids = fix.FixableDiagnosticIds;
+            var ids = new DelegateRequiredCodeFix().FixableDiagnosticIds;
 
             Assert.That(ids, Is.EquivalentTo(new[] { AnalyzerIdentifiers.DelegateRequired }));
         }
 
         [Test]
-        public void VerifyNonDelegateFix()
+        public async Task VerifyNonDelegateFix()
         {
             var code = TestUtility.WrapInTestMethod("""
-                        Assert.That(↓MyOperation(1), Throws.InstanceOf<InvalidOperationException>());
+                        Assert.That({|#0:MyOperation(1)|}, Throws.InstanceOf<InvalidOperationException>());
 
                         int MyOperation(int n) => throw new InvalidOperationException();
 
@@ -39,14 +37,14 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
                         int MyOperation(int n) => throw new InvalidOperationException();
 
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: DelegateRequiredCodeFix.UseAnonymousLambdaDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, DelegateRequiredCodeFix.UseAnonymousLambdaDescription);
         }
 
         [Test]
-        public void VerifyNonDelegateFixWithMessage()
+        public async Task VerifyNonDelegateFixWithMessage()
         {
             var code = TestUtility.WrapInTestMethod("""
-                        Assert.That(↓MyOperation(), Throws.InstanceOf<InvalidOperationException>(), "message");
+                        Assert.That({|#0:MyOperation()|}, Throws.InstanceOf<InvalidOperationException>(), "message");
 
                         int MyOperation() => throw new InvalidOperationException();
 
@@ -57,14 +55,14 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
                         int MyOperation() => throw new InvalidOperationException();
 
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: DelegateRequiredCodeFix.UseMethodGroupDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, DelegateRequiredCodeFix.UseMethodGroupDescription);
         }
 
         [Test]
-        public void VerifyNonDelegateFixWithFormattableMessage()
+        public async Task VerifyNonDelegateFixWithFormattableMessage()
         {
             var code = TestUtility.WrapInTestMethod("""
-                        Assert.That(↓MyOperation() + MyOtherOperation(), Throws.InstanceOf<InvalidOperationException>(), $"message-id: {Guid.NewGuid()}");
+                        Assert.That({|#0:MyOperation() + MyOtherOperation()|}, Throws.InstanceOf<InvalidOperationException>(), $"message-id: {Guid.NewGuid()}");
 
                         int MyOperation() => throw new InvalidOperationException();
                         int MyOtherOperation() => throw new InvalidOperationException();
@@ -77,16 +75,16 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
                         int MyOtherOperation() => throw new InvalidOperationException();
 
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: DelegateRequiredCodeFix.UseAnonymousLambdaDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, DelegateRequiredCodeFix.UseAnonymousLambdaDescription);
         }
 
         [Test]
-        public void AnalyzeWhenDelayedConstraintWithDimensionedDelayInterval()
+        public async Task AnalyzeWhenDelayedConstraintWithDimensionedDelayInterval()
         {
             var code = TestUtility.WrapInTestMethod("""
                         int i = 0;
                         int actualFunc() => i++;
-                        Assert.That(↓actualFunc(), Is.EqualTo(5).After(1).Minutes);
+                        Assert.That({|#0:actualFunc()|}, Is.EqualTo(5).After(1).Minutes);
 
             """);
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -96,7 +94,7 @@ namespace NUnit.Analyzers.Tests.DelegateRequired
 
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: DelegateRequiredCodeFix.UseMethodGroupDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, DelegateRequiredCodeFix.UseMethodGroupDescription);
         }
     }
 }

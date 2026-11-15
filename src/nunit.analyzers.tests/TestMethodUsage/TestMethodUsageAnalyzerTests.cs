@@ -3,20 +3,18 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using Gu.Roslyn.Asserts;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.TestMethodUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.TestMethodUsage.TestMethodUsageAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.TestMethodUsage
 {
     [TestFixture]
     public sealed class TestMethodUsageAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new TestMethodUsageAnalyzer();
-
         private static IEnumerable<TestCaseData> SpecialConversions
         {
             get
@@ -32,7 +30,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         public void VerifySupportedDiagnostics()
         {
             var analyzer = new TestMethodUsageAnalyzer();
-            var diagnostics = analyzer.SupportedDiagnostics;
+            var diagnostics = new TestMethodUsageAnalyzer().SupportedDiagnostics;
 
             var expectedIdentifiers = new List<string>
             {
@@ -72,7 +70,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
         }
 
         [TestCaseSource(nameof(SpecialConversions))]
-        public void AnalyzeWhenExpectedResultIsProvidedCorrectlyWithSpecialConversion(string value, Type targetType)
+        public async Task AnalyzeWhenExpectedResultIsProvidedCorrectlyWithSpecialConversion(string value, Type targetType)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public sealed class AnalyzeWhenExpectedResultIsProvidedCorrectlyWithSpecialConversion
@@ -81,11 +79,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     public {{targetType.Name}} Test({{targetType.Name}} a) { return a; }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenExpectedResultIsProvidedCorrectly()
+        public async Task AnalyzeWhenExpectedResultIsProvidedCorrectly()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenExpectedResultIsProvidedCorrectly
@@ -94,64 +92,58 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     public int Test(int a) { return 3; }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid()
+        public async Task AnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestMethodSpecifiedExpectedResultForVoidUsage,
-                TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestMethodSpecifiedExpectedResultForVoidUsage).WithMessage(TestMethodUsageAnalyzerConstants.SpecifiedExpectedResultForVoidMethodMessage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenExpectedResultIsProvidedAndReturnTypeIsVoid
                 {
-                    [TestCase(2, ↓ExpectedResult = '3')]
+                    [TestCase(2, {|#0:ExpectedResult = '3'|})]
                     public void Test(int a) { }
                 }
             """);
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect()
+        public async Task AnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
-                string.Format(CultureInfo.InvariantCulture,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture,
                     TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenExpectedResultIsProvidedAndTypeIsIncorrect
                 {
-                    [TestCase(2, ↓ExpectedResult = '3')]
+                    [TestCase(2, {|#0:ExpectedResult = '3'|})]
                     public int Test(int a) { return 3; }
                 }
             """);
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType()
+        public async Task AnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
-                string.Format(CultureInfo.InvariantCulture,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture,
                     TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenExpectedResultIsProvidedAndPassesNullToValueType
                 {
-                    [TestCase(2, ↓ExpectedResult = null)]
+                    [TestCase(2, {|#0:ExpectedResult = null|})]
                     public int Test(int a) { return 3; }
                 }
             """);
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType()
+        public async Task AnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenExpectedResultIsProvidedAndPassesNullToNullableType
@@ -160,11 +152,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     public int? Test(int a) { return null; }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType()
+        public async Task AnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenExpectedResultIsProvidedAndPassesValueToNullableType
@@ -173,111 +165,105 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     public int? Test(int a) { return 2; }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTestAttributeExpectedResultIsNotProvidedAndReturnTypeIsNotVoid()
+        public async Task AnalyzeWhenTestAttributeExpectedResultIsNotProvidedAndReturnTypeIsNotVoid()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestAttributeExpectedResultIsNotProvidedAndReturnTypeIsNotVoid
                 {
-                    [↓Test]
+                    [{|#0:Test|}]
                     public string Test3() => "12";
                 }
             """);
             var message = "The method has non-void return type 'string', but no result is expected in ExpectedResult";
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenTestCaseAttributeExpectedResultIsNotProvidedAndReturnTypeIsNotVoid()
+        public async Task AnalyzeWhenTestCaseAttributeExpectedResultIsNotProvidedAndReturnTypeIsNotVoid()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestMethodNoExpectedResultButNonVoidReturnType);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestCaseAttributeExpectedResultIsNotProvidedAndReturnTypeIsNotVoid
                 {
-                    [↓TestCase(1)]
+                    [{|#0:TestCase(1)|}]
                     public int Test4(int i) => 12;
                 }
             """);
             var message = "The method has non-void return type 'int', but no result is expected in ExpectedResult";
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAsyncTestMethodHasGenericTaskReturnTypeAndNoExpectedResult()
+        public async Task AnalyzeWhenAsyncTestMethodHasGenericTaskReturnTypeAndNoExpectedResult()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenAsyncTestMethodHasGenericTaskReturnTypeAndNotExpectedResult
                 {
-                    [↓Test]
+                    [{|#0:Test|}]
                     public async Task<int> AsyncGenericTaskTest() => await Task.FromResult(1);
                 }
             """);
             var message = "The async test method must have a non-generic Task return type when no result is expected, but the return type was 'System.Threading.Tasks.Task<int>'";
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodHasGenericTaskReturnTypeAndNoExpectedResult()
+        public async Task AnalyzeWhenTestMethodHasGenericTaskReturnTypeAndNoExpectedResult()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndNonTaskReturnTypeUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestMethodHasGenericTaskReturnTypeAndNotExpectedResult
                 {
-                    [↓Test]
+                    [{|#0:Test|}]
                     public Task<int> AsyncGenericTaskTest() => Task.FromResult(1);
                 }
             """);
             var message = "The async test method must have a non-generic Task return type when no result is expected, but the return type was 'System.Threading.Tasks.Task<int>'";
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAsyncTestMethodHasVoidReturnTypeAndNoExpectedResult()
+        public async Task AnalyzeWhenAsyncTestMethodHasVoidReturnTypeAndNoExpectedResult()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndVoidReturnTypeUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndVoidReturnTypeUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenAsyncTestMethodHasVoidReturnTypeAndNoExpectedResult
                 {
-                    [↓Test]
+                    [{|#0:Test|}]
                     public async void AsyncVoidTest() => await Task.FromResult(1);
                 }
             """);
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAsyncTestCaseMethodHasVoidReturnTypeAndNoExpectedResult()
+        public async Task AnalyzeWhenAsyncTestCaseMethodHasVoidReturnTypeAndNoExpectedResult()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndVoidReturnTypeUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestMethodAsyncNoExpectedResultAndVoidReturnTypeUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenAsyncTestCaseMethodHasVoidReturnTypeAndNoExpectedResult
                 {
-                    [↓TestCase(4)]
+                    [{|#0:TestCase(4)|}]
                     public async void AsyncVoidTest(int x) => await Task.FromResult(1);
                 }
             """);
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodHasTaskReturnTypeAndNoExpectedResult()
+        public async Task AnalyzeWhenTestMethodHasTaskReturnTypeAndNoExpectedResult()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestMethodHasTaskReturnTypeAndNoExpectedResult
@@ -290,11 +276,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAsyncTestMethodHasGenericTaskReturnTypeAndExpectedResult()
+        public async Task AnalyzeWhenAsyncTestMethodHasGenericTaskReturnTypeAndExpectedResult()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenAsyncTestMethodHasGenericTaskReturnTypeAndExpectedResult
@@ -306,11 +292,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodHasGenericTaskReturnTypeAndExpectedResult()
+        public async Task AnalyzeWhenTestMethodHasGenericTaskReturnTypeAndExpectedResult()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestMethodHasGenericTaskReturnTypeAndExpectedResult
@@ -322,11 +308,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResult()
+        public async Task AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResult()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResult
@@ -346,21 +332,19 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResultIsIncorrect()
+        public async Task AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResultIsIncorrect()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
-                string.Format(CultureInfo.InvariantCulture,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture,
                     TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestMethodHasCustomAwaitableReturnTypeAndExpectedResultIsIncorrect
                 {
-                    [TestCase(↓ExpectedResult = '1')]
+                    [TestCase({|#0:ExpectedResult = '1'|})]
                     public CustomAwaitable GenericTaskTestCaseWithExpectedResult()
                     {
                         return new CustomAwaitable();
@@ -375,12 +359,12 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
 #if !NETFRAMEWORK
         [Test]
-        public void AnalyzeWhenTestMethodHasValueTaskReturnTypeAndExpectedResult()
+        public async Task AnalyzeWhenTestMethodHasValueTaskReturnTypeAndExpectedResult()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     [TestCase(ExpectedResult = 1)]
@@ -391,19 +375,17 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodHasValueTaskReturnTypeAndExpectedResultIsIncorrect()
+        public async Task AnalyzeWhenTestMethodHasValueTaskReturnTypeAndExpectedResultIsIncorrect()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage,
-                string.Format(CultureInfo.InvariantCulture,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestMethodExpectedResultTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture,
                     TestMethodUsageAnalyzerConstants.ExpectedResultTypeMismatchMessage, typeof(int).Name));
 
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
-                    [TestCase(↓ExpectedResult = '1')]
+                    [TestCase({|#0:ExpectedResult = '1'|})]
                     public async ValueTask<int> GenericTaskTestCaseWithExpectedResult()
                     {
                         await Task.CompletedTask;
@@ -411,20 +393,19 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 #endif
 
         [Test]
-        public void AnalyzeWhenAsyncTestMethodHasTaskReturnTypeAndExpectedResult()
+        public async Task AnalyzeWhenAsyncTestMethodHasTaskReturnTypeAndExpectedResult()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenAsyncTestMethodHasTaskReturnTypeAndExpectedResult
                 {
-                    [↓TestCase(ExpectedResult = 1)]
+                    [{|#0:TestCase(ExpectedResult = 1)|}]
                     public async Task AsyncTaskTestCaseWithExpectedResult()
                     {
                       await Task.Run(() => 1);
@@ -432,19 +413,18 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                 }
             """);
             var message = "The async test method must have a Task<T> return type when a result is expected, but the return type was 'System.Threading.Tasks.Task'";
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodHasTaskReturnTypeAndExpectedResult()
+        public async Task AnalyzeWhenTestMethodHasTaskReturnTypeAndExpectedResult()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestMethodAsyncExpectedResultAndNonGenricTaskReturnTypeUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestMethodHasTaskReturnTypeAndExpectedResult
                 {
-                    [↓TestCase(ExpectedResult = 1)]
+                    [{|#0:TestCase(ExpectedResult = 1)|}]
                     public Task TaskTestCaseWithExpectedResult()
                     {
                       return Task.Run(() => 1);
@@ -452,11 +432,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                 }
             """);
             var message = "The async test method must have a Task<T> return type when a result is expected, but the return type was 'System.Threading.Tasks.Task'";
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodHasTypeParameterAsReturnType()
+        public async Task AnalyzeWhenTestMethodHasTypeParameterAsReturnType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestMethodHasTypeParameterAsReturnType
@@ -468,11 +448,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodAlsoHasTestCaseSourceAttribute()
+        public async Task AnalyzeWhenTestMethodAlsoHasTestCaseSourceAttribute()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestMethodAlsoHasTestCaseSourceAttribute
@@ -495,11 +475,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                 }
             """,
     additionalUsings: "using System.Collections;");
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodAlsoHasTestCaseAttribute()
+        public async Task AnalyzeWhenTestMethodAlsoHasTestCaseAttribute()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestMethodAlsoHasTestCaseAttribute
@@ -512,11 +492,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodAlsoHasCustomAttributeDerivingFromITestBuilder()
+        public async Task AnalyzeWhenTestMethodAlsoHasCustomAttributeDerivingFromITestBuilder()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestMethodAlsoHasCustomAttributeDerivingFromITestBuilder
@@ -539,17 +519,16 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                 }
             """,
     additionalUsings: "using NUnit.Framework.Interfaces; using NUnit.Framework.Internal; using System.Collections.Generic;");
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSimpleTestMethodHasParameters()
+        public async Task AnalyzeWhenSimpleTestMethodHasParameters()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-               AnalyzerIdentifiers.SimpleTestMethodHasParameters);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.SimpleTestMethodHasParameters);
 
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
-                    [↓Test]
+                    [{|#0:Test|}]
                     [Category("Test")]
                     public void M(int p)
                     {
@@ -558,12 +537,12 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
             """);
 
             var message = "The test method has '1' parameter(s), but only '0' argument(s) are supplied by attributes";
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0));
         }
 
 #if NUNIT4
         [Test]
-        public void WhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnMethod()
+        public async Task WhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnMethod()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     [Test]
@@ -577,11 +556,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
             """, "using System.Threading;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void WhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnClass()
+        public async Task WhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -599,11 +578,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                 }
             """, "using System.Threading;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void WhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnBaseClass()
+        public async Task WhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnBaseClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [CancelAfter(50)]
@@ -625,11 +604,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                 }
             """, "using System.Threading;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSimpleTestMethodHasParameterSuppliedByValuesAndCancelAfterAttributes()
+        public async Task AnalyzeWhenSimpleTestMethodHasParameterSuppliedByValuesAndCancelAfterAttributes()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     [Test]
@@ -642,11 +621,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
             """, "using System.Threading;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void WhenTestMethodHasNoImplicitlySuppliedCancellationTokenParameter()
+        public async Task WhenTestMethodHasNoImplicitlySuppliedCancellationTokenParameter()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     [Test]
@@ -661,17 +640,16 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
             """, "using System.Threading;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void WhenTestMethodHasCancellationTokenParameter()
+        public async Task WhenTestMethodHasCancellationTokenParameter()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-               AnalyzerIdentifiers.SimpleTestMethodHasParameters);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.SimpleTestMethodHasParameters);
 
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
-                    [↓Test]
+                    [{|#0:Test|}]
                     public async Task InfiniteLoopWith50msCancelAfter(CancellationToken cancellationToken)
                     {
                         while (!cancellationToken.IsCancellationRequested)
@@ -682,18 +660,17 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
             """, "using System.Threading;");
 
             var message = "The test method has '1' parameter(s), but only '0' argument(s) are supplied by attributes";
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0).WithArguments("2", "1"));
         }
 #endif
 
         [Test]
-        public void AnalyzeWhenSimpleTestMethodHasParameterWithOutSuppliedValues()
+        public async Task AnalyzeWhenSimpleTestMethodHasParameterWithOutSuppliedValues()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-               AnalyzerIdentifiers.SimpleTestMethodHasParameters);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.SimpleTestMethodHasParameters);
 
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
-                    [↓Test]
+                    [{|#0:Test|}]
                     public void M(int p, [Values(1, 2, 3)] int q, int r)
                     {
                         Assert.That(p, Is.EqualTo(q + r));
@@ -701,11 +678,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
             """);
 
             var message = "The test method has '3' parameter(s), but only '1' argument(s) are supplied by attributes";
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenSimpleTestMethodHasParameterSuppliedByValuesAttribute()
+        public async Task AnalyzeWhenSimpleTestMethodHasParameterSuppliedByValuesAttribute()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     [Test]
@@ -715,11 +692,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSimpleTestMethodHasParameterSuppliedByRangeAttribute()
+        public async Task AnalyzeWhenSimpleTestMethodHasParameterSuppliedByRangeAttribute()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     [Test]
@@ -729,11 +706,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSimpleTestMethodHasParameterSuppliedByTestCase()
+        public async Task AnalyzeWhenSimpleTestMethodHasParameterSuppliedByTestCase()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     [Test]
@@ -745,11 +722,11 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                     }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSimpleTestMethodHasParameterSuppliedByTestCaseSource()
+        public async Task AnalyzeWhenSimpleTestMethodHasParameterSuppliedByTestCaseSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenSimpleTestMethodHasParameterSuppliedByTestCaseSource
@@ -765,7 +742,7 @@ namespace NUnit.Analyzers.Tests.TestMethodUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

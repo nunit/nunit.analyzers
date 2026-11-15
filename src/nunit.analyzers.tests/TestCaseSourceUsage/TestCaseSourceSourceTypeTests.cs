@@ -1,20 +1,14 @@
-using System.Collections.Generic;
-using System.Linq;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.TestCaseSourceUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.TestCaseSourceUsage.TestCaseSourceUsesStringAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 {
     public sealed class TestCaseSourceSourceTypeTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new TestCaseSourceUsesStringAnalyzer();
-
         [Test]
-        public void AnalyzeWhenTypeOfValidSourceType()
+        public async Task AnalyzeWhenTypeOfValidSourceType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class AnalyzeWhenTypeOfValidSourceType
@@ -34,16 +28,16 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """,
     additionalUsings: "using System.Collections;");
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTypeOfSourceNotImplementingIEnumerable()
+        public async Task AnalyzeWhenTypeOfSourceNotImplementingIEnumerable()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class AnalyzeWhenTypeOfSourceNotImplementingIEnumerable
                 {
-                    [TestCaseSource(↓typeof(MyTests))]
+                    [TestCaseSource({|#0:typeof(MyTests)|})]
                     public void Test()
                     {
                     }
@@ -54,14 +48,13 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """);
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceSourceTypeNotIEnumerable)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceSourceTypeNotIEnumerable)
                 .WithMessage("The source type 'MyTests' does not implement I(Async)Enumerable");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenTypeOfSourceImplementsIAsyncEnumerable()
+        public async Task AnalyzeWhenTypeOfSourceImplementsIAsyncEnumerable()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class AnalyzeWhenTypeOfSourceImplementsIAsyncEnumerable
@@ -82,19 +75,16 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             """,
         additionalUsings: "using System.Collections.Generic;using System.Threading;");
 
-            IEnumerable<MetadataReference> asyncEnumerableMetadata = MetadataReferences.Transitive(typeof(IAsyncEnumerable<>));
-            IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(asyncEnumerableMetadata);
-
-            RoslynAssert.Valid(analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTypeOfSourceNoDefaultConstructor()
+        public async Task AnalyzeWhenTypeOfSourceNoDefaultConstructor()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                     public class AnalyzeWhenTypeOfSourceNoDefaultConstructor
                     {
-                        [TestCaseSource(↓typeof(MyTests))]
+                        [TestCaseSource({|#0:typeof(MyTests)|})]
                         public void Test()
                         {
                         }
@@ -112,10 +102,9 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             """,
     additionalUsings: "using System.Collections;");
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceSourceTypeNoDefaultConstructor)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceSourceTypeNoDefaultConstructor)
                 .WithMessage("The source type 'MyTests' does not have a default constructor");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
     }
 }

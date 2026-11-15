@@ -1,25 +1,18 @@
-using System.Collections.Generic;
-using System.Linq;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.SourceCommon;
-using NUnit.Analyzers.ValueSourceUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.ValueSourceUsage.ValueSourceUsageAnalyzer, NUnit.Analyzers.SourceCommon.UseNameofFix>;
 
 namespace NUnit.Analyzers.Tests.ValueSourceUsage
 {
     [TestFixture]
     public sealed class ValueSourceUsageAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new ValueSourceUsageAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnosticCodeFix = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValueSourceStringUsage);
-        private static readonly CodeFixProvider fix = new UseNameofFix();
+        private static readonly DiagnosticResult expectedDiagnosticCodeFix = Verify.Diagnostic(AnalyzerIdentifiers.ValueSourceStringUsage);
 
         [Test]
-        public void AnalyzeWhenNameOfSameClass()
+        public async Task AnalyzeWhenNameOfSameClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class AnalyzeWhenNameOfSameClass
@@ -32,11 +25,11 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenNameOfSameClassNotStatic()
+        public async Task AnalyzeWhenNameOfSameClassNotStatic()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class AnalyzeWhenNameOfSameClassNotStatic
@@ -44,37 +37,37 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
                     string[] Tests = new[] { "Data" };
 
                     [Test]
-                    public void Test([ValueSource(↓nameof(Tests))] string input)
+                    public void Test([ValueSource({|#0:nameof(Tests)|})] string input)
                     {
                     }
                 }
             """);
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.ValueSourceIsNotStatic)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ValueSourceIsNotStatic)
                 .WithMessage("The specified source 'Tests' is not static");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void NoWarningWhenStringLiteralMissingMember()
+        public async Task NoNameOfSuggestionWhenStringLiteralMissingMember()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class NoWarningWhenStringLiteralMissingMember
                 {
                     [Test]
-                    public void Test([ValueSource("Missing")] string input)
+                    public void Test([ValueSource({|#0:"Missing"|})] string input)
                     {
                     }
                 }
             """);
-            var descriptor = new DiagnosticDescriptor(AnalyzerIdentifiers.ValueSourceStringUsage, string.Empty, string.Empty, string.Empty, DiagnosticSeverity.Warning, true);
-            RoslynAssert.Valid(analyzer, descriptor, testCode);
+
+            // Only the missing source is reported, not the suggestion to use nameof.
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.ValueSourceIsMissing).WithLocation(0).WithArguments("Missing"));
         }
 
         [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]
         [TestCase("private static TestCaseData[] TestCases => new TestCaseData[0];")]
         [TestCase("private static TestCaseData[] TestCases() => new TestCaseData[0];")]
-        public void FixWhenStringLiteral(string testCaseMember)
+        public async Task FixWhenStringLiteral(string testCaseMember)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public class AnalyzeWhenStringConstant
@@ -82,7 +75,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
                     {{testCaseMember}}
 
                     [Test]
-                    public void Test([ValueSource(↓"TestCases")] string input)
+                    public void Test([ValueSource({|#0:"TestCases"|})] string input)
                     {
                     }
                 }
@@ -101,11 +94,11 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
             """);
 
             var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnosticCodeFix.WithMessage(message), testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnosticCodeFix.WithMessage(message).WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void FixWhenMultipleUnrelatedAttributes()
+        public async Task FixWhenMultipleUnrelatedAttributes()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -119,7 +112,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
                     }
 
                     [Test]
-                    public void Test([ValueSource(↓"TestCases")] string input)
+                    public void Test([ValueSource({|#0:"TestCases"|})] string input)
                     {
                     }
                 }
@@ -144,18 +137,18 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
             """);
 
             var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnosticCodeFix.WithMessage(message), testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnosticCodeFix.WithMessage(message).WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodExpectsParameters()
+        public async Task AnalyzeWhenMethodExpectsParameters()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
                 public class AnalyzeWhenMethodExpectsParameters
                 {
                     [Test]
-                    public void ShortName([ValueSource(↓nameof(TestData))] int number)
+                    public void ShortName([ValueSource({|#0:nameof(TestData)|})] int number)
                     {
                         Assert.That(number, Is.GreaterThanOrEqualTo(0));
                     }
@@ -169,21 +162,20 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.ValueSourceMethodExpectParameters)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ValueSourceMethodExpectParameters)
                 .WithMessage("The ValueSource cannot supply parameters, but the target method expects '1' parameter(s)");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenMethodExpectsParametersInAnotherClass()
+        public async Task AnalyzeWhenMethodExpectsParametersInAnotherClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
                 public class AnalyzeWhenMethodExpectsParametersInAnotherClass
                 {
                     [Test]
-                    public void ShortName([ValueSource(typeof(AnotherClass), ↓nameof(AnotherClass.TestData))] int number)
+                    public void ShortName([ValueSource(typeof(AnotherClass), {|#0:nameof(AnotherClass.TestData)|})] int number)
                     {
                         Assert.That(number, Is.GreaterThanOrEqualTo(0));
                     }
@@ -200,10 +192,9 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.ValueSourceMethodExpectParameters)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ValueSourceMethodExpectParameters)
                 .WithMessage("The ValueSource cannot supply parameters, but the target method expects '2' parameter(s)");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]
@@ -211,7 +202,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
         [TestCase("private static TestCaseData[] TestCases() => new TestCaseData[0];")]
         [TestCase("private static Task<TestCaseData[]> TestCases() => Task.FromResult(new TestCaseData[0]);")]
         [TestCase("private static async IAsyncEnumerable<int> TestCases() { foreach (var value in new[] { 0 }) { yield return value; await Task.Yield(); } }", "using System.Collections.Generic;")]
-        public void AnalyzeWhenSourceDoesProvideIEnumerable(string testCaseMember, string? additionalUsings = null)
+        public async Task AnalyzeWhenSourceDoesProvideIEnumerable(string testCaseMember, string? additionalUsings = null)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public class AnalyzeWhenSourceDoesProvideIEnumerable
@@ -225,10 +216,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
                 }
             """, additionalUsings);
 
-            IEnumerable<MetadataReference> asyncEnumerableMetadata = MetadataReferences.Transitive(typeof(IAsyncEnumerable<>));
-            IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(asyncEnumerableMetadata);
-
-            RoslynAssert.Valid(analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase("private static readonly object? TestCases = null;", "object?")]
@@ -243,7 +231,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
         [TestCase("private static readonly PlatformID TestCases = PlatformID.Unix;", "System.PlatformID")]
         [TestCase("private static PlatformID TestCases => PlatformID.Unix;", "System.PlatformID")]
         [TestCase("private static PlatformID TestCases() => PlatformID.Unix;", "System.PlatformID")]
-        public void AnalyzeWhenSourceDoesNotProvideIEnumerable(string testCaseMember, string returnType)
+        public async Task AnalyzeWhenSourceDoesNotProvideIEnumerable(string testCaseMember, string returnType)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                     public class AnalyzeWhenSourceDoesNotProvideIEnumerable
@@ -253,20 +241,19 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
                 #pragma warning restore CS0414
 
                         [Test]
-                        public void Test([ValueSource(↓nameof(TestCases))] int number)
+                        public void Test([ValueSource({|#0:nameof(TestCases)|})] int number)
                         {
                         }
                     }
             """);
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.ValueSourceDoesNotReturnIEnumerable)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ValueSourceDoesNotReturnIEnumerable)
                 .WithMessage($"The ValueSource does not return an I(Async)Enumerable or a type that implements I(Async)Enumerable. Instead it returns a '{returnType}'.");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenSourceIsInAnotherClass()
+        public async Task AnalyzeWhenSourceIsInAnotherClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class AnalyzeWhenSourceIsInAnotherClass
@@ -283,11 +270,11 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
                     static int[] Numbers => new int[] { 1, 2, 3 };
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSourceIsInNestedClass()
+        public async Task AnalyzeWhenSourceIsInNestedClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class AnalyzeWhenSourceIsInNestedClass
@@ -304,11 +291,11 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAllInformationIsProvidedByAttribute()
+        public async Task AnalyzeWhenAllInformationIsProvidedByAttribute()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class AnalyzeWhenAllInformationIsProvidedByAttribute
@@ -329,17 +316,17 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
                     }
                 }
             """, additionalUsings: "using System.Collections.Generic;");
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void FixWhenStringLiteralTargetsSourceInAnInnerClass()
+        public async Task FixWhenStringLiteralTargetsSourceInAnInnerClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public class FixWhenStringLiteralTargetsSourceInAnInnerClass
                 {
                     [Test]
-                    public void TestData([ValueSource(typeof(InnerClass), ↓"TestCases")] string input) { }
+                    public void TestData([ValueSource(typeof(InnerClass), {|#0:"TestCases"|})] string input) { }
 
                     public class InnerClass
                     {
@@ -362,17 +349,17 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
             """);
 
             var message = "Consider using nameof(InnerClass.TestCases) instead of \"TestCases\"";
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnosticCodeFix.WithMessage(message), testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnosticCodeFix.WithMessage(message).WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void FixWhenStringLiteralTargetsSourceInAnotherClass()
+        public async Task FixWhenStringLiteralTargetsSourceInAnotherClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public class FixWhenStringLiteralTargetsSourceInAnotherClass
                 {
                     [Test]
-                    public void TestData([ValueSource(typeof(AnotherClass), ↓"TestCases")] string input) { }
+                    public void TestData([ValueSource(typeof(AnotherClass), {|#0:"TestCases"|})] string input) { }
                 }
 
                 public class AnotherClass
@@ -395,17 +382,17 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
             """);
 
             var message = "Consider using nameof(AnotherClass.TestCases) instead of \"TestCases\"";
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnosticCodeFix.WithMessage(message), testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnosticCodeFix.WithMessage(message).WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void FixWhenStringLiteralTargetsSourceInAnInnerClassInAnotherClass()
+        public async Task FixWhenStringLiteralTargetsSourceInAnInnerClassInAnotherClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public class FixWhenStringLiteralTargetsSourceInAnInnerClassInAnotherClass
                 {
                     [Test]
-                    public void TestData([ValueSource(typeof(AnotherClass.InnerClass), ↓"TestCases")] string input) { }
+                    public void TestData([ValueSource(typeof(AnotherClass.InnerClass), {|#0:"TestCases"|})] string input) { }
                 }
 
                 public class AnotherClass
@@ -434,7 +421,7 @@ namespace NUnit.Analyzers.Tests.ValueSourceUsage
             """);
 
             var message = "Consider using nameof(AnotherClass.InnerClass.TestCases) instead of \"TestCases\"";
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnosticCodeFix.WithMessage(message), testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnosticCodeFix.WithMessage(message).WithLocation(0), fixedCode);
         }
     }
 }

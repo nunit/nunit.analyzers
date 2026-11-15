@@ -1,17 +1,16 @@
 using System.Collections.Generic;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.NonTestMethodAccessibilityLevel;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.NonTestMethodAccessibilityLevel.NonTestMethodAccessibilityLevelAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 {
     public class NonTestMethodAccessibilityLevelAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new NonTestMethodAccessibilityLevelAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.NonTestMethodIsPublic);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.NonTestMethodIsPublic);
 
         private static IEnumerable<string> TestMethodRelatedAttributes =>
         [
@@ -34,38 +33,38 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
         ];
 
         [Test]
-        public void AnalyzeWhenNonTestClassHasPublicMethod()
+        public async Task AnalyzeWhenNonTestClassHasPublicMethod()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void AssertMethod() { }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenNonTestMethodIsNotPublic()
+        public async Task AnalyzeWhenNonTestMethodIsNotPublic()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     [Test]
                     public void TestMethod() { AssertMethod(); }
                     private void AssertMethod() { }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenNonTestMethodIsProtected()
+        public async Task AnalyzeWhenNonTestMethodIsProtected()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     [Test]
                     public void TestMethod() { AssertMethod(); }
                     protected virtual void AssertMethod() { }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(TestMethodRelatedAttributes))]
-        public void AnalyzeWhenAuxiliaryTestMethodIsPublic(string attribute)
+        public async Task AnalyzeWhenAuxiliaryTestMethodIsPublic(string attribute)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     [Test]
@@ -73,22 +72,22 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
                     [{{attribute}}]
                     public void AuxiliaryMethod() { }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(NonPrivateModifiers))]
-        public void AnalyzeWhenNonTestMethodIsPublicOrInternal(string modifiers)
+        public async Task AnalyzeWhenNonTestMethodIsPublicOrInternal(string modifiers)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     [TestCase(1)]
                     public void TestMethod(int i) { AssertMethod(); }
-                    {{modifiers}} void ↓AssertMethod() { }
+                    {{modifiers}} void {|#0:AssertMethod|}() { }
             """);
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(TestMethodRelatedAttributes))]
-        public void AnalyzeWhenTestMethodIsPublicAndOverridden(string attribute)
+        public async Task AnalyzeWhenTestMethodIsPublicAndOverridden(string attribute)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public class BaseTestClass
@@ -107,11 +106,11 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeConstructor()
+        public async Task AnalyzeConstructor()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class TestClass
@@ -124,11 +123,11 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodIsExplicitDispose()
+        public async Task AnalyzeWhenMethodIsExplicitDispose()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class TestClass : IDisposable
@@ -141,11 +140,11 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodIsDispose()
+        public async Task AnalyzeWhenMethodIsDispose()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class TestClass : IDisposable
@@ -158,11 +157,11 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodIsDisposeOverride()
+        public async Task AnalyzeWhenMethodIsDisposeOverride()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class BaseClass : IDisposable
@@ -180,11 +179,11 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodIsExplicitDisposeAsync()
+        public async Task AnalyzeWhenMethodIsExplicitDisposeAsync()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class TestClass : IAsyncDisposable
@@ -197,11 +196,11 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodIsDisposeAsync()
+        public async Task AnalyzeWhenMethodIsDisposeAsync()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class TestClass : IAsyncDisposable
@@ -214,11 +213,11 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodIsDisposeAsyncOverride()
+        public async Task AnalyzeWhenMethodIsDisposeAsyncOverride()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class BaseClass : IAsyncDisposable
@@ -236,11 +235,11 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodIsBaseClassOverride()
+        public async Task AnalyzeWhenMethodIsBaseClassOverride()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class MyTestClass
@@ -253,11 +252,11 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodIsCompilerGenerated()
+        public async Task AnalyzeWhenMethodIsCompilerGenerated()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed record MyTestClass
@@ -268,7 +267,7 @@ namespace NUnit.Analyzers.Tests.NonTestMethodAccessibilityLevel
 
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

@@ -1,87 +1,86 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.MissingProperty;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.MissingProperty.MissingPropertyAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.MissingProperty
 {
     public class MissingPropertyAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new MissingPropertyAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.MissingProperty);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.MissingProperty);
 
         [Test]
-        public void AnalyzeWhenHasCountIsUsedForIEnumerable()
+        public async Task AnalyzeWhenHasCountIsUsedForIEnumerable()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = new [] {1, 2, 3}.Where(i => i > 1);
-                        Assert.That(actual, ↓Has.Count.EqualTo(2));
+                        Assert.That(actual, {|#0:Has.Count|}.EqualTo(2));
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("IEnumerable<int>", "Count"));
         }
 
         [Test]
-        public void AnalyzeWhenHasLengthIsUsedForList()
+        public async Task AnalyzeWhenHasLengthIsUsedForList()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = new System.Collections.Generic.List<int> {1, 2, 3};
-                        Assert.That(actual, ↓Has.Length.EqualTo(2));
+                        Assert.That(actual, {|#0:Has.Length|}.EqualTo(2));
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("List<int>", "Length"));
         }
 
         [Test]
-        public void AnalyzeWhenHasMessageIsUsedForString()
+        public async Task AnalyzeWhenHasMessageIsUsedForString()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = "Can we consider string as message?...";
-                        Assert.That(actual, ↓Has.Message.EqualTo(2),
+                        Assert.That(actual, {|#0:Has.Message|}.EqualTo(2),
                             "Nope, we can't!");
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("string", "Message"));
         }
 
         [Test]
-        public void AnalyzeWhenActualHasNoInnerException()
+        public async Task AnalyzeWhenActualHasNoInnerException()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = 12345;
-                        Assert.That(actual, ↓Has.InnerException.TypeOf<InvalidCastException>());
+                        Assert.That(actual, {|#0:Has.InnerException|}.TypeOf<InvalidCastException>());
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("int", "InnerException"));
         }
 
         [Test]
-        public void AnalyzeWhenPropertyConstraintIsUsedWhenNoSuchInActual()
+        public async Task AnalyzeWhenPropertyConstraintIsUsedWhenNoSuchInActual()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = 12345;
-                        Assert.That(actual, ↓Has.Property("Whatever").EqualTo(1));
+                        Assert.That(actual, {|#0:Has.Property("Whatever")|}.EqualTo(1));
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("int", "Whatever"));
         }
 
         [Test]
-        public void AnalyzeWhenPropertyConstraintIsUsedWhenNoSuchInDelegateActual()
+        public async Task AnalyzeWhenPropertyConstraintIsUsedWhenNoSuchInDelegateActual()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         int getActual() => 12345;
-                        Assert.That(getActual, ↓Has.Property("Whatever").EqualTo(1));
+                        Assert.That(getActual, {|#0:Has.Property("Whatever")|}.EqualTo(1));
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("int", "Whatever"));
         }
 
         [Test]
-        public void ValidWhenHasCountIsUsedForList()
+        public async Task ValidWhenHasCountIsUsedForList()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = new [] {1, 2, 3}.Where(i => i > 1).ToList();
@@ -89,11 +88,11 @@ namespace NUnit.Analyzers.Tests.MissingProperty
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenHasCountIsUsedForIList()
+        public async Task ValidWhenHasCountIsUsedForIList()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         IList<int> actual = new [] {1, 2, 3}.Where(i => i > 1).ToList();
@@ -101,11 +100,11 @@ namespace NUnit.Analyzers.Tests.MissingProperty
             """,
                 additionalUsings: "using System.Linq; using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenHasCountIsUsedForIDictionary()
+        public async Task ValidWhenHasCountIsUsedForIDictionary()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = new Dictionary<int, int>() { [1] = 1, [2] = 2 };
@@ -113,11 +112,11 @@ namespace NUnit.Analyzers.Tests.MissingProperty
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenHasCountIsUsedForGenericConstraintOnICollection()
+        public async Task ValidWhenHasCountIsUsedForGenericConstraintOnICollection()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = new [] { 1, 2 };
@@ -132,44 +131,44 @@ namespace NUnit.Analyzers.Tests.MissingProperty
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenHasLengthIsUsedForArray()
+        public async Task ValidWhenHasLengthIsUsedForArray()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = new[] {1, 2, 3};
                         Assert.That(actual, Has.Length.EqualTo(3));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenHasLengthIsUsedForString()
+        public async Task ValidWhenHasLengthIsUsedForString()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = "ABCDefgh";
                         Assert.That(actual, Has.Length.EqualTo(8));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenHasMessageIsUsedForException()
+        public async Task ValidWhenHasMessageIsUsedForException()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = new Exception("SomeMessage");
                         Assert.That(actual, Has.Message.EqualTo("SomeMessage"));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenHasInnerExceptionIsUsedForException()
+        public async Task ValidWhenHasInnerExceptionIsUsedForException()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var innerException = new Exception("inner");
@@ -177,66 +176,66 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                         Assert.That(actual, Has.InnerException.Not.Null);
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenPropertyFromConstraintIsPresentInActual()
+        public async Task ValidWhenPropertyFromConstraintIsPresentInActual()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = DateTime.UtcNow;
                         Assert.That(actual, Has.Property("Ticks").GreaterThan(0));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenPropertyConstraintIsUsedForDelegateAndPropertyIsPresentInReturnType()
+        public async Task ValidWhenPropertyConstraintIsUsedForDelegateAndPropertyIsPresentInReturnType()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         string getActual() => "12345";
                         Assert.That(getActual, Has.Property("Length").EqualTo(5));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenPropertyIsUsedForVerificationOfMissingProperty()
+        public async Task ValidWhenPropertyIsUsedForVerificationOfMissingProperty()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         string actual = "321";
                         Assert.That(actual, Has.No.Property("Whatever"));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenCountIsUsedForAbsenceVerification()
+        public async Task ValidWhenCountIsUsedForAbsenceVerification()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         int actual = 321;
                         Assert.That(actual, Has.No.Count);
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenPropertyChainIsUsed()
+        public async Task ValidWhenPropertyChainIsUsed()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = new { Foo = new { Bar = "Baz" } };
                         Assert.That(actual, Has.Property("Foo").With.Property("Bar").EqualTo("Baz"));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenMultiplePartsCombinedWithCollectionOperatorPrefix()
+        public async Task ValidWhenMultiplePartsCombinedWithCollectionOperatorPrefix()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = new[]
@@ -250,18 +249,18 @@ namespace NUnit.Analyzers.Tests.MissingProperty
                         Assert.That(actual, Has.Some.With.Property("Foo").And.Property("Bar"));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenUsedWithThrowsConstraint()
+        public async Task ValidWhenUsedWithThrowsConstraint()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         string getActual() => throw new System.Exception("Oops");
                         Assert.That(getActual, Throws.Exception.With.Message.EqualTo("Oops"));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

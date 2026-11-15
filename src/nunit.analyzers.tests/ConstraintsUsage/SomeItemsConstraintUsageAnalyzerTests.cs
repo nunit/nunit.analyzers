@@ -1,107 +1,104 @@
 using System.Globalization;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.ConstraintUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.ConstraintUsage.SomeItemsConstraintUsageAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.ConstraintsUsage
 {
     public class SomeItemsConstraintUsageAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new SomeItemsConstraintUsageAnalyzer();
+        private static readonly DiagnosticResult doesContainDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.CollectionContainsConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, SomeItemsConstraintUsageConstants.Message, "Does.Contain"));
 
-        private static readonly ExpectedDiagnostic doesContainDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.CollectionContainsConstraintUsage,
-            string.Format(CultureInfo.InvariantCulture, SomeItemsConstraintUsageConstants.Message, "Does.Contain"));
-
-        private static readonly ExpectedDiagnostic doesNotContainDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.CollectionContainsConstraintUsage,
-            string.Format(CultureInfo.InvariantCulture, SomeItemsConstraintUsageConstants.Message, "Does.Not.Contain"));
+        private static readonly DiagnosticResult doesNotContainDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.CollectionContainsConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, SomeItemsConstraintUsageConstants.Message, "Does.Not.Contain"));
 
         [Test]
-        public void AnalyzeWhenListContainsUsedAssertThat()
+        public async Task AnalyzeWhenListContainsUsedAssertThat()
         {
             var testCode = TestUtility.WrapInTestMethod("""
-                        Assert.That(↓new List<int> {1, 2, 3}.Contains(1));
+                        Assert.That({|#0:new List<int> {1, 2, 3}.Contains(1)|});
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, doesContainDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenListContainsUsedAssertIsTrue()
+        public async Task AnalyzeWhenListContainsUsedAssertIsTrue()
         {
             var testCode = TestUtility.WrapInTestMethod("""
-                        ClassicAssert.IsTrue(↓new List<int> {1, 2, 3}.Contains(1));
+                        ClassicAssert.IsTrue({|#0:new List<int> {1, 2, 3}.Contains(1)|});
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, doesContainDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenListContainsUsedAssertIsFalse()
+        public async Task AnalyzeWhenListContainsUsedAssertIsFalse()
         {
             var testCode = TestUtility.WrapInTestMethod("""
-                        ClassicAssert.IsFalse(↓new List<int> {1, 2, 3}.Contains(1));
+                        ClassicAssert.IsFalse({|#0:new List<int> {1, 2, 3}.Contains(1)|});
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Diagnostics(analyzer, doesNotContainDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, doesNotContainDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenLinqContainsUsedAssertThat()
+        public async Task AnalyzeWhenLinqContainsUsedAssertThat()
         {
             var testCode = TestUtility.WrapInTestMethod("""
-                        Assert.That(↓new[] {1, 2, 3}.Contains(1));
+                        Assert.That({|#0:new[] {1, 2, 3}.Contains(1)|});
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, doesContainDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenLinqContainsUsedAssertIsTrue()
+        public async Task AnalyzeWhenLinqContainsUsedAssertIsTrue()
         {
             var testCode = TestUtility.WrapInTestMethod("""
-                        ClassicAssert.IsTrue(↓new[] {1, 2, 3}.Contains(1));
+                        ClassicAssert.IsTrue({|#0:new[] {1, 2, 3}.Contains(1)|});
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.Diagnostics(analyzer, doesContainDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, doesContainDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenLinqContainsUsedAssertIsFalse()
+        public async Task AnalyzeWhenLinqContainsUsedAssertIsFalse()
         {
             var testCode = TestUtility.WrapInTestMethod("""
-                        ClassicAssert.IsFalse(↓new[] {1, 2, 3}.Contains(1));
+                        ClassicAssert.IsFalse({|#0:new[] {1, 2, 3}.Contains(1)|});
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.Diagnostics(analyzer, doesNotContainDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, doesNotContainDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void NoDiagnosticWhenListOtherMethodsUsed()
+        public async Task NoDiagnosticWhenListOtherMethodsUsed()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         Assert.That(new List<int> { 1, 2, 3 }.Remove(1));
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenOtherTypesUsed()
+        public async Task NoDiagnosticWhenOtherTypesUsed()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         Assert.That("1, 2, 3".Contains("1"));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

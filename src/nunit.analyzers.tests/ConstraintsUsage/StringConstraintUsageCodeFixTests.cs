@@ -1,19 +1,15 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.ConstraintUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.ConstraintUsage.StringConstraintUsageAnalyzer, NUnit.Analyzers.ConstraintUsage.StringConstraintUsageCodeFix>;
 
 namespace NUnit.Analyzers.Tests.ConstraintsUsage
 {
     public class StringConstraintUsageCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new StringConstraintUsageAnalyzer();
-        private static readonly CodeFixProvider fix = new StringConstraintUsageCodeFix();
-
         private static readonly Dictionary<string, string[]> PositiveAssertDictionary = new()
         {
             { nameof(string.Contains), new[] { nameof(string.Contains), AnalyzerIdentifiers.StringContainsConstraintUsage, "Does.Contain" } },
@@ -32,123 +28,123 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
         private static readonly string[] StringConstraints = PositiveAssertDictionary.Keys.ToArray();
 
         [TestCaseSource(nameof(PositiveAssertData))]
-        public void AnalyzeStringBooleanMethodAssertTrue(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertTrue(string method, string analyzerId, string suggestedConstraint)
         {
             var code = TestUtility.WrapInTestMethod($$"""
-                        ClassicAssert.True(↓"abc".{{method}}("ab"));
+                        ClassicAssert.True({|#0:"abc".{{method}}("ab")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
                         Assert.That("abc", {{suggestedConstraint}}("ab"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, Verify.Diagnostic(analyzerId).WithLocation(0).WithArguments(suggestedConstraint), fixedCode);
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
-        public void AnalyzeStringBooleanMethodAssertIsTrue(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertIsTrue(string method, string analyzerId, string suggestedConstraint)
         {
             var code = TestUtility.WrapInTestMethod($$"""
-                        ClassicAssert.IsTrue(↓"abc".{{method}}("ab"));
+                        ClassicAssert.IsTrue({|#0:"abc".{{method}}("ab")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
                         Assert.That("abc", {{suggestedConstraint}}("ab"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, Verify.Diagnostic(analyzerId).WithLocation(0).WithArguments(suggestedConstraint), fixedCode);
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
-        public void AnalyzeStringBooleanMethodAssertThat(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertThat(string method, string analyzerId, string suggestedConstraint)
         {
             var code = TestUtility.WrapInTestMethod($$"""
-                        Assert.That(↓"abc".{{method}}("ab"));
+                        Assert.That({|#0:"abc".{{method}}("ab")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
                         Assert.That("abc", {{suggestedConstraint}}("ab"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, Verify.Diagnostic(analyzerId).WithLocation(0).WithArguments(suggestedConstraint), fixedCode);
         }
 
         [TestCaseSource(nameof(PositiveAssertData))]
-        public void AnalyzeStringBooleanMethodAssertThatIsTrue(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertThatIsTrue(string method, string analyzerId, string suggestedConstraint)
         {
             var code = TestUtility.WrapInTestMethod($$"""
-                        Assert.That(↓"abc".{{method}}("ab"), Is.True);
+                        Assert.That({|#0:"abc".{{method}}("ab")|}, Is.True);
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
                         Assert.That("abc", {{suggestedConstraint}}("ab"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, Verify.Diagnostic(analyzerId).WithLocation(0).WithArguments(suggestedConstraint), fixedCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
-        public void AnalyzeStringBooleanMethodAssertThatNegated(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertThatNegated(string method, string analyzerId, string suggestedConstraint)
         {
             var code = TestUtility.WrapInTestMethod($$"""
-                        Assert.That(↓!"abc".{{method}}("ab"));
+                        Assert.That({|#0:!"abc".{{method}}("ab")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
                         Assert.That("abc", {{suggestedConstraint}}("ab"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, Verify.Diagnostic(analyzerId).WithLocation(0).WithArguments(suggestedConstraint), fixedCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
-        public void AnalyzeStringBooleanMethodAssertFalse(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertFalse(string method, string analyzerId, string suggestedConstraint)
         {
             var code = TestUtility.WrapInTestMethod($$"""
-                        ClassicAssert.False(↓"abc".{{method}}("ab"));
+                        ClassicAssert.False({|#0:"abc".{{method}}("ab")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
                         Assert.That("abc", {{suggestedConstraint}}("ab"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, Verify.Diagnostic(analyzerId).WithLocation(0).WithArguments(suggestedConstraint), fixedCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
-        public void AnalyzeStringBooleanMethodAssertIsFalse(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertIsFalse(string method, string analyzerId, string suggestedConstraint)
         {
             var code = TestUtility.WrapInTestMethod($$"""
-                        ClassicAssert.IsFalse(↓"abc".{{method}}("ab"));
+                        ClassicAssert.IsFalse({|#0:"abc".{{method}}("ab")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
                         Assert.That("abc", {{suggestedConstraint}}("ab"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, Verify.Diagnostic(analyzerId).WithLocation(0).WithArguments(suggestedConstraint), fixedCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
-        public void AnalyzeStringBooleanMethodAssertThatIsFalse(string method, string analyzerId, string suggestedConstraint)
+        public async Task AnalyzeStringBooleanMethodAssertThatIsFalse(string method, string analyzerId, string suggestedConstraint)
         {
             var code = TestUtility.WrapInTestMethod($$"""
-                        Assert.That(↓"abc".{{method}}("ab"), Is.False);
+                        Assert.That({|#0:"abc".{{method}}("ab")|}, Is.False);
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
                         Assert.That("abc", {{suggestedConstraint}}("ab"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, Verify.Diagnostic(analyzerId).WithLocation(0).WithArguments(suggestedConstraint), fixedCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
-        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen(string method, string analyzerId, string suggestedConstraint)
+        public async Task CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen(string method, string analyzerId, string suggestedConstraint)
         {
             var code = TestUtility.WrapInTestMethod($$"""
                         ClassicAssert.IsFalse(
-                            ↓"abc".{{method}}("ab"));
+                            {|#0:"abc".{{method}}("ab")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
@@ -157,15 +153,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                             {{suggestedConstraint}}("ab"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, Verify.Diagnostic(analyzerId).WithLocation(0).WithArguments(suggestedConstraint), fixedCode);
         }
 
         [TestCaseSource(nameof(NegativeAssertData))]
-        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen(string method, string analyzerId, string suggestedConstraint)
+        public async Task CodeFixMaintainsReasonableTriviaWithNewLineClosingParen(string method, string analyzerId, string suggestedConstraint)
         {
             var code = TestUtility.WrapInTestMethod($$"""
                         Assert.That(
-                            ↓"abc".{{method}}("ab"),
+                            {|#0:"abc".{{method}}("ab")|},
                             Is.False
                         );
             """);
@@ -177,20 +173,20 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         );
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, Verify.Diagnostic(analyzerId).WithLocation(0).WithArguments(suggestedConstraint), fixedCode);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
+        public async Task CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
             [ValueSource(nameof(StringConstraints))] string method,
             [Values] bool newlineBeforeClosingParen)
         {
             var analyzerId = NegativeAssertDictionary[method][1];
             var suggestedConstraint = NegativeAssertDictionary[method][2];
-            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? $"{Environment.NewLine}            " : string.Empty;
             var code = TestUtility.WrapInTestMethod($$"""
                         Assert.That(
-                            ↓"abc".{{method}}("ab"), Is.False{{optionalNewline}});
+                            {|#0:"abc".{{method}}("ab")|}, Is.False{{optionalNewline}});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
@@ -198,15 +194,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                             "abc", {{suggestedConstraint}}("ab"){{optionalNewline}});
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(analyzerId), code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, Verify.Diagnostic(analyzerId).WithLocation(0).WithArguments(suggestedConstraint), fixedCode);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWhenActualArgumentIsMultipleLines()
+        public async Task CodeFixMaintainsReasonableTriviaWhenActualArgumentIsMultipleLines()
         {
             var code = TestUtility.WrapInTestMethod($$"""
-                        Assert.That(↓SomeReallyLongMethodName()
-                                    .Contains("Lorem ipsum dolor sit amet, consectetur adipiscing elit,"),
+                        Assert.That({|#0:SomeReallyLongMethodName()
+                                    .Contains("Lorem ipsum dolor sit amet, consectetur adipiscing elit,")|},
                                     Is.True);
 
                         string SomeReallyLongMethodName() => "Long string";
@@ -219,7 +215,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         string SomeReallyLongMethodName() => "Long string";
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, ExpectedDiagnostic.Create(AnalyzerIdentifiers.StringContainsConstraintUsage), code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, Verify.Diagnostic(AnalyzerIdentifiers.StringContainsConstraintUsage).WithLocation(0).WithArguments("Does.Contain"), fixedCode);
         }
     }
 }

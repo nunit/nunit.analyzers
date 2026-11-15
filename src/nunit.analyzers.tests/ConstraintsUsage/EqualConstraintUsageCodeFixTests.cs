@@ -1,24 +1,22 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.ConstraintUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.ConstraintUsage.EqualConstraintUsageAnalyzer, NUnit.Analyzers.ConstraintUsage.EqualConstraintUsageCodeFix>;
 
 namespace NUnit.Analyzers.Tests.ConstraintsUsage
 {
     public class EqualConstraintUsageCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new EqualConstraintUsageAnalyzer();
-        private static readonly CodeFixProvider fix = new EqualConstraintUsageCodeFix();
-        private static readonly ExpectedDiagnostic equalConstraintDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualConstraintUsage);
+        private static readonly DiagnosticResult equalConstraintDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.EqualConstraintUsage);
 
         [Test]
-        public void FixesEqualsOperator()
+        public async Task FixesEqualsOperator()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓actual == "abc");
+                        Assert.That({|#0:actual == "abc"|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -26,15 +24,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.EqualTo("abc"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesNotEqualsOperator()
+        public async Task FixesNotEqualsOperator()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓actual != "abc");
+                        Assert.That({|#0:actual != "abc"|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -42,15 +40,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.Not.EqualTo("abc"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.Not.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesIsOperator()
+        public async Task FixesIsOperator()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓actual is "abc");
+                        Assert.That({|#0:actual is "abc"|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -58,15 +56,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.EqualTo("abc"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesIsNotOperator()
+        public async Task FixesIsNotOperator()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓actual is not "abc");
+                        Assert.That({|#0:actual is not "abc"|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -74,15 +72,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.Not.EqualTo("abc"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.Not.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesComplexIsOperator()
+        public async Task FixesComplexIsOperator()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓actual is "abc" or "def");
+                        Assert.That({|#0:actual is "abc" or "def"|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -90,15 +88,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.EqualTo("abc").Or.EqualTo("def"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesComplexIsNotOperator()
+        public async Task FixesComplexIsNotOperator()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓actual is not "abc" and not "def");
+                        Assert.That({|#0:actual is not "abc" and not "def"|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -106,15 +104,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.Not.EqualTo("abc").And.Not.EqualTo("def"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesComplexRelationalIsOperator()
+        public async Task FixesComplexRelationalIsOperator()
         {
             var code = TestUtility.WrapInTestMethod("""
                         double actual = 1.234;
-                        Assert.That(↓actual is > 1 and <= 2 or 3 or > 4);
+                        Assert.That({|#0:actual is > 1 and <= 2 or 3 or > 4|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -122,15 +120,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.GreaterThan(1).And.LessThanOrEqualTo(2).Or.EqualTo(3).Or.GreaterThan(4));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesEqualsInstanceMethod()
+        public async Task FixesEqualsInstanceMethod()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓actual.Equals("abc"));
+                        Assert.That({|#0:actual.Equals("abc")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -138,15 +136,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.EqualTo("abc"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesNegatedEqualsInstanceMethod()
+        public async Task FixesNegatedEqualsInstanceMethod()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓!actual.Equals("bcd"));
+                        Assert.That({|#0:!actual.Equals("bcd")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -154,15 +152,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.Not.EqualTo("bcd"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.Not.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesEqualsStaticMethod()
+        public async Task FixesEqualsStaticMethod()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓Equals(actual,"abc"));
+                        Assert.That({|#0:Equals(actual,"abc")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -170,15 +168,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.EqualTo("abc"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesNegatedEqualsStaticMethod()
+        public async Task FixesNegatedEqualsStaticMethod()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓!Equals(actual,"bcd"));
+                        Assert.That({|#0:!Equals(actual,"bcd")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -186,15 +184,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.Not.EqualTo("bcd"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.Not.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesEqualsMethodWithIsTrue()
+        public async Task FixesEqualsMethodWithIsTrue()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓actual.Equals("abc"), Is.True);
+                        Assert.That({|#0:actual.Equals("abc")|}, Is.True);
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -202,15 +200,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.EqualTo("abc"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesEqualsMethodWithIsFalse()
+        public async Task FixesEqualsMethodWithIsFalse()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓actual.Equals("bcd"), Is.False);
+                        Assert.That({|#0:actual.Equals("bcd")|}, Is.False);
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -218,15 +216,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.Not.EqualTo("bcd"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.Not.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesEqualsMethodWithAssertTrue()
+        public async Task FixesEqualsMethodWithAssertTrue()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        ClassicAssert.True(↓actual.Equals("abc"));
+                        ClassicAssert.True({|#0:actual.Equals("abc")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -234,15 +232,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.EqualTo("abc"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesEqualsMethodWithAssertFalse()
+        public async Task FixesEqualsMethodWithAssertFalse()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        ClassicAssert.False(↓actual.Equals("bcd"));
+                        ClassicAssert.False({|#0:actual.Equals("bcd")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -250,15 +248,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.Not.EqualTo("bcd"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.Not.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesEqualsMethodWithAssertIsTrue()
+        public async Task FixesEqualsMethodWithAssertIsTrue()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        ClassicAssert.IsTrue(↓actual.Equals("abc"));
+                        ClassicAssert.IsTrue({|#0:actual.Equals("abc")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -266,15 +264,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.EqualTo("abc"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesEqualsMethodWithAssertIsFalse()
+        public async Task FixesEqualsMethodWithAssertIsFalse()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        ClassicAssert.IsFalse(↓actual.Equals("bcd"));
+                        ClassicAssert.IsFalse({|#0:actual.Equals("bcd")|});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -282,15 +280,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.Not.EqualTo("bcd"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.Not.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesAssertThatWithMessage()
+        public async Task FixesAssertThatWithMessage()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓actual == "abc", "Assertion message");
+                        Assert.That({|#0:actual == "abc"|}, "Assertion message");
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -298,15 +296,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.EqualTo("abc"), "Assertion message");
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesEqualsMethodWithIsTrueWithMessage()
+        public async Task FixesEqualsMethodWithIsTrueWithMessage()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        Assert.That(↓actual.Equals("abc"), Is.True, "Assertion message");
+                        Assert.That({|#0:actual.Equals("abc")|}, Is.True, "Assertion message");
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -314,15 +312,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.EqualTo("abc"), "Assertion message");
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesEqualsMethodWithAssertTrueWithMessage()
+        public async Task FixesEqualsMethodWithAssertTrueWithMessage()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        ClassicAssert.True(↓actual.Equals("abc"), "Assertion message");
+                        ClassicAssert.True({|#0:actual.Equals("abc")|}, "Assertion message");
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -330,15 +328,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.EqualTo("abc"), "Assertion message");
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void FixesEqualsMethodWithAssertFalseWithMessage()
+        public async Task FixesEqualsMethodWithAssertFalseWithMessage()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = "abc";
-                        ClassicAssert.False(↓actual.Equals("bcd"), "Assertion message");
+                        ClassicAssert.False({|#0:actual.Equals("bcd")|}, "Assertion message");
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod("""
@@ -346,19 +344,19 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(actual, Is.Not.EqualTo("bcd"), "Assertion message");
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.Not.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
+        public async Task CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? ",\r\n                \"message\""
+                ? $",{Environment.NewLine}                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapInTestMethod($$"""
                         var actual = "abc";
                         ClassicAssert.False(
-                            ↓actual.Equals("bcd"){{commaAndMessage}});
+                            {|#0:actual.Equals("bcd")|}{{commaAndMessage}});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
@@ -368,19 +366,19 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                             Is.Not.EqualTo("bcd"){{commaAndMessage}});
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.Not.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
+        public async Task CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? ",\r\n                \"message\""
+                ? $",{Environment.NewLine}                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapInTestMethod($$"""
                         var actual = "abc";
                         Assert.That(
-                            ↓actual.Equals("abc"),
+                            {|#0:actual.Equals("abc")|},
                             Is.True{{commaAndMessage}}
                         );
             """);
@@ -393,17 +391,17 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         );
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
+        public async Task CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? $"{Environment.NewLine}            " : string.Empty;
             var code = TestUtility.WrapInTestMethod($$"""
                         var actual = "abc";
                         Assert.That(
-                            ↓actual.Equals("abc"), Is.True{{optionalNewline}});
+                            {|#0:actual.Equals("abc")|}, Is.True{{optionalNewline}});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
@@ -412,16 +410,16 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                             actual, Is.EqualTo("abc"){{optionalNewline}});
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWhenActualArgumentIsMultipleLines()
+        public async Task CodeFixMaintainsReasonableTriviaWhenActualArgumentIsMultipleLines()
         {
             var code = TestUtility.WrapInTestMethod($$"""
                         var someVeryLongActualVariableName = "abc";
-                        Assert.That(↓someVeryLongActualVariableName
-                                    .Equals("abc"), Is.True);
+                        Assert.That({|#0:someVeryLongActualVariableName
+                                    .Equals("abc")|}, Is.True);
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
@@ -429,7 +427,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                         Assert.That(someVeryLongActualVariableName, Is.EqualTo("abc"));
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, equalConstraintDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, equalConstraintDiagnostic.WithLocation(0).WithArguments("Is.EqualTo"), fixedCode);
         }
     }
 }

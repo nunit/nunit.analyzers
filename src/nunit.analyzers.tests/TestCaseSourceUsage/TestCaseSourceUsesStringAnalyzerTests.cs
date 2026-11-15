@@ -1,23 +1,18 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.SourceCommon;
-using NUnit.Analyzers.TestCaseSourceUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.TestCaseSourceUsage.TestCaseSourceUsesStringAnalyzer, NUnit.Analyzers.SourceCommon.UseNameofFix>;
 
 namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 {
     [TestFixture]
     public sealed class TestCaseSourceUsesStringAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new TestCaseSourceUsesStringAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseSourceStringUsage);
-        private static readonly CodeFixProvider fix = new UseNameofFix();
+        private static readonly DiagnosticResult expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceStringUsage);
 
         [Test]
-        public void AnalyzeWhenNameOfSameClass()
+        public async Task AnalyzeWhenNameOfSameClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class AnalyzeWhenNameOfSameClass
@@ -30,58 +25,60 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenNameOfSameClassNotStatic()
+        public async Task AnalyzeWhenNameOfSameClassNotStatic()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class AnalyzeWhenNameOfSameClassNotStatic
                 {
                     string[] Tests = new[] { "Data" };
 
-                    [TestCaseSource(↓nameof(Tests))]
+                    [TestCaseSource({|#0:nameof(Tests)|})]
                     public void Test()
                     {
                     }
                 }
             """);
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceSourceIsNotStatic)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceSourceIsNotStatic)
                 .WithMessage("The specified source 'Tests' is not static");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0),
+                Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters).WithLocation(0).WithArguments("1", "0"));
         }
 
         [Test]
-        public void NoWarningWhenStringLiteralMissingMember()
+        public async Task NoNameOfSuggestionWhenStringLiteralMissingMember()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class NoWarningWhenStringLiteralMissingMember
                 {
-                    [TestCaseSource("Missing")]
+                    [TestCaseSource({|#0:"Missing"|})]
                     public void Test()
                     {
                     }
                 }
             """);
-            var descriptor = new DiagnosticDescriptor(AnalyzerIdentifiers.TestCaseSourceStringUsage, string.Empty, string.Empty, string.Empty, DiagnosticSeverity.Warning, true);
-            RoslynAssert.Valid(analyzer, descriptor, testCode);
+
+            // Only the missing source is reported, not the suggestion to use nameof.
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceIsMissing).WithLocation(0).WithArguments("Missing"));
         }
 
         [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]
         [TestCase("private static TestCaseData[] TestCases => new TestCaseData[0];")]
         [TestCase("private static TestCaseData[] TestCases() => new TestCaseData[0];")]
-        public void FixWhenStringLiteral(string testCaseMember)
+        public async Task FixWhenStringLiteral(string testCaseMember)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public class AnalyzeWhenStringConstant
                 {
                     {{testCaseMember}}
 
-                    [TestCaseSource(↓"TestCases")]
-                    public void Test()
+                    [TestCaseSource({|#0:"TestCases"|})]
+                    public void Test(object data)
                     {
+                        Assert.That(data, Is.Not.Null);
                     }
                 }
             """);
@@ -92,18 +89,19 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                     {{testCaseMember}}
 
                     [TestCaseSource(nameof(TestCases))]
-                    public void Test()
+                    public void Test(object data)
                     {
+                        Assert.That(data, Is.Not.Null);
                     }
                 }
             """);
 
             var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void FixWhenMultipleUnrelatedAttributes()
+        public async Task FixWhenMultipleUnrelatedAttributes()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -116,9 +114,10 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                     {
                     }
 
-                    [TestCaseSource(↓"TestCases")]
-                    public void Test()
+                    [TestCaseSource({|#0:"TestCases"|})]
+                    public void Test(object data)
                     {
+                        Assert.That(data, Is.Not.Null);
                     }
                 }
             """);
@@ -135,18 +134,19 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                     }
 
                     [TestCaseSource(nameof(TestCases))]
-                    public void Test()
+                    public void Test(object data)
                     {
+                        Assert.That(data, Is.Not.Null);
                     }
                 }
             """);
 
             var message = "Consider using nameof(TestCases) instead of \"TestCases\"";
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void AnalyzeWhenNumberOfParametersMatch()
+        public async Task AnalyzeWhenNumberOfParametersMatch()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -167,17 +167,17 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected()
+        public async Task AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
                 public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected
                 {
-                    [TestCaseSource(↓nameof(TestData), new object[] { 1 })]
+                    [TestCaseSource({|#0:nameof(TestData)|}, new object[] { 1 })]
                     public void ShortName(int number)
                     {
                         Assert.That(number, Is.GreaterThanOrEqualTo(0));
@@ -192,20 +192,19 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
                 .WithMessage("The TestCaseSource provides '1' parameter(s), but the target method expects '0' parameter(s)");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersProvided()
+        public async Task AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersProvided()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
                 public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersProvided
                 {
-                    [TestCaseSource(↓nameof(TestData))]
+                    [TestCaseSource({|#0:nameof(TestData)|})]
                     public void ShortName(int number)
                     {
                         Assert.That(number, Is.GreaterThanOrEqualTo(0));
@@ -220,20 +219,19 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
                 .WithMessage("The TestCaseSource provides '0' parameter(s), but the target method expects '1' parameter(s)");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenNumberOfParametersDoesNotMatch()
+        public async Task AnalyzeWhenNumberOfParametersDoesNotMatch()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
                 public class AnalyzeWhenNumberOfParametersDoesNotMatch
                 {
-                    [TestCaseSource(↓nameof(TestData), new object[] { 1, 2, 3 })]
+                    [TestCaseSource({|#0:nameof(TestData)|}, new object[] { 1, 2, 3 })]
                     public void ShortName(int number)
                     {
                         Assert.That(number, Is.GreaterThanOrEqualTo(0));
@@ -248,20 +246,19 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
                 .WithMessage("The TestCaseSource provides '3' parameter(s), but the target method expects '2' parameter(s)");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenNumberOfParametersDoesNotMatchInAnotherClass()
+        public async Task AnalyzeWhenNumberOfParametersDoesNotMatchInAnotherClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
                 public class AnalyzeWhenNumberOfParametersDoesNotMatchInAnotherClass
                 {
-                    [TestCaseSource(typeof(AnotherClass), ↓nameof(AnotherClass.TestData), new object[] { 1, 2, 3 })]
+                    [TestCaseSource(typeof(AnotherClass), {|#0:nameof(AnotherClass.TestData)|}, new object[] { 1, 2, 3 })]
                     public void ShortName(int number)
                     {
                         Assert.That(number, Is.GreaterThanOrEqualTo(0));
@@ -279,17 +276,16 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
                 .WithMessage("The TestCaseSource provides '3' parameter(s), but the target method expects '2' parameter(s)");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];")]
         [TestCase("private static TestCaseData[] TestCases => new TestCaseData[0];")]
         [TestCase("private static TestCaseData[] TestCases() => new TestCaseData[0];")]
         [TestCase("private static Task<TestCaseData[]> TestCases() => Task.FromResult(new TestCaseData[0]);")]
-        public void AnalyzeWhenSourceDoesProvideIEnumerable(string testCaseMember)
+        public async Task AnalyzeWhenSourceDoesProvideIEnumerable(string testCaseMember)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public class AnalyzeWhenSourceDoesProvideIEnumerable
@@ -303,7 +299,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase("private static readonly object? TestCases = null;", "object?")]
@@ -318,7 +314,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCase("private static readonly PlatformID TestCases = PlatformID.Unix;", "System.PlatformID")]
         [TestCase("private static PlatformID TestCases => PlatformID.Unix;", "System.PlatformID")]
         [TestCase("private static PlatformID TestCases() => PlatformID.Unix;", "System.PlatformID")]
-        public void AnalyzeWhenSourceDoesNotProvideIEnumerable(string testCaseMember, string returnType)
+        public async Task AnalyzeWhenSourceDoesNotProvideIEnumerable(string testCaseMember, string returnType)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                     public class AnalyzeWhenSourceDoesProvideIEnumerable
@@ -327,43 +323,42 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                         {{testCaseMember}}
                 #pragma warning restore CS0414
 
-                        [TestCaseSource(↓nameof(TestCases))]
+                        [TestCaseSource({|#0:nameof(TestCases)|})]
                         public void Test()
                         {
                         }
                     }
             """);
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceDoesNotReturnIEnumerable)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceDoesNotReturnIEnumerable)
                 .WithMessage($"The TestCaseSource does not return an I(Async)Enumerable or a type that implements I(Async)Enumerable. Instead it returns a '{returnType}'.");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [TestCase("private static readonly TestCaseData[] TestCases = new TestCaseData[0];", "fields")]
         [TestCase("private static TestCaseData[] TestCases => new TestCaseData[0];", "properties")]
-        public void AnalyzeWhenParametersProvidedToFieldOrProperty(string testCaseMember, string kind)
+        public async Task AnalyzeWhenParametersProvidedToFieldOrProperty(string testCaseMember, string kind)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public class AnalyzeWhenParametersProvidedToFieldOrProperty
                 {
                     {{testCaseMember}}
 
-                    [TestCaseSource(↓nameof(TestCases), new object[] { 1, 2, 3 })]
+                    [TestCaseSource({|#0:nameof(TestCases)|}, new object[] { 1, 2, 3 })]
                     public void Test()
                     {
                     }
                 }
             """);
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceSuppliesParametersToFieldOrProperty)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceSuppliesParametersToFieldOrProperty)
                 .WithMessage($"The TestCaseSource provides '3' parameter(s), but {kind} cannot take parameters");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0),
+                Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters).WithLocation(0).WithArguments(">0", "0"));
         }
 
         [Test]
-        public void AnalyzeWhenSourceIsInAnotherClass()
+        public async Task AnalyzeWhenSourceIsInAnotherClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class AnalyzeWhenSourceIsInAnotherClass
@@ -385,11 +380,11 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                     };
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSourceIsInNestedClass()
+        public async Task AnalyzeWhenSourceIsInNestedClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class AnalyzeWhenSourceIsInNestedClass
@@ -411,11 +406,11 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAllInformationIsProvidedByAttribute()
+        public async Task AnalyzeWhenAllInformationIsProvidedByAttribute()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class AnalyzeWhenAllInformationIsProvidedByAttribute
@@ -438,11 +433,11 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                     }
                 }
             """, additionalUsings: "using System.Collections.Generic;");
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAllInformationIsProvidedByAttributeWhenDataClassIsInSeparateAssembly()
+        public async Task AnalyzeWhenAllInformationIsProvidedByAttributeWhenDataClassIsInSeparateAssembly()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class Tests
@@ -467,18 +462,16 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, "using System.Collections;");
 
-            var solution = CodeFactory.CreateSolution([testCode, testDataCode]);
-
-            RoslynAssert.Valid(analyzer, solution);
+            await Verify.VerifyAnalyzerAsync(testCode, test => test.TestState.Sources.Add(testDataCode));
         }
 
         [Test]
-        public void FixWhenStringLiteralTargetsSourceInAnInnerClass()
+        public async Task FixWhenStringLiteralTargetsSourceInAnInnerClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public class FixWhenStringLiteralTargetsSourceInAnInnerClass
                 {
-                    [TestCaseSource(typeof(InnerClass), ↓"TestCases")]
+                    [TestCaseSource(typeof(InnerClass), {|#0:"TestCases"|})]
                     public void TestData(string input) { }
 
                     public class InnerClass
@@ -502,16 +495,16 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             """);
 
             var message = "Consider using nameof(InnerClass.TestCases) instead of \"TestCases\"";
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void FixWhenStringLiteralTargetsSourceInAnotherClass()
+        public async Task FixWhenStringLiteralTargetsSourceInAnotherClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public class FixWhenStringLiteralTargetsSourceInAnotherClass
                 {
-                    [TestCaseSource(typeof(AnotherClass), ↓"TestCases")]
+                    [TestCaseSource(typeof(AnotherClass), {|#0:"TestCases"|})]
                     public void TestData(string input) { }
                 }
 
@@ -535,16 +528,16 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             """);
 
             var message = "Consider using nameof(AnotherClass.TestCases) instead of \"TestCases\"";
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void FixWhenStringLiteralTargetsSourceInAnInnerClassInAnotherClass()
+        public async Task FixWhenStringLiteralTargetsSourceInAnInnerClassInAnotherClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public class FixWhenStringLiteralTargetsSourceInAnInnerClassInAnotherClass
                 {
-                    [TestCaseSource(typeof(AnotherClass.InnerClass), ↓"TestCases")]
+                    [TestCaseSource(typeof(AnotherClass.InnerClass), {|#0:"TestCases"|})]
                     public void TestData(string input) { }
                 }
 
@@ -574,11 +567,11 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
             """);
 
             var message = "Consider using nameof(AnotherClass.InnerClass.TestCases) instead of \"TestCases\"";
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic.WithMessage(message), testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArray()
+        public async Task NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArray()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -600,11 +593,11 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArrayForGenericMethod()
+        public async Task NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArrayForGenericMethod()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -626,11 +619,11 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoWarningWhenNumberOfParametersOfTestWillFitIntoOptionalParams()
+        public async Task NoWarningWhenNumberOfParametersOfTestWillFitIntoOptionalParams()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -652,11 +645,11 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArrayFlatArgs()
+        public async Task NoWarningWhenNumberOfParametersOfTestWillFitIntoParamsArrayFlatArgs()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -675,17 +668,17 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource()
+        public async Task AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
                 public class AnalyzeWhenNumberOfParametersOfTestIsLessThanProvidedByTestCaseSource
                 {
-                    [TestCaseSource(↓nameof(TestData), new object[] { 3 })]
+                    [TestCaseSource({|#0:nameof(TestData)|}, new object[] { 3 })]
                     public void ShortName()
                     {
                         Assert.That(3, Is.GreaterThanOrEqualTo(0));
@@ -701,20 +694,19 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters)
                 .WithMessage("The TestCaseSource provides '1' parameter(s), but the Test method expects '0' parameter(s)");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenNumberOfParametersOfTestIsMoreThanProvidedByTestCaseSource()
+        public async Task AnalyzeWhenNumberOfParametersOfTestIsMoreThanProvidedByTestCaseSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
                 public class AnalyzeWhenNumberOfParametersOfTestIsMoreThanProvidedByTestCaseSource
                 {
-                    [TestCaseSource(↓nameof(TestData))]
+                    [TestCaseSource({|#0:nameof(TestData)|})]
                     public void ShortName(int x, int y)
                     {
                         Assert.That(x + y, Is.GreaterThanOrEqualTo(0));
@@ -729,20 +721,19 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfTestMethodParameters)
                 .WithMessage("The TestCaseSource provides '1' parameter(s), but the Test method expects '2' parameter(s)");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenParameterTypeOfTestDiffersFromTestCaseSource()
+        public async Task AnalyzeWhenParameterTypeOfTestDiffersFromTestCaseSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
                 public class AnalyzeWhenParameterTypeOfTestDiffersFromTestCaseSource
                 {
-                    [TestCaseSource(↓nameof(TestData))]
+                    [TestCaseSource({|#0:nameof(TestData)|})]
                     public void ShortName(string message)
                     {
                         Assert.That(message.Length, Is.GreaterThanOrEqualTo(0));
@@ -757,14 +748,13 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchWithTestMethodParameterType)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceMismatchWithTestMethodParameterType)
                 .WithMessage("The TestCaseSource provides type 'int', but the Test method expects type 'string' for parameter 'message'");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenNumberOfParametersOfTestIsNotEvidentFromTestSource()
+        public async Task AnalyzeWhenNumberOfParametersOfTestIsNotEvidentFromTestSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -787,12 +777,12 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
 
             // The TestCaseSource provides '>0' parameter(s), but the Test method expects '1' parameter(s)
             // Analyzing the actual code inside the TestCaseSource method is beyond the scope of the analyzer.
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
 #if NUNIT4
         [Test]
-        public void AnalyzeWhenNumberOfParametersOfGenericTestIsNotEvidentFromTestSource()
+        public async Task AnalyzeWhenNumberOfParametersOfGenericTestIsNotEvidentFromTestSource()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -811,7 +801,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 #endif
 
@@ -820,7 +810,7 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
         [TestCase("IEnumerable<TestCaseData>", "TestCaseData", "System.Collections.Generic")]
         [TestCase("IEnumerable<TestCaseParameters>", "TestCaseParameters", "System.Collections.Generic; using NUnit.Framework.Internal")]
         [TestCase("IEnumerable<int>", "int", "System.Collections.Generic")]
-        public void NoIssueIsRaisedWhenOneParameterIsExpectedAndTypeCannotBeDetermined(string enumerableType, string testCaseType, string collections)
+        public async Task NoIssueIsRaisedWhenOneParameterIsExpectedAndTypeCannotBeDetermined(string enumerableType, string testCaseType, string collections)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 using {{collections}};
@@ -837,14 +827,14 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase("IEnumerable", "object", "System.Collections")]
         [TestCase("IEnumerable<object>", "object", "System.Collections.Generic")]
         [TestCase("IEnumerable<TestCaseData>", "TestCaseData", "System.Collections.Generic")]
         [TestCase("IEnumerable<TestCaseParameters>", "TestCaseParameters", "System.Collections.Generic; using NUnit.Framework.Internal")]
-        public void NoIssueIsRaisedWhenMultipleParameterAreExpectedAndTypeCannotBeDetermined(string enumerableType, string testCaseType, string collections)
+        public async Task NoIssueIsRaisedWhenMultipleParameterAreExpectedAndTypeCannotBeDetermined(string enumerableType, string testCaseType, string collections)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 using {{collections}};
@@ -861,12 +851,12 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
 #if NUNIT4
         [Test]
-        public void AnalyzeWhenNumberOfParametersMatchExcludingImplicitSuppliedCancellationTokenDueToCancelAfterOnMethod()
+        public async Task AnalyzeWhenNumberOfParametersMatchExcludingImplicitSuppliedCancellationTokenDueToCancelAfterOnMethod()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -890,11 +880,11 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;using System.Threading;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenNumberOfParametersMatchExcludingImplicitSuppliedCancellationTokenDueToCancelAfterOnClass()
+        public async Task AnalyzeWhenNumberOfParametersMatchExcludingImplicitSuppliedCancellationTokenDueToCancelAfterOnClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -918,11 +908,11 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;using System.Threading;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenNumberOfParametersMatchNoImplicitlySuppliedCancellationTokenParameter()
+        public async Task AnalyzeWhenNumberOfParametersMatchNoImplicitlySuppliedCancellationTokenParameter()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -946,17 +936,17 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpectedNoImplicitSuppliedCancellationToken()
+        public async Task AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpectedNoImplicitSuppliedCancellationToken()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
                 public class AnalyzeWhenNumberOfParametersDoesNotMatchNoParametersExpected
                 {
-                    [TestCaseSource(↓nameof(TestData), new object[] { 1 })]
+                    [TestCaseSource({|#0:nameof(TestData)|}, new object[] { 1 })]
                     public void ShortName(CancellationToken cancellationToken)
                     {
                         if (cancellationToken.IsCancellationRequested)
@@ -972,10 +962,10 @@ namespace NUnit.Analyzers.Tests.TestCaseSourceUsage
                 }
             """, additionalUsings: "using System.Collections.Generic;using System.Threading;");
 
-            var expectedDiagnostic = ExpectedDiagnostic
-                .Create(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceMismatchInNumberOfParameters)
                 .WithMessage("The TestCaseSource provides '1' parameter(s), but the target method expects '0' parameter(s)");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0),
+                Verify.Diagnostic(AnalyzerIdentifiers.TestCaseSourceMismatchWithTestMethodParameterType).WithLocation(0).WithArguments("int", "System.Threading.CancellationToken", "cancellationToken"));
         }
 
 #endif

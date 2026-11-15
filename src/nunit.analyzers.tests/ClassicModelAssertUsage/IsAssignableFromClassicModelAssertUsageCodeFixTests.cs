@@ -1,19 +1,18 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.ClassicModelAssertUsage;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.ClassicModelAssertUsage.ClassicModelAssertUsageAnalyzer, NUnit.Analyzers.ClassicModelAssertUsage.IsAssignableFromClassicModelAssertUsageCodeFix>;
 
 namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 {
     [TestFixture]
     public sealed class IsAssignableFromClassicModelAssertUsageCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new ClassicModelAssertUsageAnalyzer();
-        private static readonly CodeFixProvider fix = new IsAssignableFromClassicModelAssertUsageCodeFix();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsAssignableFromUsage);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.IsAssignableFromUsage);
 
         [Test]
         public void VerifyGetFixableDiagnosticIds()
@@ -25,7 +24,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyIsAssignableFromFix()
+        public async Task VerifyIsAssignableFromFix()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
@@ -33,7 +32,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var expected = typeof(int);
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom(expected, actual);
+                        {|#0:ClassicAssert.IsAssignableFrom(expected, actual)|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -45,11 +44,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(actual, Is.AssignableFrom(expected));
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsAssignableFromFixWithMessage()
+        public async Task VerifyIsAssignableFromFixWithMessage()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
@@ -57,7 +56,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var expected = typeof(int);
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom(expected, actual, "message");
+                        {|#0:ClassicAssert.IsAssignableFrom(expected, actual, "message")|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -69,11 +68,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(actual, Is.AssignableFrom(expected), "message");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsAssignableFromFixWithMessageAndOneArgumentForParams()
+        public async Task VerifyIsAssignableFromFixWithMessageAndOneArgumentForParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
@@ -81,7 +80,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var expected = typeof(int);
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom(expected, actual, "message-id: {0}", Guid.NewGuid());
+                        {|#0:ClassicAssert.IsAssignableFrom(expected, actual, "message-id: {0}", Guid.NewGuid())|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -93,11 +92,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(actual, Is.AssignableFrom(expected), $"message-id: {Guid.NewGuid()}");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsAssignableFromFixWithMessageAndTwoArgumentsForParams()
+        public async Task VerifyIsAssignableFromFixWithMessageAndTwoArgumentsForParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
@@ -105,7 +104,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var expected = typeof(int);
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom(expected, actual, "{0}, {1}", "first", "second");
+                        {|#0:ClassicAssert.IsAssignableFrom(expected, actual, "{0}, {1}", "first", "second")|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -117,11 +116,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(actual, Is.AssignableFrom(expected), $"{"first"}, {"second"}");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsAssignableFromFixWithMessageAndArrayParamsInNonstandardOrder()
+        public async Task VerifyIsAssignableFromFixWithMessageAndArrayParamsInNonstandardOrder()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
@@ -129,7 +128,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var expected = typeof(int);
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom(args: new[] { "first", "second" },  message: "{0}, {1}", actual: actual, expected: expected);
+                        {|#0:ClassicAssert.IsAssignableFrom(args: new[] { "first", "second" },  message: "{0}, {1}", actual: actual, expected: expected)|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -141,18 +140,18 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(actual, Is.AssignableFrom(expected), $"{"first"}, {"second"}");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsAssignableFromGenericFix()
+        public async Task VerifyIsAssignableFromGenericFix()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
                     {
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom<int>(actual);
+                        {|#0:ClassicAssert.IsAssignableFrom<int>(actual)|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -163,17 +162,17 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(actual, Is.AssignableFrom<int>());
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsAssignableFromSingleNestedGenericFix()
+        public async Task VerifyIsAssignableFromSingleNestedGenericFix()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
                     {
                         var wrapped = Create(42);
-                        ↓ClassicAssert.IsAssignableFrom<Wrapped<int>>(wrapped);
+                        {|#0:ClassicAssert.IsAssignableFrom<Wrapped<int>>(wrapped)|};
                     }
 
                     private Wrapped<T> Create<T>(T value) => new Wrapped<T>(value);
@@ -207,18 +206,18 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         public T Value { get; }
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsAssignableFromDoubleNestedGenericFix()
+        public async Task VerifyIsAssignableFromDoubleNestedGenericFix()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
                     {
                         var wrapped = Create(42);
                         var nested = Create(wrapped);
-                        ↓ClassicAssert.IsAssignableFrom<Wrapped<Wrapped<int>>>(wrapped);
+                        {|#0:ClassicAssert.IsAssignableFrom<Wrapped<Wrapped<int>>>(wrapped)|};
                     }
 
                     private Wrapped<T> Create<T>(T value) => new Wrapped<T>(value);
@@ -253,18 +252,18 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         public T Value { get; }
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsAssignableFromGenericFixWithMessage()
+        public async Task VerifyIsAssignableFromGenericFixWithMessage()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
                     {
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom<int>(actual, "message");
+                        {|#0:ClassicAssert.IsAssignableFrom<int>(actual, "message")|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -275,62 +274,62 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(actual, Is.AssignableFrom<int>(), "message");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsAssignableFromGenericFixWithMessageAndOneArgumentForParams()
+        public async Task VerifyIsAssignableFromGenericFixWithMessageAndOneArgumentForParams()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom<int>(actual, "message-id: {0}", Guid.NewGuid());
+                        {|#0:ClassicAssert.IsAssignableFrom<int>(actual, "message-id: {0}", Guid.NewGuid())|};
             """);
             var fixedCode = TestUtility.WrapInTestMethod("""
                         var actual = 42;
 
                         Assert.That(actual, Is.AssignableFrom<int>(), $"message-id: {Guid.NewGuid()}");
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsAssignableFromGenericFixWithMessageAndTwoArgumentsForParams()
+        public async Task VerifyIsAssignableFromGenericFixWithMessageAndTwoArgumentsForParams()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom<int>(actual, "{0}, {1}", "first", "second");
+                        {|#0:ClassicAssert.IsAssignableFrom<int>(actual, "{0}, {1}", "first", "second")|};
             """);
             var fixedCode = TestUtility.WrapInTestMethod("""
                         var actual = 42;
 
                         Assert.That(actual, Is.AssignableFrom<int>(), $"{"first"}, {"second"}");
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsAssignableFromGenericFixWithMessageAndArrayParamsInNonstandardOrder()
+        public async Task VerifyIsAssignableFromGenericFixWithMessageAndArrayParamsInNonstandardOrder()
         {
             var code = TestUtility.WrapInTestMethod("""
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom<int>(args: new[] { "first", "second" },  message: "{0}, {1}", actual: actual);
+                        {|#0:ClassicAssert.IsAssignableFrom<int>(args: new[] { "first", "second" },  message: "{0}, {1}", actual: actual)|};
             """);
             var fixedCode = TestUtility.WrapInTestMethod("""
                         var actual = 42;
 
                         Assert.That(actual, Is.AssignableFrom<int>(), $"{"first"}, {"second"}");
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
+        public async Task CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? ",\r\n                \"message\""
+                ? $",{Environment.NewLine}                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void TestMethod()
@@ -338,9 +337,9 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var expected = typeof(int);
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom(
+                        {|#0:ClassicAssert.IsAssignableFrom(
                             expected,
-                            actual{{commaAndMessage}});
+                            actual{{commaAndMessage}})|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -354,14 +353,14 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                             Is.AssignableFrom(expected){{commaAndMessage}});
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
+        public async Task CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? ",\r\n                \"message\""
+                ? $",{Environment.NewLine}                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void TestMethod()
@@ -369,10 +368,10 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var expected = typeof(int);
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom(
+                        {|#0:ClassicAssert.IsAssignableFrom(
                             expected,
                             actual{{commaAndMessage}}
-                        );
+                        )|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -387,22 +386,22 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         );
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void CodeFixForGenericMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
+        public async Task CodeFixForGenericMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? ",\r\n                \"message\""
+                ? $",{Environment.NewLine}                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void TestMethod()
                     {
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom<int>(
-                            actual{{commaAndMessage}});
+                        {|#0:ClassicAssert.IsAssignableFrom<int>(
+                            actual{{commaAndMessage}})|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -415,23 +414,23 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                             Is.AssignableFrom<int>(){{commaAndMessage}});
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void CodeFixForGenericMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
+        public async Task CodeFixForGenericMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? ",\r\n                \"message\""
+                ? $",{Environment.NewLine}                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void TestMethod()
                     {
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom<int>(
+                        {|#0:ClassicAssert.IsAssignableFrom<int>(
                             actual{{commaAndMessage}}
-                        );
+                        )|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -445,20 +444,20 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         );
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
+        public async Task CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? $"{Environment.NewLine}            " : string.Empty;
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void TestMethod()
                     {
                         var actual = 42;
 
-                        ↓ClassicAssert.IsAssignableFrom<int>(
-                            actual, "message"{{optionalNewline}});
+                        {|#0:ClassicAssert.IsAssignableFrom<int>(
+                            actual, "message"{{optionalNewline}})|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -470,7 +469,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                             actual, Is.AssignableFrom<int>(), "message"{{optionalNewline}});
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }
 }

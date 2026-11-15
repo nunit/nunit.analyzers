@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Operations;
+using NUnit.Analyzers.Tests.Verifiers;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Operations
@@ -329,7 +330,7 @@ namespace NUnit.Analyzers.Tests.Operations
         private static async Task<ConstraintExpressionPart[]> CreateConstraintParts(string testMethod, string expressionString)
         {
             var testCode = TestUtility.WrapInTestMethod(testMethod);
-            var (node, model) = await TestHelpers.GetRootAndModel(testCode);
+            var (node, model) = await TestSetup.GetRootAndModelAsync(testCode);
 
             var expression = node.DescendantNodes()
                 .OfType<ExpressionSyntax>()

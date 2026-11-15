@@ -1,19 +1,18 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.ClassicModelAssertUsage;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.ClassicModelAssertUsage.ClassicModelAssertUsageAnalyzer, NUnit.Analyzers.ClassicModelAssertUsage.ContainsClassicModelAssertUsageCodeFix>;
 
 namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 {
     [TestFixture]
     public sealed class ContainsClassicModelAssertUsageCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new ClassicModelAssertUsageAnalyzer();
-        private static readonly CodeFixProvider fix = new ContainsClassicModelAssertUsageCodeFix();
-        private static readonly ExpectedDiagnostic instanceDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.ContainsUsage);
+        private static readonly DiagnosticResult instanceDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.ContainsUsage);
 
         [Test]
         public void VerifyGetFixableDiagnosticIds()
@@ -25,7 +24,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyContainsFix()
+        public async Task VerifyContainsFix()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
@@ -33,7 +32,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var instance = new object();
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.Contains(instance, collection);
+                        {|#0:ClassicAssert.Contains(instance, collection)|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -45,11 +44,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(collection, Does.Contain(instance));
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, instanceDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyContainsFixWithMessage()
+        public async Task VerifyContainsFixWithMessage()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
@@ -57,7 +56,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var instance = new object();
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.Contains(instance, collection, "message");
+                        {|#0:ClassicAssert.Contains(instance, collection, "message")|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -69,11 +68,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(collection, Does.Contain(instance), "message");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, instanceDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyContainsFixWithMessageAndOneArgumentForParams()
+        public async Task VerifyContainsFixWithMessageAndOneArgumentForParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
@@ -81,7 +80,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var instance = new object();
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.Contains(instance, collection, "message-id: {0}", Guid.NewGuid());
+                        {|#0:ClassicAssert.Contains(instance, collection, "message-id: {0}", Guid.NewGuid())|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -93,11 +92,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(collection, Does.Contain(instance), $"message-id: {Guid.NewGuid()}");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, instanceDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyContainsFixWithMessageAndTwoArgumentsForParams()
+        public async Task VerifyContainsFixWithMessageAndTwoArgumentsForParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
@@ -105,7 +104,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var instance = new object();
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.Contains(instance, collection, "{0}, {1}", "first", "second");
+                        {|#0:ClassicAssert.Contains(instance, collection, "{0}, {1}", "first", "second")|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -117,11 +116,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(collection, Does.Contain(instance), $"{"first"}, {"second"}");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, instanceDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyContainsFixWithMessageAndArrayParamsInNonstandardOrder()
+        public async Task VerifyContainsFixWithMessageAndArrayParamsInNonstandardOrder()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
@@ -129,7 +128,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var instance = new object();
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.Contains(args: new[] { "first", "second" }, actual: collection, message: "{0}, {1}", expected: instance);
+                        {|#0:ClassicAssert.Contains(args: new[] { "first", "second" }, actual: collection, message: "{0}, {1}", expected: instance)|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -141,14 +140,14 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(collection, Does.Contain(instance), $"{"first"}, {"second"}");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, instanceDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
+        public async Task CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? ",\r\n                \"message\""
+                ? $",{Environment.NewLine}                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void TestMethod()
@@ -156,9 +155,9 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var instance = new object();
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.Contains(
+                        {|#0:ClassicAssert.Contains(
                             instance,
-                            collection{{commaAndMessage}});
+                            collection{{commaAndMessage}})|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -172,14 +171,14 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                             Does.Contain(instance){{commaAndMessage}});
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, instanceDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
+        public async Task CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? ",\r\n                \"message\""
+                ? $",{Environment.NewLine}                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void TestMethod()
@@ -187,10 +186,10 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         var instance = new object();
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.Contains(
+                        {|#0:ClassicAssert.Contains(
                             instance,
                             collection{{commaAndMessage}}
-                        );
+                        )|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -205,21 +204,21 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         );
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, instanceDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
+        public async Task CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? $"{Environment.NewLine}            " : string.Empty;
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void TestMethod()
                     {
                         var instance = new object();
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.Contains(
-                            instance, collection{{optionalNewline}});
+                        {|#0:ClassicAssert.Contains(
+                            instance, collection{{optionalNewline}})|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -233,7 +232,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                     }
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, instanceDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, instanceDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }
 }

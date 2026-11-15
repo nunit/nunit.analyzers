@@ -1,106 +1,105 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
-using NUnit.Analyzers.ConstActualValueUsage;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.ConstActualValueUsage.ConstActualValueUsageAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.ConstActualValueUsage
 {
     public class ConstActualValueUsageAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new ConstActualValueUsageAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.ConstActualValueUsage);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.ConstActualValueUsage);
 
         [Test]
-        public void AnalyzeWhenLiteralArgumentIsProvidedForAreEqual()
+        public async Task AnalyzeWhenLiteralArgumentIsProvidedForAreEqual()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
                         int expected = 5;
-                        ClassicAssert.AreEqual(expected, ↓1);
+                        ClassicAssert.AreEqual(expected, {|#0:1|});
                     }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenLiteralNamedArgumentIsProvidedForAreEqual()
+        public async Task AnalyzeWhenLiteralNamedArgumentIsProvidedForAreEqual()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
                         int expected = 5;
-                        ClassicAssert.AreEqual(actual: ↓1, expected: expected);
+                        ClassicAssert.AreEqual(actual: {|#0:1|}, expected: expected);
                     }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenLiteralArgumentIsProvidedForAssertThat()
+        public async Task AnalyzeWhenLiteralArgumentIsProvidedForAssertThat()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
-                        Assert.That(↓-1, Is.Positive);
-                        Assert.That(↓(2 + 3) * 1024, Is.Positive);
+                        Assert.That({|#0:-1|}, Is.Positive);
+                        Assert.That({|#1:(2 + 3) * 1024|}, Is.Positive);
                     }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0), expectedDiagnostic.WithLocation(1));
         }
 
         [Test]
-        public void AnalyzeWhenLocalConstArgumentIsProvidedForAreEqual()
-        {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
-                    public void Test()
-                    {
-                        const string actual = "act";
-                        string expected = "exp";
-                        ClassicAssert.AreEqual(expected, ↓actual);
-                    }
-            """);
-
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
-        }
-
-        [Test]
-        public void AnalyzeWhenLocalConstNamedArgumentIsProvidedForAreEqual()
+        public async Task AnalyzeWhenLocalConstArgumentIsProvidedForAreEqual()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
                         const string actual = "act";
                         string expected = "exp";
-                        ClassicAssert.AreEqual(actual: ↓actual, expected: expected);
+                        ClassicAssert.AreEqual(expected, {|#0:actual|});
                     }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenLocalConstArgumentIsProvidedForAssertThat()
+        public async Task AnalyzeWhenLocalConstNamedArgumentIsProvidedForAreEqual()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
                         const string actual = "act";
                         string expected = "exp";
-                        Assert.That(↓actual, Is.EqualTo(expected));
+                        ClassicAssert.AreEqual(actual: {|#0:actual|}, expected: expected);
                     }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenConstFieldArgumentIsProvidedForAreEqual()
+        public async Task AnalyzeWhenLocalConstArgumentIsProvidedForAssertThat()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void Test()
+                    {
+                        const string actual = "act";
+                        string expected = "exp";
+                        Assert.That({|#0:actual|}, Is.EqualTo(expected));
+                    }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
+        }
+
+        [Test]
+        public async Task AnalyzeWhenConstFieldArgumentIsProvidedForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -110,16 +109,16 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     public void Test()
                     {
                         string expected = "exp";
-                        ClassicAssert.AreEqual(expected, ↓actual);
+                        ClassicAssert.AreEqual(expected, {|#0:actual|});
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenConstFieldArgumentIsProvidedForAssertThat()
+        public async Task AnalyzeWhenConstFieldArgumentIsProvidedForAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -129,44 +128,44 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     public void Test()
                     {
                         string expected = "exp";
-                        Assert.That(↓actual, Is.EqualTo(expected));
+                        Assert.That({|#0:actual|}, Is.EqualTo(expected));
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenStringEmptyArgumentIsProvidedForAreEqual()
+        public async Task AnalyzeWhenStringEmptyArgumentIsProvidedForAreEqual()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
                         string actual = "act";
-                        ClassicAssert.AreEqual(actual, ↓string.Empty);
+                        ClassicAssert.AreEqual(actual, {|#0:string.Empty|});
                     }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenStringEmptyArgumentIsProvidedForAssertThat()
+        public async Task AnalyzeWhenStringEmptyArgumentIsProvidedForAssertThat()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
                         string actual = "act";
-                        Assert.That(↓string.Empty, Is.EqualTo(actual));
+                        Assert.That({|#0:string.Empty|}, Is.EqualTo(actual));
                     }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void ValidWhenNonConstValueIsProvidedAsActualArgumentForAreEqual()
+        public async Task ValidWhenNonConstValueIsProvidedAsActualArgumentForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -181,11 +180,11 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenConstValueIsProvidedAsActualAndExpectedArgumentForAreEqual()
+        public async Task ValidWhenConstValueIsProvidedAsActualAndExpectedArgumentForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -200,11 +199,11 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenNonConstValueIsProvidedAsActualNamedArgumentForAreEqual()
+        public async Task ValidWhenNonConstValueIsProvidedAsActualNamedArgumentForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -219,11 +218,11 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenConstValueIsProvidedAsActualAndExpectedNamedArgumentForAreEqual()
+        public async Task ValidWhenConstValueIsProvidedAsActualAndExpectedNamedArgumentForAreEqual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -238,11 +237,11 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenNonConstValueIsProvidedAsActualArgumentForAssertThat()
+        public async Task ValidWhenNonConstValueIsProvidedAsActualArgumentForAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -257,11 +256,11 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenConstValueIsProvidedAsActualAndExpectedArgumentForAssertThat()
+        public async Task ValidWhenConstValueIsProvidedAsActualAndExpectedArgumentForAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -276,11 +275,11 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenCheckingEnumerationValueForAssertThat()
+        public async Task ValidWhenCheckingEnumerationValueForAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -294,11 +293,11 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenCheckingAgainstStringEmptyAssertThat()
+        public async Task ValidWhenCheckingAgainstStringEmptyAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -312,11 +311,11 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenCheckingEmptyAgainstNullAssertThat()
+        public async Task ValidWhenCheckingEmptyAgainstNullAssertThat()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -328,69 +327,69 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenLiteralArgumentIsProvidedForStringAssertContains()
+        public async Task AnalyzeWhenLiteralArgumentIsProvidedForStringAssertContains()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
                         string expected = "exp";
-                        StringAssert.Contains(expected, ↓"act");
+                        StringAssert.Contains(expected, {|#0:"act"|});
                     }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenLiteralNamedArgumentIsProvidedForStringAssertContains()
+        public async Task AnalyzeWhenLiteralNamedArgumentIsProvidedForStringAssertContains()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
                         string expected = "exp";
-                        StringAssert.Contains(actual: ↓"act", expected: expected);
+                        StringAssert.Contains(actual: {|#0:"act"|}, expected: expected);
                     }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenLocalConstArgumentIsProvidedForStringAssertContains()
-        {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
-                    public void Test()
-                    {
-                        const string actual = "act";
-                        string expected = "exp";
-                        StringAssert.Contains(expected, ↓actual);
-                    }
-            """);
-
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
-        }
-
-        [Test]
-        public void AnalyzeWhenLocalConstNamedArgumentIsProvidedForStringAssertContains()
+        public async Task AnalyzeWhenLocalConstArgumentIsProvidedForStringAssertContains()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
                         const string actual = "act";
                         string expected = "exp";
-                        StringAssert.Contains(actual: ↓actual, expected: expected);
+                        StringAssert.Contains(expected, {|#0:actual|});
                     }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenConstFieldArgumentIsProvidedForStringAssertContains()
+        public async Task AnalyzeWhenLocalConstNamedArgumentIsProvidedForStringAssertContains()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    public void Test()
+                    {
+                        const string actual = "act";
+                        string expected = "exp";
+                        StringAssert.Contains(actual: {|#0:actual|}, expected: expected);
+                    }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
+        }
+
+        [Test]
+        public async Task AnalyzeWhenConstFieldArgumentIsProvidedForStringAssertContains()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -400,30 +399,30 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     public void Test()
                     {
                         string expected = "exp";
-                        StringAssert.Contains(expected, ↓actual);
+                        StringAssert.Contains(expected, {|#0:actual|});
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenStringEmptyArgumentIsProvidedForStringAssertContains()
+        public async Task AnalyzeWhenStringEmptyArgumentIsProvidedForStringAssertContains()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
                         string actual = "act";
-                        StringAssert.Contains(actual, ↓string.Empty);
+                        StringAssert.Contains(actual, {|#0:string.Empty|});
                     }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void ValidWhenNonConstValueIsProvidedAsActualArgumentForStringAssertContains()
+        public async Task ValidWhenNonConstValueIsProvidedAsActualArgumentForStringAssertContains()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -438,11 +437,11 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenConstValueIsProvidedAsActualAndExpectedArgumentForStringAssertContains()
+        public async Task ValidWhenConstValueIsProvidedAsActualAndExpectedArgumentForStringAssertContains()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -457,11 +456,11 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenNonConstValueIsProvidedAsActualNamedArgumentForStringAssertContains()
+        public async Task ValidWhenNonConstValueIsProvidedAsActualNamedArgumentForStringAssertContains()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -476,11 +475,11 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenConstValueIsProvidedAsActualAndExpectedNamedArgumentForStringAssertContains()
+        public async Task ValidWhenConstValueIsProvidedAsActualAndExpectedNamedArgumentForStringAssertContains()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestFixture
@@ -495,24 +494,24 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTypeOfArgumentIsProvidedForAssertThat()
+        public async Task AnalyzeWhenTypeOfArgumentIsProvidedForAssertThat()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                 public void Test()
                 {
-                    Assert.That(↓typeof(string), Is.EqualTo("".GetType()));
+                    Assert.That({|#0:typeof(string)|}, Is.EqualTo("".GetType()));
                 }
                 """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void TypeOfGenericIsNotAConstant()
+        public async Task TypeOfGenericIsNotAConstant()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class MyExplicitlyTypedTests
@@ -530,7 +529,7 @@ namespace NUnit.Analyzers.Tests.ConstActualValueUsage
                     }
                 }
                 """, "using System.Collections.Generic;");
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

@@ -1,23 +1,21 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.WithinUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.WithinUsage.WithinUsageAnalyzer, NUnit.Analyzers.WithinUsage.WithinUsageCodeFix>;
 
 namespace NUnit.Analyzers.Tests.WithinUsage
 {
     public class WithinUsageCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new WithinUsageAnalyzer();
-        private static readonly CodeFixProvider fix = new WithinUsageCodeFix();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.WithinIncompatibleTypes);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.WithinIncompatibleTypes);
 
         [Test]
         public void VerifyGetFixableDiagnosticIds()
         {
-            var ids = fix.FixableDiagnosticIds;
+            var ids = new WithinUsageCodeFix().FixableDiagnosticIds;
 
             Assert.That(ids, Is.EquivalentTo(new[] { AnalyzerIdentifiers.WithinIncompatibleTypes }));
         }
@@ -29,16 +27,15 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         [TestCase(NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo)]
         [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThan)]
         [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThanOrEqualTo)]
-        public void FixesWithinUsageOnConstraintWithIncompatibleExpectedType(string constraintName)
+        public async Task FixesWithinUsageOnConstraintWithIncompatibleExpectedType(string constraintName)
         {
             var code = TestUtility.WrapInTestMethod(
-                $$"""Assert.That("1", Is.{{constraintName}}("1").↓Within(1));""");
+                $$"""Assert.That("1", Is.{{constraintName}}("1").{|#0:Within|}(1));""");
 
             var fixedCode = TestUtility.WrapInTestMethod(
                 $$"""Assert.That("1", Is.{{constraintName}}("1"));""");
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: WithinUsageCodeFix.RemoveWithinDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, WithinUsageCodeFix.RemoveWithinDescription);
         }
 
 #if !NUNIT4
@@ -48,43 +45,40 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         [TestCase(NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo)]
         [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThan)]
         [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThanOrEqualTo)]
-        public void FixesWithinUsageOnInversedConstraintWithIncompatibleExpectedType(string constraintName)
+        public async Task FixesWithinUsageOnInversedConstraintWithIncompatibleExpectedType(string constraintName)
         {
             var code = TestUtility.WrapInTestMethod(
-                $$"""Assert.That("1", Is.Not.{{constraintName}}("1").↓Within(1));""");
+                $$"""Assert.That("1", Is.Not.{{constraintName}}("1").{|#0:Within|}(1));""");
 
             var fixedCode = TestUtility.WrapInTestMethod(
                 $$"""Assert.That("1", Is.Not.{{constraintName}}("1"));""");
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: WithinUsageCodeFix.RemoveWithinDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, WithinUsageCodeFix.RemoveWithinDescription);
         }
 
 #if !NUNIT4
         [Test]
-        public void FixesWithinUsageOnConstraintWithIncompatibleExpectedTypeWithMessage()
+        public async Task FixesWithinUsageOnConstraintWithIncompatibleExpectedTypeWithMessage()
         {
             var code = TestUtility.WrapInTestMethod(
-                """Assert.That("1", Is.EqualTo("1").↓Within(1), "message");""");
+                """Assert.That("1", Is.EqualTo("1").{|#0:Within|}(1), "message");""");
 
             var fixedCode = TestUtility.WrapInTestMethod(
                 """Assert.That("1", Is.EqualTo("1"), "message");""");
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: WithinUsageCodeFix.RemoveWithinDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, WithinUsageCodeFix.RemoveWithinDescription);
         }
 
         [Test]
-        public void FixesWithinUsageOnConstraintWithIncompatibleExpectedTypeWithMessageAndParam()
+        public async Task FixesWithinUsageOnConstraintWithIncompatibleExpectedTypeWithMessageAndParam()
         {
             var code = TestUtility.WrapInTestMethod(
-                """Assert.That("1", Is.EqualTo("1").↓Within(1), "message");""");
+                """Assert.That("1", Is.EqualTo("1").{|#0:Within|}(1), "message");""");
 
             var fixedCode = TestUtility.WrapInTestMethod(
                 """Assert.That("1", Is.EqualTo("1"), "message");""");
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: WithinUsageCodeFix.RemoveWithinDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, WithinUsageCodeFix.RemoveWithinDescription);
         }
 #endif
     }

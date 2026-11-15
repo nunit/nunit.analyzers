@@ -1,27 +1,25 @@
 using System.Globalization;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.MissingProperty;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.MissingProperty.MissingPropertyAnalyzer, NUnit.Analyzers.MissingProperty.MissingPropertyCodeFix>;
 
 namespace NUnit.Analyzers.Tests.MissingProperty
 {
     public class MissingPropertyCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new MissingPropertyAnalyzer();
-        private static readonly CodeFixProvider fix = new MissingPropertyCodeFix();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.MissingProperty);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.MissingProperty);
 
         [Test]
-        public void VerifyLengthToCountCodeFix()
+        public async Task VerifyLengthToCountCodeFix()
         {
             var code = TestUtility.WrapInTestMethod($$"""
                         var collection = (IReadOnlyCollection<int>)new[] { 42 };
-                        Assert.That(collection, ↓Has.Length.EqualTo(1));
+                        Assert.That(collection, {|#0:Has.Length|}.EqualTo(1));
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
@@ -31,16 +29,15 @@ namespace NUnit.Analyzers.Tests.MissingProperty
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: string.Format(CultureInfo.InvariantCulture, MissingPropertyCodeFix.UsePropertyDescriptionFormat, "Count"));
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0).WithArguments("IReadOnlyCollection<int>", "Length"), fixedCode, string.Format(CultureInfo.InvariantCulture, MissingPropertyCodeFix.UsePropertyDescriptionFormat, "Count"));
         }
 
         [Test]
-        public void VerifyCountToLengthCodeFix()
+        public async Task VerifyCountToLengthCodeFix()
         {
             var code = TestUtility.WrapInTestMethod($$"""
                         var collection = new[] { 42 };
-                        Assert.That(collection, ↓Has.Count.EqualTo(1));
+                        Assert.That(collection, {|#0:Has.Count|}.EqualTo(1));
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
@@ -50,55 +47,54 @@ namespace NUnit.Analyzers.Tests.MissingProperty
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode,
-                fixTitle: string.Format(CultureInfo.InvariantCulture, MissingPropertyCodeFix.UsePropertyDescriptionFormat, "Length"));
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0).WithArguments("int[]", "Count"), fixedCode, string.Format(CultureInfo.InvariantCulture, MissingPropertyCodeFix.UsePropertyDescriptionFormat, "Length"));
         }
 
         [Test]
-        public void NoCodeFixForLengthWhenCountPropertyDoesNotExist()
+        public async Task NoCodeFixForLengthWhenCountPropertyDoesNotExist()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = new [] {1, 2, 3}.Where(i => i > 1);
-                        Assert.That(actual, ↓Has.Length.EqualTo(2));
+                        Assert.That(actual, {|#0:Has.Length|}.EqualTo(2));
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, testCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("IEnumerable<int>", "Length"), testCode);
         }
 
         [Test]
-        public void NoCodeFixForCountWhenLengthPropertyDoesNotExist()
+        public async Task NoCodeFixForCountWhenLengthPropertyDoesNotExist()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = new [] {1, 2, 3}.Where(i => i > 1);
-                        Assert.That(actual, ↓Has.Count.EqualTo(2));
+                        Assert.That(actual, {|#0:Has.Count|}.EqualTo(2));
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, testCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("IEnumerable<int>", "Count"), testCode);
         }
 
         [Test]
-        public void NoCodeFixForHasMessage()
+        public async Task NoCodeFixForHasMessage()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = "Can we consider string as message?...";
-                        Assert.That(actual, ↓Has.Message.EqualTo(2));
+                        Assert.That(actual, {|#0:Has.Message|}.EqualTo(2));
             """);
 
-            RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, testCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("string", "Message"), testCode);
         }
 
         [Test]
-        public void NoCodeFixForRandomMissingProperty()
+        public async Task NoCodeFixForRandomMissingProperty()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = new List<int> { 1, 2, 3 };
-                        Assert.That(actual, ↓Has.Property("Whatever").EqualTo(1));
+                        Assert.That(actual, {|#0:Has.Property("Whatever")|}.EqualTo(1));
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.NoFix(analyzer, fix, expectedDiagnostic, testCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("List<int>", "Whatever"), testCode);
         }
     }
 }

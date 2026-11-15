@@ -1,6 +1,7 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.DiagnosticSuppressors;
+using NUnit.Analyzers.Tests.Verifiers;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
@@ -8,18 +9,18 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
     // Declared as a 'record' to prove it works even though it's useless in this context.
     internal sealed record NonNullableFieldOrPropertyIsUninitializedSuppressorTests
     {
-        private static readonly DiagnosticSuppressor suppressor = new NonNullableFieldOrPropertyIsUninitializedSuppressor();
+        private static readonly DiagnosticResult ExpectedDiagnostic = DiagnosticResult.CompilerWarning("CS8618");
 
         private static readonly string[] TypeDeclarations = ["class", "record"];
 
         [TestCaseSource(nameof(TypeDeclarations))]
-        public void FieldNotAssigned(string typeDeclaration)
+        public async Task FieldNotAssigned(string typeDeclaration)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 [TestFixture]
                 public {{typeDeclaration}} TestClass
                 {
-                    private string ↓field;
+                    private string {|#0:field|};
 
                     [Test]
                     public void Test()
@@ -30,15 +31,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 }
                 """);
 
-            RoslynAssert.NotSuppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: false, kind: "field", name: "field");
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public void FieldAssigned(string attribute, string prefix)
+        public async Task FieldAssigned(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
-                    private string ↓field;
+                    private string {|#0:field|};
 
                     [{{attribute}}]
                     public void Initialize()
@@ -54,15 +55,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """);
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "field", name: "field");
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public void FieldAssignedUsingExpressionBody(string attribute, string prefix)
+        public async Task FieldAssignedUsingExpressionBody(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
-                    private string ↓field;
+                    private string {|#0:field|};
 
                     [{{attribute}}]
                     public void Initialize() => {{prefix}}field = string.Empty;
@@ -72,18 +73,18 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """);
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "field", name: "field");
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public void FieldNotAssignedInConstructor(string attribute, string prefix)
+        public async Task FieldNotAssignedInConstructor(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     private string testName;
                     private string nunitField;
 
-                    public ↓TestClass(string name)
+                    public {|#0:TestClass|}(string name)
                     {
                         {{prefix}}testName = name;
                     }
@@ -102,16 +103,16 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """);
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "field", name: "nunitField");
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public void FieldAssignedUsingTupleDeconstruction(string attribute, string prefix)
+        public async Task FieldAssignedUsingTupleDeconstruction(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
-                    private string ↓name;
-                    private string ↓description;
+                    private string {|#0:name|};
+                    private string {|#1:description|};
 
                     [{{attribute}}]
                     public void Initialize()
@@ -130,15 +131,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """);
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "field", names: ["name", "description"]);
         }
 
         [Test]
-        public void FieldAssignedInTryFinally()
+        public async Task FieldAssignedInTryFinally()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
-                    private string ↓field1;
-                    private string ↓field2;
+                    private string {|#0:field1|};
+                    private string {|#1:field2|};
 
                     [SetUp]
                     public void SetUp()
@@ -162,17 +163,17 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """);
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "field", names: ["field1", "field2"]);
         }
 
         [TestCaseSource(nameof(TypeDeclarations))]
-        public void PropertyNotAssigned(string typeDeclaration)
+        public async Task PropertyNotAssigned(string typeDeclaration)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 [TestFixture]
                 public {{typeDeclaration}} TestClass
                 {
-                    protected string ↓Property { get; private set; }
+                    protected string {|#0:Property|} { get; private set; }
 
                     [Test]
                     public void Test()
@@ -182,15 +183,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 }
                 """);
 
-            RoslynAssert.NotSuppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: false, kind: "property", name: "Property");
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public void PropertyAssigned(string attribute, string prefix)
+        public async Task PropertyAssigned(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
-                    protected string ↓Property { get; private set; }
+                    protected string {|#0:Property|} { get; private set; }
 
                     [{{attribute}}]
                     public void Initialize()
@@ -206,16 +207,16 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """);
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "property", name: "Property");
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public void PropertyAssignedUsingTupleDeconstruction(string attribute, string prefix)
+        public async Task PropertyAssignedUsingTupleDeconstruction(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
-                    protected string ↓Name { get; private set; }
-                    protected string ↓Description { get; private set; }
+                    protected string {|#0:Name|} { get; private set; }
+                    protected string {|#1:Description|} { get; private set; }
 
                     [{{attribute}}]
                     public void Initialize()
@@ -232,15 +233,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """);
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "property", names: ["Name", "Description"]);
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public void FieldAssignedInCalledMethod(string attribute, string prefix)
+        public async Task FieldAssignedInCalledMethod(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
-                    private string ↓field;
+                    private string {|#0:field|};
 
                     [{{attribute}}]
                     public void Initialize()
@@ -261,15 +262,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """);
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "field", name: "field");
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public void FieldAssignedInCalledLocalFunction(string attribute, string prefix)
+        public async Task FieldAssignedInCalledLocalFunction(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
-                    private string ↓field;
+                    private string {|#0:field|};
 
                     [{{attribute}}]
                     public void Initialize()
@@ -290,7 +291,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """);
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "field", name: "field");
         }
 
         [TestCase("async Task", "await ", "", "")]
@@ -299,10 +300,10 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [TestCase("async Task", "await ", "this.", ".ConfigureAwait(false)")]
         [TestCase("void", "", "", ".Wait()")]
         [TestCase("void", "", "this.", ".Wait()")]
-        public void FieldAssignedInAsyncCalledMethod(string returnType, string awaitKeyWord, string accessor, string suffix)
+        public async Task FieldAssignedInAsyncCalledMethod(string returnType, string awaitKeyWord, string accessor, string suffix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
-                    private string ↓field;
+                    private string {|#0:field|};
 
                     [SetUp]
                     public {{returnType}} Initialize()
@@ -324,16 +325,16 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """);
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "field", name: "field");
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public void FieldAssignedInCalledMethods(string attribute, string prefix)
+        public async Task FieldAssignedInCalledMethods(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     private double numericField;
-                    private string ↓textField;
+                    private string {|#0:textField|};
 
                     [{{attribute}}]
                     public void Initialize()
@@ -369,12 +370,12 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """);
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "field", name: "textField");
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public void FieldIndirectAssignedThroughBaseClassSetupMethod(string attribute, string prefix)
+        public async Task FieldIndirectAssignedThroughBaseClassSetupMethod(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public class BaseClass
@@ -393,7 +394,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 [TestFixture]
                 public class TestClass : BaseClass
                 {
-                    private string ↓field;
+                    private string {|#0:field|};
 
                     [Test]
                     public void Test()
@@ -411,12 +412,12 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             // This is not supported as the BaseClass could be in an external library.
             // We therefore cannot validate that its SetUp method calls into our overridden method.
-            RoslynAssert.NotSuppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: false, kind: "field", name: "field");
         }
 
         [TestCase("SetUp", "")]
         [TestCase("OneTimeSetUp", "this.")]
-        public void FieldAssignedThroughOverriddenBaseClassSetupMethod(string attribute, string prefix)
+        public async Task FieldAssignedThroughOverriddenBaseClassSetupMethod(string attribute, string prefix)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 #nullable enable
@@ -434,7 +435,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 {
                     private const string Default = "Default";
 
-                    private string ↓field;
+                    private string {|#0:field|};
 
                     public override void Initialize()
                     {
@@ -450,15 +451,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """);
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "field", name: "field");
         }
 
         [Test]
-        public void ShouldDealWithRecursiveMethods()
+        public async Task ShouldDealWithRecursiveMethods()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     private Dictionary<string, bool> _values = new();
-                    private string ↓_lastOne;
+                    private string {|#0:_lastOne|};
 
                     [SetUp]
                     public void SetUp()
@@ -485,14 +486,14 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """, "using System.Collections.Generic;");
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "field", name: "_lastOne");
         }
 
         [Test]
-        public void ShouldDealWithFieldInitializedInUsingStatement()
+        public async Task ShouldDealWithFieldInitializedInUsingStatement()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
-                    private string ↓_configuration;
+                    private string {|#0:_configuration|};
 
                     [SetUp]
                     public void SetUp()
@@ -505,12 +506,12 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """, "using System.IO;");
 
-            RoslynAssert.Suppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "field", name: "_configuration");
         }
 
         [TestCase("additional_setup_methods")]
         [TestCase("additional_one_time_setup_methods")]
-        public void DoesDetectWhenFieldIsInitializedInAdditionalSetUpMethod(string configuration)
+        public async Task DoesDetectWhenFieldIsInitializedInAdditionalSetUpMethod(string configuration)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public abstract class BaseTest
@@ -529,7 +530,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 [TestFixture]
                 public class InheritedTest : BaseTest
                 {
-                    private string ↓field;
+                    private string {|#0:field|};
 
                     protected override void OnSetUp()
                     {
@@ -546,21 +547,47 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             """);
 
             string analyzerConfig = $"dotnet_diagnostic.NUnit.{configuration} = OnSetUp";
-            Settings settings = Settings.Default.WithAnalyzerConfig(analyzerConfig);
-            RoslynAssert.Suppressed(suppressor, testCode, settings);
+            await VerifySuppressionAsync(testCode, isSuppressed: true, kind: "field", name: "field", additionalConfiguration: analyzerConfig);
         }
 
         [TestCaseSource(nameof(TypeDeclarations))]
-        public void ShouldIgnoreUnrelatedTypeDeclarations(string typeDeclaration)
+        public async Task ShouldIgnoreUnrelatedTypeDeclarations(string typeDeclaration)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public {{typeDeclaration}} TestType
                 {
-                    public string ↓Field;
+                    public string {|#0:Field|};
                 }
                 """);
 
-            RoslynAssert.NotSuppressed(suppressor, testCode);
+            await VerifySuppressionAsync(testCode, isSuppressed: false, kind: "field", name: "Field");
+        }
+
+        private static Task VerifySuppressionAsync(string source, bool isSuppressed, string kind, string name, string? additionalConfiguration = null)
+            => VerifySuppressionAsync(source, isSuppressed, kind, [name], additionalConfiguration);
+
+        private static async Task VerifySuppressionAsync(string source, bool isSuppressed, string kind, string[] names, string? additionalConfiguration = null)
+        {
+            var test = new NUnitCSharpAnalyzerTest<NonNullableFieldOrPropertyIsUninitializedSuppressor>
+            {
+                TestCode = source,
+                CompilerDiagnostics = CompilerDiagnostics.Warnings,
+            };
+
+            for (int i = 0; i < names.Length; i++)
+            {
+                test.ExpectedDiagnostics.Add(ExpectedDiagnostic
+                    .WithLocation(i)
+                    .WithArguments(kind, names[i])
+                    .WithIsSuppressed(isSuppressed));
+            }
+
+            if (additionalConfiguration is not null)
+            {
+                test.TestState.AddAnalyzerConfig(additionalConfiguration);
+            }
+
+            await test.RunAsync();
         }
     }
 }

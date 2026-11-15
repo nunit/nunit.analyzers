@@ -1,98 +1,97 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.SameActualExpectedValue;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.SameActualExpectedValue.SameActualExpectedValueAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.SameActualExpectedValue
 {
     public class SameActualExpectedValueAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new SameActualExpectedValueAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.SameActualExpectedValue);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.SameActualExpectedValue);
 
         [TestCase(nameof(Is.EqualTo))]
         [TestCase(nameof(Is.EquivalentTo))]
-        public void AnalyzeWhenSameVariableProvided(string constraintMethod)
+        public async Task AnalyzeWhenSameVariableProvided(string constraintMethod)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         var str = "test";
-                        Assert.That(str, Is.{{constraintMethod}}(↓str));
+                        Assert.That(str, Is.{{constraintMethod}}({|#0:str|}));
             """);
 
             var message = "The actual and the expected argument is the same 'str'";
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenSameExpressionProvided()
+        public async Task AnalyzeWhenSameExpressionProvided()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var str = "test";
-                        Assert.That(str.Trim(), Is.EqualTo(↓str.Trim()));
+                        Assert.That(str.Trim(), Is.EqualTo({|#0:str.Trim()|}));
             """);
 
             var message = "The actual and the expected argument is the same 'str.Trim()'";
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeForTwoCombinedConstraintsViaProperty()
+        public async Task AnalyzeForTwoCombinedConstraintsViaProperty()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var str = "test";
-                        Assert.That(str, Is.EqualTo(↓str).And.EquivalentTo(↓str));
+                        Assert.That(str, Is.EqualTo({|#0:str|}).And.EquivalentTo({|#1:str|}));
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("str"), expectedDiagnostic.WithLocation(1).WithArguments("str"));
         }
 
         [Test]
-        public void AnalyzeForMultipleCombinedConstraintsViaProperty()
+        public async Task AnalyzeForMultipleCombinedConstraintsViaProperty()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var str = "test";
                         var str2 = "test2";
-                        Assert.That(str, Is.EqualTo(↓str)
+                        Assert.That(str, Is.EqualTo({|#0:str|})
                             .Or.Contains(str2)
-                            .Or.EquivalentTo(↓str)
-                            .And.StartsWith(↓str));
+                            .Or.EquivalentTo({|#1:str|})
+                            .And.StartsWith({|#2:str|}));
             """);
 
             var message = "The actual and the expected argument is the same 'str'";
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0), expectedDiagnostic.WithMessage(message).WithLocation(1), expectedDiagnostic.WithMessage(message).WithLocation(2));
         }
 
         [Test]
-        public void AnalyzeForTwoCombinedConstraintsViaOperator()
+        public async Task AnalyzeForTwoCombinedConstraintsViaOperator()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var str = "test";
-                        Assert.That(str, Is.EqualTo(↓str) | Is.EquivalentTo(↓str));
+                        Assert.That(str, Is.EqualTo({|#0:str|}) | Is.EquivalentTo({|#1:str|}));
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("str"), expectedDiagnostic.WithLocation(1).WithArguments("str"));
         }
 
         [Test]
-        public void AnalyzeForMultipleCombinedConstraintsViaOperator()
+        public async Task AnalyzeForMultipleCombinedConstraintsViaOperator()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var str = "test";
                         var str2 = "test2";
-                        Assert.That(str, Is.EqualTo(↓str) 
+                        Assert.That(str, Is.EqualTo({|#0:str|}) 
                             | Is.EquivalentTo(str2)
-                            & Does.Contain(↓str)
-                            | Does.StartWith(↓str));
+                            & Does.Contain({|#1:str|})
+                            | Does.StartWith({|#2:str|}));
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("str"), expectedDiagnostic.WithLocation(1).WithArguments("str"), expectedDiagnostic.WithLocation(2).WithArguments("str"));
         }
 
         [TestCase(nameof(Is.EqualTo))]
         [TestCase(nameof(Is.EquivalentTo))]
-        public void ValidWhenDifferentVariablesProvided(string constraintMethod)
+        public async Task ValidWhenDifferentVariablesProvided(string constraintMethod)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         var str1 = "test1";
@@ -100,18 +99,18 @@ namespace NUnit.Analyzers.Tests.SameActualExpectedValue
                         Assert.That(str1, Is.{{constraintMethod}}(str2));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenDifferentExpressionsProvided()
+        public async Task ValidWhenDifferentExpressionsProvided()
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         var str = "test";
                         Assert.That(str.Trim(), Is.EqualTo(str.TrimEnd()));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

@@ -1,40 +1,39 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.MisusedConstraints;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.MisusedConstraints.MisusedConstraintsAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.MisusedConstraints
 {
     public class MisusedConstraintsAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new MisusedConstraintsAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.MisusedConstraints);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.MisusedConstraints);
 
         [Test]
-        public void AnalyzeIsNotNullOrEmpty()
+        public async Task AnalyzeIsNotNullOrEmpty()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         string s = string.Empty;
-                        Assert.That(s, ↓Is.Not.Null.Or.Empty);
+                        Assert.That(s, {|#0:Is.Not.Null.Or.Empty|});
 
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("This is equivalent to Is.Not.Null, did you mean Is.Not.Null.And.Not.Empty?"));
         }
 
         [Test]
-        public void AnalyzeIsNotNullOrEmptyOverMultipleLines()
+        public async Task AnalyzeIsNotNullOrEmptyOverMultipleLines()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         string s = string.Empty;
-                        Assert.That(s, ↓Is.Not.Null
-                                          .Or.Empty);
+                        Assert.That(s, {|#0:Is.Not.Null
+                                          .Or.Empty|});
 
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("This is equivalent to Is.Not.Null, did you mean Is.Not.Null.And.Not.Empty?"));
         }
     }
 }

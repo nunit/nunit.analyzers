@@ -1,18 +1,15 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.UseSpecificConstraint;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.UseSpecificConstraint.UseSpecificConstraintAnalyzer, NUnit.Analyzers.UseSpecificConstraint.UseSpecificConstraintCodeFix>;
 
 namespace NUnit.Analyzers.Tests.UseSpecificConstraint
 {
     public class UseSpecificConstraintCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new UseSpecificConstraintAnalyzer();
-        private static readonly CodeFixProvider fix = new UseSpecificConstraintCodeFix();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.UseSpecificConstraint);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.UseSpecificConstraint);
 
         private static readonly string[][] EqualToSpecificConstraint =
         [
@@ -35,7 +32,7 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
         ];
 
         [TestCaseSource(nameof(EqualToSpecificConstraint))]
-        public void AnalyzeForSpecificConstraint(string literal, string constraint) => AnalyzeForEqualTo(literal, constraint);
+        public Task AnalyzeForSpecificConstraint(string literal, string constraint) => AnalyzeForEqualTo(literal, constraint);
 
 #if NUNIT4
         /*
@@ -48,19 +45,19 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
           */
 #endif
 
-        private static void AnalyzeForEqualTo(string literal, string constraint, Settings? settings = null)
+        private static async Task AnalyzeForEqualTo(string literal, string constraint)
         {
-            AnalyzeForEqualTo("Is", string.Empty, literal, constraint, settings);
-            AnalyzeForEqualTo("Is", ".And.Not.Empty", literal, constraint, settings);
-            AnalyzeForEqualTo("Is.Not", string.Empty, literal, constraint, settings);
-            AnalyzeForEqualTo("Is.EqualTo(4).Or", string.Empty, literal, constraint, settings);
+            await AnalyzeForEqualTo("Is", string.Empty, literal, constraint);
+            await AnalyzeForEqualTo("Is", ".And.Not.Empty", literal, constraint);
+            await AnalyzeForEqualTo("Is.Not", string.Empty, literal, constraint);
+            await AnalyzeForEqualTo("Is.EqualTo(4).Or", string.Empty, literal, constraint);
         }
 
-        private static void AnalyzeForEqualTo(string prefix, string suffix, string literal, string constraint, Settings? settings = null)
+        private static async Task AnalyzeForEqualTo(string prefix, string suffix, string literal, string constraint)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         var actual = {{literal}};
-                        Assert.That(actual, ↓{{prefix}}.EqualTo({{literal}}){{suffix}});
+                        Assert.That(actual, {|#0:{{prefix}}.EqualTo({{literal}})|}{{suffix}});
             """);
 
             var fixedCode = TestUtility.WrapInTestMethod($$"""
@@ -68,10 +65,9 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
                         Assert.That(actual, {{prefix}}.{{constraint}}{{suffix}});
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix,
-                expectedDiagnostic.WithMessage($"Replace 'Is.EqualTo({literal})' with 'Is.{constraint}' constraint"),
-                testCode, fixedCode,
-                settings: settings);
+            await Verify.VerifyCodeFixAsync(testCode,
+                expectedDiagnostic.WithLocation(0).WithMessage($"Replace 'Is.EqualTo({literal})' with 'Is.{constraint}' constraint"),
+                fixedCode);
         }
     }
 }

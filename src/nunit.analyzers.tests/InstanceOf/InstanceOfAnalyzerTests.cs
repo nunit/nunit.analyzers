@@ -1,16 +1,15 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.InstanceOf;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.InstanceOf.InstanceOfAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.InstanceOf
 {
     public class InstanceOfAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new InstanceOfAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.InstanceOf);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.InstanceOf);
 
         [TestCase("\"some string\"", "string", "")]
         [TestCase("Task.FromResult(0)", "Task<int>", "")]
@@ -19,14 +18,14 @@ namespace NUnit.Analyzers.Tests.InstanceOf
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.True")]
         [TestCase("\"some string\"", "string", ", Is.False")]
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.False")]
-        public void AnalyzeWhenIsExpression(string instanceValue, string typeExpression, string constraintString)
+        public async Task AnalyzeWhenIsExpression(string instanceValue, string typeExpression, string constraintString)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         var instance = {{instanceValue}};
-                        Assert.That(↓instance is {{typeExpression}}{{constraintString}});
+                        Assert.That({|#0:instance is {{typeExpression}}|}{{constraintString}});
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments(DisplayName(typeExpression)));
         }
 
         [TestCase("\"some string\"", "string", "")]
@@ -35,24 +34,28 @@ namespace NUnit.Analyzers.Tests.InstanceOf
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.True")]
         [TestCase("\"some string\"", "string", ", Is.False")]
         [TestCase("Task.FromResult(0)", "Task<int>", ", Is.False")]
-        public void ValidWhenIsPatternExpression(string instanceValue, string typeExpression, string constraintString)
+        public async Task ValidWhenIsPatternExpression(string instanceValue, string typeExpression, string constraintString)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         var instance = {{instanceValue}};
                         Assert.That(instance is {{typeExpression}} myPatternVariable{{constraintString}});
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ShouldNotRaiseForClassicAssert()
+        public async Task ShouldNotRaiseForClassicAssert()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var instance = "some string";
                         ClassicAssert.IsTrue(instance is string);
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
+
+        // The diagnostic message contains the type's display name.
+        private static string DisplayName(string typeExpression)
+            => typeExpression == "Task<int>" ? "System.Threading.Tasks.Task<int>" : typeExpression;
     }
 }

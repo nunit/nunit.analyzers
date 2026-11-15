@@ -1,42 +1,40 @@
 #if NUNIT4
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.UseAssertEnterMultipleScope;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.UseAssertEnterMultipleScope.UseAssertEnterMultipleScopeAnalyzer, NUnit.Analyzers.UseAssertEnterMultipleScope.UseAssertEnterMultipleScopeCodeFix>;
 
 namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
 {
     [TestFixture]
     public sealed class UseAssertEnterMultipleScopeCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new UseAssertEnterMultipleScopeAnalyzer();
-        private static readonly CodeFixProvider fix = new UseAssertEnterMultipleScopeCodeFix();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.UseAssertEnterMultipleScope);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.UseAssertEnterMultipleScope);
 
         [Test]
         public void VerifyGetFixableDiagnosticIds()
         {
             var fix = new UseAssertEnterMultipleScopeCodeFix();
-            var ids = fix.FixableDiagnosticIds;
+            var ids = new UseAssertEnterMultipleScopeCodeFix().FixableDiagnosticIds;
 
             Assert.That(ids, Is.EquivalentTo(new[] { AnalyzerIdentifiers.UseAssertEnterMultipleScope }));
         }
 
         [Test]
-        public void VerifyAssertMultiple()
+        public async Task VerifyAssertMultiple()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMulti()
                     {
-                        ↓Assert.Multiple(() =>
+                        {|#0:Assert.Multiple(() =>
                         {
                             var i = 4;
                             var j = 67;
                             Assert.That(i, Is.EqualTo(j));
-                        });
+                        })|};
                     }
             """);
 
@@ -52,22 +50,22 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                     }
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void VerifyAssertMultipleWithAsyncDelegate()
+        public async Task VerifyAssertMultipleWithAsyncDelegate()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMulti()
                     {
-                        ↓Assert.Multiple(async () =>
+                        {|#0:Assert.Multiple(async () =>
                         {
                             var i = 4;
                             var j = 67;
                             await Task.Yield();
                             Assert.That(i, Is.EqualTo(j));
-                        });
+                        })|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -82,11 +80,11 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                         }
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void VerifyAssertMultipleWithAsyncDelegateAndUsingSystemThreadingInsideNamespace()
+        public async Task VerifyAssertMultipleWithAsyncDelegateAndUsingSystemThreadingInsideNamespace()
         {
             var code = """
                 using NUnit.Framework;
@@ -100,13 +98,13 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                         [Test]
                         public void TestMulti()
                         {
-                            ↓Assert.Multiple(async () =>
+                            {|#0:Assert.Multiple(async () =>
                             {
                                 var i = 4;
                                 var j = 67;
                                 await Task.Yield();
                                 Assert.That(i, Is.EqualTo(j));
-                            });
+                            })|};
                         }
                     }
                 }
@@ -135,11 +133,11 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                 }
                 """;
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void VerifyAssertMultipleWithAsyncDelegateAndUsingSystemThreadingOutNamespaceButOtherUsingsInside()
+        public async Task VerifyAssertMultipleWithAsyncDelegateAndUsingSystemThreadingOutNamespaceButOtherUsingsInside()
         {
             var code = """
                 using System.Threading.Tasks;
@@ -153,13 +151,13 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                         [Test]
                         public void TestMulti()
                         {
-                            ↓Assert.Multiple(async () =>
+                            {|#0:Assert.Multiple(async () =>
                             {
                                 var i = 4;
                                 var j = 67;
                                 await Task.Yield();
                                 Assert.That(i, Is.EqualTo(j));
-                            });
+                            })|};
                         }
                     }
                 }
@@ -188,11 +186,11 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                 }
                 """;
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void VerifyAssertMultipleWithAsyncDelegateAndNoSystemThreading()
+        public async Task VerifyAssertMultipleWithAsyncDelegateAndNoSystemThreading()
         {
             var code = """
                 using NUnit.Framework;
@@ -204,13 +202,13 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                         [Test]
                         public void TestMulti()
                         {
-                            ↓Assert.Multiple(async () =>
+                            {|#0:Assert.Multiple(async () =>
                             {
                                 var i = 4;
                                 var j = 67;
                                 await System.Threading.Tasks.Task.Yield();
                                 Assert.That(i, Is.EqualTo(j));
-                            });
+                            })|};
                         }
                     }
                 }
@@ -237,21 +235,21 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                 }
                 """;
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void VerifyAssertMultipleAsync()
+        public async Task VerifyAssertMultipleAsync()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public async Task TestMultiAsync()
                     {
-                        await ↓Assert.MultipleAsync(async () =>
+                        await {|#0:Assert.MultipleAsync(async () =>
                         {
                             var i = await GetInt();
                             var j = await GetInt();
                             Assert.That(i, Is.EqualTo(j));
-                        });
+                        })|};
                     }
 
                     private static async Task<int> GetInt() { await Task.Delay(1000); return 1; }
@@ -271,20 +269,20 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                     private static async Task<int> GetInt() { await Task.Delay(1000); return 1; }
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void VerifyMultipleAsyncAndValueTaskIsUsed()
+        public async Task VerifyMultipleAsyncAndValueTaskIsUsed()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public async ValueTask Test()
                     {
-                        await ↓Assert.MultipleAsync(async () =>
+                        await {|#0:Assert.MultipleAsync(async () =>
                         {
                             Assert.That(await Get1(), Is.Not.Null);
                             Assert.That(await Get2(), Is.Not.Null);
-                        });
+                        })|};
 
                         static Task<string?> Get1() => Task.FromResult(default(string));
                         static Task<string?> Get2() => Task.FromResult(default(string));
@@ -305,11 +303,11 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                     }
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void VerifyMultipleAsyncAndGenericTaskIsUsed()
+        public async Task VerifyMultipleAsyncAndGenericTaskIsUsed()
         {
             var code = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestClass
@@ -317,11 +315,11 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                     [Test(ExpectedResult = 4)]
                     public async Task<int> Test()
                     {
-                        await ↓Assert.MultipleAsync(async () =>
+                        await {|#0:Assert.MultipleAsync(async () =>
                         {
                             Assert.That(await Get1(), Is.Not.Null);
                             Assert.That(await Get2(), Is.Not.Null);
-                        });
+                        })|};
 
                         return 4;
 
@@ -350,11 +348,11 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                 }
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void VerifyKeepsLeadingTrivia()
+        public async Task VerifyKeepsLeadingTrivia()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     [Test]
@@ -367,10 +365,10 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                         int? actual = 2 + 2;
 
                         // Assert
-                        ↓Assert.Multiple(() => {
+                        {|#0:Assert.Multiple(() => {
                             Assert.That(actual, Is.Not.Null);
                             Assert.That(actual, Is.EqualTo(expected));
-                        });
+                        })|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -391,7 +389,7 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                         }
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
     }
 }

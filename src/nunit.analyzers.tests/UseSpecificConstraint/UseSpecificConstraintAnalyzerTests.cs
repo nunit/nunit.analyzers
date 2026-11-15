@@ -1,16 +1,15 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.UseSpecificConstraint;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.UseSpecificConstraint.UseSpecificConstraintAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.UseSpecificConstraint
 {
     public sealed class UseSpecificConstraintAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new UseSpecificConstraintAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.UseSpecificConstraint);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.UseSpecificConstraint);
 
         private static readonly string[][] EqualToSpecificConstraint =
         [
@@ -43,7 +42,7 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
         ];
 
         [TestCaseSource(nameof(EqualToSpecificConstraint))]
-        public void AnalyzeForSpecificConstraint(string literal, string constraint) => AnalyzeForEqualTo(literal, constraint);
+        public Task AnalyzeForSpecificConstraint(string literal, string constraint) => AnalyzeForEqualTo(literal, constraint);
 
 #if NUNIT4
         /*
@@ -56,18 +55,18 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
           */
 
         [Test]
-        public void AnalyzeForObjectAndSpecificTypeShouldNotSuggestIsDefault()
+        public async Task AnalyzeForObjectAndSpecificTypeShouldNotSuggestIsDefault()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                     object o = 0;
                     Assert.That(o, Is.EqualTo(default(int)));
                 """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase(0)]
-        public void AnalyzeForDynamicAndSpecificTypeShouldNotSuggestIsDefault(dynamic d)
+        public async Task AnalyzeForDynamicAndSpecificTypeShouldNotSuggestIsDefault(dynamic d)
         {
             // The below works, but the system determines the call at runtime.
             // When analyzing IInvocation we never see the 'Assert.That'
@@ -84,12 +83,12 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
                 }
                 """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 #endif
 
         [Test]
-        public void AnalyzeForStringShouldNotSuggestIsZero()
+        public async Task AnalyzeForStringShouldNotSuggestIsZero()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                 [TestCase("Hello")]
@@ -99,11 +98,11 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
                 }
                 """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeForNullableStructShouldNotSuggestIsDefault()
+        public async Task AnalyzeForNullableStructShouldNotSuggestIsDefault()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                 class SomeType
@@ -120,7 +119,7 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
                 }
                 """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
 #if NUNIT4
@@ -128,37 +127,33 @@ namespace NUnit.Analyzers.Tests.UseSpecificConstraint
         [TestCase("Exception? actual = null;", "default(Exception)")]
         [TestCase("Exception actual = null!;", "default(Exception?)")]
         [TestCase("Exception actual = null!;", "default(Exception)")]
-        public void AnalyzeForReferenceTypeShouldSuggestIsDefaultEvenIfNullabilityDoesntMatch(string initialization, string literal)
+        public async Task AnalyzeForReferenceTypeShouldSuggestIsDefaultEvenIfNullabilityDoesntMatch(string initialization, string literal)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         {{initialization}}
-                        Assert.That(actual, ↓Is.EqualTo({{literal}}));
+                        Assert.That(actual, {|#0:Is.EqualTo({{literal}})|});
             """);
 
-            RoslynAssert.Diagnostics(analyzer,
-                expectedDiagnostic.WithMessage($"Replace 'Is.EqualTo({literal})' with 'Is.Default' constraint"),
-                testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage($"Replace 'Is.EqualTo({literal})' with 'Is.Default' constraint").WithLocation(0));
         }
 #endif
 
-        private static void AnalyzeForEqualTo(string literal, string constraint)
+        private static async Task AnalyzeForEqualTo(string literal, string constraint)
         {
-            AnalyzeForEqualTo("Is", string.Empty, literal, constraint);
-            AnalyzeForEqualTo("Is", ".And.Not.Empty", literal, constraint);
-            AnalyzeForEqualTo("Is.Not", string.Empty, literal, constraint);
-            AnalyzeForEqualTo("Is.EqualTo(4).Or", string.Empty, literal, constraint);
+            await AnalyzeForEqualTo("Is", string.Empty, literal, constraint);
+            await AnalyzeForEqualTo("Is", ".And.Not.Empty", literal, constraint);
+            await AnalyzeForEqualTo("Is.Not", string.Empty, literal, constraint);
+            await AnalyzeForEqualTo("Is.EqualTo(4).Or", string.Empty, literal, constraint);
         }
 
-        private static void AnalyzeForEqualTo(string prefix, string suffix, string literal, string constraint)
+        private static async Task AnalyzeForEqualTo(string prefix, string suffix, string literal, string constraint)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         var actual = {{literal}};
-                        Assert.That(actual, ↓{{prefix}}.EqualTo({{literal}}){{suffix}});
+                        Assert.That(actual, {|#0:{{prefix}}.EqualTo({{literal}})|}{{suffix}});
             """);
 
-            RoslynAssert.Diagnostics(analyzer,
-                expectedDiagnostic.WithMessage($"Replace 'Is.EqualTo({literal})' with 'Is.{constraint}' constraint"),
-                testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage($"Replace 'Is.EqualTo({literal})' with 'Is.{constraint}' constraint").WithLocation(0));
         }
     }
 }

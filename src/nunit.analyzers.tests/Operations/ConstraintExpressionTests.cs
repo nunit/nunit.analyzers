@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Operations;
+using NUnit.Analyzers.Tests.Verifiers;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Operations
@@ -82,7 +83,7 @@ namespace NUnit.Analyzers.Tests.Operations
         private static async Task<ConstraintExpression> CreateConstraintExpression(string expressionString)
         {
             var testCode = TestUtility.WrapInTestMethod($"Assert.That(1, {expressionString});");
-            var (node, model) = await TestHelpers.GetRootAndModel(testCode);
+            var (node, model) = await TestSetup.GetRootAndModelAsync(testCode);
 
             var expression = node.DescendantNodes()
                 .OfType<ExpressionSyntax>()

@@ -1,17 +1,20 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.DiagnosticSuppressors;
+using NUnit.Analyzers.Tests.Verifiers;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 {
     public class DisposableFieldsSuppressorTests
     {
-        private static readonly DiagnosticSuppressor suppressor = new TypesThatOwnDisposableFieldsShouldBeDisposableSuppressor();
         private DiagnosticAnalyzer analyzer;
 
         [OneTimeSetUp]
@@ -28,7 +31,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         [Test]
         public async Task FieldNotDisposed()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+            var testCode = WrapInTestClass("""
                     private IDisposable? field;
 
                     [Test]
@@ -46,14 +49,14 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             """);
 
             // This rule doesn't care. Actual checking is done in DisposeFieldsInTearDownAnalyzer
-            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode);
+            await this.VerifySuppressionAsync(testCode, isSuppressed: true);
         }
 
         [TestCase(NUnitFrameworkConstants.NameOfTearDownAttribute, "")]
         [TestCase(NUnitFrameworkConstants.NameOfOneTimeTearDownAttribute, "this.")]
         public async Task FieldDisposed(string attribute, string prefix)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+            var testCode = WrapInTestClass($$"""
                     private IDisposable? field1;
                     private IDisposable? field2;
 
@@ -88,7 +91,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 
             """);
 
-            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode);
+            await this.VerifySuppressionAsync(testCode, isSuppressed: true);
         }
 
         [Test]
@@ -96,7 +99,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
-                public class TestClass
+                public class {|#0:TestClass|}
                 {
                     private readonly IDisposable? field;
 
@@ -120,7 +123,33 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             """);
 
             // InstancePerTestCase mean test should use IDisposable
-            await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode);
+            await this.VerifySuppressionAsync(testCode, isSuppressed: false);
+        }
+
+        private static string WrapInTestClass(string members) => TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                [TestFixture]
+                public class {|#0:TestClass|}
+                {
+            {{members}}
+                }
+            """);
+
+        private async Task VerifySuppressionAsync(string testCode, bool isSuppressed)
+        {
+            string id = this.analyzer.SupportedDiagnostics[0].Id;
+            Assert.That(new TypesThatOwnDisposableFieldsShouldBeDisposableSuppressor().SupportedSuppressions.Select(x => x.SuppressedDiagnosticId), Does.Contain(id));
+
+            var test = new NUnitCSharpSuppressorTest<TypesThatOwnDisposableFieldsShouldBeDisposableSuppressor>
+            {
+                TestCode = testCode,
+                SuppressedAnalyzers = { this.analyzer },
+                ExpectedDiagnostics =
+                {
+                    new DiagnosticResult(id, DiagnosticSeverity.Warning).WithLocation(0).WithIsSuppressed(isSuppressed),
+                },
+            };
+
+            await test.RunAsync();
         }
     }
 }

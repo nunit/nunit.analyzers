@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Extensions;
+using NUnit.Analyzers.Tests.Verifiers;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Extensions
@@ -34,7 +35,7 @@ namespace NUnit.Analyzers.Tests.Extensions
                     }
                 }
             """;
-            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArguments").ConfigureAwait(false);
+            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArguments");
             var (positionalArguments, namedArguments) = attribute.GetArguments();
 
             Assert.Multiple(() =>
@@ -63,7 +64,7 @@ namespace NUnit.Analyzers.Tests.Extensions
                     { }
                 }
             """;
-            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArgumentsWhenNoneExist").ConfigureAwait(false);
+            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArgumentsWhenNoneExist");
             var (positionalArguments, namedArguments) = attribute.GetArguments();
 
             Assert.Multiple(() =>
@@ -75,7 +76,7 @@ namespace NUnit.Analyzers.Tests.Extensions
 
         private static async Task<AttributeSyntax> GetAttributeSyntaxAsync(string code, string typeName)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModel(code);
+            var rootAndModel = await TestSetup.GetRootAndModelAsync(code);
 
             return rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>()

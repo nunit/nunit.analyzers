@@ -1,92 +1,91 @@
 #if NUNIT4
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.UseAssertEnterMultipleScope;
 
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.UseAssertEnterMultipleScope.UseAssertEnterMultipleScopeAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
 {
     [TestFixture]
     public sealed class UseAssertEnterMultipleScopeAnalyzerTests
     {
-        private readonly DiagnosticAnalyzer analyzer = new UseAssertEnterMultipleScopeAnalyzer();
-        private readonly ExpectedDiagnostic diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.UseAssertEnterMultipleScope);
+        private readonly DiagnosticResult diagnostic = Verify.Diagnostic(AnalyzerIdentifiers.UseAssertEnterMultipleScope);
 
         [Test]
-        public void AnalyzeWhenMultipleIsUsed()
+        public async Task AnalyzeWhenMultipleIsUsed()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
-                        ↓Assert.Multiple(() =>
+                        {|#0:Assert.Multiple(() =>
                         {
                             Assert.That(true, Is.True);
                             Assert.That(false, Is.False);
-                        });
+                        })|};
                     }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, this.diagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenMultipleIsUsedWithAnAsyncDelegate()
+        public async Task AnalyzeWhenMultipleIsUsedWithAnAsyncDelegate()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
-                        ↓Assert.Multiple(async () =>
+                        {|#0:Assert.Multiple(async () =>
                         {
                             Assert.That(true, Is.True);
                             await Task.Yield();
                             Assert.That(false, Is.False);
-                        });
+                        })|};
                     }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, this.diagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenMultipleAsyncIsUsed()
+        public async Task AnalyzeWhenMultipleAsyncIsUsed()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public async Task Test()
                     {
-                        await ↓Assert.MultipleAsync(async () =>
+                        await {|#0:Assert.MultipleAsync(async () =>
                         {
                             Assert.That(await Get1(), Is.Not.Null);
                             Assert.That(await Get2(), Is.Not.Null);
-                        });
+                        })|};
 
                         static Task<string?> Get1() => Task.FromResult(default(string));
                         static Task<string?> Get2() => Task.FromResult(default(string));
                     }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, this.diagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenMultipleAsyncAndValueTaskIsUsed()
+        public async Task AnalyzeWhenMultipleAsyncAndValueTaskIsUsed()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public async ValueTask Test()
                     {
-                        await ↓Assert.MultipleAsync(async () =>
+                        await {|#0:Assert.MultipleAsync(async () =>
                         {
                             Assert.That(await Get1(), Is.Not.Null);
                             Assert.That(await Get2(), Is.Not.Null);
-                        });
+                        })|};
 
                         static Task<string?> Get1() => Task.FromResult(default(string));
                         static Task<string?> Get2() => Task.FromResult(default(string));
                     }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, this.diagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenMultipleAsyncAndGenericTaskIsUsed()
+        public async Task AnalyzeWhenMultipleAsyncAndGenericTaskIsUsed()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class TestClass
@@ -94,11 +93,11 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                     [Test(ExpectedResult = 4)]
                     public async Task<int> Test()
                     {
-                        await ↓Assert.MultipleAsync(async () =>
+                        await {|#0:Assert.MultipleAsync(async () =>
                         {
                             Assert.That(await Get1(), Is.Not.Null);
                             Assert.That(await Get2(), Is.Not.Null);
-                        });
+                        })|};
 
                         return 4;
 
@@ -107,11 +106,11 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, this.diagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenMultipleIsNot()
+        public async Task AnalyzeWhenMultipleIsNot()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
@@ -120,7 +119,7 @@ namespace NUnit.Analyzers.Tests.UseAssertEnterMultipleScope
                         Assert.That(false, Is.False);
                     }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

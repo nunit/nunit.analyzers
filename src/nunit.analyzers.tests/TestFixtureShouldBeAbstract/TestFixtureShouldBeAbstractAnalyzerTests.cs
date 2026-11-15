@@ -1,17 +1,16 @@
 using System.Collections.Generic;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.TestFixtureShouldBeAbstract;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.TestFixtureShouldBeAbstract.TestFixtureShouldBeAbstractAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
 {
     public class TestFixtureShouldBeAbstractAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new TestFixtureShouldBeAbstractAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.BaseTestFixtureIsNotAbstract);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.BaseTestFixtureIsNotAbstract);
 
         private static readonly IEnumerable<string> testMethodRelatedAttributes =
         [
@@ -23,7 +22,7 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
         ];
 
         [TestCaseSource(nameof(testMethodRelatedAttributes))]
-        public void AnalyzeWhenBaseFixtureIsAbstract(string attribute)
+        public async Task AnalyzeWhenBaseFixtureIsAbstract(string attribute)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public abstract class BaseFixture
@@ -39,14 +38,14 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(testMethodRelatedAttributes))]
-        public void AnalyzeWhenBaseFixtureIsNotAbstract(string attribute)
+        public async Task AnalyzeWhenBaseFixtureIsNotAbstract(string attribute)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
-                public class ↓BaseFixture
+                public class {|#0:BaseFixture|}
                 {
                     [{{attribute}}]
                     public void BaseFixtureMethod() { }
@@ -59,11 +58,11 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("BaseFixture"));
         }
 
         [Test]
-        public void AnalyzeWhenGenericFixtureIsAbstract()
+        public async Task AnalyzeWhenGenericFixtureIsAbstract()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public abstract class BaseFixture<T>
@@ -81,14 +80,14 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenGenericFixtureIsNotAbstract()
+        public async Task AnalyzeWhenGenericFixtureIsNotAbstract()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
-                public class ↓BaseFixture<T>
+                public class {|#0:BaseFixture|}<T>
                 {
                     [Test]
                     public void BaseFixtureMethod() { }
@@ -103,7 +102,7 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments("BaseFixture"));
         }
     }
 }

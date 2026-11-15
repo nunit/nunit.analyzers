@@ -1,23 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.UseCollectionConstraint;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.UseCollectionConstraint.UseCollectionConstraintAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.UseCollectionConstraint
 {
     [TestFixture]
     public sealed class UseCollectionConstraintAnalyzerTests
     {
-        private readonly DiagnosticAnalyzer analyzer = new UseCollectionConstraintAnalyzer();
-        private readonly ExpectedDiagnostic diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.UsePropertyConstraint);
+        private readonly DiagnosticResult diagnostic = Verify.Diagnostic(AnalyzerIdentifiers.UsePropertyConstraint);
 
         [Test]
-        public void AnalyzeWhenHasLengthIsUsed()
+        public async Task AnalyzeWhenHasLengthIsUsed()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
@@ -26,11 +21,11 @@ namespace NUnit.Analyzers.Tests.UseCollectionConstraint
                         Assert.That(array, Has.Length.EqualTo(1));
                     }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenHasCountIsUsed()
+        public async Task AnalyzeWhenHasCountIsUsed()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
@@ -39,50 +34,50 @@ namespace NUnit.Analyzers.Tests.UseCollectionConstraint
                         Assert.That(list, Has.Count.EqualTo(1));
                     }
             """, "using System.Collections.Generic;");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenPropertyLengthIsUsed()
+        public async Task AnalyzeWhenPropertyLengthIsUsed()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
                         var array = new int[] { 1 };
-                        Assert.That(↓array.Length, Is.EqualTo(1));
+                        Assert.That({|#0:array.Length|}, Is.EqualTo(1));
                     }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, this.diagnostic.WithLocation(0).WithArguments("Length"));
         }
 
         [Test]
-        public void AnalyzeWhenPropertyCountIsUsed()
+        public async Task AnalyzeWhenPropertyCountIsUsed()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
                         var list = new List<int>() { 1 };
-                        Assert.That(↓list.Count, Is.Not.Zero);
+                        Assert.That({|#0:list.Count|}, Is.Not.Zero);
                     }
             """, "using System.Collections.Generic;");
-            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, this.diagnostic.WithLocation(0).WithArguments("Count"));
         }
 
         [Test]
-        public void AnalyzeComplex()
+        public async Task AnalyzeComplex()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
                     {
                         var array = new int[] { 1 };
-                        Assert.That(↓array.Length, Is.GreaterThan(1).And.LessThan(9));
+                        Assert.That({|#0:array.Length|}, Is.GreaterThan(1).And.LessThan(9));
                     }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, this.diagnostic.WithLocation(0).WithArguments("Length"));
         }
 
         [Test]
-        public void AnalyzeOnNonEnumerable()
+        public async Task AnalyzeOnNonEnumerable()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -107,11 +102,11 @@ namespace NUnit.Analyzers.Tests.UseCollectionConstraint
                 }
             """);
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenRefStructIsUsed()
+        public async Task AnalyzeWhenRefStructIsUsed()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void Test()
@@ -122,10 +117,7 @@ namespace NUnit.Analyzers.Tests.UseCollectionConstraint
                     }
             """);
 
-            IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(Span<>));
-            IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);
-
-            RoslynAssert.Valid(this.analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

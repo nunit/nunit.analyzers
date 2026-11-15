@@ -1,20 +1,19 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using Gu.Roslyn.Asserts;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.ClassicModelAssertUsage;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.ClassicModelAssertUsage.ClassicModelAssertUsageAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 {
     [TestFixture]
     public sealed class ClassicModelAssertUsageAnalyzerTests
     {
-        private readonly DiagnosticAnalyzer analyzer = new ClassicModelAssertUsageAnalyzer();
-
         [Test]
         public void VerifySupportedDiagnostics()
         {
@@ -102,7 +101,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void AnalyzeWhenThatIsUsed()
+        public async Task AnalyzeWhenThatIsUsed()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenThatIsUsed
@@ -113,11 +112,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenInvocationIsNotFromAssert()
+        public async Task AnalyzeWhenInvocationIsNotFromAssert()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenInvocationIsNotFromAssert
@@ -133,149 +132,149 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenIsTrueIsUsed()
+        public async Task AnalyzeWhenIsTrueIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsTrueUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsTrueUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenIsTrueIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.IsTrue(true);
+                        {|#0:ClassicAssert.IsTrue(true)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenTrueIsUsed()
+        public async Task AnalyzeWhenTrueIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.TrueUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TrueUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTrueIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.True(true);
+                        {|#0:ClassicAssert.True(true)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIsFalseIsUsed()
+        public async Task AnalyzeWhenIsFalseIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsFalseUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsFalseUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenIsFalseIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.IsFalse(false);
+                        {|#0:ClassicAssert.IsFalse(false)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenFalseIsUsed()
+        public async Task AnalyzeWhenFalseIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.FalseUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.FalseUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenFalseIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.False(false);
+                        {|#0:ClassicAssert.False(false)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAreEqualIsUsed()
+        public async Task AnalyzeWhenAreEqualIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreEqualUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.AreEqualUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenAreEqualIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.AreEqual(2, 2);
+                        {|#0:ClassicAssert.AreEqual(2, 2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAreEqualIsUsedWithTolerance()
+        public async Task AnalyzeWhenAreEqualIsUsedWithTolerance()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreEqualUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.AreEqualUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenAreEqualIsUsedWithTolerance
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.AreEqual(2d, 2d, 0.0000001d);
+                        {|#0:ClassicAssert.AreEqual(2d, 2d, 0.0000001d)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAreNotEqualIsUsed()
+        public async Task AnalyzeWhenAreNotEqualIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreNotEqualUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.AreNotEqualUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenAreNotEqualIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.AreNotEqual(2, 3);
+                        {|#0:ClassicAssert.AreNotEqual(2, 3)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAreSameIsUsed()
+        public async Task AnalyzeWhenAreSameIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreSameUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.AreSameUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenAreSameIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.AreSame(2, 3);
+                        {|#0:ClassicAssert.AreSame(2, 3)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIsNullIsUsed()
+        public async Task AnalyzeWhenIsNullIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNullUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsNullUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenIsNullIsUsed
@@ -283,17 +282,17 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                     public void Test()
                     {
                         object? obj = null;
-                        ↓ClassicAssert.IsNull(obj);
+                        {|#0:ClassicAssert.IsNull(obj)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenNullIsUsed()
+        public async Task AnalyzeWhenNullIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.NullUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.NullUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenNullIsUsed
@@ -301,17 +300,17 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                     public void Test()
                     {
                         object? obj = null;
-                        ↓ClassicAssert.Null(obj);
+                        {|#0:ClassicAssert.Null(obj)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIsNotNullIsUsed()
+        public async Task AnalyzeWhenIsNotNullIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotNullUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsNotNullUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenIsNotNullIsUsed
@@ -319,17 +318,17 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                     public void Test()
                     {
                         object? obj = null;
-                        ↓ClassicAssert.IsNotNull(obj);
+                        {|#0:ClassicAssert.IsNotNull(obj)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenNotNullIsUsed()
+        public async Task AnalyzeWhenNotNullIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.NotNullUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.NotNullUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenNotNullIsUsed
@@ -337,15 +336,15 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                     public void Test()
                     {
                         object? obj = null;
-                        ↓ClassicAssert.NotNull(obj);
+                        {|#0:ClassicAssert.NotNull(obj)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenInvocationIsNotWithinAMethod()
+        public async Task AnalyzeWhenInvocationIsNotWithinAMethod()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenInvocationIsNotWithinAMethod
@@ -353,364 +352,364 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                     private static readonly string fullTypeName = typeof(string).GetType().FullName!;
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenGreaterIsUsed()
+        public async Task AnalyzeWhenGreaterIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.GreaterUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.GreaterUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenGreaterIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.Greater(2, 3);
+                        {|#0:ClassicAssert.Greater(2, 3)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenGreaterOrEqualIsUsed()
+        public async Task AnalyzeWhenGreaterOrEqualIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.GreaterOrEqualUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.GreaterOrEqualUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenGreaterOrEqualIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.GreaterOrEqual(2, 3);
+                        {|#0:ClassicAssert.GreaterOrEqual(2, 3)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenLessIsUsed()
+        public async Task AnalyzeWhenLessIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.LessUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.LessUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenLessIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.Less(2, 3);
+                        {|#0:ClassicAssert.Less(2, 3)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenLessOrEqualIsUsed()
+        public async Task AnalyzeWhenLessOrEqualIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.LessOrEqualUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.LessOrEqualUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenLessOrEqualIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.LessOrEqual(2, 3);
+                        {|#0:ClassicAssert.LessOrEqual(2, 3)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAreNotSameIsUsed()
+        public async Task AnalyzeWhenAreNotSameIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.AreNotSameUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.AreNotSameUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenAreNotSameIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.AreNotSame(2, 3);
+                        {|#0:ClassicAssert.AreNotSame(2, 3)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenZeroIsUsed()
+        public async Task AnalyzeWhenZeroIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ZeroUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ZeroUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenZeroIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.Zero(2);
+                        {|#0:ClassicAssert.Zero(2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenNotZeroIsUsed()
+        public async Task AnalyzeWhenNotZeroIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.NotZeroUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.NotZeroUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenNotZeroIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.NotZero(2);
+                        {|#0:ClassicAssert.NotZero(2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIsNaNIsUsed()
+        public async Task AnalyzeWhenIsNaNIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNaNUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsNaNUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenIsNaNIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.IsNaN(2);
+                        {|#0:ClassicAssert.IsNaN(2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIsEmptyIsUsed()
+        public async Task AnalyzeWhenIsEmptyIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsEmptyUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsEmptyUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenIsEmptyIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.IsEmpty(Array.Empty<object>());
+                        {|#0:ClassicAssert.IsEmpty(Array.Empty<object>())|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIsNotEmptyIsUsed()
+        public async Task AnalyzeWhenIsNotEmptyIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotEmptyUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsNotEmptyUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenIsNotEmptyIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.IsNotEmpty(Array.Empty<object>());
+                        {|#0:ClassicAssert.IsNotEmpty(Array.Empty<object>())|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenContainsIsUsed()
+        public async Task AnalyzeWhenContainsIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ContainsUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ContainsUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenContainsIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.Contains(this, Array.Empty<object>());
+                        {|#0:ClassicAssert.Contains(this, Array.Empty<object>())|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIsInstanceOfIsUsed()
+        public async Task AnalyzeWhenIsInstanceOfIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsInstanceOfUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsInstanceOfUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenIsInstanceOfIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.IsInstanceOf(typeof(int), 2);
+                        {|#0:ClassicAssert.IsInstanceOf(typeof(int), 2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenGenericIsInstanceOfIsUsed()
+        public async Task AnalyzeWhenGenericIsInstanceOfIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsInstanceOfUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsInstanceOfUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenGenericIsInstanceOfIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.IsInstanceOf<int>(2);
+                        {|#0:ClassicAssert.IsInstanceOf<int>(2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIsNotInstanceOfIsUsed()
+        public async Task AnalyzeWhenIsNotInstanceOfIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotInstanceOfUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsNotInstanceOfUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenIsNotInstanceOfIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.IsNotInstanceOf(typeof(int), 2);
+                        {|#0:ClassicAssert.IsNotInstanceOf(typeof(int), 2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenGenericIsNotInstanceOfIsUsed()
+        public async Task AnalyzeWhenGenericIsNotInstanceOfIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotInstanceOfUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsNotInstanceOfUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenGenericIsNotInstanceOfIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.IsNotInstanceOf<int>(2);
+                        {|#0:ClassicAssert.IsNotInstanceOf<int>(2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenPositiveIsUsed()
+        public async Task AnalyzeWhenPositiveIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.PositiveUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.PositiveUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenPositiveIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.Positive(2);
+                        {|#0:ClassicAssert.Positive(2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenNegativeIsUsed()
+        public async Task AnalyzeWhenNegativeIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.NegativeUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.NegativeUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenNegativeIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.Negative(2);
+                        {|#0:ClassicAssert.Negative(2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIsAssignableFromIsUsed()
+        public async Task AnalyzeWhenIsAssignableFromIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsAssignableFromUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsAssignableFromUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenIsAssignableFromIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.IsAssignableFrom(typeof(int), 2);
+                        {|#0:ClassicAssert.IsAssignableFrom(typeof(int), 2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenGenericIsAssignableFromIsUsed()
+        public async Task AnalyzeWhenGenericIsAssignableFromIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsAssignableFromUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsAssignableFromUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenGenericIsAssignableFromIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.IsAssignableFrom<int>(2);
+                        {|#0:ClassicAssert.IsAssignableFrom<int>(2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIsNotAssignableFromIsUsed()
+        public async Task AnalyzeWhenIsNotAssignableFromIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotAssignableFromUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsNotAssignableFromUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenIsNotAssignableFromIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.IsNotAssignableFrom(typeof(int), 2);
+                        {|#0:ClassicAssert.IsNotAssignableFrom(typeof(int), 2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenGenericIsNotAssignableFromIsUsed()
+        public async Task AnalyzeWhenGenericIsNotAssignableFromIsUsed()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotAssignableFromUsage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.IsNotAssignableFromUsage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenGenericIsNotAssignableFromIsUsed
                 {
                     public void Test()
                     {
-                        ↓ClassicAssert.IsNotAssignableFrom<int>(2);
+                        {|#0:ClassicAssert.IsNotAssignableFrom<int>(2)|};
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
     }
 }

@@ -1,19 +1,18 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.ClassicModelAssertUsage;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.ClassicModelAssertUsage.ClassicModelAssertUsageAnalyzer, NUnit.Analyzers.ClassicModelAssertUsage.IsNotEmptyClassicModelAssertUsageCodeFix>;
 
 namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
 {
     [TestFixture]
     public sealed class IsNotEmptyClassicModelAssertUsageCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new ClassicModelAssertUsageAnalyzer();
-        private static readonly CodeFixProvider fix = new IsNotEmptyClassicModelAssertUsageCodeFix();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.IsNotEmptyUsage);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.IsNotEmptyUsage);
 
         [Test]
         public void VerifyGetFixableDiagnosticIds()
@@ -25,14 +24,14 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
         }
 
         [Test]
-        public void VerifyIsNotEmptyFix()
+        public async Task VerifyIsNotEmptyFix()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
                     {
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.IsNotEmpty(collection);
+                        {|#0:ClassicAssert.IsNotEmpty(collection)|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -43,18 +42,18 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(collection, Is.Not.Empty);
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsNotEmptyFixWithMessage()
+        public async Task VerifyIsNotEmptyFixWithMessage()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
                     {
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.IsNotEmpty(collection, "message");
+                        {|#0:ClassicAssert.IsNotEmpty(collection, "message")|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -65,18 +64,18 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(collection, Is.Not.Empty, "message");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsNotEmptyFixWithMessageAndOneArgumentForParams()
+        public async Task VerifyIsNotEmptyFixWithMessageAndOneArgumentForParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
                     {
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.IsNotEmpty(collection, "message-id: {0}", Guid.NewGuid());
+                        {|#0:ClassicAssert.IsNotEmpty(collection, "message-id: {0}", Guid.NewGuid())|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -87,18 +86,18 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(collection, Is.Not.Empty, $"message-id: {Guid.NewGuid()}");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsNotEmptyFixWithMessageAndTwoArgumentsForParams()
+        public async Task VerifyIsNotEmptyFixWithMessageAndTwoArgumentsForParams()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
                     {
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.IsNotEmpty(collection, "{0}, {1}", "first", "second");
+                        {|#0:ClassicAssert.IsNotEmpty(collection, "{0}, {1}", "first", "second")|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -109,18 +108,18 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(collection, Is.Not.Empty, $"{"first"}, {"second"}");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsNotEmptyFixWithMessageAndArrayParamsInNonstandardOrder()
+        public async Task VerifyIsNotEmptyFixWithMessageAndArrayParamsInNonstandardOrder()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
                     {
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.IsNotEmpty(args: new[] { "first", "second" }, collection: collection, message: "{0}, {1}");
+                        {|#0:ClassicAssert.IsNotEmpty(args: new[] { "first", "second" }, collection: collection, message: "{0}, {1}")|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -131,11 +130,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That(collection, Is.Not.Empty, $"{"first"}, {"second"}");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsNotEmptyWithImplicitTypeConversionFix()
+        public async Task VerifyIsNotEmptyWithImplicitTypeConversionFix()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     private struct MyString
@@ -150,7 +149,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                     public void TestMethod()
                     {
                         MyString s = "Hello NUnit";
-                        ↓ClassicAssert.IsNotEmpty(s);
+                        {|#0:ClassicAssert.IsNotEmpty(s)|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -169,11 +168,11 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That((string)s, Is.Not.Empty);
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void VerifyIsNotEmptyWithImplicitTypeConversionFixInNonstandardOrder()
+        public async Task VerifyIsNotEmptyWithImplicitTypeConversionFixInNonstandardOrder()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     private struct MyString
@@ -188,7 +187,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                     public void TestMethod()
                     {
                         MyString s = "Hello NUnit";
-                        ↓ClassicAssert.IsNotEmpty(args: new[] { "first", "second" }, aString: s, message: "{0}, {1}");
+                        {|#0:ClassicAssert.IsNotEmpty(args: new[] { "first", "second" }, aString: s, message: "{0}, {1}")|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -207,22 +206,22 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         Assert.That((string)s, Is.Not.Empty, $"{"first"}, {"second"}");
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
+        public async Task CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? ",\r\n                \"message\""
+                ? $",{Environment.NewLine}                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void TestMethod()
                     {
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.IsNotEmpty(
-                            collection{{commaAndMessage}});
+                        {|#0:ClassicAssert.IsNotEmpty(
+                            collection{{commaAndMessage}})|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -235,23 +234,23 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                             Is.Not.Empty{{commaAndMessage}});
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
+        public async Task CodeFixMaintainsReasonableTriviaWithNewLineClosingParen([Values] bool hasMessage)
         {
             var commaAndMessage = hasMessage
-                ? ",\r\n                \"message\""
+                ? $",{Environment.NewLine}                \"message\""
                 : string.Empty;
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void TestMethod()
                     {
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.IsNotEmpty(
+                        {|#0:ClassicAssert.IsNotEmpty(
                             collection{{commaAndMessage}}
-                        );
+                        )|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -265,20 +264,20 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                         );
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
+        public async Task CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? $"{Environment.NewLine}            " : string.Empty;
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void TestMethod()
                     {
                         var collection = Array.Empty<object>();
 
-                        ↓ClassicAssert.IsNotEmpty(
-                            collection, "message"{{optionalNewline}});
+                        {|#0:ClassicAssert.IsNotEmpty(
+                            collection, "message"{{optionalNewline}})|};
                     }
             """);
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -290,7 +289,7 @@ namespace NUnit.Analyzers.Tests.ClassicModelAssertUsage
                             collection, Is.Not.Empty, "message"{{optionalNewline}});
                     }
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
     }
 }

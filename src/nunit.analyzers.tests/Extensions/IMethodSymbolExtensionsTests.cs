@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.Extensions;
+using NUnit.Analyzers.Tests.Verifiers;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Extensions
@@ -24,7 +25,7 @@ namespace NUnit.Analyzers.Tests.Extensions
                     }
                 }
             """;
-            var (method, _) = await GetMethodSymbolAsync(testCode).ConfigureAwait(false);
+            var (method, _) = await GetMethodSymbolAsync(testCode);
             var (requiredParameters, optionalParameters, paramsCount) = method.GetParameterCounts(false, null);
 
             Assert.Multiple(() =>
@@ -49,7 +50,7 @@ namespace NUnit.Analyzers.Tests.Extensions
                     }
                 }
             """;
-            var (method, compilation) = await GetMethodSymbolAsync(testCode).ConfigureAwait(false);
+            var (method, compilation) = await GetMethodSymbolAsync(testCode);
             INamedTypeSymbol? cancellationTokenType = compilation.GetTypeByMetadataName(NUnitV4FrameworkConstants.FullNameOfCancellationToken);
 
             var (requiredParameters, optionalParameters, paramsCount) = method.GetParameterCounts(hasCancelAfter, cancellationTokenType);
@@ -65,7 +66,7 @@ namespace NUnit.Analyzers.Tests.Extensions
 
         private static async Task<(IMethodSymbol MethodSymbol, Compilation Compilation)> GetMethodSymbolAsync(string code)
         {
-            var rootCompilationAndModel = await TestHelpers.GetRootCompilationAndModel(code);
+            var rootCompilationAndModel = await TestSetup.GetRootCompilationAndModelAsync(code);
 
             MethodDeclarationSyntax methodDeclaration = rootCompilationAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>().Single()

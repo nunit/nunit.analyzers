@@ -1,31 +1,30 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.WithinUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.WithinUsage.WithinUsageAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.WithinUsage
 {
     public class WithinUsageAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new WithinUsageAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.WithinIncompatibleTypes);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.WithinIncompatibleTypes);
 
-        private Settings settings;
-
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+#if !NUNIT4
+        [TestCase(NUnitFrameworkConstants.NameOfIsEqualTo)]
+#endif
+        [TestCase(NUnitFrameworkConstants.NameOfIsLessThan)]
+        [TestCase(NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo)]
+        [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThan)]
+        [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThanOrEqualTo)]
+        public async Task AnalyzeWhenAppliedToEqualityConstraintForStrings(string constraintName)
         {
-            IEnumerable<MetadataReference> existingReferences = Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>();
+            string testCode = TestUtility.WrapInTestMethod(
+                $$"""Assert.That("1", Is.Not.Empty.And.{{constraintName}}("1").{|#0:Within|}(0.1));""");
 
-            this.settings = Settings.Default
-                                    .WithMetadataReferences(existingReferences.Concat(MetadataReferences.Transitive(typeof(ImmutableArray<>))));
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
 #if !NUNIT4
@@ -35,42 +34,27 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         [TestCase(NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo)]
         [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThan)]
         [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThanOrEqualTo)]
-        public void AnalyzeWhenAppliedToEqualityConstraintForStrings(string constraintName)
+        public async Task AnalyzeWhenAppliedToInvertedEqualityConstraintForStrings(string constraintName)
         {
             string testCode = TestUtility.WrapInTestMethod(
-                $$"""Assert.That("1", Is.Not.Empty.And.{{constraintName}}("1").↓Within(0.1));""");
+                $$"""Assert.That("1", Is.Not.{{constraintName}}("1").{|#0:Within|}(0.1));""");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
-        }
-
-#if !NUNIT4
-        [TestCase(NUnitFrameworkConstants.NameOfIsEqualTo)]
-#endif
-        [TestCase(NUnitFrameworkConstants.NameOfIsLessThan)]
-        [TestCase(NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo)]
-        [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThan)]
-        [TestCase(NUnitFrameworkConstants.NameOfIsGreaterThanOrEqualTo)]
-        public void AnalyzeWhenAppliedToInvertedEqualityConstraintForStrings(string constraintName)
-        {
-            string testCode = TestUtility.WrapInTestMethod(
-                $$"""Assert.That("1", Is.Not.{{constraintName}}("1").↓Within(0.1));""");
-
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
 #if !NUNIT4
         [Test]
-        public void AnalyzeWhenAppliedToNotEqualConstraintForStrings()
+        public async Task AnalyzeWhenAppliedToNotEqualConstraintForStrings()
         {
             string testCode = TestUtility.WrapInTestMethod(
-                """Assert.That("1", Is.Not.EqualTo("1").↓Within(0.1));""");
+                """Assert.That("1", Is.Not.EqualTo("1").{|#0:Within|}(0.1));""");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 #endif
 
         [Test]
-        public void AnalyzeWhenUsingAllGenericParameters()
+        public async Task AnalyzeWhenUsingAllGenericParameters()
         {
             string testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     [TestCase(1.0, 1.05)]
@@ -79,21 +63,21 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                         Assert.That(a, Is.EqualTo(b).Within(0.1));
                     }
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenUsingSomeGenericParameters()
+        public async Task AnalyzeWhenUsingSomeGenericParameters()
         {
             string testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     [TestCase(1.0, 1.05)]
                     public void Test<T>(T a, T b)
                         where T : struct
                     {
-                        Assert.That(a, Is.EqualTo(b).Within(0.1).And.Not.LessThan("0.0").↓Within("5"));
+                        Assert.That(a, Is.EqualTo(b).Within(0.1).And.Not.LessThan("0.0").{|#0:Within|}("5"));
                     }
             """);
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
 #if NUNIT5
@@ -105,30 +89,30 @@ namespace NUnit.Analyzers.Tests.WithinUsage
 #endif
         [TestCase("nint")]
         [TestCase("nuint")]
-        public void AnalyzeWhenUsingNewType(string typeName)
+        public async Task AnalyzeWhenUsingNewType(string typeName)
         {
             string testCode = TestUtility.WrapInTestMethod($$"""
                         {{typeName}} a = ({{typeName}})30;
                         {{typeName}} b = ({{typeName}})50;
                         Assert.That(a, Is.EqualTo(b).Within(0.1));
             """);
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 #endif
 
         [Test]
-        public void AnalyzeWhenUsingIntPtr()
+        public async Task AnalyzeWhenUsingIntPtr()
         {
             string testCode = TestUtility.WrapInTestMethod($$"""
                         IntPtr a = (IntPtr)30;
                         IntPtr b = (IntPtr)50;
-                        Assert.That(a, Is.EqualTo(b).↓Within(0.1));
+                        Assert.That(a, Is.EqualTo(b).{|#0:Within|}(0.1));
             """);
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToEqualityConstraintForArraysOfValidTypes()
+        public async Task AnalyzeWhenAppliedToEqualityConstraintForArraysOfValidTypes()
         {
             string testCode = TestUtility.WrapInTestMethod("""
                         var a = new[] {1, 2};
@@ -136,35 +120,35 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                         Assert.That(a, Is.EqualTo(b).Within(0.1));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToEqualityConstraintForArraysOfInvalidTypes()
+        public async Task AnalyzeWhenAppliedToEqualityConstraintForArraysOfInvalidTypes()
         {
             string testCode = TestUtility.WrapInTestMethod("""
                         var a = new[] {"Hello", "World"};
                         var b = new[] {"Hi", "There"};
-                        Assert.That(a, Is.EqualTo(b).↓Within(0.1));
+                        Assert.That(a, Is.EqualTo(b).{|#0:Within|}(0.1));
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToEqualityConstraintForIncompatibleTuples()
+        public async Task AnalyzeWhenAppliedToEqualityConstraintForIncompatibleTuples()
         {
             string testCode = TestUtility.WrapInTestMethod("""
                         var a = ("1", "1");
                         var b = ("1.1", "1");
-                        Assert.That(a, Is.EqualTo(b).↓Within(0.1));
+                        Assert.That(a, Is.EqualTo(b).{|#0:Within|}(0.1));
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToEqualityConstraintForMixedCompatibleTuples()
+        public async Task AnalyzeWhenAppliedToEqualityConstraintForMixedCompatibleTuples()
         {
 #if NUNIT5 && !NETFRAMEWORK
             string testCode = TestUtility.WrapInTestMethod("""
@@ -179,11 +163,11 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                         Assert.That(a, Is.EqualTo(b).Within(0.1));
             """);
 #endif
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToEqualityConstraintForNamedTuples()
+        public async Task AnalyzeWhenAppliedToEqualityConstraintForNamedTuples()
         {
             string testCode = TestUtility.WrapInTestMethod("""
                         var a = (value: 1, name: "1");
@@ -191,21 +175,21 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                         Assert.That(a, Is.EqualTo(b).Within(0.1));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase("1", "1")]
         [TestCase("0.1234", "0.2134")]
-        public void AnalyzeWhenAppliedToEqualityConstraintForNumericTypes(string a, string b)
+        public async Task AnalyzeWhenAppliedToEqualityConstraintForNumericTypes(string a, string b)
         {
             string testCode = TestUtility.WrapInTestMethod(
                 $"Assert.That({a}, Is.EqualTo({b}).Within(0.1));");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToEqualityConstraintForNumericTuples()
+        public async Task AnalyzeWhenAppliedToEqualityConstraintForNumericTuples()
         {
             string testCode = TestUtility.WrapInTestMethod("""
                         var a = (1, 1);
@@ -213,11 +197,11 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                         Assert.That(a, Is.EqualTo(b).Within(0.1));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToEqualityConstraintForMixedValidTypeTuples()
+        public async Task AnalyzeWhenAppliedToEqualityConstraintForMixedValidTypeTuples()
         {
             string testCode = TestUtility.WrapInTestMethod("""
                         var a = (1, DateTime.Now);
@@ -225,12 +209,12 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                         Assert.That(a, Is.EqualTo(b).Within(0.1));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase(nameof(DateTimeOffset))]
         [TestCase(nameof(DateTime))]
-        public void AnalyzeWhenAppliedToEqualityConstraintForDateTypes(string typeName)
+        public async Task AnalyzeWhenAppliedToEqualityConstraintForDateTypes(string typeName)
         {
             string testCode = TestUtility.WrapInTestMethod($$"""
                         var a = {{typeName}}.Now;
@@ -238,23 +222,23 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                         Assert.That(a, Is.EqualTo(b).Within(TimeSpan.Zero));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToEqualityConstraintForDateTypeKind()
+        public async Task AnalyzeWhenAppliedToEqualityConstraintForDateTypeKind()
         {
             string testCode = TestUtility.WrapInTestMethod($$"""
                         var a = DateTimeKind.Local;
                         var b = DateTimeKind.Local;
-                        Assert.That(a, Is.EqualTo(b).↓Within(1));
+                        Assert.That(a, Is.EqualTo(b).{|#0:Within|}(1));
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToEqualityConstraintForTimeSpanTypes()
+        public async Task AnalyzeWhenAppliedToEqualityConstraintForTimeSpanTypes()
         {
             string testCode = TestUtility.WrapInTestMethod("""
                         var a = TimeSpan.Zero;
@@ -262,11 +246,11 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                         Assert.That(a, Is.EqualTo(b).Within(TimeSpan.Zero));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToCollectionsOfValidTypes()
+        public async Task AnalyzeWhenAppliedToCollectionsOfValidTypes()
         {
             string testCode = TestUtility.WrapInTestMethod("""
                         double value = 5.5;
@@ -275,24 +259,24 @@ namespace NUnit.Analyzers.Tests.WithinUsage
             """,
                 "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToCollectionsOfInValidTypes()
+        public async Task AnalyzeWhenAppliedToCollectionsOfInValidTypes()
         {
             string testCode = TestUtility.WrapInTestMethod("""
                         string value = "Value";
                         string value2 = "Value2";
-                        Assert.That(new List<string>() { value }, Is.EqualTo(new List<string> { value2 }).↓Within(2));
+                        Assert.That(new List<string>() { value }, Is.EqualTo(new List<string> { value2 }).{|#0:Within|}(2));
             """,
                 "using System.Collections.Generic;");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToImmutableArrayOfValidTypes()
+        public async Task AnalyzeWhenAppliedToImmutableArrayOfValidTypes()
         {
             string testCode = TestUtility.WrapInTestMethod("""
                         double value = 5.5;
@@ -301,36 +285,36 @@ namespace NUnit.Analyzers.Tests.WithinUsage
             """,
                 "using System.Collections.Immutable;");
 
-            RoslynAssert.Valid(analyzer, testCode, this.settings);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToImmutableArrayOfInValidTypes()
+        public async Task AnalyzeWhenAppliedToImmutableArrayOfInValidTypes()
         {
             string testCode = TestUtility.WrapInTestMethod("""
                         string value = "Value";
                         string value2 = "Value2";
-                        Assert.That(ImmutableArray.Create(value), Is.EqualTo(ImmutableArray.Create(value2)).↓Within(2));
+                        Assert.That(ImmutableArray.Create(value), Is.EqualTo(ImmutableArray.Create(value2)).{|#0:Within|}(2));
             """,
                 "using System.Collections.Immutable;");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode, this.settings);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToChar()
+        public async Task AnalyzeWhenAppliedToChar()
         {
             string testCode = TestUtility.WrapInTestMethod($$"""
                         char a = 'a';
                         char b = 'b';
-                        Assert.That(a, Is.EqualTo(b).↓Within(2));
+                        Assert.That(a, Is.EqualTo(b).{|#0:Within|}(2));
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void NestedCase()
+        public async Task NestedCase()
         {
             string testCode = TestUtility.WrapInTestMethod($$"""
                         const string Key1 = "key1";
@@ -344,11 +328,11 @@ namespace NUnit.Analyzers.Tests.WithinUsage
             """,
             "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeNonGenericDictionaryEntry()
+        public async Task AnalyzeNonGenericDictionaryEntry()
         {
             string testCode = TestUtility.WrapInTestMethod($$"""
                         const string Value = "key";
@@ -359,11 +343,11 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                 "using System.Collections;");
 
             // By the time we see the '.Within' we have no idea about the types used.
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeOnNonGenericCollection()
+        public async Task AnalyzeOnNonGenericCollection()
         {
             string testCode = TestUtility.WrapInTestMethod("""
                         double value = 5.5;
@@ -372,11 +356,11 @@ namespace NUnit.Analyzers.Tests.WithinUsage
             """,
                 "using System.Collections;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeNonGenericSubclassOfGenericIEnumerable()
+        public async Task AnalyzeNonGenericSubclassOfGenericIEnumerable()
         {
             string testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -400,7 +384,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                      using System.Collections.Generic;
                 """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase("double")]
@@ -412,7 +396,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
         [TestCase("Int128")]
         [TestCase("UInt128")]
 #endif
-        public void AnalyzeWhenAppliedToEqualityConstraintForNullableValidTypes(string type)
+        public async Task AnalyzeWhenAppliedToEqualityConstraintForNullableValidTypes(string type)
         {
             string testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     [TestCase(null, null)]
@@ -422,12 +406,12 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                     }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase("class")]
         [TestCase("struct")]
-        public void AnalyzeWhenAppliedToUserDefinedType(string kind)
+        public async Task AnalyzeWhenAppliedToUserDefinedType(string kind)
         {
             string testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 [TestFixture]
@@ -457,12 +441,12 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase("class")]
         [TestCase("struct")]
-        public void AnalyzeWhenAppliedToUserDefinedTypeOverridingEquals(string kind)
+        public async Task AnalyzeWhenAppliedToUserDefinedTypeOverridingEquals(string kind)
         {
             string testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 [TestFixture]
@@ -473,7 +457,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                     {
                         var instance = new UserDefinedType(1, 1.1, "1.1");
 
-                        Assert.That(new UserDefinedType(1, 1.2, "1.1"), Is.EqualTo(instance).↓Within(0.1));
+                        Assert.That(new UserDefinedType(1, 1.2, "1.1"), Is.EqualTo(instance).{|#0:Within|}(0.1));
                     }
 
                     private {{kind}} UserDefinedType
@@ -505,11 +489,11 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAppliedToRecord()
+        public async Task AnalyzeWhenAppliedToRecord()
         {
             string testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -520,7 +504,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                     {
                         var instance = new SomeRecord(1, 1.1, "1.1");
 
-                        Assert.That(new SomeRecord(1, 1.2, "1.1"), Is.EqualTo(instance).↓Within(0.1));
+                        Assert.That(new SomeRecord(1, 1.2, "1.1"), Is.EqualTo(instance).{|#0:Within|}(0.1));
                     }
 
                     private sealed record SomeRecord
@@ -539,7 +523,7 @@ namespace NUnit.Analyzers.Tests.WithinUsage
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
     }
 }

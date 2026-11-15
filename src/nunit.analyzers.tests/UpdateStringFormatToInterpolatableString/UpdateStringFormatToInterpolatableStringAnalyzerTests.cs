@@ -1,18 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.UpdateStringFormatToInterpolatableString;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.UpdateStringFormatToInterpolatableString.UpdateStringFormatToInterpolatableStringAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
 {
     [TestFixture]
     public sealed class UpdateStringFormatToInterpolatableStringAnalyzerTests
     {
-        private readonly DiagnosticAnalyzer analyzer = new UpdateStringFormatToInterpolatableStringAnalyzer();
-        private readonly ExpectedDiagnostic diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.UpdateStringFormatToInterpolatableString);
+        private readonly DiagnosticResult diagnostic = Verify.Diagnostic(AnalyzerIdentifiers.UpdateStringFormatToInterpolatableString);
 
         private static readonly string[] AssertAndAssume =
         [
@@ -31,160 +30,160 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
         private static IEnumerable<string> OneArgumentsAsserts { get; } = NoArgumentsAsserts.Concat([NUnitFrameworkConstants.NameOfAssertWarn]);
 
         [TestCaseSource(nameof(NoArgumentsAsserts))]
-        public void AnalyzeWhenNoArgumentsAreUsed(string method)
+        public async Task AnalyzeWhenNoArgumentsAreUsed(string method)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         Assert.{{method}}();
 
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(OneArgumentsAsserts))]
-        public void AnalyzeWhenOnlyMessageArgumentIsUsed(string method)
+        public async Task AnalyzeWhenOnlyMessageArgumentIsUsed(string method)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         Assert.{{method}}("Message");
 
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
 #if !NUNIT4
         [TestCaseSource(nameof(OneArgumentsAsserts))]
-        public void AnalyzeWhenFormatAndArgumentsAreUsed(string method)
+        public async Task AnalyzeWhenFormatAndArgumentsAreUsed(string method)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
-                        ↓Assert.{{method}}("Method: {0}", "{{method}}");
+                        {|#0:Assert.{{method}}("Method: {0}", "{{method}}")|};
 
             """);
-            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, this.diagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(OneArgumentsAsserts))]
-        public void AnalyzeWhenFormatAndArrayArgumentsAreUsed(string method)
+        public async Task AnalyzeWhenFormatAndArrayArgumentsAreUsed(string method)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         var values = new object[] { "{{method}}" };
-                        ↓Assert.{{method}}("Method: {0}", values);
+                        {|#0:Assert.{{method}}("Method: {0}", values)|};
 
             """);
-            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, this.diagnostic.WithLocation(0));
         }
 #endif
 
         [TestCaseSource(nameof(OneArgumentsAsserts))]
-        public void AnalyzeWhenFormattableStringIsUsed(string method)
+        public async Task AnalyzeWhenFormattableStringIsUsed(string method)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         Assert.{{method}}($"Method: {"method"}");
 
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertOrAssumeBoolWhenNoArgumentsAreUsed(string assertOrAssume)
+        public async Task AnalyzeAssertOrAssumeBoolWhenNoArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         {{assertOrAssume}}.That(true);
 
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertOrAssumeBoolWhenOnlyMessageArgumentIsUsed(string assertOrAssume)
+        public async Task AnalyzeAssertOrAssumeBoolWhenOnlyMessageArgumentIsUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         {{assertOrAssume}}.That(false, "Message");
 
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertOrAssumeBoolWhenFormatAndArgumentsAreUsed(string assertOrAssume)
+        public async Task AnalyzeAssertOrAssumeBoolWhenFormatAndArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
-                        ↓{{assertOrAssume}}.That(false, "Method: {0}", false.ToString());
+                        {|#0:{{assertOrAssume}}.That(false, "Method: {0}", false.ToString())|};
 
             """);
-            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, this.diagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertOrAssumeBoolWhenFormattableStringIsUsed(string assertOrAssume)
+        public async Task AnalyzeAssertOrAssumeBoolWhenFormattableStringIsUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         {{assertOrAssume}}.That(false, $"Method: {false}");
 
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertOrAssumeThatWhenNoArgumentsAreUsed(string assertOrAssume)
+        public async Task AnalyzeAssertOrAssumeThatWhenNoArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         double pi = 3.1415;
                         {{assertOrAssume}}.That(pi, Is.EqualTo(3.1415).Within(0.0001));
 
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertOrAssumeThatWhenOnlyMessageArgumentIsUsed(string assertOrAssume)
+        public async Task AnalyzeAssertOrAssumeThatWhenOnlyMessageArgumentIsUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         double pi = 3.1415;
                         {{assertOrAssume}}.That(pi, Is.EqualTo(3.1415).Within(0.0001), "Message");
 
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertOrAssumeThatWhenFormatAndStringArgumentsAreUsed(string assertOrAssume)
+        public async Task AnalyzeAssertOrAssumeThatWhenFormatAndStringArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     [TestCase("NUnit 4.0", "NUnit 3.14")]
                     public void {{assertOrAssume}}Something(string actual, string expected)
                     {
-                        ↓{{assertOrAssume}}.That(actual, Is.EqualTo(expected).IgnoreCase, "Expected '{0}', but got: {1}", expected, actual);
+                        {|#0:{{assertOrAssume}}.That(actual, Is.EqualTo(expected).IgnoreCase, "Expected '{0}', but got: {1}", expected, actual)|};
                     }
             """);
 
-            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, this.diagnostic.WithLocation(0));
         }
 
 #if !NUNIT4
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertOrAssumeThatWhenFormatAndArgumentsAreUsed(string assertOrAssume)
+        public async Task AnalyzeAssertOrAssumeThatWhenFormatAndArgumentsAreUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         double pi = 3.1415;
-                        ↓{{assertOrAssume}}.That(pi, Is.EqualTo(3.1415).Within(0.0001), "Method: {0}", pi);
+                        {|#0:{{assertOrAssume}}.That(pi, Is.EqualTo(3.1415).Within(0.0001), "Method: {0}", pi)|};
 
             """);
-            RoslynAssert.Diagnostics(this.analyzer, this.diagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, this.diagnostic.WithLocation(0));
         }
 #endif
 
         [TestCaseSource(nameof(AssertAndAssume))]
-        public void AnalyzeAssertOrAssumeThatWhenFormatStringIsUsed(string assertOrAssume)
+        public async Task AnalyzeAssertOrAssumeThatWhenFormatStringIsUsed(string assertOrAssume)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         double pi = 3.1415;
                         {{assertOrAssume}}.That(pi, Is.EqualTo(3.1415).Within(0.0001), $"Method: {pi}");
 
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeAssertDoesNotThrowWhenFormatAndArgumentsAreUsed()
+        public async Task AnalyzeAssertDoesNotThrowWhenFormatAndArgumentsAreUsed()
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         Assert.DoesNotThrow(() => SomeOperation(), "Expected no exception to be thrown by {0}", nameof(SomeOperation));
@@ -194,11 +193,11 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
                         }
 
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeAssertThrowsWhenFormatAndArgumentsAreUsed()
+        public async Task AnalyzeAssertThrowsWhenFormatAndArgumentsAreUsed()
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         Assert.Throws<InvalidOperationException>(() => SomeOperation(),
@@ -209,12 +208,12 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
                         }
 
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
 #if NUNIT4 && NET6_0_OR_GREATER
         [Test]
-        public void AnalyzeAssertRecognizesPassingThroughCallerArgumentExpression()
+        public async Task AnalyzeAssertRecognizesPassingThroughCallerArgumentExpression()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public static void AssertThat(
@@ -233,7 +232,7 @@ namespace NUnit.Analyzers.Tests.UpdateStringFormatToInterpolatableString
 
             """, "using System.Runtime.CompilerServices;using NUnit.Framework.Constraints;");
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 #endif
     }

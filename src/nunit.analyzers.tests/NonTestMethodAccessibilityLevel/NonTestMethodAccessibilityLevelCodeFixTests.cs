@@ -1,18 +1,15 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.NonTestMethodAccessibilityLevel;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.NonTestMethodAccessibilityLevel.NonTestMethodAccessibilityLevelAnalyzer, NUnit.Analyzers.NonTestMethodAccessibilityLevel.NonTestMethodAccessibilityLevelCodeFix>;
 
 namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
 {
     public class NonTestMethodAccessibilityLevelCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new NonTestMethodAccessibilityLevelAnalyzer();
-        private static readonly CodeFixProvider fix = new NonTestMethodAccessibilityLevelCodeFix();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.NonTestMethodIsPublic);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.NonTestMethodIsPublic);
 
         private static readonly object[] NonPrivateModifiers =
         [
@@ -25,12 +22,12 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         ];
 
         [TestCaseSource(nameof(NonPrivateModifiers))]
-        public void FixesPublicAccessModifiers(string modifiers, string modifiersAfter)
+        public async Task FixesPublicAccessModifiers(string modifiers, string modifiersAfter)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     [Test]
                     public void TestMethod() { AssertMethod(); }
-                    {{modifiers}} void ↓AssertMethod() { }
+                    {{modifiers}} void {|#0:AssertMethod|}() { }
             """);
 
             var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -39,7 +36,7 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
                     {{modifiersAfter}} void AssertMethod() { }
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithLocation(0), fixedCode);
         }
     }
 }

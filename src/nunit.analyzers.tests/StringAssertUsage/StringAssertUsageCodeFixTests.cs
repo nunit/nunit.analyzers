@@ -1,70 +1,68 @@
 using System.Collections.Generic;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.StringAssertUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.StringAssertUsage.StringAssertUsageAnalyzer, NUnit.Analyzers.StringAssertUsage.StringAssertUsageCodeFix>;
 
 namespace NUnit.Analyzers.Tests.StringAssertUsage
 {
     [TestFixture]
     internal sealed class StringAssertUsageCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new StringAssertUsageAnalyzer();
-        private static readonly CodeFixProvider fix = new StringAssertUsageCodeFix();
-        private static readonly ExpectedDiagnostic expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.StringAssertUsage);
+        private static readonly DiagnosticResult expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.StringAssertUsage);
 
         private static IEnumerable<string> StringAsserts => StringAssertUsageAnalyzer.StringAssertToConstraint.Keys;
 
         [TestCaseSource(nameof(StringAsserts))]
-        public void AnalyzeWhenNoArgumentsAreUsed(string method)
+        public async Task AnalyzeWhenNoArgumentsAreUsed(string method)
         {
             var code = TestUtility.WrapInTestMethod($$"""
-                        ↓StringAssert.{{method}}("expected", "actual");
+                        {|#0:StringAssert.{{method}}("expected", "actual")|};
 
             """);
             var fixedCode = TestUtility.WrapInTestMethod($$"""
                         Assert.That("actual", {{GetAdjustedConstraint(method)}});
 
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(StringAsserts))]
-        public void AnalyzeWhenOnlyMessageArgumentIsUsed(string method)
+        public async Task AnalyzeWhenOnlyMessageArgumentIsUsed(string method)
         {
             var code = TestUtility.WrapInTestMethod($$"""
-                        ↓StringAssert.{{method}}("expected", "actual", "message");
+                        {|#0:StringAssert.{{method}}("expected", "actual", "message")|};
 
             """);
             var fixedCode = TestUtility.WrapInTestMethod($$"""
                         Assert.That("actual", {{GetAdjustedConstraint(method)}}, "message");
 
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(StringAsserts))]
-        public void AnalyzeWhenFormatAndArgumentsAreUsed(string method)
+        public async Task AnalyzeWhenFormatAndArgumentsAreUsed(string method)
         {
             var code = TestUtility.WrapInTestMethod($$"""
-                        ↓StringAssert.{{method}}("expected", "actual", "Because of {0}", "message");
+                        {|#0:StringAssert.{{method}}("expected", "actual", "Because of {0}", "message")|};
 
             """);
             var fixedCode = TestUtility.WrapInTestMethod($$"""
                         Assert.That("actual", {{GetAdjustedConstraint(method)}}, $"Because of {"message"}");
 
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(StringAsserts))]
-        public void AnalyzeWhenFormatAndArgsArrayAreUsed(string method)
+        public async Task AnalyzeWhenFormatAndArgsArrayAreUsed(string method)
         {
             var code = TestUtility.WrapInTestMethod($$"""
                         object[] args = { "message" };
-                        ↓StringAssert.{{method}}("expected", "actual", "Because of {0}", args);
+                        {|#0:StringAssert.{{method}}("expected", "actual", "Because of {0}", args)|};
 
             """);
             var fixedCode = TestUtility.WrapInTestMethod($$"""
@@ -72,14 +70,14 @@ namespace NUnit.Analyzers.Tests.StringAssertUsage
                         Assert.That("actual", {{GetAdjustedConstraint(method)}}, () => string.Format("Because of {0}", args));
 
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(StringAsserts))]
-        public void AnalyzeWhenFormatVariableAndArgumentsAreUsed(string method)
+        public async Task AnalyzeWhenFormatVariableAndArgumentsAreUsed(string method)
         {
             var code = TestUtility.WrapInTestMethod($$"""
-                        ↓StringAssert.{{method}}("expected", "actual", GetLocalizedFormatSpecification(), "message");
+                        {|#0:StringAssert.{{method}}("expected", "actual", GetLocalizedFormatSpecification(), "message")|};
                         static string GetLocalizedFormatSpecification() => "Because of {0}";
 
             """);
@@ -88,20 +86,20 @@ namespace NUnit.Analyzers.Tests.StringAssertUsage
                         static string GetLocalizedFormatSpecification() => "Because of {0}";
 
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(StringAsserts))]
-        public void AnalyzeWhenFormatAndArgumentsAreUsedOutOfOrder(string method)
+        public async Task AnalyzeWhenFormatAndArgumentsAreUsedOutOfOrder(string method)
         {
             var firstParameterName = StringAssertUsageCodeFix.StringAssertToExpectedParameterName[method];
             var code = TestUtility.WrapInTestMethod($$"""
-                        ↓StringAssert.{{method}}(args: new[] { "first", "second" }, message: "{0}, {1}", actual: "actual", {{firstParameterName}}: "expected");
+                        {|#0:StringAssert.{{method}}(args: new[] { "first", "second" }, message: "{0}, {1}", actual: "actual", {{firstParameterName}}: "expected")|};
             """);
             var fixedCode = TestUtility.WrapInTestMethod($$"""
                         Assert.That("actual", {{GetAdjustedConstraint(method)}}, $"{"first"}, {"second"}");
             """);
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         private static string GetAdjustedConstraint(string method) =>

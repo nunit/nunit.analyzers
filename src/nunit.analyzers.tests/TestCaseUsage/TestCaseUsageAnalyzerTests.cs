@@ -3,20 +3,19 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using Gu.Roslyn.Asserts;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.TestCaseUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.TestCaseUsage.TestCaseUsageAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.TestCaseUsage
 {
     [TestFixture]
     public sealed class TestCaseUsageAnalyzerTests
     {
-        private readonly DiagnosticAnalyzer analyzer = new TestCaseUsageAnalyzer();
-
         private static IEnumerable<TestCaseData> SpecialConversions
         {
             get
@@ -44,7 +43,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         public void VerifySupportedDiagnostics()
         {
             var analyzer = new TestCaseUsageAnalyzer();
-            var diagnostics = analyzer.SupportedDiagnostics;
+            var diagnostics = new TestCaseUsageAnalyzer().SupportedDiagnostics;
 
             var expectedIdentifiers = new List<string>
             {
@@ -78,7 +77,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         }
 
         [Test]
-        public void AnalyzeWhenAttributeIsNotInNUnit()
+        public async Task AnalyzeWhenAttributeIsNotInNUnit()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenAttributeIsNotInNUnit
@@ -90,11 +89,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAttributeIsTestAttribute()
+        public async Task AnalyzeWhenAttributeIsTestAttribute()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenAttributeIsTestAttribute
@@ -103,11 +102,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void ATest() { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAttributeHasNoArguments()
+        public async Task AnalyzeWhenAttributeHasNoArguments()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenAttributeHasNoArguments
@@ -116,11 +115,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void ATest() { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentIsCorrect()
+        public async Task AnalyzeWhenArgumentIsCorrect()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenArgumentIsCorrect
@@ -129,11 +128,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(int a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(SpecialConversions))]
-        public void AnalyzeWhenArgumentIsSpecialConversion(string value, Type targetType)
+        public async Task AnalyzeWhenArgumentIsSpecialConversion(string value, Type targetType)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public sealed class AnalyzeWhenArgumentIsSpecialConversion
@@ -142,11 +141,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test({{targetType.Name}} a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentIsACast()
+        public async Task AnalyzeWhenArgumentIsACast()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeWhenArgumentIsACast
@@ -155,11 +154,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(byte a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentIsAPrefixedValue()
+        public async Task AnalyzeWhenArgumentIsAPrefixedValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeWhenArgumentIsAPrefixedValue
@@ -168,11 +167,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(int a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsEnum()
+        public async Task AnalyzeArgumentIsEnum()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeArgumentIsEnum
@@ -184,11 +183,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(TestEnum e) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsIntConvertedToEnum()
+        public async Task AnalyzeArgumentIsIntConvertedToEnum()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeArgumentIsIntConvertedToEnum
@@ -200,11 +199,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(TestEnum e) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsEnumConvertedToInt()
+        public async Task AnalyzeArgumentIsEnumConvertedToInt()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeArgumentIsEnumConvertedToInt
@@ -216,11 +215,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(int e) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeParameterIsArray()
+        public async Task AnalyzeParameterIsArray()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeArgumentIsArray
@@ -233,11 +232,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(byte[] buffer) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeParameterIsArrayOfEnum()
+        public async Task AnalyzeParameterIsArrayOfEnum()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeParameterIsArrayOfEnum
@@ -251,11 +250,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(TestEnum[] e) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeParameterIsArrayOfObjectWithGoodArguments()
+        public async Task AnalyzeParameterIsArrayOfObjectWithGoodArguments()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeArgumentIsArrayOfObject
@@ -264,62 +263,56 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(int i, double d) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeParameterIsArrayOfObjectWithBadArguments()
+        public async Task AnalyzeParameterIsArrayOfObjectWithBadArguments()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeArgumentIsArrayOfObject
                 {
-                    [TestCase(new object[] { 1, ↓2.0 })]
+                    [TestCase(new object[] { 1, {|#0:2.0|} })]
                     public void Test(int i, int ii) { }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer,
-                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
-                testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithLocation(0).WithArguments("1", "double", "ii", "int"));
         }
 
         [Test]
-        public void AnalyzeArgumentIsStringConvertedToEnum()
+        public async Task AnalyzeArgumentIsStringConvertedToEnum()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeArgumentIsStringConvertedToEnum
                 {
                     public enum TestEnum { A,B,C }
 
-                    [TestCase(↓"A")]
-                    [TestCase(↓"B")]
+                    [TestCase({|#0:"A"|})]
+                    [TestCase({|#1:"B"|})]
                     public void Test(TestEnum e) { }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer,
-                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
-                testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithLocation(0).WithArguments("0", "string", "e", "NUnit.Analyzers.Tests.Targets.TestCaseUsage.AnalyzeArgumentIsStringConvertedToEnum.TestEnum"), Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithLocation(1).WithArguments("0", "string", "e", "NUnit.Analyzers.Tests.Targets.TestCaseUsage.AnalyzeArgumentIsStringConvertedToEnum.TestEnum"));
         }
 
         [Test]
-        public void AnalyzeArgumentIsEnumConvertedToString()
+        public async Task AnalyzeArgumentIsEnumConvertedToString()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeArgumentIsEnumConvertedToString
                 {
                     public enum TestEnum { A,B,C }
 
-                    [TestCase(↓TestEnum.A)]
-                    [TestCase(↓TestEnum.B)]
+                    [TestCase({|#0:TestEnum.A|})]
+                    [TestCase({|#1:TestEnum.B|})]
                     public void Test(string e) { }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer,
-                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
-                testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithLocation(0).WithArguments("0", "NUnit.Analyzers.Tests.Targets.TestCaseUsage.AnalyzeArgumentIsEnumConvertedToString.TestEnum", "e", "string"), Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithLocation(1).WithArguments("0", "NUnit.Analyzers.Tests.Targets.TestCaseUsage.AnalyzeArgumentIsEnumConvertedToString.TestEnum", "e", "string"));
         }
 
         [Test]
-        public void AnalyzeArgumentHasImplicitConversion()
+        public async Task AnalyzeArgumentHasImplicitConversion()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeArgumentHasImplicitConversion
@@ -328,11 +321,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(long e) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsStringConvertedToTypeWithCustomConverter()
+        public async Task AnalyzeArgumentIsStringConvertedToTypeWithCustomConverter()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 using System.ComponentModel;
@@ -348,11 +341,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 class CustomTypeConverter : TypeConverter { }
             """);
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsNullConvertedToTypeWithCustomConverter()
+        public async Task AnalyzeArgumentIsNullConvertedToTypeWithCustomConverter()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 using System.ComponentModel;
@@ -368,11 +361,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 class CustomTypeConverter : TypeConverter { }
             """);
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsStringConvertedToTypeWithCustomConverterOnBaseType()
+        public async Task AnalyzeArgumentIsStringConvertedToTypeWithCustomConverterOnBaseType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 using System.ComponentModel;
@@ -389,11 +382,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 class BaseTypeConverter : TypeConverter { }
             """);
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsIntConvertedToTypeWithCustomConverter()
+        public async Task AnalyzeArgumentIsIntConvertedToTypeWithCustomConverter()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 using System.ComponentModel;
@@ -409,65 +402,59 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 class CustomTypeConverter : TypeConverter { }
             """);
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentTypeIsIncorrect()
+        public async Task AnalyzeWhenArgumentTypeIsIncorrect()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                string.Format(CultureInfo.InvariantCulture,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture,
                     TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "int", "a", "char"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenArgumentTypeIsIncorrect
                 {
-                    [TestCase(↓2)]
+                    [TestCase({|#0:2|})]
                     public void Test(char a) { }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenOneArgumentTypeOfMultipleIsIncorrect()
+        public async Task AnalyzeWhenOneArgumentTypeOfMultipleIsIncorrect()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                string.Format(CultureInfo.InvariantCulture,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture,
                     TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 1, "int", "expected", "System.Type"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenOneArgumentTypeOfMultipleIsIncorrect
                 {
-                    [TestCase("string", ↓12, 27, "other")]
+                    [TestCase("string", {|#0:12|}, 27, "other")]
                     public void Test(string actual, Type expected, int value, string other) { }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenLastArgumentTypeOfTwoIsIncorrect()
+        public async Task AnalyzeWhenLastArgumentTypeOfTwoIsIncorrect()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                string.Format(CultureInfo.InvariantCulture,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture,
                     TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 1, "int", "expected", "bool"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenLastArgumentTypeOfTwoIsIncorrect
                 {
-                    [TestCase("string", ↓12)]
+                    [TestCase("string", {|#0:12|})]
                     public void Test(string actual, bool expected) { }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeArgumentHasTypeNotAllowedInAttributes()
+        public async Task AnalyzeArgumentHasTypeNotAllowedInAttributes()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeArgumentHasTypeNotAllowedInAttributes
@@ -476,29 +463,27 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(decimal d) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode, Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors));
+            await Verify.VerifyAnalyzerAsync(testCode, test => test.CompilerDiagnostics = CompilerDiagnostics.None);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToValueType()
+        public async Task AnalyzeWhenArgumentPassesNullToValueType()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                string.Format(CultureInfo.InvariantCulture,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture,
                     TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "<null>", "a", "char"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenArgumentPassesNullToValueType
                 {
-                    [TestCase(↓null)]
+                    [TestCase({|#0:null|})]
                     public void Test(char a) { }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToNullableType()
+        public async Task AnalyzeWhenArgumentPassesNullToNullableType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenArgumentPassesNullToNullableValueType
@@ -507,11 +492,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(int? a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToNullableEnumType()
+        public async Task AnalyzeWhenArgumentPassesNullToNullableEnumType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenArgumentPassesNullToNullableEnumType
@@ -522,11 +507,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(TestEnum? e) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToNullableReferenceType()
+        public async Task AnalyzeWhenArgumentPassesNullToNullableReferenceType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenArgumentPassesNullToNullableType
@@ -535,11 +520,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(object? a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToUnspecifiedReferenceType()
+        public async Task AnalyzeWhenArgumentPassesNullToUnspecifiedReferenceType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 #nullable disable
@@ -549,29 +534,27 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(object a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToNonNullableReferenceType()
+        public async Task AnalyzeWhenArgumentPassesNullToNonNullableReferenceType()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                string.Format(CultureInfo.InvariantCulture,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture,
                     TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage, 0, "<null>", "a", "object"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenArgumentPassesNullToNullableType
                 {
-                    [TestCase(↓null)]
+                    [TestCase({|#0:null|})]
                     public void Test(object a) { }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesSuppressedNullToNonNullableReferenceType()
+        public async Task AnalyzeWhenArgumentPassesSuppressedNullToNonNullableReferenceType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenArgumentPassesSuppressedNullToNonNullableType
@@ -580,26 +563,24 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(object a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToNonNullableParamsReferenceType()
+        public async Task AnalyzeWhenArgumentPassesNullToNonNullableParamsReferenceType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenArgumentPassesSuppressedNullToNonNullableType
                 {
-                    [TestCase("Hello", ↓null)]
+                    [TestCase("Hello", {|#0:null|})]
                     public void Test(params string[] a) { }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer,
-                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
-                testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithLocation(0).WithArguments("1", "object", "a", "string[]"));
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesSuppressedNullToNonNullableParamsReferenceType()
+        public async Task AnalyzeWhenArgumentPassesSuppressedNullToNonNullableParamsReferenceType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenArgumentPassesSuppressedNullToNonNullableType
@@ -608,11 +589,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(params string[] a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesValueToNullableType()
+        public async Task AnalyzeWhenArgumentPassesValueToNullableType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenArgumentPassesValueToNullableType
@@ -621,11 +602,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(int? a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesValueToNullableEnumType()
+        public async Task AnalyzeWhenArgumentPassesValueToNullableEnumType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenArgumentPassesValueToNullableEnumType
@@ -637,65 +618,59 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(TestEnum? e) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenNotEnoughRequiredArgumentsAreProvided()
+        public async Task AnalyzeWhenNotEnoughRequiredArgumentsAreProvided()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestCaseNotEnoughArgumentsUsage,
-                TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseNotEnoughArgumentsUsage).WithMessage(TestCaseUsageAnalyzerConstants.NotEnoughArgumentsMessage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenNotEnoughRequiredArgumentsAreProvided
                 {
-                    [↓TestCase(2)]
+                    [{|#0:TestCase(2)|}]
                     public void Test(int a, char b) { }
                 }
             """);
             var message = "The TestCaseAttribute provided too few arguments. Expected '2', but got '1'.";
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenTooManyRequiredArgumentsAreProvided()
+        public async Task AnalyzeWhenTooManyRequiredArgumentsAreProvided()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage,
-                TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage).WithMessage(TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTooManyRequiredArgumentsAreProvided
                 {
-                    [↓TestCase(2, 'b')]
+                    [{|#0:TestCase(2, 'b')|}]
                     public void Test(int a) { }
                 }
             """);
             var message = "The TestCaseAttribute provided too many arguments. Expected '1', but got '2'.";
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided()
+        public async Task AnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage,
-                TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseTooManyArgumentsUsage).WithMessage(TestCaseUsageAnalyzerConstants.TooManyArgumentsMessage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTooManyRequiredAndOptionalArgumentsAreProvided
                 {
-                    [↓TestCase(2, 'b', 2d)]
+                    [{|#0:TestCase(2, 'b', 2d)|}]
                     public void Test(int a, char b = 'c') { }
                 }
             """);
             var message = "The TestCaseAttribute provided too many arguments. Expected '2', but got '3'.";
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic.WithMessage(message), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage(message).WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided()
+        public async Task AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenMethodHasRequiredAndParamsAndMoreArgumentsThanParametersAreProvided
@@ -704,11 +679,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(int a, int b, params int[] c) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided()
+        public async Task AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenMethodHasOnlyParamsAndNoArgumentsAreProvided
@@ -717,11 +692,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(params object[] a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect()
+        public async Task AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsCorrect
@@ -730,47 +705,43 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(params string[] a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect()
+        public async Task AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                string.Format(CultureInfo.InvariantCulture, TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage,
                               0, "int", "a", "string[]"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentTypeIsIncorrect
                 {
-                    [TestCase(↓2)]
+                    [TestCase({|#0:2|})]
                     public void Test(params string[] a) { }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType()
+        public async Task AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage,
-                string.Format(CultureInfo.InvariantCulture, TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, TestCaseUsageAnalyzerConstants.ParameterTypeMismatchMessage,
                               0, "<null>", "a", "int[]"));
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToValueType
                 {
-                    [TestCase(↓null)]
+                    [TestCase({|#0:null|})]
                     public void Test(params int[] a) { }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToReferenceType()
+        public async Task AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToReferenceType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesNullToReferenceType
@@ -779,11 +750,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(params string[]? a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesExactType()
+        public async Task AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesExactType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentPassesExactType
@@ -792,11 +763,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(params int[] a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMethodHasOnlyParamsAndArgumentImplicitlyConvertedToType()
+        public async Task AnalyzeWhenMethodHasOnlyParamsAndArgumentImplicitlyConvertedToType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenMethodHasOnlyParamsAndArgumentImplicitlyConvertedToType
@@ -805,11 +776,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(params int[] a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentIsAReferenceToConstantThatNeedsConversion()
+        public async Task AnalyzeWhenArgumentIsAReferenceToConstantThatNeedsConversion()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeWhenArgumentIsAReferenceToConstantThatNeedsConversion
@@ -820,11 +791,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(decimal a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentIsANegativeNumberThatNeedsConversion()
+        public async Task AnalyzeWhenArgumentIsANegativeNumberThatNeedsConversion()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeWhenArgumentIsANegativeNumberThatNeedsConversion
@@ -833,11 +804,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(decimal a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSoleParameterIsObjectArrayAndProvidedOneArg()
+        public async Task AnalyzeWhenSoleParameterIsObjectArrayAndProvidedOneArg()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeWhenSoleParameterIsObjectArrayAndProvidedOneArg
@@ -846,11 +817,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(object[] array) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSoleParameterIsObjectArrayAndProvidedTwoArgs()
+        public async Task AnalyzeWhenSoleParameterIsObjectArrayAndProvidedTwoArgs()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeWhenSoleParameterIsObjectArrayAndProvidedTwoArgs
@@ -859,11 +830,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(object[] array) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSoleParameterIsObjectArrayAndProvidedThreeArgs()
+        public async Task AnalyzeWhenSoleParameterIsObjectArrayAndProvidedThreeArgs()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeWhenSoleParameterIsObjectArrayAndProvidedThreeArgs
@@ -872,11 +843,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(object[] array) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSoleParameterIsObjectArrayAndProvidedDifferentTypes()
+        public async Task AnalyzeWhenSoleParameterIsObjectArrayAndProvidedDifferentTypes()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeWhenSoleParameterIsObjectArrayAndProvidedDifferentTypes
@@ -885,11 +856,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(object[] array) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodHasTypeParameterArgumentType()
+        public async Task AnalyzeWhenTestMethodHasTypeParameterArgumentType()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestMethodHasTypeParameterArgumentType
@@ -898,12 +869,12 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void TestWithGenericParameter<T>(T arg1) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
 #if NET6_0_OR_GREATER
         [TestCaseSource(nameof(SpecialConversions_NET6))]
-        public void AnalyzeWhenArgumentIsSpecialConversionNET6(string value, Type targetType)
+        public async Task AnalyzeWhenArgumentIsSpecialConversionNET6(string value, Type targetType)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 public sealed class AnalyzeWhenArgumentIsSpecialConversion
@@ -912,14 +883,14 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test({{targetType.Name}} a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 #endif
 
 #if NUNIT4
 #if NET6_0_OR_GREATER
         [Test]
-        public void AnalyzeWhenArgumentIsCorrectGenericTypeParameter()
+        public async Task AnalyzeWhenArgumentIsCorrectGenericTypeParameter()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeWhenArgumentIsGenericTypeParameter
@@ -928,11 +899,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(byte a) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentsAreCorrectGenericTypeParameter()
+        public async Task AnalyzeWhenArgumentsAreCorrectGenericTypeParameter()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeWhenArgumentIsGenericTypeParameter
@@ -941,41 +912,37 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void Test(byte a, uint b) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentIsWrongGenericTypeParameter()
+        public async Task AnalyzeWhenArgumentIsWrongGenericTypeParameter()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeWhenArgumentIsGenericTypeParameter
                 {
-                    [TestCase<double>(↓2)]
+                    [TestCase<double>({|#0:2|})]
                     public void Test(int a) { }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer,
-                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
-                testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithLocation(0).WithArguments("0", "double", "a", "int"));
         }
 
         [Test]
-        public void AnalyzeWhenArgumentsAreWrongGenericTypeParameter()
+        public async Task AnalyzeWhenArgumentsAreWrongGenericTypeParameter()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class AnalyzeWhenArgumentIsGenericTypeParameter
                 {
-                    [TestCase<double, int>(↓2, ↓3)]
+                    [TestCase<double, int>({|#0:2|}, {|#1:3|})]
                     public void Test(int a, uint b) { }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer,
-                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage),
-                testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithLocation(0).WithArguments("0", "double", "a", "int"), Verify.Diagnostic(AnalyzerIdentifiers.TestCaseParameterTypeMismatchUsage).WithLocation(1).WithArguments("1", "int", "b", "uint"));
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodHasTypeParameterArgumentTypeAndGenericTestCase()
+        public async Task AnalyzeWhenTestMethodHasTypeParameterArgumentTypeAndGenericTestCase()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public sealed class AnalyzeWhenTestMethodHasTypeParameterArgumentType
@@ -987,12 +954,12 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     public void TestWithGenericParameter<T>(T arg1) { }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 #endif
 
         [Test]
-        public void AnalyzeWhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnMethod()
+        public async Task AnalyzeWhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnMethod()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     [TestCase(100)]
@@ -1006,11 +973,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                         }
             """, "using System.Threading;");
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnClass()
+        public async Task AnalyzeWhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -1028,11 +995,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 }
             """, "using System.Threading;");
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnBaseClass()
+        public async Task AnalyzeWhenTestMethodHasImplicitlySuppliedCancellationTokenParameterDueToCancelAfterOnBaseClass()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [CancelAfter(50)]
@@ -1054,11 +1021,11 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                 }
             """, "using System.Threading;");
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodHasNoImplicitlySuppliedCancellationTokenParameter()
+        public async Task AnalyzeWhenTestMethodHasNoImplicitlySuppliedCancellationTokenParameter()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     [TestCase(100)]
@@ -1073,14 +1040,14 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     }
             """, "using System.Threading;");
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void WhenTestMethodHasCancellationTokenParameter()
+        public async Task WhenTestMethodHasCancellationTokenParameter()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
-                    [↓TestCase(100)]
+                    [{|#0:TestCase(100)|}]
                     public async Task InfiniteLoopWith50msCancelAfter(int delayInMs, CancellationToken cancellationToken)
                     {
                         while (!cancellationToken.IsCancellationRequested)
@@ -1090,9 +1057,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     }
             """, "using System.Threading;");
 
-            RoslynAssert.Diagnostics(this.analyzer,
-                ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestCaseNotEnoughArgumentsUsage),
-                testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.TestCaseNotEnoughArgumentsUsage).WithLocation(0).WithArguments("2", "1"));
         }
 #endif
 
@@ -1100,7 +1065,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
         [TestCase("""arg: new[] { "a", "b", "c", }""", "IEnumerable<T>", "using System.Collections.Generic;")]
         [TestCase("arg: new[] { typeof(int), typeof(string), typeof(double), }", "IList<T>", "using System.Collections.Generic;")]
         [TestCase("arg: new[] { 1ul, 2ul, 3ul, }", "ICollection<T>", "using System.Collections.Generic;")]
-        public void AnalyzeWhenTestMethodHasGenericsEnumerable(string arrayArgument, string parameterType, string additionalUsings)
+        public async Task AnalyzeWhenTestMethodHasGenericsEnumerable(string arrayArgument, string parameterType, string additionalUsings)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     [TestCase({{arrayArgument}})]
@@ -1110,7 +1075,7 @@ namespace NUnit.Analyzers.Tests.TestCaseUsage
                     }
             """, additionalUsings);
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

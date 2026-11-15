@@ -1,19 +1,18 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.SameAsIncompatibleTypes;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.SameAsIncompatibleTypes.SameAsIncompatibleTypesAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
 {
     public class SameAsIncompatibleTypesAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new SameAsIncompatibleTypesAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.SameAsIncompatibleTypes);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.SameAsIncompatibleTypes);
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided()
+        public async Task AnalyzeWhenIncompatibleTypesProvided()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
@@ -26,16 +25,16 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                     {
                         var actual = new A();
                         var expected = new B();
-                        Assert.That(actual, Is.SameAs(↓expected));
+                        Assert.That(actual, Is.SameAs({|#0:expected|}));
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeClassicWhenIncompatibleTypesProvided()
+        public async Task AnalyzeClassicWhenIncompatibleTypesProvided()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
@@ -48,17 +47,17 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                     {
                         var actual = new A();
                         var expected = new B();
-                        ClassicAssert.AreSame(↓expected, actual);
+                        ClassicAssert.AreSame({|#0:expected|}, actual);
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
 #if !NUNIT5 // NUnit 5 uses a class constraint hence these rules are not needed as the user code will not even compile.
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithImplicitConversion()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithImplicitConversion()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 public class Tests
@@ -68,17 +67,17 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                     {
                         var actual = 1;
                         var expected = 1.5;
-                        Assert.That(actual, Is.SameAs(↓expected));
+                        Assert.That(actual, Is.SameAs({|#0:expected|}));
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 #endif
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithCombinedConstraints()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithCombinedConstraints()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
@@ -91,16 +90,16 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                     {
                         var actual = new A();
                         var expected = new B();
-                        Assert.That(actual, Is.Not.Null & Is.SameAs(↓expected));
+                        Assert.That(actual, Is.Not.Null & Is.SameAs({|#0:expected|}));
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
@@ -113,16 +112,16 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                     {
                         var actual = new A();
                         var expected = new B();
-                        Assert.That(actual, Is.Not.SameAs(↓expected));
+                        Assert.That(actual, Is.Not.SameAs({|#0:expected|}));
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeClassicWhenIncompatibleTypesProvidedWithNegatedAssert()
+        public async Task AnalyzeClassicWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
@@ -135,16 +134,16 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                     {
                         var actual = new A();
                         var expected = new B();
-                        ClassicAssert.AreNotSame(↓expected, actual);
+                        ClassicAssert.AreNotSame({|#0:expected|}, actual);
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithLambdaActualValue()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithLambdaActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
@@ -156,16 +155,16 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                     public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
                     {
                         var expected = new B();
-                        Assert.That(() => new A(), Is.Not.SameAs(↓expected));
+                        Assert.That(() => new A(), Is.Not.SameAs({|#0:expected|}));
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithLocalFunctionActualValue()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithLocalFunctionActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
@@ -178,16 +177,16 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                     {
                         A actual() => new A();
                         var expected = new B();
-                        Assert.That(actual, Is.Not.SameAs(↓expected));
+                        Assert.That(actual, Is.Not.SameAs({|#0:expected|}));
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithFuncActualValue()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithFuncActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
@@ -200,16 +199,16 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                     {
                         Func<A> actual = () => new A();
                         var expected = new B();
-                        Assert.That(actual, Is.Not.SameAs(↓expected));
+                        Assert.That(actual, Is.Not.SameAs({|#0:expected|}));
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithTaskActualValue()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithTaskActualValue()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
@@ -222,28 +221,28 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                     {
                         var actual = Task.FromResult(new A());
                         var expected = new B();
-                        Assert.That(actual, Is.Not.SameAs(↓expected));
+                        Assert.That(actual, Is.Not.SameAs({|#0:expected|}));
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenActualAndExpectedTypesAreSameWithTaskActualValue()
+        public async Task AnalyzeWhenActualAndExpectedTypesAreSameWithTaskActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = Task.FromResult("");
                         var expected = "";
-                        Assert.That(actual, Is.SameAs(↓expected));
+                        Assert.That(actual, Is.SameAs({|#0:expected|}));
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSame()
+        public async Task NoDiagnosticWhenActualAndExpectedTypesAreSame()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = "";
@@ -251,11 +250,11 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                         Assert.That(actual, Is.SameAs(expected));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticClassicWhenActualAndExpectedTypesAreSame()
+        public async Task NoDiagnosticClassicWhenActualAndExpectedTypesAreSame()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = "";
@@ -263,11 +262,11 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                         ClassicAssert.AreSame(expected, actual);
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithNegatedAssert()
+        public async Task NoDiagnosticWhenActualAndExpectedTypesAreSameWithNegatedAssert()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = "";
@@ -275,11 +274,11 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                         Assert.That(actual, Is.Not.SameAs(expected));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticClassicWhenActualAndExpectedTypesAreSameWithNegatedAssert()
+        public async Task NoDiagnosticClassicWhenActualAndExpectedTypesAreSameWithNegatedAssert()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = "";
@@ -287,22 +286,22 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                         ClassicAssert.AreNotSame(expected, actual);
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithLambdaActualValue()
+        public async Task NoDiagnosticWhenActualAndExpectedTypesAreSameWithLambdaActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var expected = "";
                         Assert.That(() => "", Is.SameAs(expected));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithFuncActualValue()
+        public async Task NoDiagnosticWhenActualAndExpectedTypesAreSameWithFuncActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         Func<string> actual = () => "";
@@ -310,11 +309,11 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                         Assert.That(actual, Is.SameAs(expected));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithLocalFunctionActualValue()
+        public async Task NoDiagnosticWhenActualAndExpectedTypesAreSameWithLocalFunctionActualValue()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         string actual() => "";
@@ -322,11 +321,11 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                         Assert.That(actual, Is.SameAs(expected));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenExpectedTypeInheritsActual()
+        public async Task NoDiagnosticWhenExpectedTypeInheritsActual()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
@@ -344,11 +343,11 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualTypeInheritsExpected()
+        public async Task NoDiagnosticWhenActualTypeInheritsExpected()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A : B { }
@@ -366,20 +365,20 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenUsedWithNoneOperator()
+        public async Task NoDiagnosticWhenUsedWithNoneOperator()
         {
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(new string[0], Has.None.SameAs(string.Empty));");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualIsDynamic()
+        public async Task NoDiagnosticWhenActualIsDynamic()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         dynamic actual = 1;
@@ -387,11 +386,11 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                         Assert.That(actual, Is.SameAs(expected));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenExpectedIsDynamic()
+        public async Task NoDiagnosticWhenExpectedIsDynamic()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         var actual = "";
@@ -399,11 +398,11 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                         Assert.That(actual, Is.SameAs(expected));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticForOtherConstraints()
+        public async Task NoDiagnosticForOtherConstraints()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
@@ -421,11 +420,11 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                 }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMoreThanOneConstraintExpressionIsUsed()
+        public async Task AnalyzeWhenMoreThanOneConstraintExpressionIsUsed()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
@@ -439,12 +438,12 @@ namespace NUnit.Analyzers.Tests.SameAsIncompatibleTypes
                         var actual = new A();
                         var expected1 = new A();
                         var expected2 = new B();
-                        Assert.That(actual, Is.Not.SameAs(expected1) & Is.Not.SameAs(↓expected2));
+                        Assert.That(actual, Is.Not.SameAs(expected1) & Is.Not.SameAs({|#0:expected2|}));
                     }
                 }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
     }
 }

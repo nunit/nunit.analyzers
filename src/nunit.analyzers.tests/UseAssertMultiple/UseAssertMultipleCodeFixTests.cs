@@ -1,36 +1,38 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.UseAssertMultiple;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.UseAssertMultiple.UseAssertMultipleAnalyzer, NUnit.Analyzers.UseAssertMultiple.UseAssertMultipleCodeFix>;
 
 namespace NUnit.Analyzers.Tests.UseAssertMultiple
 {
     [TestFixture]
     public sealed class UseAssertMultipleCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new UseAssertMultipleAnalyzer();
-        private static readonly CodeFixProvider fix = new UseAssertMultipleCodeFix();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.UseAssertMultiple);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.UseAssertMultiple);
+
+        private static readonly string[] newlines = ["", Environment.NewLine];
+        private static readonly string[] postComments = ["", "// Same line Comment", $"{Environment.NewLine}            // Final Comment on next line"];
 
         [Test]
         public void VerifyGetFixableDiagnosticIds()
         {
             var fix = new UseAssertMultipleCodeFix();
-            var ids = fix.FixableDiagnosticIds;
+            var ids = new UseAssertMultipleCodeFix().FixableDiagnosticIds;
 
             Assert.That(ids, Is.EquivalentTo(new[] { AnalyzerIdentifiers.UseAssertMultiple }));
         }
 
         [Test]
-        public void VerifyIndependent()
+        public async Task VerifyIndependent()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
                     {
-                        ↓Assert.That(true, Is.True);
+                        {|#0:Assert.That(true, Is.True)|};
                         Assert.That(false, Is.False);
                         Console.WriteLine("Next Statement");
                     }
@@ -48,7 +50,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                     }
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, UseAssertMultipleCodeFix.WrapWithAssertMultiple);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, UseAssertMultipleCodeFix.WrapWithAssertMultiple);
 
 #if NUNIT4
             fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -63,12 +65,12 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                     }
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, UseAssertMultipleCodeFix.WrapWithAssertEnterMultipleScope);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, UseAssertMultipleCodeFix.WrapWithAssertEnterMultipleScope);
 #endif
         }
 
         [Test]
-        public void VerifyPartlyIndependent()
+        public async Task VerifyPartlyIndependent()
         {
             const string configurationClass = """
                     private sealed class Configuration
@@ -84,7 +86,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                     {
                         var configuration = new Configuration();
                         Assert.That(configuration, Is.Not.Null);
-                        ↓Assert.That(configuration.Value1, Is.EqualTo(0));
+                        {|#0:Assert.That(configuration.Value1, Is.EqualTo(0))|};
                         Assert.That(configuration.Value2, Is.EqualTo(0.0));
                         Assert.That(configuration.Value11, Is.EqualTo(string.Empty));
                         configuration = null;
@@ -106,7 +108,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                     }
             """ + "\n" + configurationClass);
 
-            RoslynAssert.FixAll(analyzer, fix, expectedDiagnostic, code, fixedCode, UseAssertMultipleCodeFix.WrapWithAssertMultiple);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, UseAssertMultipleCodeFix.WrapWithAssertMultiple);
 
 #if NUNIT4
             fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -124,12 +126,12 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                     }
             """ + "\n" + configurationClass);
 
-            RoslynAssert.FixAll(analyzer, fix, expectedDiagnostic, code, fixedCode, UseAssertMultipleCodeFix.WrapWithAssertEnterMultipleScope);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, UseAssertMultipleCodeFix.WrapWithAssertEnterMultipleScope);
 #endif
         }
 
         [Test]
-        public void AddsAsyncWhenAwaitIsUsed()
+        public async Task AddsAsyncWhenAwaitIsUsed()
         {
             const string configurationClass = """
                     private sealed class Configuration
@@ -146,7 +148,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                     {
                         var configuration = new Configuration();
                         Assert.That(configuration, Is.Not.Null);
-                        ↓Assert.That(configuration.Value1, Is.EqualTo(0));
+                        {|#0:Assert.That(configuration.Value1, Is.EqualTo(0))|};
                         Assert.That(configuration.Value2, Is.EqualTo(0.0));
                         Assert.That(await configuration.AsStringAsync(), Is.EqualTo(string.Empty));
                         configuration = null;
@@ -170,8 +172,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
 
             // The test method itself no longer awaits, so CS1998 is generated.
             // Fixing this is outside the scope of this analyzer and there could be other non-touched statements that are waited.
-            RoslynAssert.FixAll(analyzer, fix, expectedDiagnostic, code, fixedCode, UseAssertMultipleCodeFix.WrapWithAssertMultiple,
-                Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors));
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, UseAssertMultipleCodeFix.WrapWithAssertMultiple, test => test.CompilerDiagnostics = CompilerDiagnostics.None);
 
 #if NUNIT4
             fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -189,15 +190,15 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                     }
             """ + "\n" + configurationClass);
 
-            RoslynAssert.FixAll(analyzer, fix, expectedDiagnostic, code, fixedCode, UseAssertMultipleCodeFix.WrapWithAssertEnterMultipleScope);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, UseAssertMultipleCodeFix.WrapWithAssertEnterMultipleScope);
 #endif
         }
 
         [Test]
-        public void VerifyKeepsTrivia(
-            [Values("", "\r\n")] string newline,
+        public async Task VerifyKeepsTrivia(
+            [ValueSource(nameof(newlines))] string newline,
             [Values("", "// ")] string preComment,
-            [Values("", "// Same line Comment", "\r\n            // Final Comment on next line")] string postComment)
+            [ValueSource(nameof(postComments))] string postComment)
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void TestMethod()
@@ -206,7 +207,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                         const bool False = false;
 
                         // Verify that our bool constants are correct
-                        ↓Assert.That(True, Is.True);
+                        {|#0:Assert.That(True, Is.True)|};
                         Assert.That(False, Is.False);{{newline}}
                         {{preComment}}Console.WriteLine("Next Statement");{{postComment}}
                     }
@@ -228,7 +229,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                     }
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, UseAssertMultipleCodeFix.WrapWithAssertMultiple);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, UseAssertMultipleCodeFix.WrapWithAssertMultiple);
 
 #if NUNIT4
             fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
@@ -247,18 +248,18 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                     }
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, UseAssertMultipleCodeFix.WrapWithAssertEnterMultipleScope);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, UseAssertMultipleCodeFix.WrapWithAssertEnterMultipleScope);
 #endif
         }
 
         [Test]
-        public void VerifyKeepsTrivia()
+        public async Task VerifyKeepsTrivia()
         {
             var code = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                     public void TestMethod()
                     {
                         // Verify that boolean work as expected
-                        ↓Assert.That(true, Is.True);
+                        {|#0:Assert.That(true, Is.True)|};
                         Assert.That(false, Is.False);
                     }
             """);
@@ -275,7 +276,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                     }
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, UseAssertMultipleCodeFix.WrapWithAssertMultiple);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, UseAssertMultipleCodeFix.WrapWithAssertMultiple);
 
 #if NUNIT4
             fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
@@ -290,7 +291,7 @@ namespace NUnit.Analyzers.Tests.UseAssertMultiple
                     }
             """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, UseAssertMultipleCodeFix.WrapWithAssertEnterMultipleScope);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, UseAssertMultipleCodeFix.WrapWithAssertEnterMultipleScope);
 #endif
         }
     }

@@ -1,32 +1,31 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.TestContextWriteIsObsolete;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.TestContextWriteIsObsolete.TestContextWriteIsObsoleteAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.TestContextWriteIsObsolete
 {
     public class TestContextWriteIsObsoleteAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new TestContextWriteIsObsoleteAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestContextWriteIsObsolete);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.TestContextWriteIsObsolete);
 
         [TestCaseSource(typeof(TestContextWriteIsObsoleteTestCases), nameof(TestContextWriteIsObsoleteTestCases.WriteInvocations))]
-        public void AnyDirectWriteMethod(string writeMethodAndParameters)
+        public async Task AnyDirectWriteMethod(string writeMethodAndParameters)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void Test()
                     {
-                        ↓TestContext.{{writeMethodAndParameters}};
+                        {|#0:TestContext.{{writeMethodAndParameters}}|};
                     }
             """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [TestCaseSource(typeof(TestContextWriteIsObsoleteTestCases), nameof(TestContextWriteIsObsoleteTestCases.WriteInvocations))]
-        public void AnyIndirectWriteMethod(string writeMethodAndParameters)
+        public async Task AnyIndirectWriteMethod(string writeMethodAndParameters)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                     public void Test()
@@ -35,7 +34,7 @@ namespace NUnit.Analyzers.Tests.TestContextWriteIsObsolete
                     }
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

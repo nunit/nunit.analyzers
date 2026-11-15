@@ -1,87 +1,78 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.ConstraintUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.ConstraintUsage.ComparisonConstraintUsageAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.ConstraintsUsage
 {
     public sealed class ComparisonConstraintUsageAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new ComparisonConstraintUsageAnalyzer();
-
         [TestCase(">=", "Is.GreaterThanOrEqualTo")]
         [TestCase(">", "Is.GreaterThan")]
         [TestCase("<=", "Is.LessThanOrEqualTo")]
         [TestCase("<", "Is.LessThan")]
-        public void AnalyzeWhenComparisonOperatorUsed(string operatorToken, string message)
+        public async Task AnalyzeWhenComparisonOperatorUsed(string operatorToken, string message)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         int actual = 5;
-                        Assert.That(↓actual {{operatorToken}} 9);
+                        Assert.That({|#0:actual {{operatorToken}} 9|});
             """);
 
-            var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
-                string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, message));
-            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
+            var diagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ComparisonConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, message));
+            await Verify.VerifyAnalyzerAsync(testCode, diagnostic.WithLocation(0));
         }
 
         [TestCase(">=", "Is.GreaterThanOrEqualTo")]
         [TestCase(">", "Is.GreaterThan")]
         [TestCase("<=", "Is.LessThanOrEqualTo")]
         [TestCase("<", "Is.LessThan")]
-        public void AnalyzeWhenComparisonOperatorUsedWithIsTrue(string operatorToken, string message)
+        public async Task AnalyzeWhenComparisonOperatorUsedWithIsTrue(string operatorToken, string message)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         int actual = 5;
-                        Assert.That(↓actual {{operatorToken}} 9, Is.True);
+                        Assert.That({|#0:actual {{operatorToken}} 9|}, Is.True);
             """);
 
-            var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
-                string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, message));
-            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
+            var diagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ComparisonConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, message));
+            await Verify.VerifyAnalyzerAsync(testCode, diagnostic.WithLocation(0));
         }
 
         [TestCase(">=", "Is.LessThan")]
         [TestCase(">", "Is.LessThanOrEqualTo")]
         [TestCase("<=", "Is.GreaterThan")]
         [TestCase("<", "Is.GreaterThanOrEqualTo")]
-        public void AnalyzeWhenComparisonOperatorUsedWithIsFalse(string operatorToken, string message)
+        public async Task AnalyzeWhenComparisonOperatorUsedWithIsFalse(string operatorToken, string message)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         int actual = 5;
-                        Assert.That(↓actual {{operatorToken}} 9, Is.False);
+                        Assert.That({|#0:actual {{operatorToken}} 9|}, Is.False);
             """);
 
-            var diagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparisonConstraintUsage,
-                string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, message));
-            RoslynAssert.Diagnostics(analyzer, diagnostic, testCode);
+            var diagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ComparisonConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, ComparisonConstraintUsageConstants.Message, message));
+            await Verify.VerifyAnalyzerAsync(testCode, diagnostic.WithLocation(0));
         }
 
         [TestCase("Is.GreaterThanOrEqualTo")]
         [TestCase("Is.GreaterThan")]
         [TestCase("Is.LessThanOrEqualTo")]
         [TestCase("Is.LessThan")]
-        public void ValidWhenConstraintUsed(string constraint)
+        public async Task ValidWhenConstraintUsed(string constraint)
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
                         int actual = 5;
                         Assert.That(actual, {{constraint}}(9));
             """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase(">=")]
         [TestCase(">")]
         [TestCase("<=")]
         [TestCase("<")]
-        public void ValidOnRefStruct(string operatorToken)
+        public async Task ValidOnRefStruct(string operatorToken)
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 [TestFixture]
@@ -114,10 +105,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
                 }
             """);
 
-            IEnumerable<MetadataReference> spanMetadata = MetadataReferences.Transitive(typeof(Span<>));
-            IEnumerable<MetadataReference> metadataReferences = (Settings.Default.MetadataReferences ?? Enumerable.Empty<MetadataReference>()).Concat(spanMetadata);
-
-            RoslynAssert.Valid(analyzer, testCode, Settings.Default.WithMetadataReferences(metadataReferences));
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

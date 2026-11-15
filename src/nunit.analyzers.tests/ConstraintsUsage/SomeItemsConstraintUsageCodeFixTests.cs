@@ -1,30 +1,25 @@
+using System;
 using System.Globalization;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.ConstraintUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.ConstraintUsage.SomeItemsConstraintUsageAnalyzer, NUnit.Analyzers.ConstraintUsage.SomeItemsConstraintUsageCodeFix>;
 
 namespace NUnit.Analyzers.Tests.ConstraintsUsage
 {
     public class SomeItemsConstraintUsageCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new SomeItemsConstraintUsageAnalyzer();
+        private static readonly DiagnosticResult doesContainDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.CollectionContainsConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, SomeItemsConstraintUsageConstants.Message, "Does.Contain"));
 
-        private static readonly CodeFixProvider fix = new SomeItemsConstraintUsageCodeFix();
-
-        private static readonly ExpectedDiagnostic doesContainDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.CollectionContainsConstraintUsage,
-            string.Format(CultureInfo.InvariantCulture, SomeItemsConstraintUsageConstants.Message, "Does.Contain"));
-
-        private static readonly ExpectedDiagnostic doesNotContainDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.CollectionContainsConstraintUsage,
-            string.Format(CultureInfo.InvariantCulture, SomeItemsConstraintUsageConstants.Message, "Does.Not.Contain"));
+        private static readonly DiagnosticResult doesNotContainDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.CollectionContainsConstraintUsage).WithMessage(string.Format(CultureInfo.InvariantCulture, SomeItemsConstraintUsageConstants.Message, "Does.Not.Contain"));
 
         [Test]
-        public void AnalyzeWhenListContainsUsedAssertThat()
+        public async Task AnalyzeWhenListContainsUsedAssertThat()
         {
             var testCode = TestUtility.WrapInTestMethod("""
-                        Assert.That(↓new List<int> { 1, 2, 3 }.Contains(1));
+                        Assert.That({|#0:new List<int> { 1, 2, 3 }.Contains(1)|});
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
@@ -33,14 +28,14 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, doesContainDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void AnalyzeWhenListContainsUsedAssertIsTrue()
+        public async Task AnalyzeWhenListContainsUsedAssertIsTrue()
         {
             var testCode = TestUtility.WrapInTestMethod("""
-                        ClassicAssert.IsTrue(↓new List<int> { 1, 2, 3 }.Contains(1));
+                        ClassicAssert.IsTrue({|#0:new List<int> { 1, 2, 3 }.Contains(1)|});
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
@@ -49,14 +44,14 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, doesContainDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void AnalyzeWhenListContainsUsedAssertIsFalse()
+        public async Task AnalyzeWhenListContainsUsedAssertIsFalse()
         {
             var testCode = TestUtility.WrapInTestMethod("""
-                        ClassicAssert.IsFalse(↓new List<int> { 1, 2, 3 }.Contains(1));
+                        ClassicAssert.IsFalse({|#0:new List<int> { 1, 2, 3 }.Contains(1)|});
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
@@ -65,14 +60,14 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.CodeFix(analyzer, fix, doesNotContainDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, doesNotContainDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void AnalyzeWhenLinqContainsUsedAssertThat()
+        public async Task AnalyzeWhenLinqContainsUsedAssertThat()
         {
             var testCode = TestUtility.WrapInTestMethod("""
-                        Assert.That(↓new[] { 1, 2, 3 }.Contains(1));
+                        Assert.That({|#0:new[] { 1, 2, 3 }.Contains(1)|});
             """,
                 additionalUsings: "using System.Linq;");
 
@@ -81,14 +76,14 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, doesContainDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void AnalyzeWhenLinqContainsUsedAssertIsTrue()
+        public async Task AnalyzeWhenLinqContainsUsedAssertIsTrue()
         {
             var testCode = TestUtility.WrapInTestMethod("""
-                        ClassicAssert.IsTrue(↓new[] { 1, 2, 3 }.Contains(1));
+                        ClassicAssert.IsTrue({|#0:new[] { 1, 2, 3 }.Contains(1)|});
             """,
                 additionalUsings: "using System.Linq;");
 
@@ -97,14 +92,14 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.CodeFix(analyzer, fix, doesContainDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, doesContainDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void AnalyzeWhenLinqContainsUsedAssertIsFalse()
+        public async Task AnalyzeWhenLinqContainsUsedAssertIsFalse()
         {
             var testCode = TestUtility.WrapInTestMethod("""
-                        ClassicAssert.IsFalse(↓new[] { 1, 2, 3 }.Contains(1));
+                        ClassicAssert.IsFalse({|#0:new[] { 1, 2, 3 }.Contains(1)|});
             """,
                 additionalUsings: "using System.Linq;");
 
@@ -113,15 +108,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.CodeFix(analyzer, fix, doesNotContainDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, doesNotContainDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen()
+        public async Task CodeFixMaintainsReasonableTriviaWithEndOfLineClosingParen()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         ClassicAssert.IsFalse(
-                            ↓new[] { 1, 2, 3 }.Contains(1));
+                            {|#0:new[] { 1, 2, 3 }.Contains(1)|});
             """,
                 additionalUsings: "using System.Linq;");
 
@@ -132,15 +127,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.CodeFix(analyzer, fix, doesNotContainDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, doesNotContainDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithNewLineClosingParen()
+        public async Task CodeFixMaintainsReasonableTriviaWithNewLineClosingParen()
         {
             var testCode = TestUtility.WrapInTestMethod("""
                         ClassicAssert.IsFalse(
-                            ↓new[] { 1, 2, 3 }.Contains(1)
+                            {|#0:new[] { 1, 2, 3 }.Contains(1)|}
                         );
             """,
                 additionalUsings: "using System.Linq;");
@@ -153,16 +148,16 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.CodeFix(analyzer, fix, doesNotContainDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, doesNotContainDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
+        public async Task CodeFixMaintainsReasonableTriviaWithAllArgumentsOnSameLine([Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
+            var optionalNewline = newlineBeforeClosingParen ? $"{Environment.NewLine}            " : string.Empty;
             var testCode = TestUtility.WrapInTestMethod($$"""
                         ClassicAssert.IsFalse(
-                            ↓new[] { 1, 2, 3 }.Contains(1), "message"{{optionalNewline}});
+                            {|#0:new[] { 1, 2, 3 }.Contains(1)|}, "message"{{optionalNewline}});
             """,
                 additionalUsings: "using System.Linq;");
 
@@ -172,15 +167,15 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.CodeFix(analyzer, fix, doesNotContainDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, doesNotContainDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixMaintainsReasonableTriviaWhenActualArgumentIsMultipleLines()
+        public async Task CodeFixMaintainsReasonableTriviaWhenActualArgumentIsMultipleLines()
         {
             var testCode = TestUtility.WrapInTestMethod($$"""
-                        ClassicAssert.IsFalse(↓new[] { 1, 2, 3 }
-                                              .Contains(1), "message");
+                        ClassicAssert.IsFalse({|#0:new[] { 1, 2, 3 }
+                                              .Contains(1)|}, "message");
             """,
                 additionalUsings: "using System.Linq;");
 
@@ -189,7 +184,7 @@ namespace NUnit.Analyzers.Tests.ConstraintsUsage
             """,
                 additionalUsings: "using System.Linq;");
 
-            RoslynAssert.CodeFix(analyzer, fix, doesNotContainDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, doesNotContainDiagnostic.WithLocation(0), fixedCode);
         }
     }
 }

@@ -2,27 +2,25 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using Gu.Roslyn.Asserts;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.ParallelizableUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.ParallelizableUsage.ParallelizableUsageAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.ParallelizableUsage
 {
     [TestFixture]
     public sealed class ParallelizableUsageAnalyzerTests
     {
-        private readonly DiagnosticAnalyzer analyzer = new ParallelizableUsageAnalyzer();
-
         private static IEnumerable<ParallelScope> ParallelScopesExceptFixtures =>
             [ParallelScope.All, ParallelScope.Children, ParallelScope.Self];
 
         [Test]
         public void VerifySupportedDiagnostics()
         {
-            var diagnostics = this.analyzer.SupportedDiagnostics;
+            var diagnostics = new ParallelizableUsageAnalyzer().SupportedDiagnostics;
 
             var expectedIdentifiers = new List<string>
             {
@@ -68,46 +66,42 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
         [TestCase(ParallelScope.All)]
         [TestCase(ParallelScope.Children)]
         [TestCase(ParallelScope.Fixtures)]
-        public void AnalyzeWhenAssemblyAttributeIsNotParallelScopeSelf(ParallelScope parallelScope)
+        public async Task AnalyzeWhenAssemblyAttributeIsNotParallelScopeSelf(ParallelScope parallelScope)
         {
             var enumValue = parallelScope.ToString();
             var testCode = $$"""
                 using NUnit.Framework;
                 [assembly: Parallelizable(ParallelScope.{{enumValue}})]
             """;
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAssemblyAttributeIsExplicitlyParallelScopeSelf()
+        public async Task AnalyzeWhenAssemblyAttributeIsExplicitlyParallelScopeSelf()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.ParallelScopeSelfNoEffectOnAssemblyUsage,
-                ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ParallelScopeSelfNoEffectOnAssemblyUsage).WithMessage(ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage);
 
             var testCode = $$"""
                 using NUnit.Framework;
-                [assembly: ↓Parallelizable(ParallelScope.Self)]
+                [assembly: {|#0:Parallelizable(ParallelScope.Self)|}]
             """;
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAssemblyAttributeIsImplicitlyParallelScopeSelf()
+        public async Task AnalyzeWhenAssemblyAttributeIsImplicitlyParallelScopeSelf()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.ParallelScopeSelfNoEffectOnAssemblyUsage,
-                ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ParallelScopeSelfNoEffectOnAssemblyUsage).WithMessage(ParallelizableUsageAnalyzerConstants.ParallelScopeSelfNoEffectOnAssemblyMessage);
 
             var testCode = $$"""
                 using NUnit.Framework;
-                [assembly: ↓Parallelizable()]
+                [assembly: {|#0:Parallelizable()|}]
             """;
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Theory]
-        public void AnalyzeWhenAttributeIsOnClass(ParallelScope parallelScope)
+        public async Task AnalyzeWhenAttributeIsOnClass(ParallelScope parallelScope)
         {
             var enumValue = parallelScope.ToString();
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
@@ -117,11 +111,11 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
                 {
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAttributeIsOnSimpleTestMethodParallelScopeSelf()
+        public async Task AnalyzeWhenAttributeIsOnSimpleTestMethodParallelScopeSelf()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
@@ -134,16 +128,14 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase(ParallelScope.All)]
         [TestCase(ParallelScope.Children)]
-        public void AnalyzeWhenAttributeIsOnSimpleTestMethodContainsParallelScopeChildren(ParallelScope parallelScope)
+        public async Task AnalyzeWhenAttributeIsOnSimpleTestMethodContainsParallelScopeChildren(ParallelScope parallelScope)
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.ParallelScopeChildrenOnNonParameterizedTestMethodUsage,
-                ParallelizableUsageAnalyzerConstants.ParallelScopeChildrenOnNonParameterizedTestMethodMessage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ParallelScopeChildrenOnNonParameterizedTestMethodUsage).WithMessage(ParallelizableUsageAnalyzerConstants.ParallelScopeChildrenOnNonParameterizedTestMethodMessage);
 
             var enumValue = parallelScope.ToString();
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
@@ -151,38 +143,36 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
                 public sealed class AnalyzeWhenAttributeIsOnSimpleTestMethodContainsParallelScopeChildren
                 {
                     [Test]
-                    [↓Parallelizable(ParallelScope.{{enumValue}})]
+                    [{|#0:Parallelizable(ParallelScope.{{enumValue}})|}]
                     public void Test()
                     {
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenAttributeIsOnSimpleTestMethodIsParallelScopeFixtures()
+        public async Task AnalyzeWhenAttributeIsOnSimpleTestMethodIsParallelScopeFixtures()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.ParallelScopeFixturesOnTestMethodUsage,
-                ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ParallelScopeFixturesOnTestMethodUsage).WithMessage(ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
                 public sealed class AnalyzeWhenAttributeIsOnSimpleTestMethodIsParallelScopeFixtures
                 {
                     [Test]
-                    [↓Parallelizable(ParallelScope.Fixtures)]
+                    [{|#0:Parallelizable(ParallelScope.Fixtures)|}]
                     public void Test()
                     {
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(ParallelScopesExceptFixtures))]
-        public void AnalyzeWhenAttributeIsOnTestCaseTestMethodNotParallelScopeFixtures(ParallelScope parallelScope)
+        public async Task AnalyzeWhenAttributeIsOnTestCaseTestMethodNotParallelScopeFixtures(ParallelScope parallelScope)
         {
             var enumValue = parallelScope.ToString();
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
@@ -196,32 +186,30 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAttributeIsOnTestCaseTestMethodIsParallelScopeFixtures()
+        public async Task AnalyzeWhenAttributeIsOnTestCaseTestMethodIsParallelScopeFixtures()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.ParallelScopeFixturesOnTestMethodUsage,
-                ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ParallelScopeFixturesOnTestMethodUsage).WithMessage(ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
                 public sealed class AnalyzeWhenAttributeIsOnTestCaseTestMethodIsParallelScopeFixtures
                 {
                     [TestCase(1)]
-                    [↓Parallelizable(ParallelScope.Fixtures)]
+                    [{|#0:Parallelizable(ParallelScope.Fixtures)|}]
                     public void Test(int data)
                     {
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(ParallelScopesExceptFixtures))]
-        public void AnalyzeWhenAttributeIsOnParametricTestMethodNotParallelScopeFixtures(ParallelScope parallelScope)
+        public async Task AnalyzeWhenAttributeIsOnParametricTestMethodNotParallelScopeFixtures(ParallelScope parallelScope)
         {
             var enumValue = parallelScope.ToString();
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
@@ -235,28 +223,26 @@ namespace NUnit.Analyzers.Tests.ParallelizableUsage
                     }
                 }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAttributeIsOnParametricTestMethodIsParallelScopeFixtures()
+        public async Task AnalyzeWhenAttributeIsOnParametricTestMethodIsParallelScopeFixtures()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(
-                AnalyzerIdentifiers.ParallelScopeFixturesOnTestMethodUsage,
-                ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage);
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ParallelScopeFixturesOnTestMethodUsage).WithMessage(ParallelizableUsageAnalyzerConstants.ParallelScopeFixturesOnTestMethodMessage);
 
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 [TestFixture]
                 public sealed class AnalyzeWhenAttributeIsOnParametricTestMethodIsParallelScopeFixtures
                 {
                     [Test]
-                    [↓Parallelizable(ParallelScope.Fixtures)]
+                    [{|#0:Parallelizable(ParallelScope.Fixtures)|}]
                     public void Test([Values(1, 2, 3)] int data)
                     {
                     }
                 }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
     }
 }
