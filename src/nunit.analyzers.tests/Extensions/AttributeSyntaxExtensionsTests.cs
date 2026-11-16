@@ -33,7 +33,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         public double BProperty { get; set; }
     }
 }";
-            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArguments").ConfigureAwait(false);
+            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArguments");
             var (positionalArguments, namedArguments) = attribute.GetArguments();
 
             Assert.Multiple(() =>
@@ -61,7 +61,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
     public sealed class NoArgumentsAttribute : Attribute
     { }
 }";
-            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArgumentsWhenNoneExist").ConfigureAwait(false);
+            var attribute = await GetAttributeSyntaxAsync(testCode, "GetArgumentsWhenNoneExist");
             var (positionalArguments, namedArguments) = attribute.GetArguments();
 
             Assert.Multiple(() =>
@@ -73,7 +73,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
         private static async Task<AttributeSyntax> GetAttributeSyntaxAsync(string code, string typeName)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModel(code).ConfigureAwait(false);
+            var rootAndModel = await TestHelpers.GetRootAndModel(code);
 
             return rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>()

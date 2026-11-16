@@ -34,7 +34,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         }}
     }}
 }}";
-            var (typedConstant, typeSymbol, compilation) = await GetAttributeConstantAsync(testCode).ConfigureAwait(false);
+            var (typedConstant, typeSymbol, compilation) = await GetAttributeConstantAsync(testCode);
 
             Assert.That(typedConstant.CanAssignTo(typeSymbol, compilation), expectedResult);
         }
@@ -110,7 +110,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         private static async Task<(TypedConstant argumentConstant, ITypeSymbol typeSymbol, Compilation compilation)>
             GetAttributeConstantAsync(string code)
         {
-            var (root, semanticModel) = await TestHelpers.GetRootAndModel(code).ConfigureAwait(false);
+            var (root, semanticModel) = await TestHelpers.GetRootAndModel(code);
 
             // It's assumed the code will have one attribute with one argument,
             // along with one method with one parameter
