@@ -20,6 +20,18 @@ namespace NUnit.Analyzers.Tests.Verifiers
             new(ResolveMetadataReferencesAsync, LazyThreadSafetyMode.ExecutionAndPublication);
 
         /// <summary>
+        /// Gets the cancellation token to pass to <see cref="AnalyzerTest{TVerifier}.RunAsync(CancellationToken)"/>.
+        /// From NUnit 4 on this is the token of the current test, which allows cooperative cancellation,
+        /// e.g. when the test run is aborted or a <c>[CancelAfter]</c> timeout expires.
+        /// </summary>
+        public static CancellationToken CancellationToken =>
+#if NUNIT4
+            NUnit.Framework.TestContext.CurrentContext.CancellationToken;
+#else
+            CancellationToken.None;
+#endif
+
+        /// <summary>
         /// Gets the reference assemblies for the framework the test host is running on.
         /// This matches the NUnit assembly that is referenced and keeps the
         /// <c>#if NETFRAMEWORK</c> conditions in the tests meaningful.

@@ -1325,7 +1325,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             };
 
             test.ExpectedDiagnostics.AddRange(expected);
-            await test.RunAsync();
+            await test.RunAsync(TestSetup.CancellationToken);
         }
 
         public record struct AssertMultiple(string Name, string Start, string End)

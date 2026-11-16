@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Testing;
@@ -15,6 +14,15 @@ namespace NUnit.Analyzers.Tests.Verifiers
     internal sealed class NUnitCSharpAnalyzerVerifier<TAnalyzer> : AnalyzerVerifier<TAnalyzer, NUnitCSharpAnalyzerTest<TAnalyzer>, DefaultVerifier>
         where TAnalyzer : DiagnosticAnalyzer, new()
     {
+        /// <summary>
+        /// Verifies that <paramref name="source"/> produces the <paramref name="expected"/> diagnostics.
+        /// </summary>
+        /// <remarks>
+        /// Hides the inherited method to pass <see cref="TestSetup.CancellationToken"/>.
+        /// </remarks>
+        public static new Task VerifyAnalyzerAsync(string source, params DiagnosticResult[] expected)
+            => VerifyAnalyzerAsync(source, _ => { }, expected);
+
         /// <summary>
         /// Verifies that <paramref name="source"/> produces the <paramref name="expected"/> diagnostics,
         /// after applying test specific settings with <paramref name="configure"/>.
@@ -38,7 +46,7 @@ namespace NUnit.Analyzers.Tests.Verifiers
 
             test.ExpectedDiagnostics.AddRange(expected);
             configure(test);
-            return test.RunAsync(CancellationToken.None);
+            return test.RunAsync(TestSetup.CancellationToken);
         }
     }
 }

@@ -587,7 +587,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 test.TestState.AddAnalyzerConfig(additionalConfiguration);
             }
 
-            await test.RunAsync();
+            await test.RunAsync(TestSetup.CancellationToken);
         }
     }
 }

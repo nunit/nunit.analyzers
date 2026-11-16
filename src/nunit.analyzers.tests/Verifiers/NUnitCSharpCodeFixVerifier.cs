@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -18,6 +17,35 @@ namespace NUnit.Analyzers.Tests.Verifiers
         where TAnalyzer : DiagnosticAnalyzer, new()
         where TCodeFix : CodeFixProvider, new()
     {
+        // The methods below hide the inherited ones to pass TestSetup.CancellationToken.
+
+        /// <summary>
+        /// Verifies that <paramref name="source"/> produces the <paramref name="expected"/> diagnostics.
+        /// </summary>
+        public static new Task VerifyAnalyzerAsync(string source, params DiagnosticResult[] expected)
+            => VerifyAnalyzerAsync(source, _ => { }, expected);
+
+        /// <summary>
+        /// Verifies that applying the first code action offered for the diagnostics marked up in
+        /// <paramref name="source"/> results in <paramref name="fixedSource"/>.
+        /// </summary>
+        public static new Task VerifyCodeFixAsync(string source, string fixedSource)
+            => VerifyCodeFixAsync(source, DiagnosticResult.EmptyDiagnosticResults, fixedSource, fixTitle: null);
+
+        /// <summary>
+        /// Verifies that applying the first code action offered for the <paramref name="expected"/>
+        /// diagnostic in <paramref name="source"/> results in <paramref name="fixedSource"/>.
+        /// </summary>
+        public static new Task VerifyCodeFixAsync(string source, DiagnosticResult expected, string fixedSource)
+            => VerifyCodeFixAsync(source, [expected], fixedSource, fixTitle: null);
+
+        /// <summary>
+        /// Verifies that applying the first code action offered for the <paramref name="expected"/>
+        /// diagnostics in <paramref name="source"/> results in <paramref name="fixedSource"/>.
+        /// </summary>
+        public static new Task VerifyCodeFixAsync(string source, DiagnosticResult[] expected, string fixedSource)
+            => VerifyCodeFixAsync(source, expected, fixedSource, fixTitle: null);
+
         /// <summary>
         /// Verifies that <paramref name="source"/> produces the <paramref name="expected"/> diagnostics,
         /// after applying test specific settings with <paramref name="configure"/>.
@@ -34,7 +62,7 @@ namespace NUnit.Analyzers.Tests.Verifiers
 
             test.ExpectedDiagnostics.AddRange(expected);
             configure(test);
-            return test.RunAsync(CancellationToken.None);
+            return test.RunAsync(TestSetup.CancellationToken);
         }
 
         /// <summary>
@@ -80,7 +108,7 @@ namespace NUnit.Analyzers.Tests.Verifiers
 
             test.ExpectedDiagnostics.AddRange(expected);
             configure?.Invoke(test);
-            return test.RunAsync(CancellationToken.None);
+            return test.RunAsync(TestSetup.CancellationToken);
         }
     }
 }

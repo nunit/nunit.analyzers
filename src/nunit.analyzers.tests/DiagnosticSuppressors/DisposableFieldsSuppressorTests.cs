@@ -149,7 +149,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 },
             };
 
-            await test.RunAsync();
+            await test.RunAsync(TestSetup.CancellationToken);
         }
     }
 }
