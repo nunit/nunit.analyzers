@@ -45,7 +45,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             ");
 
             // This rule doesn't care. Actual checking is done in DisposeFieldsInTearDownAnalyzer
-            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
+            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode);
         }
 
         [TestCase(NUnitFrameworkConstants.NameOfTearDownAttribute, "")]
@@ -86,7 +86,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 }}
             ");
 
-            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
+            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode);
         }
 
         [Test]
@@ -117,7 +117,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             ");
 
             // InstancePerTestCase mean test should use IDisposable
-            await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
+            await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode);
         }
     }
 }

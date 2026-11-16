@@ -123,7 +123,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(CalculatorClass);
 
-            await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
+            await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode);
         }
 
         [Test]
@@ -134,7 +134,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 {CalculatorTest}
             ");
 
-            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode).ConfigureAwait(true);
+            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode);
         }
 
         [Test]
@@ -142,7 +142,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(TestDataClass, "using System.Collections;");
 
-            await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode, settingSearchingAllSourcesForTestCaseUsages).ConfigureAwait(true);
+            await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode, settingSearchingAllSourcesForTestCaseUsages);
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 {{TestFixtureWithParameterizedTestMethod}}
                 """, additionalUsings: "using System.Collections;");
 
-            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode, settingSearchingAllSourcesForTestCaseUsages).ConfigureAwait(true);
+            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode, settingSearchingAllSourcesForTestCaseUsages);
         }
 
         [Test]
@@ -164,7 +164,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 {{ParameterizedTestFixture}}
                 """, additionalUsings: "using System.Collections;");
 
-            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode, settingSearchingAllSourcesForTestCaseUsages).ConfigureAwait(true);
+            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode, settingSearchingAllSourcesForTestCaseUsages);
         }
 
         [Test]
@@ -174,15 +174,15 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             var testFixtureCode = TestUtility.WrapClassInNamespaceAndAddUsing(TestFixtureWithParameterizedTestMethod);
             var parameterizedTestFixtureCode = TestUtility.WrapClassInNamespaceAndAddUsing(ParameterizedTestFixture);
 
-            await TestHelpers.Suppressed(this.analyzer, suppressor, [testDataCode, testFixtureCode, parameterizedTestFixtureCode], settingSearchingAllSourcesForTestCaseUsages).ConfigureAwait(true);
+            await TestHelpers.Suppressed(this.analyzer, suppressor, [testDataCode, testFixtureCode, parameterizedTestFixtureCode], settingSearchingAllSourcesForTestCaseUsages);
 
             // Test that the suppressor does not suppress when the setting is not set
             await TestHelpers.NotSuppressed(this.analyzer, suppressor, [testDataCode, testFixtureCode, parameterizedTestFixtureCode],
-                Settings.Default).ConfigureAwait(true);
+                Settings.Default);
 
             // Test that the suppressor does not suppress when the setting is explicitly disabled
             await TestHelpers.NotSuppressed(this.analyzer, suppressor, [testDataCode, testFixtureCode, parameterizedTestFixtureCode],
-                Settings.Default.WithAnalyzerConfig("dotnet_diagnostic.NUnit3003.search_all_code_for_use_as_data_source = false")).ConfigureAwait(true);
+                Settings.Default.WithAnalyzerConfig("dotnet_diagnostic.NUnit3003.search_all_code_for_use_as_data_source = false"));
         }
     }
 }

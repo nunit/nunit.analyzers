@@ -12,3 +12,7 @@ dotnet_diagnostic.CA1859.severity = none
 # CA1863 Cache a 'CompositeFormat' for repeated use in this formatting operation
 dotnet_diagnostic.CA1863.severity = none
 
+# CA2007: Consider calling ConfigureAwait on the awaited task
+# Not relevant for tests: there is no UI SynchronizationContext to avoid, it only adds noise.
+dotnet_diagnostic.CA2007.severity = none
+

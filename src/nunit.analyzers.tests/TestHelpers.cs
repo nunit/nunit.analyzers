@@ -40,7 +40,7 @@ namespace NUnit.Analyzers.Tests
 
             CompilationWithAnalyzers compilationWithAnalyzer = compilation
                 .WithAnalyzers([analyzer]);
-            ImmutableArray<Diagnostic> diagnostics = await compilationWithAnalyzer.GetAllDiagnosticsAsync().ConfigureAwait(false);
+            ImmutableArray<Diagnostic> diagnostics = await compilationWithAnalyzer.GetAllDiagnosticsAsync();
             Assert.That(diagnostics, Has.Length.EqualTo(1));
             Assert.That(diagnostics[0].Id, Is.EqualTo(id));
 
@@ -52,7 +52,7 @@ namespace NUnit.Analyzers.Tests
 
             CompilationWithAnalyzers compilationWithAnalyzerAndSuppressor = compilation
                 .WithAnalyzers([analyzer, suppressor], analyzerOptions);
-            diagnostics = await compilationWithAnalyzerAndSuppressor.GetAllDiagnosticsAsync().ConfigureAwait(false);
+            diagnostics = await compilationWithAnalyzerAndSuppressor.GetAllDiagnosticsAsync();
             Assert.That(diagnostics, Has.Length.EqualTo(1));
             Assert.That(diagnostics[0].Id, Is.EqualTo(id));
             Assert.That(diagnostics[0].IsSuppressed, Is.EqualTo(isSuppressed));
@@ -86,14 +86,14 @@ namespace NUnit.Analyzers.Tests
         {
             (SyntaxTree tree, Compilation compilation) = GetTreeAndCompilation(code);
             var model = compilation.GetSemanticModel(tree);
-            var root = await tree.GetRootAsync().ConfigureAwait(false);
+            var root = await tree.GetRootAsync();
 
             return (root, compilation, model);
         }
 
         internal static async Task<(SyntaxNode Node, SemanticModel Model)> GetRootAndModel(string code)
         {
-            (SyntaxNode node, _, SemanticModel model) = await GetRootCompilationAndModel(code).ConfigureAwait(false);
+            (SyntaxNode node, _, SemanticModel model) = await GetRootCompilationAndModel(code);
 
             return (node, model);
         }

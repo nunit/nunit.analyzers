@@ -1,5 +1,8 @@
 image: Visual Studio 2022
 
+init:
+  - git config --global core.autocrlf true
+
 environment:
   CLI_CHANNEL: 8.0
 
