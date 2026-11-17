@@ -1,18 +1,15 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.TestMethodAccessibilityLevel;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.TestMethodAccessibilityLevel.TestMethodAccessibilityLevelAnalyzer, NUnit.Analyzers.TestMethodAccessibilityLevel.TestMethodAccessibilityLevelCodeFix>;
 
 namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
 {
     public class TestMethodAccessibilityLevelCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new TestMethodAccessibilityLevelAnalyzer();
-        private static readonly CodeFixProvider fix = new TestMethodAccessibilityLevelCodeFix();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestMethodIsNotPublic);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.TestMethodIsNotPublic);
 
         private static readonly object[] NonPublicModifiers =
         [
@@ -39,59 +36,67 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         ];
 
         [TestCaseSource(nameof(NonPublicModifiers))]
-        public void FixesNonPublicAccessModifiers(string modifiers, string modifiersAfter)
+        public async Task FixesNonPublicAccessModifiers(string modifiers, string modifiersAfter)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        {modifiers} void ↓TestMethod(int i) {{ }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    {{modifiers}} void {|#0:TestMethod|}(int i) { }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        {modifiersAfter} void TestMethod(int i) {{ }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    {{modifiersAfter}} void TestMethod(int i) { }
+            """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void FixesDefaultImplicitAccessModifier()
+        public async Task FixesDefaultImplicitAccessModifier()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        void ↓TestMethod(int i) {{ }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    void {|#0:TestMethod|}(int i) { }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        public void TestMethod(int i) {{ }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    public void TestMethod(int i) { }
+            """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void FixesDefaultImplicitAccessModifierWronglyIndented()
+        public async Task FixesDefaultImplicitAccessModifierWronglyIndented()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        void ↓TestMethod(int i) {{ }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    void {|#0:TestMethod|}(int i) { }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        public void TestMethod(int i) {{ }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    public void TestMethod(int i) { }
+            """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void FixesDefaultImplicitAccessModifierAsyncVariant()
+        public async Task FixesDefaultImplicitAccessModifierAsyncVariant()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        async Task ↓TestMethod(int i) {{ await Task.CompletedTask; }}");
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    async Task {|#0:TestMethod|}(int i) { await Task.CompletedTask; }
+            """);
 
-            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        public async Task TestMethod(int i) {{ await Task.CompletedTask; }}");
+            var fixedCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    public async Task TestMethod(int i) { await Task.CompletedTask; }
+            """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, testCode, fixedCode);
+            await Verify.VerifyCodeFixAsync(testCode, expectedDiagnostic.WithLocation(0), fixedCode);
         }
     }
 }

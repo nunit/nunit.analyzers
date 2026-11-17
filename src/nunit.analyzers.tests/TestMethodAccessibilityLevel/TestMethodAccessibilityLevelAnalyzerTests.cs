@@ -1,17 +1,16 @@
 using System.Collections.Generic;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.TestMethodAccessibilityLevel;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.TestMethodAccessibilityLevel.TestMethodAccessibilityLevelAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
 {
     public class TestMethodAccessibilityLevelAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new TestMethodAccessibilityLevelAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.TestMethodIsNotPublic);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.TestMethodIsNotPublic);
 
         private static IEnumerable<string> SetUpTearDownMethodRelatedAttributes =>
         [
@@ -69,85 +68,94 @@ namespace NUnit.Analyzers.Tests.TestMethodAccessibilityLevel
         ];
 
         [TestCaseSource(nameof(SetUpTearDownMethodRelatedAttributes))]
-        public void AnalyzeWhenSetUpTearDownMethodIsPublic(string attribute)
+        public async Task AnalyzeWhenSetUpTearDownMethodIsPublic(string attribute)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [{attribute}]
-        public void SetUpTearDownMethod() {{ }}");
-            RoslynAssert.Valid(analyzer, testCode);
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [{{attribute}}]
+                    public void SetUpTearDownMethod() { }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(SetUpTearDownMethodRelatedAttributes))]
-        public void AnalyzeWhenSetUpTearDownMethodIsProtected(string attribute)
+        public async Task AnalyzeWhenSetUpTearDownMethodIsProtected(string attribute)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [{attribute}]
-        protected void SetUpTearDownMethod() {{ }}");
-            RoslynAssert.Valid(analyzer, testCode);
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [{{attribute}}]
+                    protected void SetUpTearDownMethod() { }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSimpleTestMethodIsPublic()
+        public async Task AnalyzeWhenSimpleTestMethodIsPublic()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        public void TestMethod() {{ }}");
-            RoslynAssert.Valid(analyzer, testCode);
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    public void TestMethod() { }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTestMethodIsPublic()
+        public async Task AnalyzeWhenTestMethodIsPublic()
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        public void TestMethod(int i) {{ }}");
-            RoslynAssert.Valid(analyzer, testCode);
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    public void TestMethod(int i) { }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSetUpTearDownMethodIsNotPublic([ValueSource(nameof(SetUpTearDownMethodRelatedAttributes))] string attribute,
+        public async Task AnalyzeWhenSetUpTearDownMethodIsNotPublic([ValueSource(nameof(SetUpTearDownMethodRelatedAttributes))] string attribute,
                                                               [ValueSource(nameof(NonPublicOrFamilyModifiers))] string modifiers)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [{attribute}]
-        {modifiers} void ↓SetUpTearDownMethod() {{ }}");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [{{attribute}}]
+                    {{modifiers}} void {|#0:SetUpTearDownMethod|}() { }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(NonPublicModifiers))]
-        public void AnalyzeWhenSimpleTestMethodIsNotPublic(string modifiers)
+        public async Task AnalyzeWhenSimpleTestMethodIsNotPublic(string modifiers)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        {modifiers} void ↓TestMethod() {{ }}");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    {{modifiers}} void {|#0:TestMethod|}() { }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(NonPublicModifiers))]
-        public void AnalyzeWhenTestMethodIsNotPublic(string modifiers)
+        public async Task AnalyzeWhenTestMethodIsNotPublic(string modifiers)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        {modifiers} void ↓TestMethod(int i) {{ }}");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    {{modifiers}} void {|#0:TestMethod|}(int i) { }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(NonPublicModifiers))]
-        public void AnalyzeWhenAsyncSimpleTestMethodIsNotPublic(string modifiers)
+        public async Task AnalyzeWhenAsyncSimpleTestMethodIsNotPublic(string modifiers)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [Test]
-        {modifiers} async Task ↓TestMethod() {{ await Task.CompletedTask; }}");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [Test]
+                    {{modifiers}} async Task {|#0:TestMethod|}() { await Task.CompletedTask; }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [TestCaseSource(nameof(NonPublicModifiers))]
-        public void AnalyzeWhenAsyncTestMethodIsNotPublic(string modifiers)
+        public async Task AnalyzeWhenAsyncTestMethodIsNotPublic(string modifiers)
         {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($@"
-        [TestCase(1)]
-        {modifiers} async Task ↓TestMethod(int i) {{ await Task.CompletedTask; }}");
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
+                    [TestCase(1)]
+                    {{modifiers}} async Task {|#0:TestMethod|}(int i) { await Task.CompletedTask; }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
     }
 }

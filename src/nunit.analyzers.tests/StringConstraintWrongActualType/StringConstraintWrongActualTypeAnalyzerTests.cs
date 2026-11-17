@@ -1,16 +1,16 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.StringConstraintWrongActualType;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.StringConstraintWrongActualType.StringConstraintWrongActualTypeAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
 {
     public class StringConstraintWrongActualTypeAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new StringConstraintWrongActualTypeAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.StringConstraintWrongActualType);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.StringConstraintWrongActualType);
 
         private static readonly string[] StringConstraints =
         [
@@ -22,79 +22,103 @@ namespace NUnit.Analyzers.Tests.StringConstraintWrongActualType
             "Does.Not.Match(@\"\\d+\")",
             "Contains.Substring(\"23\")",
             "new NUnit.Framework.Constraints.EmptyStringConstraint()",
-            @"Is.SamePath(@""C:\repos\nunit.analyzers"")",
-            @"Is.SamePathOrUnder(@""C:\repos"")",
-            @"Is.SubPathOf(@""C:\"")"
+            """Is.SamePath(@"C:\repos\nunit.analyzers")""",
+            """Is.SamePathOrUnder(@"C:\repos")""",
+            """Is.SubPathOf(@"C:\")"""
         ];
 
         [Test]
-        public void AnalyzeWhenNonStringValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
+        public async Task AnalyzeWhenNonStringValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = 1234;
-                Assert.That(actual, ↓{stringConstraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = 1234;
+                        Assert.That(actual, {|#0:{{stringConstraint}}|});
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments(ConstraintTypeName(stringConstraint), "int"));
         }
 
         [Test]
-        public void AnalyzeWhenStringTaskValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
+        public async Task AnalyzeWhenStringTaskValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = Task.FromResult(""1234"");
-                Assert.That(actual, ↓{stringConstraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = Task.FromResult("1234");
+                        Assert.That(actual, {|#0:{{stringConstraint}}|});
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0).WithArguments(ConstraintTypeName(stringConstraint), "Task<string>"));
         }
 
         [Test]
-        public void ValidWhenStringValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
+        public async Task ValidWhenStringValueProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = ""1234"";
-                Assert.That(actual, {stringConstraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = "1234";
+                        Assert.That(actual, {{stringConstraint}});
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenStringDelegateProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
+        public async Task ValidWhenStringDelegateProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = ""1234"";
-                Assert.That(() => actual, {stringConstraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = "1234";
+                        Assert.That(() => actual, {{stringConstraint}});
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenStringTaskDelegateProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
+        public async Task ValidWhenStringTaskDelegateProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = Task.FromResult(""1234"");
-                Assert.That(() => actual, {stringConstraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = Task.FromResult("1234");
+                        Assert.That(() => actual, {{stringConstraint}});
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenValueConvertedToStringProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
+        public async Task ValidWhenValueConvertedToStringProvided([ValueSource(nameof(StringConstraints))] string stringConstraint)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = 1234;
-                Assert.That(actual.ToString(), {stringConstraint});");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = 1234;
+                        Assert.That(actual.ToString(), {{stringConstraint}});
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenAllOperatorUsed()
+        public async Task ValidWhenAllOperatorUsed()
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var actual = new[] {{""11"", ""12"", ""13""}};
-                Assert.That(actual, Has.All.StartsWith(""1""));");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = new[] {"11", "12", "13"};
+                        Assert.That(actual, Has.All.StartsWith("1"));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
+        }
+
+        // The diagnostic message contains the name of the constraint type created by the constraint expression.
+        private static string ConstraintTypeName(string stringConstraint)
+        {
+            string method = Regex.Match(stringConstraint, @"\.(\w+)\(").Groups[1].Value;
+            return method switch
+            {
+                "StartWith" => "StartsWithConstraint",
+                "EndWith" => "EndsWithConstraint",
+                "Match" => "RegexConstraint",
+                "Substring" => "SubstringConstraint",
+                "SamePath" => "SamePathConstraint",
+                "SamePathOrUnder" => "SamePathOrUnderConstraint",
+                "SubPathOf" => "SubPathConstraint",
+                _ => method,
+            };
         }
     }
 }

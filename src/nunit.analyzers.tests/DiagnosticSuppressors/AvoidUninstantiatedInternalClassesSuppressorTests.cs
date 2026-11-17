@@ -1,18 +1,21 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Gu.Roslyn.Asserts;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.DiagnosticSuppressors;
+using NUnit.Analyzers.Tests.Verifiers;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
 {
     internal class AvoidUninstantiatedInternalClassesSuppressorTests
     {
-        private const string CalculatorClass = @"
-            internal sealed class Calculator
+        private const string CalculatorClass = """
+            internal sealed class {|#0:Calculator|}
             {
                 private readonly Calculation _calculation;
 
@@ -29,10 +32,11 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     Subtract,
                 }
             }
-        ";
 
-        private const string CalculatorTest = @"
-            internal sealed class CalculatorTests
+        """;
+
+        private const string CalculatorTest = """
+            internal sealed class {|#1:CalculatorTests|}
             {
                 [Test]
                 public void TestAdd()
@@ -50,20 +54,22 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     Assert.That(result, Is.EqualTo(-1));
                 }
             }
-        ";
 
-        private const string TestDataClass = @"
-            internal sealed class TestData : IEnumerable
+        """;
+
+        private const string TestDataClass = """
+            internal sealed class {|#2:TestData|} : IEnumerable
             {
                 public IEnumerator GetEnumerator()
                 {
-                    yield return ""Hello"";
-                    yield return ""World"";
+                    yield return "Hello";
+                    yield return "World";
                 }
             }
-        ";
 
-        private const string TestFixtureWithParameterizedTestMethod = @"
+        """;
+
+        private const string TestFixtureWithParameterizedTestMethod = """
             [TestFixture]
             public sealed class TestFixture
             {
@@ -74,9 +80,10 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     Assert.That(value, Has.Length.EqualTo(5));
                 }
             }
-         ";
 
-        private const string ParameterizedTestFixture = @"
+        """;
+
+        private const string ParameterizedTestFixture = """
             [TestFixtureSource(typeof(TestData))]
             public sealed class ParameterizedTestFixture
             {
@@ -99,12 +106,14 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                     Assert.That(value, Has.Length.EqualTo(5));
                 }
             }
-        ";
 
-        private static readonly Settings settingSearchingAllSourcesForTestCaseUsages =
-            Settings.Default.WithAnalyzerConfig("dotnet_diagnostic.NUnit3003.search_all_code_for_use_as_data_source = true");
+        """;
 
-        private static readonly DiagnosticSuppressor suppressor = new AvoidUninstantiatedInternalClassSuppressor();
+        private const int CalculatorLocation = 0;
+        private const int CalculatorTestsLocation = 1;
+        private const int TestDataLocation = 2;
+
+        private const string SearchAllSourcesForTestCaseUsages = "dotnet_diagnostic.NUnit3003.search_all_code_for_use_as_data_source = true";
         private DiagnosticAnalyzer analyzer;
 
         [OneTimeSetUp]
@@ -123,18 +132,19 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(CalculatorClass);
 
-            await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode);
+            await this.VerifySuppressionAsync([testCode], CalculatorLocation, isSuppressed: false);
         }
 
         [Test]
         public async Task TestClass()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-                {CalculatorClass}
-                {CalculatorTest}
-            ");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                {{CalculatorClass}}
+                {{CalculatorTest}}
 
-            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode);
+            """);
+
+            await this.VerifySuppressionAsync([testCode], CalculatorTestsLocation, isSuppressed: true);
         }
 
         [Test]
@@ -142,7 +152,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(TestDataClass, "using System.Collections;");
 
-            await TestHelpers.NotSuppressed(this.analyzer, suppressor, testCode, settingSearchingAllSourcesForTestCaseUsages);
+            await this.VerifySuppressionAsync([testCode], TestDataLocation, isSuppressed: false, SearchAllSourcesForTestCaseUsages);
         }
 
         [Test]
@@ -153,7 +163,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 {{TestFixtureWithParameterizedTestMethod}}
                 """, additionalUsings: "using System.Collections;");
 
-            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode, settingSearchingAllSourcesForTestCaseUsages);
+            await this.VerifySuppressionAsync([testCode], TestDataLocation, isSuppressed: true, SearchAllSourcesForTestCaseUsages);
         }
 
         [Test]
@@ -164,7 +174,7 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
                 {{ParameterizedTestFixture}}
                 """, additionalUsings: "using System.Collections;");
 
-            await TestHelpers.Suppressed(this.analyzer, suppressor, testCode, settingSearchingAllSourcesForTestCaseUsages);
+            await this.VerifySuppressionAsync([testCode], TestDataLocation, isSuppressed: true, SearchAllSourcesForTestCaseUsages);
         }
 
         [Test]
@@ -174,15 +184,41 @@ namespace NUnit.Analyzers.Tests.DiagnosticSuppressors
             var testFixtureCode = TestUtility.WrapClassInNamespaceAndAddUsing(TestFixtureWithParameterizedTestMethod);
             var parameterizedTestFixtureCode = TestUtility.WrapClassInNamespaceAndAddUsing(ParameterizedTestFixture);
 
-            await TestHelpers.Suppressed(this.analyzer, suppressor, [testDataCode, testFixtureCode, parameterizedTestFixtureCode], settingSearchingAllSourcesForTestCaseUsages);
+            await this.VerifySuppressionAsync([testDataCode, testFixtureCode, parameterizedTestFixtureCode], TestDataLocation, isSuppressed: true, SearchAllSourcesForTestCaseUsages);
 
             // Test that the suppressor does not suppress when the setting is not set
-            await TestHelpers.NotSuppressed(this.analyzer, suppressor, [testDataCode, testFixtureCode, parameterizedTestFixtureCode],
-                Settings.Default);
+            await this.VerifySuppressionAsync([testDataCode, testFixtureCode, parameterizedTestFixtureCode], TestDataLocation, isSuppressed: false);
 
             // Test that the suppressor does not suppress when the setting is explicitly disabled
-            await TestHelpers.NotSuppressed(this.analyzer, suppressor, [testDataCode, testFixtureCode, parameterizedTestFixtureCode],
-                Settings.Default.WithAnalyzerConfig("dotnet_diagnostic.NUnit3003.search_all_code_for_use_as_data_source = false"));
+            await this.VerifySuppressionAsync([testDataCode, testFixtureCode, parameterizedTestFixtureCode], TestDataLocation, isSuppressed: false,
+                "dotnet_diagnostic.NUnit3003.search_all_code_for_use_as_data_source = false");
+        }
+
+        private async Task VerifySuppressionAsync(string[] sources, int markupKey, bool isSuppressed, string? analyzerConfig = null)
+        {
+            string id = this.analyzer.SupportedDiagnostics[0].Id;
+            Assert.That(new AvoidUninstantiatedInternalClassSuppressor().SupportedSuppressions.Select(x => x.SuppressedDiagnosticId), Does.Contain(id));
+
+            var test = new NUnitCSharpSuppressorTest<AvoidUninstantiatedInternalClassSuppressor>
+            {
+                SuppressedAnalyzers = { this.analyzer },
+                ExpectedDiagnostics =
+                {
+                    new DiagnosticResult(id, DiagnosticSeverity.Warning).WithLocation(markupKey).WithIsSuppressed(isSuppressed),
+                },
+            };
+
+            foreach (string source in sources)
+            {
+                test.TestState.Sources.Add(source);
+            }
+
+            if (analyzerConfig is not null)
+            {
+                test.TestState.AddAnalyzerConfig(analyzerConfig);
+            }
+
+            await test.RunAsync(TestSetup.CancellationToken);
         }
     }
 }

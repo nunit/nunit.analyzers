@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NUnit.Analyzers.Helpers;
+using NUnit.Analyzers.Tests.Verifiers;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
 
@@ -27,9 +29,9 @@ namespace NUnit.Analyzers.Tests.Helpers
         [TestCase(typeof(Dictionary<string, string>), typeof(Dictionary<string, double>), TestName = "FalseWhenDictionariesWithIncompatibleValueTypesProvided")]
         [TestCase(typeof(Dictionary<int, string>), typeof(Dictionary<double, string>), TestName = "FalseWhenDictionariesWithDifferentNumericKeyTypesProvided")]
         [TestCase(typeof(Tuple<string, string>), typeof(Tuple<string, int>), TestName = "FalseWhenTuplesWithIncompatibleElementTypesProvided")]
-        public void FalseWhenIncompatibleTypesProvided(Type leftType, Type rightType)
+        public async Task FalseWhenIncompatibleTypesProvided(Type leftType, Type rightType)
         {
-            var compilation = TestHelpers.CreateCompilation();
+            var compilation = await TestSetup.CreateCompilationAsync();
             var leftTypeSymbol = GetTypeSymbol(compilation, leftType);
             var rightTypeSymbol = GetTypeSymbol(compilation, rightType);
 
@@ -37,9 +39,9 @@ namespace NUnit.Analyzers.Tests.Helpers
         }
 
         [Test]
-        public void FalseWhenValueTuplesWithIncompatibleElementTypesProvided()
+        public async Task FalseWhenValueTuplesWithIncompatibleElementTypesProvided()
         {
-            var compilation = TestHelpers.CreateCompilation();
+            var compilation = await TestSetup.CreateCompilationAsync();
 
             var intTypeSymbol = compilation.GetSpecialType(SpecialType.System_Int32);
             var stringTypeSymbol = compilation.GetSpecialType(SpecialType.System_String);
@@ -50,11 +52,12 @@ namespace NUnit.Analyzers.Tests.Helpers
         }
 
         [Test]
-        public void FalseWhenDifferentEnumsProvided()
+        public async Task FalseWhenDifferentEnumsProvided()
         {
-            var compilation = TestHelpers.CreateCompilation(@"
+            var compilation = await TestSetup.CreateCompilationAsync("""
                 enum EnumOne { A, B, C }
-                enum EnumTwo { A, B, C }");
+                enum EnumTwo { A, B, C }
+            """);
             var leftTypeSymbol = compilation.GetTypeByMetadataName("EnumOne");
             var rightTypeSymbol = compilation.GetTypeByMetadataName("EnumTwo");
 
@@ -62,11 +65,12 @@ namespace NUnit.Analyzers.Tests.Helpers
         }
 
         [Test]
-        public void FalseWhenDifferentNullableEnumsProvided()
+        public async Task FalseWhenDifferentNullableEnumsProvided()
         {
-            var compilation = TestHelpers.CreateCompilation(@"
+            var compilation = await TestSetup.CreateCompilationAsync("""
                 enum EnumOne { A, B, C }
-                enum EnumTwo { A, B, C }");
+                enum EnumTwo { A, B, C }
+            """);
             var nullableTypeSymbol = compilation.GetSpecialType(SpecialType.System_Nullable_T);
             var enumOneSymbol = compilation.GetTypeByMetadataName("EnumOne");
             Assert.That(enumOneSymbol, Is.Not.Null, "Cannot find type 'EnumOne'");
@@ -77,9 +81,9 @@ namespace NUnit.Analyzers.Tests.Helpers
         }
 
         [Test]
-        public void FalseWhenIncompatibleTypesWithCyclicTypesProvided()
+        public async Task FalseWhenIncompatibleTypesWithCyclicTypesProvided()
         {
-            var compilation = TestHelpers.CreateCompilation(@"
+            var compilation = await TestSetup.CreateCompilationAsync("""
                 class A : IEnumerable<A>
                 {
                     public IEnumerator<A> GetEnumerator() => null;
@@ -90,7 +94,8 @@ namespace NUnit.Analyzers.Tests.Helpers
                 {
                     public IEnumerator<B> GetEnumerator() => null;
                     IEnumerator IEnumerable.GetEnumerator() => null;
-                }");
+                }
+            """);
             var leftTypeSymbol = compilation.GetTypeByMetadataName("A");
             var rightTypeSymbol = compilation.GetTypeByMetadataName("B");
 
@@ -104,9 +109,9 @@ namespace NUnit.Analyzers.Tests.Helpers
         [TestCase(typeof(Dictionary<string, int>), typeof(Dictionary<string, decimal>), TestName = "TrueForDictionariesOfNumerics")]
         [TestCase(typeof(KeyValuePair<string, int>), typeof(KeyValuePair<string, double>), TestName = "TrueForKeyValuePairsOfNumerics")]
         [TestCase(typeof(Tuple<string, double>), typeof(Tuple<string, decimal>), TestName = "TrueForTuplesWithCompatibleElementTypes")]
-        public void TrueWhenCompatibleTypesProvided(Type leftType, Type rightType)
+        public async Task TrueWhenCompatibleTypesProvided(Type leftType, Type rightType)
         {
-            var compilation = TestHelpers.CreateCompilation();
+            var compilation = await TestSetup.CreateCompilationAsync();
             var leftTypeSymbol = GetTypeSymbol(compilation, leftType);
             var rightTypeSymbol = GetTypeSymbol(compilation, rightType);
 
@@ -116,20 +121,21 @@ namespace NUnit.Analyzers.Tests.Helpers
         [TestCase(typeof(string))]
         [TestCase(typeof(int))]
         [TestCase(typeof(bool))]
-        public void TrueWhenTypesAreSame(Type type)
+        public async Task TrueWhenTypesAreSame(Type type)
         {
-            var compilation = TestHelpers.CreateCompilation();
+            var compilation = await TestSetup.CreateCompilationAsync();
             var typeSymbol = GetTypeSymbol(compilation, type);
 
             Assert.That(NUnitEqualityComparerHelper.CanBeEqual(typeSymbol, typeSymbol, compilation), Is.True);
         }
 
         [Test]
-        public void TrueWhenOneTypeInheritsAnother()
+        public async Task TrueWhenOneTypeInheritsAnother()
         {
-            var compilation = TestHelpers.CreateCompilation(@"
+            var compilation = await TestSetup.CreateCompilationAsync("""
                 class A { }
-                class B : A { }");
+                class B : A { }
+            """);
             var leftTypeSymbol = compilation.GetTypeByMetadataName("A");
             var rightTypeSymbol = compilation.GetTypeByMetadataName("B");
 
@@ -137,11 +143,11 @@ namespace NUnit.Analyzers.Tests.Helpers
         }
 
         [Test]
-        public void TrueForNumericTypes(
+        public async Task TrueForNumericTypes(
             [ValueSource(nameof(NumericTypes))] Type leftType,
             [ValueSource(nameof(NumericTypes))] Type rightType)
         {
-            var compilation = TestHelpers.CreateCompilation();
+            var compilation = await TestSetup.CreateCompilationAsync();
             var leftTypeSymbol = GetTypeSymbol(compilation, leftType);
             var rightTypeSymbol = GetTypeSymbol(compilation, rightType);
 
@@ -149,10 +155,11 @@ namespace NUnit.Analyzers.Tests.Helpers
         }
 
         [Test]
-        public void TrueWhenSameNullableEnumsProvided()
+        public async Task TrueWhenSameNullableEnumsProvided()
         {
-            var compilation = TestHelpers.CreateCompilation(@"
-                enum EnumOne { A, B, C }");
+            var compilation = await TestSetup.CreateCompilationAsync("""
+                enum EnumOne { A, B, C }
+            """);
             var nullableTypeSymbol = compilation.GetSpecialType(SpecialType.System_Nullable_T);
             var leftTypeSymbol = compilation.GetTypeByMetadataName("EnumOne");
             Assert.That(leftTypeSymbol, Is.Not.Null, "Cannot find type 'EnumOne'");
@@ -162,9 +169,9 @@ namespace NUnit.Analyzers.Tests.Helpers
         }
 
         [Test]
-        public void TrueWhenValueTuplesWithCompatibleElementTypesProvided()
+        public async Task TrueWhenValueTuplesWithCompatibleElementTypesProvided()
         {
-            var compilation = TestHelpers.CreateCompilation();
+            var compilation = await TestSetup.CreateCompilationAsync();
 
             var intTypeSymbol = compilation.GetSpecialType(SpecialType.System_Int32);
             var doubleTypeSymbol = compilation.GetSpecialType(SpecialType.System_Double);
@@ -175,15 +182,16 @@ namespace NUnit.Analyzers.Tests.Helpers
         }
 
         [Test]
-        public void TrueWhenActualHasIEquatableOfExpected()
+        public async Task TrueWhenActualHasIEquatableOfExpected()
         {
-            var compilation = TestHelpers.CreateCompilation(@"
+            var compilation = await TestSetup.CreateCompilationAsync("""
                 class A : System.IEquatable<B>
                 {
                     public bool Equals(B other) => true;
                 }
 
-                class B { }");
+                class B { }
+            """);
             var leftTypeSymbol = compilation.GetTypeByMetadataName("A");
             var rightTypeSymbol = compilation.GetTypeByMetadataName("B");
 
@@ -191,9 +199,9 @@ namespace NUnit.Analyzers.Tests.Helpers
         }
 
         [Test]
-        public void TrueForErrorType()
+        public async Task TrueForErrorType()
         {
-            var compilation = TestHelpers.CreateCompilation();
+            var compilation = await TestSetup.CreateCompilationAsync();
 
             var leftTypeSymbol = compilation.GetSpecialType(SpecialType.System_Int32);
             var rightTypeSymbol = compilation.CreateErrorTypeSymbol(null, "ErrorType", 0);
@@ -202,9 +210,9 @@ namespace NUnit.Analyzers.Tests.Helpers
         }
 
         [Test]
-        public void TrueForArrayWithElementErrorType()
+        public async Task TrueForArrayWithElementErrorType()
         {
-            var compilation = TestHelpers.CreateCompilation();
+            var compilation = await TestSetup.CreateCompilationAsync();
 
             var errorType = compilation.CreateErrorTypeSymbol(null, "ErrorType", 0);
             var leftTypeSymbol = GetTypeSymbol(compilation, typeof(IEnumerable<int>));
@@ -214,9 +222,9 @@ namespace NUnit.Analyzers.Tests.Helpers
         }
 
         [Test]
-        public void UriCanEqualStringButStringCanNotEqualUri()
+        public async Task UriCanEqualStringButStringCanNotEqualUri()
         {
-            var compilation = TestHelpers.CreateCompilation();
+            var compilation = await TestSetup.CreateCompilationAsync();
 
             var stringSymbol = compilation.GetSpecialType(SpecialType.System_String);
             var uriSymbol = compilation.GetTypeByMetadataName("System.Uri");

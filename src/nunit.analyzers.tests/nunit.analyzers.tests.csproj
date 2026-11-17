@@ -3,6 +3,10 @@
     <RootNamespace>NUnit.Analyzers.Tests</RootNamespace>
     <TargetFrameworks>net8.0;net472</TargetFrameworks>
     <NUnitVersion Condition="'$(NUnitVersion)'==''">5</NUnitVersion>
+    <!-- RS1035: Microsoft.CodeAnalysis.Testing transitively brings in Microsoft.CodeAnalysis.Analyzers,
+         whose "banned API" rules are meant for analyzer/codefix implementations, not this test
+         project (which legitimately does file IO/console/env access in its own test helpers). -->
+    <NoWarn>$(NoWarn);RS1035</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(NUnitVersion)' >= '5'">
@@ -28,13 +32,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.1.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.1.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="1.1.4" ExcludeAssets="analyzers" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="1.1.4" ExcludeAssets="analyzers" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
-    <PackageReference Include="Gu.Roslyn.Asserts" Version="4.3.0" />
-    <PackageReference Include="Gu.Roslyn.Asserts.Analyzers" Version="4.0.0" />
     <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
   </ItemGroup>
 

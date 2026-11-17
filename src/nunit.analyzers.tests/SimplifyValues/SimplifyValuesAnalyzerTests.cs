@@ -1,20 +1,19 @@
 using System.Globalization;
-using Gu.Roslyn.Asserts;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.SimplifyValues;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.SimplifyValues.SimplifyValuesAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.SimplifyValues;
 
 public class SimplifyValuesAnalyzerTests
 {
-    private readonly SimplifyValuesAnalyzer analyzer = new();
-
     [Test]
     public void VerifySupportedDiagnostics()
     {
-        var diagnostics = this.analyzer.SupportedDiagnostics;
+        var diagnostics = new SimplifyValuesAnalyzer().SupportedDiagnostics;
 
         Assert.That(diagnostics, Has.Length.EqualTo(1));
         var diagnostic = diagnostics[0];
@@ -28,22 +27,24 @@ public class SimplifyValuesAnalyzerTests
     }
 
     [Test]
-    public void AnalyzeWhenAttributeIsNotInNUnit()
+    public async Task AnalyzeWhenAttributeIsNotInNUnit()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenAttributeIsNotInNUnit
-    {
-        [Test]
-        public void ATest([Values] bool b) { }
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeWhenAttributeIsNotInNUnit
+            {
+                [Test]
+                public void ATest([Values] bool b) { }
 
-        private sealed class ValuesAttribute : Attribute
-        { }
-    }");
-        RoslynAssert.Valid(this.analyzer, testCode);
+                private sealed class ValuesAttribute : Attribute
+                { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeWhenCombinatorialStrategyIsNotUsed(
+    public async Task AnalyzeWhenCombinatorialStrategyIsNotUsed(
         [Values("Sequential", "Pairwise")] string nonCombinatorialAttribute,
         [Values] bool fullyQualify,
         [Values] bool omitAttribute)
@@ -52,202 +53,222 @@ public class SimplifyValuesAnalyzerTests
         var suffix = omitAttribute ? string.Empty : "Attribute";
         var attribute = $"{prefix}{nonCombinatorialAttribute}{suffix}";
 
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    public class AnalyzeWhenCombinatorialStrategyIsNotUsed
-    {{
-        public enum TestEnum {{ A, B, C }}
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+            public class AnalyzeWhenCombinatorialStrategyIsNotUsed
+            {
+                public enum TestEnum { A, B, C }
 
-        [Test]
-        [{attribute}]
-        public void Test([Values(TestEnum.A, TestEnum.B, TestEnum.C)] TestEnum e) {{ }}
-    }}");
-        RoslynAssert.Valid(this.analyzer, testCode);
+                [Test]
+                [{{attribute}}]
+                public void Test([Values(TestEnum.A, TestEnum.B, TestEnum.C)] TestEnum e) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeWhenAttributeHasNoArguments()
+    public async Task AnalyzeWhenAttributeHasNoArguments()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenAttributeHasNoArguments
-    {
-        [Test]
-        public void ATest([Values] bool b) { }
-    }");
-        RoslynAssert.Valid(this.analyzer, testCode);
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeWhenAttributeHasNoArguments
+            {
+                [Test]
+                public void ATest([Values] bool b) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeWhenOneBooleanWasUsed()
+    public async Task AnalyzeWhenOneBooleanWasUsed()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenOneBooleanWasUsed
-    {
-        [Test]
-        public void ATest([Values(true)] bool b) { }
-    }");
-        RoslynAssert.Valid(this.analyzer, testCode);
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeWhenOneBooleanWasUsed
+            {
+                [Test]
+                public void ATest([Values(true)] bool b) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeWhenTwoBooleanWereUsedForNullableBoolean()
+    public async Task AnalyzeWhenTwoBooleanWereUsedForNullableBoolean()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenTwoBooleanWereUsedForNullableBoolean
-    {
-        [Test]
-        public void ATest([Values(true, false)] bool? b) { }
-    }");
-        RoslynAssert.Valid(this.analyzer, testCode);
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeWhenTwoBooleanWereUsedForNullableBoolean
+            {
+                [Test]
+                public void ATest([Values(true, false)] bool? b) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeWhenNotAllEnumValuesWereUsed()
+    public async Task AnalyzeWhenNotAllEnumValuesWereUsed()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenNotAllEnumValuesWereUsed
-    {
-        public enum TestEnum { A, B, C }
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeWhenNotAllEnumValuesWereUsed
+            {
+                public enum TestEnum { A, B, C }
 
-        [Test]
-        public void Test([Values(TestEnum.A, TestEnum.B)] TestEnum e) { }
-    }");
-        RoslynAssert.Valid(this.analyzer, testCode);
+                [Test]
+                public void Test([Values(TestEnum.A, TestEnum.B)] TestEnum e) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeWhenNotAllEnumValuesWereUsedForNullableBoolean()
+    public async Task AnalyzeWhenNotAllEnumValuesWereUsedForNullableBoolean()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenNotAllEnumValuesWereUsedForNullableBoolean
-    {
-        public enum TestEnum { A, B, C }
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeWhenNotAllEnumValuesWereUsedForNullableBoolean
+            {
+                public enum TestEnum { A, B, C }
 
-        [Test]
-        public void Test([Values(TestEnum.A, TestEnum.B, TestEnum.C)] TestEnum? e) { }
-    }");
-        RoslynAssert.Valid(this.analyzer, testCode);
+                [Test]
+                public void Test([Values(TestEnum.A, TestEnum.B, TestEnum.C)] TestEnum? e) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeNotAllBooleanValuesAreInParameters()
+    public async Task AnalyzeNotAllBooleanValuesAreInParameters()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeNotAllBooleanValuesAreInParameters
-    {
-        public void Test([Values(new object[] { true })] bool b) { }
-    }");
-        RoslynAssert.Valid(this.analyzer, testCode);
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeNotAllBooleanValuesAreInParameters
+            {
+                public void Test([Values(new object[] { true })] bool b) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeNotAllNullableBooleanValuesAreInParameters()
+    public async Task AnalyzeNotAllNullableBooleanValuesAreInParameters()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeNotAllNullableBooleanValuesAreInParameters
-    {
-        public void Test([Values(new object[] { true, false })] bool? b) { }
-    }");
-        RoslynAssert.Valid(this.analyzer, testCode);
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeNotAllNullableBooleanValuesAreInParameters
+            {
+                public void Test([Values(new object[] { true, false })] bool? b) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeNotAllEnumValuesAreInParameters()
+    public async Task AnalyzeNotAllEnumValuesAreInParameters()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeNotAllEnumValuesAreInParameters
-    {
-        public enum TestEnum { A, B, C }
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeNotAllEnumValuesAreInParameters
+            {
+                public enum TestEnum { A, B, C }
 
-        public void Test([Values(new object[] { TestEnum.A, TestEnum.B })] TestEnum e) { }
-    }");
-        RoslynAssert.Valid(this.analyzer, testCode);
+                public void Test([Values(new object[] { TestEnum.A, TestEnum.B })] TestEnum e) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeNotAllNullableEnumValuesAreInParameters()
+    public async Task AnalyzeNotAllNullableEnumValuesAreInParameters()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeNotAllNullableEnumValuesAreInParameters
-    {
-        public enum TestEnum { A, B, C }
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeNotAllNullableEnumValuesAreInParameters
+            {
+                public enum TestEnum { A, B, C }
 
-        public void Test([Values(new object[] { TestEnum.A, TestEnum.B, TestEnum.C })] TestEnum? e) { }
-    }");
-        RoslynAssert.Valid(this.analyzer, testCode);
+                public void Test([Values(new object[] { TestEnum.A, TestEnum.B, TestEnum.C })] TestEnum? e) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeWhenAllBooleanValuesWereUsed()
+    public async Task AnalyzeWhenAllBooleanValuesWereUsed()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenAllBooleanValuesWereUsed
-    {
-        [Test]
-        public void Test([↓Values(true, false)] bool b) { }
-    }");
-        RoslynAssert.Diagnostics(this.analyzer,
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.SimplifyValues),
-            testCode);
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeWhenAllBooleanValuesWereUsed
+            {
+                [Test]
+                public void Test([[|Values(true, false)|]] bool b) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeWhenAllNullableBooleanValuesWereUsed()
+    public async Task AnalyzeWhenAllNullableBooleanValuesWereUsed()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenAllNullableBooleanValuesWereUsed
-    {
-        [Test]
-        public void Test([↓Values(true, false, null)] bool? b) { }
-    }");
-        RoslynAssert.Diagnostics(this.analyzer,
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.SimplifyValues),
-            testCode);
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeWhenAllNullableBooleanValuesWereUsed
+            {
+                [Test]
+                public void Test([[|Values(true, false, null)|]] bool? b) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeWhenAllEnumValuesWereUsed()
+    public async Task AnalyzeWhenAllEnumValuesWereUsed()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenAllEnumValuesWereUsed
-    {
-        public enum TestEnum { A, B, C }
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeWhenAllEnumValuesWereUsed
+            {
+                public enum TestEnum { A, B, C }
 
-        [Test]
-        public void Test([↓Values(TestEnum.A, TestEnum.B, TestEnum.C)] TestEnum e) { }
-    }");
-        RoslynAssert.Diagnostics(this.analyzer,
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.SimplifyValues),
-            testCode);
+                [Test]
+                public void Test([[|Values(TestEnum.A, TestEnum.B, TestEnum.C)|]] TestEnum e) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeWhenAllNullableEnumValuesWereUsed()
+    public async Task AnalyzeWhenAllNullableEnumValuesWereUsed()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeWhenAllNullableEnumValuesWereUsed
-    {
-        public enum TestEnum { A, B, C }
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeWhenAllNullableEnumValuesWereUsed
+            {
+                public enum TestEnum { A, B, C }
 
-        [Test]
-        public void Test([↓Values(TestEnum.A, TestEnum.B, TestEnum.C, null)] TestEnum? e) { }
-    }");
-        RoslynAssert.Diagnostics(this.analyzer,
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.SimplifyValues),
-            testCode);
+                [Test]
+                public void Test([[|Values(TestEnum.A, TestEnum.B, TestEnum.C, null)|]] TestEnum? e) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 
     [Test]
-    public void AnalyzeAllEnumValuesAreInParameters()
+    public async Task AnalyzeAllEnumValuesAreInParameters()
     {
-        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public class AnalyzeAllEnumValuesAreInParameters
-    {
-        public enum TestEnum { A, B, C }
+        var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+            public class AnalyzeAllEnumValuesAreInParameters
+            {
+                public enum TestEnum { A, B, C }
 
-        public void Test([↓Values(new object[] { TestEnum.A, TestEnum.B, TestEnum.C })] TestEnum e) { }
-    }");
-        RoslynAssert.Diagnostics(this.analyzer,
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.SimplifyValues),
-            testCode);
+                public void Test([[|Values(new object[] { TestEnum.A, TestEnum.B, TestEnum.C })|]] TestEnum e) { }
+            }
+        """);
+
+        await Verify.VerifyAnalyzerAsync(testCode);
     }
 }

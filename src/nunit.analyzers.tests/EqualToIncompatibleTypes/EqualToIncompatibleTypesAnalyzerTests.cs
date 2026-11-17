@@ -1,17 +1,16 @@
 using System.Globalization;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.EqualToIncompatibleTypes;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.EqualToIncompatibleTypes.EqualToIncompatibleTypesAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
 {
     public class EqualToIncompatibleTypesAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new EqualToIncompatibleTypesAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.EqualToIncompatibleTypes);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.EqualToIncompatibleTypes);
 
         private static readonly string[] NumericTypes =
         [
@@ -19,85 +18,90 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
         ];
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided()
+        public async Task AnalyzeWhenIncompatibleTypesProvided()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                "Assert.That(1, Is.EqualTo(↓\"1\"));");
+                "Assert.That(1, Is.EqualTo({|#0:\"1\"|}));");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeClassicWhenIncompatibleTypesProvided()
+        public async Task AnalyzeClassicWhenIncompatibleTypesProvided()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                "ClassicAssert.AreEqual(↓\"1\", 1);");
+                "ClassicAssert.AreEqual({|#0:\"1\"|}, 1);");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenCollectionsWithIncompatibleValueTypesProvided()
+        public async Task AnalyzeWhenCollectionsWithIncompatibleValueTypesProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new List<string> { ""1"" };
-                var expected = new [] { 1.0 };
-                Assert.That(actual, Is.EqualTo(↓expected));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new List<string> { "1" };
+                        var expected = new [] { 1.0 };
+                        Assert.That(actual, Is.EqualTo({|#0:expected|}));
+            """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenDictionariesWithIncompatibleValueTypesProvided()
+        public async Task AnalyzeWhenDictionariesWithIncompatibleValueTypesProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new Dictionary<string, string> { [""a""] = ""1"" };
-                var expected = new Dictionary<string, double> { [""a""] = 1.0 };
-                Assert.That(actual, Is.EqualTo(↓expected));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new Dictionary<string, string> { ["a"] = "1" };
+                        var expected = new Dictionary<string, double> { ["a"] = 1.0 };
+                        Assert.That(actual, Is.EqualTo({|#0:expected|}));
+            """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenDictionariesWithDifferentNumericKeyTypesProvided()
+        public async Task AnalyzeWhenDictionariesWithDifferentNumericKeyTypesProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new Dictionary<int, string> { [1] = ""1"" };
-                var expected = new Dictionary<double, string> { [1.0] = ""1"" };
-                Assert.That(actual, Is.EqualTo(↓expected));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new Dictionary<int, string> { [1] = "1" };
+                        var expected = new Dictionary<double, string> { [1.0] = "1" };
+                        Assert.That(actual, Is.EqualTo({|#0:expected|}));
+            """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenTuplesWithIncompatibleElementTypesProvided()
+        public async Task AnalyzeWhenTuplesWithIncompatibleElementTypesProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = Tuple.Create(""1"", ""2"");
-                var expected = Tuple.Create(""1"", 2);
-                Assert.That(actual, Is.EqualTo(↓expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = Tuple.Create("1", "2");
+                        var expected = Tuple.Create("1", 2);
+                        Assert.That(actual, Is.EqualTo({|#0:expected|}));
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenValueTuplesWithIncompatibleElementTypesProvided()
+        public async Task AnalyzeWhenValueTuplesWithIncompatibleElementTypesProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = (""1"", ""2"");
-                var expected = (""1"", 2);
-                Assert.That(actual, Is.EqualTo(↓expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = ("1", "2");
+                        var expected = ("1", 2);
+                        Assert.That(actual, Is.EqualTo({|#0:expected|}));
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenDifferentEnumsProvided()
+        public async Task AnalyzeWhenDifferentEnumsProvided()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 enum EnumOne { A, B, C }
                 enum EnumTwo { A, B, C }
 
@@ -108,17 +112,18 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
                     {
                         var actual = EnumOne.B;
                         var expected = EnumTwo.B;
-                        Assert.That(actual, Is.EqualTo(↓expected));
+                        Assert.That(actual, Is.EqualTo({|#0:expected|}));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenDifferentNullableEnumsProvided()
+        public async Task AnalyzeWhenDifferentNullableEnumsProvided()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 enum EnumOne { A, B, C }
                 enum EnumTwo { A, B, C }
 
@@ -129,17 +134,18 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
                     {
                         EnumOne? actual = EnumOne.B;
                         EnumTwo expected = EnumTwo.B;
-                        Assert.That(actual, Is.EqualTo(↓expected));
+                        Assert.That(actual, Is.EqualTo({|#0:expected|}));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesWithCyclicTypesProvided()
+        public async Task AnalyzeWhenIncompatibleTypesWithCyclicTypesProvided()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A : IEnumerable<A>
                 {
                     public IEnumerator<A> GetEnumerator() => null!;
@@ -159,329 +165,352 @@ namespace NUnit.Analyzers.Tests.EqualToIncompatibleTypes
                     {
                         var actual = new A();
                         var expected = new B();
-                        Assert.That(actual, Is.EqualTo(↓expected));
+                        Assert.That(actual, Is.EqualTo({|#0:expected|}));
                     }
-                }",
-                additionalUsings: @"using System.Collections;
-using System.Collections.Generic;");
+                }
+            """,
+                additionalUsings: """
+                    using System.Collections;
+                    using System.Collections.Generic;
+                """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithCombinedConstraints()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithCombinedConstraints()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
-    class B { }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
+                class B { }
 
-    public class Tests
-    {
+                public class Tests
+                {
+                    [Test]
+                    public void AnalyzeWhenIncompatibleTypesProvided()
+                    {
+                        var actual = new A();
+                        var expected = new B();
+                        Assert.That(actual, Is.Not.Null & Is.EqualTo({|#0:expected|}));
+                    }
+                }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
+        }
+
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithModifier()
         {
-            var actual = new A();
-            var expected = new B();
-            Assert.That(actual, Is.Not.Null & Is.EqualTo(↓expected));
-        }
-    }");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = 1;
+                        var expected = "A";
+                        Assert.That(actual, Is.EqualTo({|#0:expected|}).IgnoreCase);
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithModifier()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithMessage()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-            var actual = 1;
-            var expected = ""A"";
-            Assert.That(actual, Is.EqualTo(↓expected).IgnoreCase);");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = 1;
+                        var expected = "A";
+                        Assert.That(actual, Is.EqualTo({|#0:expected|}), "Assertion Message");
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithMessage()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-            var actual = 1;
-            var expected = ""A"";
-            Assert.That(actual, Is.EqualTo(↓expected), ""Assertion Message"");");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
+                class B { }
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+                public class Tests
+                {
+                    [Test]
+                    public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+                    {
+                        var actual = new A();
+                        var expected = new B();
+                        Assert.That(actual, Is.Not.EqualTo({|#0:expected|}));
+                    }
+                }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+        public async Task AnalyzeClassicWhenIncompatibleTypesProvidedWithNegatedAssert()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
-    class B { }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
+                class B { }
 
-    public class Tests
-    {
+                public class Tests
+                {
+                    [Test]
+                    public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+                    {
+                        var actual = new A();
+                        var expected = new B();
+                        ClassicAssert.AreNotEqual({|#0:expected|}, actual);
+                    }
+                }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
+        }
+
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithLambdaActualValue()
         {
-            var actual = new A();
-            var expected = new B();
-            Assert.That(actual, Is.Not.EqualTo(↓expected));
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
+                class B { }
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+                public class Tests
+                {
+                    [Test]
+                    public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+                    {
+                        var expected = new B();
+                        Assert.That(() => new A(), Is.Not.EqualTo({|#0:expected|}));
+                    }
+                }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeClassicWhenIncompatibleTypesProvidedWithNegatedAssert()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithLocalFunctionActualValue()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
-    class B { }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
+                class B { }
 
-    public class Tests
-    {
+                public class Tests
+                {
+                    [Test]
+                    public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+                    {
+                        A actual() => new A();
+                        var expected = new B();
+                        Assert.That(actual, Is.Not.EqualTo({|#0:expected|}));
+                    }
+                }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
+        }
+
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithFuncActualValue()
         {
-            var actual = new A();
-            var expected = new B();
-            ClassicAssert.AreNotEqual(↓expected, actual);
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
+                class B { }
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+                public class Tests
+                {
+                    [Test]
+                    public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+                    {
+                        Func<A> actual = () => new A();
+                        var expected = new B();
+                        Assert.That(actual, Is.Not.EqualTo({|#0:expected|}));
+                    }
+                }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithLambdaActualValue()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithTaskActualValue()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
-    class B { }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
+                class B { }
 
-    public class Tests
-    {
+                public class Tests
+                {
+                    [Test]
+                    public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+                    {
+                        var actual = Task.FromResult(new A());
+                        var expected = new B();
+                        Assert.That(actual, Is.Not.EqualTo({|#0:expected|}));
+                    }
+                }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
+        }
+
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+        public async Task AnalyzeWhenActualAndExpectedTypesAreSameWithTaskActualValue()
         {
-            var expected = new B();
-            Assert.That(() => new A(), Is.Not.EqualTo(↓expected));
-        }
-    }");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = Task.FromResult("");
+                        var expected = "";
+                        Assert.That(actual, Is.EqualTo({|#0:expected|}));
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithLocalFunctionActualValue()
+        public async Task AnalyzeWhenActualIsIncompatibleNullableType()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
-    class B { }
+            var testCode = TestUtility.WrapInTestMethod("""
+                        int? actual = 5;
+                        string expected = "5";
+                        Assert.That(actual, Is.EqualTo({|#0:expected|}));
+            """);
 
-    public class Tests
-    {
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
+        }
+
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+        public async Task NoDiagnosticWhenActualAndExpectedTypesAreSame()
         {
-            A actual() => new A();
-            var expected = new B();
-            Assert.That(actual, Is.Not.EqualTo(↓expected));
-        }
-    }");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "";
+                        var expected = "";
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithFuncActualValue()
+        public async Task NoDiagnosticWhenActualAndExpectedTypesAreSameWithNegatedAssert()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
-    class B { }
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "";
+                        var expected = "";
+                        Assert.That(actual, Is.Not.EqualTo(expected));
+            """);
 
-    public class Tests
-    {
+            await Verify.VerifyAnalyzerAsync(testCode);
+        }
+
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+        public async Task NoDiagnosticWhenActualAndExpectedTypesAreSameWithLambdaActualValue()
         {
-            Func<A> actual = () => new A();
-            var expected = new B();
-            Assert.That(actual, Is.Not.EqualTo(↓expected));
-        }
-    }");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var expected = "";
+                        Assert.That(() => "", Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithTaskActualValue()
+        public async Task NoDiagnosticWhenActualAndExpectedTypesAreSameWithFuncActualValue()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
-    class B { }
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Func<string> actual = () => "";
+                        var expected = "";
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-    public class Tests
-    {
+            await Verify.VerifyAnalyzerAsync(testCode);
+        }
+
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+        public async Task NoDiagnosticWhenActualAndExpectedTypesAreSameWithLocalFunctionActualValue()
         {
-            var actual = Task.FromResult(new A());
-            var expected = new B();
-            Assert.That(actual, Is.Not.EqualTo(↓expected));
-        }
-    }");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        string actual() => "";
+                        var expected = "";
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenActualAndExpectedTypesAreSameWithTaskActualValue()
+        public async Task NoDiagnosticWhenExpectedTypeInheritsActual()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = Task.FromResult("""");
-                var expected = """";
-                Assert.That(actual, Is.EqualTo(↓expected));");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
+                class B : A { }
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+                public class Tests
+                {
+                    [Test]
+                    public void TestMethod()
+                    {
+                        var actual = new A();
+                        var expected = new B();
+                        Assert.That(actual, Is.EqualTo(expected));
+                    }
+                }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenActualIsIncompatibleNullableType()
+        public async Task NoDiagnosticWhenActualTypeInheritsExpected()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-            int? actual = 5;
-            string expected = ""5"";
-            Assert.That(actual, Is.EqualTo(↓expected));");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A : B { }
+                class B { }
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+                public class Tests
+                {
+                    [Test]
+                    public void NoDiagnosticWhenActualTypeInheritsExpected()
+                    {
+                        var actual = new A();
+                        var expected = new B();
+                        Assert.That(actual, Is.EqualTo(expected));
+                    }
+                }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSame()
-        {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = """";
-                var expected = """";
-                Assert.That(actual, Is.EqualTo(expected));");
-
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithNegatedAssert()
-        {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = """";
-                var expected = """";
-                Assert.That(actual, Is.Not.EqualTo(expected));");
-
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithLambdaActualValue()
-        {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var expected = """";
-                Assert.That(() => """", Is.EqualTo(expected));");
-
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithFuncActualValue()
-        {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Func<string> actual = () => """";
-                var expected = """";
-                Assert.That(actual, Is.EqualTo(expected));");
-
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticWhenActualAndExpectedTypesAreSameWithLocalFunctionActualValue()
-        {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                string actual() => """";
-                var expected = """";
-                Assert.That(actual, Is.EqualTo(expected));");
-
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticWhenExpectedTypeInheritsActual()
-        {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
-    class B : A { }
-
-    public class Tests
-    {
-        [Test]
-        public void TestMethod()
-        {
-            var actual = new A();
-            var expected = new B();
-            Assert.That(actual, Is.EqualTo(expected));
-        }
-    }");
-
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticWhenActualTypeInheritsExpected()
-        {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A : B { }
-    class B { }
-
-    public class Tests
-    {
-        [Test]
-        public void NoDiagnosticWhenActualTypeInheritsExpected()
-        {
-            var actual = new A();
-            var expected = new B();
-            Assert.That(actual, Is.EqualTo(expected));
-        }
-    }");
-
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticForNumericTypes(
+        public async Task NoDiagnosticForNumericTypes(
             [ValueSource(nameof(NumericTypes))] string actualType,
             [ValueSource(nameof(NumericTypes))] string expectedType)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                {actualType} actual = 1;
-                {expectedType} expected = 1;
-                Assert.That(actual, Is.EqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        {{actualType}} actual = 1;
+                        {{expectedType}} expected = 1;
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticForCharAndInt()
+        public async Task NoDiagnosticForCharAndInt()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = 'a';
-                var expected = (int)actual;
-                Assert.That(actual, Is.EqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = 'a';
+                        var expected = (int)actual;
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenSameEnumsProvided()
+        public async Task NoDiagnosticWhenSameEnumsProvided()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 enum EnumOne { A, B, C }
 
                 class TestClass
@@ -493,15 +522,16 @@ using System.Collections.Generic;");
                         var expected = EnumOne.B;
                         Assert.That(actual, Is.EqualTo(expected));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenSameNullableEnumsProvided()
+        public async Task NoDiagnosticWhenSameNullableEnumsProvided()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 enum EnumOne { A, B, C }
 
                 class TestClass
@@ -513,96 +543,104 @@ using System.Collections.Generic;");
                         EnumOne expected = EnumOne.B;
                         Assert.That(actual, Is.EqualTo(expected));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticForStreams()
+        public async Task NoDiagnosticForStreams()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new System.IO.FileStream("""", System.IO.FileMode.Open);;
-                var expected = new System.IO.MemoryStream();
-                Assert.That(actual, Is.EqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new System.IO.FileStream("", System.IO.FileMode.Open);;
+                        var expected = new System.IO.MemoryStream();
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticForDifferentCollectionsWithSameType()
+        public async Task NoDiagnosticForDifferentCollectionsWithSameType()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new List<string> { ""a"" };
-                var expected = new [] { ""a"" };
-                Assert.That(actual, Is.EqualTo(expected));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new List<string> { "a" };
+                        var expected = new [] { "a" };
+                        Assert.That(actual, Is.EqualTo(expected));
+            """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticForDifferentCollectionsWithNumerics()
+        public async Task NoDiagnosticForDifferentCollectionsWithNumerics()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new List<int> { 1 };
-                var expected = new [] { 1.0 };
-                Assert.That(actual, Is.EqualTo(expected));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new List<int> { 1 };
+                        var expected = new [] { 1.0 };
+                        Assert.That(actual, Is.EqualTo(expected));
+            """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticForDictionariesOfNumerics()
+        public async Task NoDiagnosticForDictionariesOfNumerics()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new Dictionary<string, int> { [""a""] = 1 };
-                var expected = new Dictionary<string, double> { [""a""] = 1.0 };
-                Assert.That(actual, Is.EqualTo(expected));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new Dictionary<string, int> { ["a"] = 1 };
+                        var expected = new Dictionary<string, double> { ["a"] = 1.0 };
+                        Assert.That(actual, Is.EqualTo(expected));
+            """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticForKeyValuePairsOfNumerics()
+        public async Task NoDiagnosticForKeyValuePairsOfNumerics()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new KeyValuePair<string, int>(""a"", 1);
-                var expected = new KeyValuePair<string, double>(""a"", 1.0);
-                Assert.That(actual, Is.EqualTo(expected));",
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new KeyValuePair<string, int>("a", 1);
+                        var expected = new KeyValuePair<string, double>("a", 1.0);
+                        Assert.That(actual, Is.EqualTo(expected));
+            """,
                 additionalUsings: "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticForTuplesWithCompatibleElementTypes()
+        public async Task NoDiagnosticForTuplesWithCompatibleElementTypes()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = Tuple.Create(""1"", 2.0);
-                var expected = Tuple.Create(""1"", 2);
-                Assert.That(actual, Is.EqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = Tuple.Create("1", 2.0);
+                        var expected = Tuple.Create("1", 2);
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticForValueTuplesWithCompatibleElementTypes()
+        public async Task NoDiagnosticForValueTuplesWithCompatibleElementTypes()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = (""1"", 2.0);
-                var expected = (""1"", 2);
-                Assert.That(actual, Is.EqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = ("1", 2.0);
+                        var expected = ("1", 2);
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualHasIEquatableOfExpected()
+        public async Task NoDiagnosticWhenActualHasIEquatableOfExpected()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A : IEquatable<B>
                 {
                     public bool Equals(B? other) => true;
@@ -619,15 +657,16 @@ using System.Collections.Generic;");
                         var expected = new B();
                         Assert.That(actual, Is.EqualTo(expected));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenExpectedHasIEquatableOfActual()
+        public async Task NoDiagnosticWhenExpectedHasIEquatableOfActual()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
 
                 class B : IEquatable<A>
@@ -644,15 +683,16 @@ using System.Collections.Generic;");
                         var expected = new B();
                         Assert.That(actual, Is.EqualTo(expected));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenExpectedHasIEquatableOfActualAndIsIEnumerable()
+        public async Task NoDiagnosticWhenExpectedHasIEquatableOfActualAndIsIEnumerable()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class B : IEquatable<string>, IEnumerable<string>
                 {
                     public bool Equals(string? other) => true;
@@ -666,248 +706,269 @@ using System.Collections.Generic;");
                     [Test]
                     public void TestMethod()
                     {
-                        var actual = ""123"";
+                        var actual = "123";
                         var expected = new B();
                         Assert.That(actual, Is.EqualTo(expected));
                     }
-                }",
+                }
+            """,
                 additionalUsings: "using System.Collections;" +
                     "using System.Collections.Generic;");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualIsDynamic()
+        public async Task NoDiagnosticWhenActualIsDynamic()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                dynamic actual = 1;
-                var expected = """";
-                Assert.That(actual, Is.EqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        dynamic actual = 1;
+                        var expected = "";
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenExpectedIsDynamic()
+        public async Task NoDiagnosticWhenExpectedIsDynamic()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = """";
-                dynamic expected = 2;
-                Assert.That(actual, Is.EqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "";
+                        dynamic expected = 2;
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenCustomComparerProvided()
+        public async Task NoDiagnosticWhenCustomComparerProvided()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
-    class B { }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
+                class B { }
 
-    public class Tests
-    {
-        [Test]
-        public void TestMethod()
-        {
-            var actual = new A();
-            var expected = new B();
-            Assert.That(actual, Is.EqualTo(expected).Using<A, B>((a, b) => true));
-        }
-    }");
+                public class Tests
+                {
+                    [Test]
+                    public void TestMethod()
+                    {
+                        var actual = new A();
+                        var expected = new B();
+                        Assert.That(actual, Is.EqualTo(expected).Using<A, B>((a, b) => true));
+                    }
+                }
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticForOtherConstraints()
-        {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
-    class B { }
-
-    public class Tests
-    {
-        [Test]
-        public void NoDiagnosticForOtherConstraints()
-        {
-            var actual = new A();
-            var expected = new B();
-            Assert.That(actual, Is.SameAs(expected));
-        }
-    }");
-
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenUsedWithPropertyConstraint()
+        public async Task NoDiagnosticForOtherConstraints()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-            var actual = ""abc"";
-            Assert.That(actual, Has.Property(""Length"").EqualTo(3));");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
+                class B { }
 
-            RoslynAssert.Valid(analyzer, testCode);
+                public class Tests
+                {
+                    [Test]
+                    public void NoDiagnosticForOtherConstraints()
+                    {
+                        var actual = new A();
+                        var expected = new B();
+                        Assert.That(actual, Is.SameAs(expected));
+                    }
+                }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualIsMatchingNullableType()
+        public async Task NoDiagnosticWhenUsedWithPropertyConstraint()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-            int? actual = 5;
-            int expected = 5;
-            Assert.That(actual, Is.EqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = "abc";
+                        Assert.That(actual, Has.Property("Length").EqualTo(3));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenExpectedIsMatchingNullableType()
+        public async Task NoDiagnosticWhenActualIsMatchingNullableType()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-            int actual = 5;
-            int? expected = 5;
-            Assert.That(actual, Is.EqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        int? actual = 5;
+                        int expected = 5;
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualIsNumericNullableType()
+        public async Task NoDiagnosticWhenExpectedIsMatchingNullableType()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-            int? actual = 5;
-            double expected = 5.0;
-            Assert.That(actual, Is.EqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        int actual = 5;
+                        int? expected = 5;
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenConditionalPrefixPresent()
+        public async Task NoDiagnosticWhenActualIsNumericNullableType()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-            bool shouldBePresent = true;
-            Assert.That(new[] { 1, 2, 3 }, (shouldBePresent ? Has.Some : Has.None).EqualTo(2));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        int? actual = 5;
+                        double expected = 5.0;
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenVariableIsPartOfConstraint()
+        public async Task NoDiagnosticWhenConditionalPrefixPresent()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-            bool shouldBePresent = true;
-            var constraintModifier = (shouldBePresent ? Has.Some : Has.None);
-            Assert.That(new[] { 1, 2, 3 }, constraintModifier.EqualTo(2));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        bool shouldBePresent = true;
+                        Assert.That(new[] { 1, 2, 3 }, (shouldBePresent ? Has.Some : Has.None).EqualTo(2));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenObjectComparedToInt()
+        public async Task NoDiagnosticWhenVariableIsPartOfConstraint()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                object actual = 3;
-                Assert.That(actual, Is.EqualTo(3));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        bool shouldBePresent = true;
+                        var constraintModifier = (shouldBePresent ? Has.Some : Has.None);
+                        Assert.That(new[] { 1, 2, 3 }, constraintModifier.EqualTo(2));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenExpectedIsErrorType()
+        public async Task NoDiagnosticWhenObjectComparedToInt()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = 3;
-                var expected = HaveNoIdea();
-                Assert.That(actual, Is.EqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        object actual = 3;
+                        Assert.That(actual, Is.EqualTo(3));
+            """);
 
-            RoslynAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualIsErrorType()
+        public async Task NoDiagnosticWhenExpectedIsErrorType()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = HaveNoIdea();
-                var expected = 3;
-                Assert.That(actual, Is.EqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = 3;
+                        var expected = HaveNoIdea();
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, test => test.CompilerDiagnostics = CompilerDiagnostics.None);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualIsErrorTypeArray()
+        public async Task NoDiagnosticWhenActualIsErrorType()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new[] { HaveNoIdea() };
-                var expected = new[] { 3 };
-                Assert.That(actual, Is.EqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = HaveNoIdea();
+                        var expected = 3;
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, test => test.CompilerDiagnostics = CompilerDiagnostics.None);
         }
 
         [Test]
-        public void NoDiagnosticWhenExpectedIsErrorTypeArray()
+        public async Task NoDiagnosticWhenActualIsErrorTypeArray()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new[] { 3 };
-                var expected = HaveNoIdea();
-                Assert.That(actual, Is.EqualTo(new[] { expected }));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new[] { HaveNoIdea() };
+                        var expected = new[] { 3 };
+                        Assert.That(actual, Is.EqualTo(expected));
+            """);
 
-            RoslynAssert.NoAnalyzerDiagnostics(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, test => test.CompilerDiagnostics = CompilerDiagnostics.None);
         }
 
         [Test]
-        public void NoDiagnosticWhenCombinedConstraintAndUseAllOperator()
+        public async Task NoDiagnosticWhenExpectedIsErrorTypeArray()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new[] { 1,2,2,1 };
-                Assert.That(actual, Has.All.EqualTo(1).Or.EqualTo(2));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new[] { 3 };
+                        var expected = HaveNoIdea();
+                        Assert.That(actual, Is.EqualTo(new[] { expected }));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, test => test.CompilerDiagnostics = CompilerDiagnostics.None);
         }
 
         [Test]
-        public void NoDiagnosticWhenComparingDelegate()
+        public async Task NoDiagnosticWhenCombinedConstraintAndUseAllOperator()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Action x = () => {};
-                var y = x;
-                Assert.That(y, Is.EqualTo(x));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new[] { 1,2,2,1 };
+                        Assert.That(actual, Has.All.EqualTo(1).Or.EqualTo(2));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenComparingTask()
+        public async Task NoDiagnosticWhenComparingDelegate()
         {
-            var testCode = TestUtility.WrapInAsyncTestMethod(@"
-                Task wait = Task.CompletedTask;
-                Assert.That(await Task.WhenAny(wait).ConfigureAwait(false), Is.EqualTo(wait));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Action x = () => {};
+                        var y = x;
+                        Assert.That(y, Is.EqualTo(x));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenComparingTask2()
+        public async Task NoDiagnosticWhenComparingTask()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Task task1 = Task.CompletedTask;
-                Task task2 = Task.CompletedTask;
-                Assert.That(task1, Is.SameAs(task2));");
+            var testCode = TestUtility.WrapInAsyncTestMethod("""
+                        Task wait = Task.CompletedTask;
+                        Assert.That(await Task.WhenAny(wait).ConfigureAwait(false), Is.EqualTo(wait));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenMoreThanOneConstraintExpressionIsUsed()
+        public async Task NoDiagnosticWhenComparingTask2()
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                Assert.That(5, Is.Not.EqualTo(4) & Is.Not.EqualTo(↓""6""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Task task1 = Task.CompletedTask;
+                        Task task2 = Task.CompletedTask;
+                        Assert.That(task1, Is.SameAs(task2));
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
+        }
+
+        [Test]
+        public async Task AnalyzeWhenMoreThanOneConstraintExpressionIsUsed()
+        {
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        Assert.That(5, Is.Not.EqualTo(4) & Is.Not.EqualTo({|#0:"6"|}));
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [TestCase("InstanceOf<{0}>()")]
@@ -917,19 +978,20 @@ using System.Collections.Generic;");
         [TestCase("TypeOf(typeof({0}))")]
         [TestCase("{0}")]
         [TestCase("Exception")]
-        public void AnalyzeWhenThrowsWithTypeConstraintIsUsed(string constraintSpecification)
+        public async Task AnalyzeWhenThrowsWithTypeConstraintIsUsed(string constraintSpecification)
         {
             const string exceptionType = "InvalidOperationException";
             string constraint = string.Format(CultureInfo.InvariantCulture, constraintSpecification, exceptionType);
 
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var exception = new {exceptionType}();
-                void ThrowingMethod() => throw exception;
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var exception = new {{exceptionType}}();
+                        void ThrowingMethod() => throw exception;
 
-                Assert.That(() => ThrowingMethod(), Throws.{constraint}.And.EqualTo(exception));
-            ");
+                        Assert.That(() => ThrowingMethod(), Throws.{{constraint}}.And.EqualTo(exception));
 
-            RoslynAssert.Valid(analyzer, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase("InstanceOf<ArgumentException>()")]
@@ -937,52 +999,55 @@ using System.Collections.Generic;");
         [TestCase("TargetInvocationException")]
         [TestCase("ArgumentNullException")]
         [TestCase("ArgumentException")]
-        public void AnalyzeWhenThrowsWithTypeConstraintIsUsedWithDifferentType(string constraintSpecification)
+        public async Task AnalyzeWhenThrowsWithTypeConstraintIsUsedWithDifferentType(string constraintSpecification)
         {
             const string exceptionType = "InvalidOperationException";
             string constraint = string.Format(CultureInfo.InvariantCulture, constraintSpecification, exceptionType);
 
-            var testCode = TestUtility.WrapInTestMethod($@"
-                var exception = new {exceptionType}();
-                void ThrowingMethod() => throw exception;
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var exception = new {{exceptionType}}();
+                        void ThrowingMethod() => throw exception;
 
-                Assert.That(() => ThrowingMethod(), Throws.{constraint}.And.EqualTo(↓exception));
-            ");
+                        Assert.That(() => ThrowingMethod(), Throws.{{constraint}}.And.EqualTo({|#0:exception|}));
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenComparingUriWithString()
+        public async Task AnalyzeWhenComparingUriWithString()
         {
             // Uri.Equals(object? comparand) has code that checks if comparand is a string.
             // There is no separate overload for Uri.Equals(string?) to check for.
-            var testCode = TestUtility.WrapInTestMethod(@"
-                const string testString = ""test"";
-                Uri testUri = new Uri(""test"", UriKind.Relative);
+            var testCode = TestUtility.WrapInTestMethod("""
+                        const string testString = "test";
+                        Uri testUri = new Uri("test", UriKind.Relative);
 
-                Assert.That(testUri, Is.EqualTo(testString));
-            ");
+                        Assert.That(testUri, Is.EqualTo(testString));
 
-            RoslynAssert.Valid(analyzer, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenComparingStringWithUri()
+        public async Task AnalyzeWhenComparingStringWithUri()
         {
             // string.Equals(Uri) always fails
-            var testCode = TestUtility.WrapInTestMethod(@"
-                const string testString = ""test"";
-                Uri testUri = new Uri(""test"", UriKind.Relative);
+            var testCode = TestUtility.WrapInTestMethod("""
+                        const string testString = "test";
+                        Uri testUri = new Uri("test", UriKind.Relative);
 
-                Assert.That(testString, Is.EqualTo(↓testUri));
-            ");
+                        Assert.That(testString, Is.EqualTo({|#0:testUri|}));
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void NoDiagnosticWhenComparingInstanceWithValueCastToInstanceType()
+        public async Task NoDiagnosticWhenComparingInstanceWithValueCastToInstanceType()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                 [Test]
@@ -1009,12 +1074,12 @@ using System.Collections.Generic;");
                 }
                 """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
 #if NUNIT4
         [Test]
-        public void AnalyzeWhenUsingPropertiesComparerOverloadWithoutArgument()
+        public async Task AnalyzeWhenUsingPropertiesComparerOverloadWithoutArgument()
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
                 [Test]
@@ -1023,7 +1088,7 @@ using System.Collections.Generic;");
                     var record1 = new Record("Test");
                     var record2 = new AnotherRecord("Test");
 
-                    Assert.That(record1, Is.EqualTo(↓record2).UsingPropertiesComparer());
+                    Assert.That(record1, Is.EqualTo({|#0:record2|}).UsingPropertiesComparer());
                 }
 
                 private class Record
@@ -1047,14 +1112,14 @@ using System.Collections.Generic;");
                 }
                 """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Theory]
         [TestCase("c => c.AllowDifferentTypes()")]
         [TestCase("c => c.CompareOnlyCommonProperties()")]
         [TestCase("c => c.Map<Record, AnotherRecord>(r => r.Name, a => a.Name)")]
-        public void AnalyzeWhenUsingPropertiesComparerOverloadWithArgument(string configure)
+        public async Task AnalyzeWhenUsingPropertiesComparerOverloadWithArgument(string configure)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
@@ -1088,92 +1153,99 @@ using System.Collections.Generic;");
                 }
                 """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 #endif
 
         [TestCase("1.1f")]
         [TestCase("2.2f")]
-        public void AnalyzeIsNotNaNOnValidTypes(string actual)
+        public async Task AnalyzeIsNotNaNOnValidTypes(string actual)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                var actual = {actual};
-                Assert.That(actual, Is.Not.NaN);
-            ");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = {{actual}};
+                        Assert.That(actual, Is.Not.NaN);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase("1.1f")]
         [TestCase("2.2f")]
-        public void AnalyzeIsNaNOnValidTypes(string actual)
+        public async Task AnalyzeIsNaNOnValidTypes(string actual)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                var actual = {actual};
-                Assert.That(actual, Is.NaN);
-            ");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = {{actual}};
+                        Assert.That(actual, Is.NaN);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase("3.3m")]
         [TestCase("4")]
         [TestCase("string.Empty")]
-        public void AnalyzeIsNotNaNOnUnsupportedTypes(string actual)
+        public async Task AnalyzeIsNotNaNOnUnsupportedTypes(string actual)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                var actual = {actual};
-                Assert.That(actual, ↓Is.Not.NaN);
-            ");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = {{actual}};
+                        Assert.That(actual, {|#0:Is.Not.NaN|});
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [TestCase("3.3m")]
         [TestCase("4")]
         [TestCase("string.Empty")]
-        public void AnalyzeIsNaNOnUnsupportedTypes(string actual)
+        public async Task AnalyzeIsNaNOnUnsupportedTypes(string actual)
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                var actual = {actual};
-                Assert.That(actual, Is.Positive.Or.↓NaN);
-            ");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        var actual = {{actual}};
+                        Assert.That(actual, Is.Positive.Or.{|#0:NaN|});
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeOnNullableDouble()
+        public async Task AnalyzeOnNullableDouble()
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                double? actual = Math.PI;
-                Assert.That(actual, Is.Not.NaN);
-                Assert.That(actual, Is.EqualTo(Math.PI));
-            ");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        double? actual = Math.PI;
+                        Assert.That(actual, Is.Not.NaN);
+                        Assert.That(actual, Is.EqualTo(Math.PI));
 
-            RoslynAssert.Valid(analyzer, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeOnFuncReturningDouble()
+        public async Task AnalyzeOnFuncReturningDouble()
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                Func<double> actual = () => Math.PI;
-                Assert.That(actual, Is.Not.NaN);
-                Assert.That(actual, Is.EqualTo(Math.PI));
-            ");
-            RoslynAssert.Valid(analyzer, testCode);
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        Func<double> actual = () => Math.PI;
+                        Assert.That(actual, Is.Not.NaN);
+                        Assert.That(actual, Is.EqualTo(Math.PI));
+
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeOnAsyncFuncReturningDouble()
+        public async Task AnalyzeOnAsyncFuncReturningDouble()
         {
-            var testCode = TestUtility.WrapInTestMethod(@$"
-                Func<Task<double>> actual = () => Task.FromResult(Math.PI);
-                Assert.That(actual, Is.Not.NaN);
-                Assert.That(actual, Is.EqualTo(Math.PI));
-            ");
-            RoslynAssert.Valid(analyzer, testCode);
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        Func<Task<double>> actual = () => Task.FromResult(Math.PI);
+                        Assert.That(actual, Is.Not.NaN);
+                        Assert.That(actual, Is.EqualTo(Math.PI));
+
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

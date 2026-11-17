@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Analyzers.Extensions;
+using NUnit.Analyzers.Tests.Verifiers;
 using NUnit.Framework;
 
 namespace NUnit.Analyzers.Tests.Extensions
@@ -12,27 +13,28 @@ namespace NUnit.Analyzers.Tests.Extensions
         [Test]
         public async Task GetArguments()
         {
-            var testCode = @"
-using System;
+            var testCode = """
+                using System;
 
-namespace NUnit.Analyzers.Tests.Targets.Extensions
-{
-    public sealed class GetArguments
-    {
-        [Arguments(34, AProperty = 22d, BProperty = 33d)]
-        public void Foo() { }
-    }
+                namespace NUnit.Analyzers.Tests.Targets.Extensions
+                {
+                    public sealed class GetArguments
+                    {
+                        [Arguments(34, AProperty = 22d, BProperty = 33d)]
+                        public void Foo() { }
+                    }
 
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public sealed class ArgumentsAttribute : Attribute
-    {
-        public ArgumentsAttribute(int x) { }
+                    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+                    public sealed class ArgumentsAttribute : Attribute
+                    {
+                        public ArgumentsAttribute(int x) { }
 
-        public double AProperty { get; set; }
+                        public double AProperty { get; set; }
 
-        public double BProperty { get; set; }
-    }
-}";
+                        public double BProperty { get; set; }
+                    }
+                }
+            """;
             var attribute = await GetAttributeSyntaxAsync(testCode, "GetArguments");
             var (positionalArguments, namedArguments) = attribute.GetArguments();
 
@@ -46,21 +48,22 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
         [Test]
         public async Task GetArgumentsWhenNoneExist()
         {
-            var testCode = @"
-using System;
+            var testCode = """
+                using System;
 
-namespace NUnit.Analyzers.Tests.Targets.Extensions
-{
-    public sealed class GetArgumentsWhenNoneExist
-    {
-        [NoArguments]
-        public void Foo() { }
-    }
+                namespace NUnit.Analyzers.Tests.Targets.Extensions
+                {
+                    public sealed class GetArgumentsWhenNoneExist
+                    {
+                        [NoArguments]
+                        public void Foo() { }
+                    }
 
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public sealed class NoArgumentsAttribute : Attribute
-    { }
-}";
+                    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+                    public sealed class NoArgumentsAttribute : Attribute
+                    { }
+                }
+            """;
             var attribute = await GetAttributeSyntaxAsync(testCode, "GetArgumentsWhenNoneExist");
             var (positionalArguments, namedArguments) = attribute.GetArguments();
 
@@ -73,7 +76,7 @@ namespace NUnit.Analyzers.Tests.Targets.Extensions
 
         private static async Task<AttributeSyntax> GetAttributeSyntaxAsync(string code, string typeName)
         {
-            var rootAndModel = await TestHelpers.GetRootAndModel(code);
+            var rootAndModel = await TestSetup.GetRootAndModelAsync(code);
 
             return rootAndModel.Node
                 .DescendantNodes().OfType<TypeDeclarationSyntax>()

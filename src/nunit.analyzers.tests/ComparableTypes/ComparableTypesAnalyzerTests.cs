@@ -1,166 +1,169 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
-using NUnit.Analyzers.ComparableTypes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.ComparableTypes.ComparableTypesAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.ComparableTypes
 {
     public class ComparableTypesAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new ComparableTypesAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparableTypes);
-
         private static readonly string[] NumericTypes =
         [
             "decimal", "double", "float", "int", "uint", "long", "ulong", "short", "ushort"
         ];
 
+        private static readonly DiagnosticResult ComparableTypesDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ComparableTypes).WithLocation(0);
+        private static readonly DiagnosticResult ComparableOnObjectDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ComparableOnObject).WithLocation(0);
+
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvided()
+        public async Task AnalyzeWhenIncompatibleTypesProvided()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                "Assert.That(1, Is.LessThan(↓\"1\"));");
+                "Assert.That(1, Is.LessThan({|#0:\"1\"|}));");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, ComparableTypesDiagnostic);
         }
 
         [Test]
-        public void AnalyzeWhenObjectTypesProvided()
+        public async Task AnalyzeWhenObjectTypesProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(
-                @"
-        object o = 0;
-        Assert.That(o, Is.LessThan(↓1));
-        ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                            object o = 0;
+                            Assert.That(o, Is.LessThan({|#0:1|}));
 
-            RoslynAssert.Diagnostics(analyzer,
-                ExpectedDiagnostic.Create(AnalyzerIdentifiers.ComparableOnObject), testCode);
+                """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, ComparableOnObjectDiagnostic);
         }
 
         [Test]
-        public void NoDiagnosticsWhenIComparableTypesProvided()
+        public async Task NoDiagnosticsWhenIComparableTypesProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(
-                @"
-        IComparable smallValue = 0;
-        IComparable bigValue = 9;
-        Assert.That(smallValue, Is.LessThan(bigValue));
-        ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                            IComparable smallValue = 0;
+                            IComparable bigValue = 9;
+                            Assert.That(smallValue, Is.LessThan(bigValue));
 
-            RoslynAssert.Valid(analyzer, testCode);
+                """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticsWhenGenericIComparableTypesProvided()
+        public async Task NoDiagnosticsWhenGenericIComparableTypesProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(
-                @"
-        IComparable<int> smallValue = 0;
-        int bigValue = 9;
-        Assert.That(smallValue, Is.LessThan(bigValue));
-        ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                            IComparable<int> smallValue = 0;
+                            int bigValue = 9;
+                            Assert.That(smallValue, Is.LessThan(bigValue));
 
-            RoslynAssert.Valid(analyzer, testCode);
+                """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenNonComparableTypesProvidedWithLambdaActualValue()
+        public async Task AnalyzeWhenNonComparableTypesProvidedWithLambdaActualValue()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
 
-    public class Tests
-    {
+                public class Tests
+                {
+                    [Test]
+                    public void AnalyzeWhenNonComparableTypesProvidedWithLambdaActualValue()
+                    {
+                        var expected = new A();
+                        Assert.That(() => new A(), Is.GreaterThanOrEqualTo({|#0:expected|}));
+                    }
+                }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, ComparableTypesDiagnostic);
+        }
+
         [Test]
-        public void AnalyzeWhenNonComparableTypesProvidedWithLambdaActualValue()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithLocalFunctionActualValue()
         {
-            var expected = new A();
-            Assert.That(() => new A(), Is.GreaterThanOrEqualTo(↓expected));
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+                public class Tests
+                {
+                    [Test]
+                    public void AnalyzeWhenIncompatibleTypesProvidedWithLocalFunctionActualValue()
+                    {
+                        A actual() => new A();
+                        var expected = new A();
+                        Assert.That(actual, Is.Not.GreaterThan({|#0:expected|}));
+                    }
+                }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, ComparableTypesDiagnostic);
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithLocalFunctionActualValue()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithFuncActualValue()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
 
-    public class Tests
-    {
+                public class Tests
+                {
+                    [Test]
+                    public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+                    {
+                        Func<A> actual = () => new A();
+                        var expected = new A();
+                        Assert.That(actual, Is.LessThanOrEqualTo({|#0:expected|}));
+                    }
+                }
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, ComparableTypesDiagnostic);
+        }
+
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithLocalFunctionActualValue()
+        public async Task AnalyzeWhenIncompatibleTypesProvidedWithTaskActualValue()
         {
-            A actual() => new A();
-            var expected = new A();
-            Assert.That(actual, Is.Not.GreaterThan(↓expected));
-        }
-    }");
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
-        }
+                public class Tests
+                {
+                    [Test]
+                    public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
+                    {
+                        var actual = Task.FromResult(new A());
+                        var expected = new A();
+                        Assert.That(actual, Is.GreaterThan({|#0:expected|}));
+                    }
+                }
+            """);
 
-        [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithFuncActualValue()
-        {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
-
-    public class Tests
-    {
-        [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
-        {
-            Func<A> actual = () => new A();
-            var expected = new A();
-            Assert.That(actual, Is.LessThanOrEqualTo(↓expected));
-        }
-    }");
-
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, ComparableTypesDiagnostic);
         }
 
         [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithTaskActualValue()
-        {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
-
-    public class Tests
-    {
-        [Test]
-        public void AnalyzeWhenIncompatibleTypesProvidedWithNegatedAssert()
-        {
-            var actual = Task.FromResult(new A());
-            var expected = new A();
-            Assert.That(actual, Is.GreaterThan(↓expected));
-        }
-    }");
-
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticForNumericTypes(
+        public async Task NoDiagnosticForNumericTypes(
             [ValueSource(nameof(NumericTypes))] string actualType,
             [ValueSource(nameof(NumericTypes))] string expectedType)
         {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                {actualType} actual = 1;
-                {expectedType} expected = 1;
-                Assert.That(actual, Is.LessThanOrEqualTo(expected));");
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        {{actualType}} actual = 1;
+                        {{expectedType}} expected = 1;
+                        Assert.That(actual, Is.LessThanOrEqualTo(expected));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenSameEnumsProvided()
+        public async Task NoDiagnosticWhenSameEnumsProvided()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 enum EnumOne { A, B, C }
 
                 class TestClass
@@ -172,15 +175,16 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                         var expected = EnumOne.C;
                         Assert.That(actual, Is.LessThan(expected));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenDifferentEnumsProvided()
+        public async Task AnalyzeWhenDifferentEnumsProvided()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 enum EnumOne { A, B, C }
                 enum EnumTwo { A, B, C }
 
@@ -191,17 +195,18 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                     {
                         var actual = EnumOne.B;
                         var expected = EnumTwo.B;
-                        Assert.That(actual, Is.LessThan(↓expected));
+                        Assert.That(actual, Is.LessThan({|#0:expected|}));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, ComparableTypesDiagnostic);
         }
 
         [Test]
-        public void NoDiagnosticWhenActualHasIComparableOfExpected()
+        public async Task NoDiagnosticWhenActualHasIComparableOfExpected()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A : IComparable<B>
                 {
                     public int CompareTo(B? other) => 0;
@@ -218,15 +223,16 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                         var expected = new B();
                         Assert.That(actual, Is.GreaterThanOrEqualTo(expected));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenExpectedHasIComparableOfActual()
+        public async Task NoDiagnosticWhenExpectedHasIComparableOfActual()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A { }
 
                 class B : IComparable<A>
@@ -243,138 +249,147 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                         var expected = new B();
                         Assert.That(actual, Is.LessThanOrEqualTo(expected));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticForGenericWithIComparableConstraint()
+        public async Task NoDiagnosticForGenericWithIComparableConstraint()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public static class LightWeightAssert
-            {
-                public static void Less<T>(T value, T threshold)
-                    where T : IComparable
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public static class LightWeightAssert
                 {
-                    if (value.CompareTo(threshold) >= 0)
+                    public static void Less<T>(T value, T threshold)
+                        where T : IComparable
                     {
-                        Assert.That(value, Is.LessThan(threshold));
+                        if (value.CompareTo(threshold) >= 0)
+                        {
+                            Assert.That(value, Is.LessThan(threshold));
+                        }
                     }
                 }
-            }");
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticForGenericWithIComparableTConstraint()
+        public async Task NoDiagnosticForGenericWithIComparableTConstraint()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-            public static class LightWeightAssert
-            {
-                public static void Less<T>(T value, T threshold)
-                    where T : IComparable<T>
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public static class LightWeightAssert
                 {
-                    if (value.CompareTo(threshold) >= 0)
+                    public static void Less<T>(T value, T threshold)
+                        where T : IComparable<T>
                     {
-                        Assert.That(value, Is.LessThan(threshold));
+                        if (value.CompareTo(threshold) >= 0)
+                        {
+                            Assert.That(value, Is.LessThan(threshold));
+                        }
                     }
                 }
-            }");
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void NoDiagnosticWhenCustomComparerProvided()
+        public async Task NoDiagnosticWhenCustomComparerProvided()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class A { }
-    class B { }
-    class ABComparer : IComparer
-    {
-        public int Compare(object? x, object? y) => 0;
-    }
-
-    public class Tests
-    {
-        [Test]
-        public void TestMethod()
-        {
-            var actual = new A();
-            var expected = new B();
-            Assert.That(actual, Is.GreaterThan(expected).Using(new ABComparer()));
-        }
-    }", "using System.Collections;");
-
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticWhenExpectedIsMatchingNullableType()
-        {
-            var testCode = TestUtility.WrapInTestMethod(@"
-            int actual = 5;
-            int? expected = 5;
-            Assert.That(actual, Is.GreaterThan(expected));");
-
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticWhenActualIsNumericNullableType()
-        {
-            var testCode = TestUtility.WrapInTestMethod(@"
-            int? actual = 5;
-            double expected = 5.0;
-            Assert.That(actual, Is.GreaterThan(expected));");
-
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void NoDiagnosticWhenActualIsDelegate()
-        {
-            var testCode = TestUtility.WrapInTestMethod(@"
-            int actual = 6;
-            double expected = 5.0;
-            Assert.That(() => actual, Is.GreaterThan(expected));");
-
-            RoslynAssert.Valid(analyzer, testCode);
-        }
-
-        [Test]
-        public void AnalyzeWhenMoreThanOneConstraintExpressionIsUsed()
-        {
-            var testCode = TestUtility.WrapInTestMethod($@"
-                Assert.That(5, Is.GreaterThan(4) & Is.LessThan(↓""6""));");
-
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
-        }
-
-        [Test]
-        public void AnalyzeWhenFirstConstraintExpressionUsesComparer()
-        {
-            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings(@"
-                class AsInt32Comparer : IComparer
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class A { }
+                class B { }
+                class ABComparer : IComparer
                 {
-                    public int Compare(object? x, object? y) => Convert.ToInt32(x).CompareTo(Convert.ToInt32(y));
+                    public int Compare(object? x, object? y) => 0;
                 }
 
-                [Test]
-                public void Test()
+                public class Tests
                 {
-                    Assert.That(5, Is.GreaterThan(""4"").Using(new AsInt32Comparer()) & Is.LessThan(↓""6""));
-                }", "using System.Collections;");
+                    [Test]
+                    public void TestMethod()
+                    {
+                        var actual = new A();
+                        var expected = new B();
+                        Assert.That(actual, Is.GreaterThan(expected).Using(new ABComparer()));
+                    }
+                }
+            """, "using System.Collections;");
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenDifferentComparableTypesProvided()
+        public async Task NoDiagnosticWhenExpectedIsMatchingNullableType()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapInTestMethod("""
+                        int actual = 5;
+                        int? expected = 5;
+                        Assert.That(actual, Is.GreaterThan(expected));
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
+        }
+
+        [Test]
+        public async Task NoDiagnosticWhenActualIsNumericNullableType()
+        {
+            var testCode = TestUtility.WrapInTestMethod("""
+                        int? actual = 5;
+                        double expected = 5.0;
+                        Assert.That(actual, Is.GreaterThan(expected));
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
+        }
+
+        [Test]
+        public async Task NoDiagnosticWhenActualIsDelegate()
+        {
+            var testCode = TestUtility.WrapInTestMethod("""
+                        int actual = 6;
+                        double expected = 5.0;
+                        Assert.That(() => actual, Is.GreaterThan(expected));
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
+        }
+
+        [Test]
+        public async Task AnalyzeWhenMoreThanOneConstraintExpressionIsUsed()
+        {
+            var testCode = TestUtility.WrapInTestMethod($$"""
+                        Assert.That(5, Is.GreaterThan(4) & Is.LessThan({|#0:"6"|}));
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, ComparableTypesDiagnostic);
+        }
+
+        [Test]
+        public async Task AnalyzeWhenFirstConstraintExpressionUsesComparer()
+        {
+            var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings("""
+                    class AsInt32Comparer : IComparer
+                    {
+                        public int Compare(object? x, object? y) => Convert.ToInt32(x).CompareTo(Convert.ToInt32(y));
+                    }
+
+                    [Test]
+                    public void Test()
+                    {
+                        Assert.That(5, Is.GreaterThan("4").Using(new AsInt32Comparer()) & Is.LessThan({|#0:"6"|}));
+                    }
+            """, "using System.Collections;");
+
+            await Verify.VerifyAnalyzerAsync(testCode, ComparableTypesDiagnostic);
+        }
+
+        [Test]
+        public async Task AnalyzeWhenDifferentComparableTypesProvided()
+        {
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A : IComparable<A>
                 {
                     public int CompareTo(A? other) => 0;
@@ -391,17 +406,18 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                     {
                         var actual = new A();
                         var expected = new B();
-                        Assert.That(actual, Is.LessThanOrEqualTo(↓expected));
+                        Assert.That(actual, Is.LessThanOrEqualTo({|#0:expected|}));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, ComparableTypesDiagnostic);
         }
 
         [Test]
-        public void AnalyzeWhenTypeImplementsComparableToOtherTypeProvided()
+        public async Task AnalyzeWhenTypeImplementsComparableToOtherTypeProvided()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A : IComparable<A>, IComparable<double>
                 {
                     public int CompareTo(A? other) => 0;
@@ -418,17 +434,18 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                         Assert.That(actual, Is.LessThanOrEqualTo(expected));
                         // Even though an 'int' is implicit convertible to a 'double', NUnit is not doing this.
                         int implicitConversion = 567;
-                        Assert.That(actual, Is.LessThanOrEqualTo(↓implicitConversion));
+                        Assert.That(actual, Is.LessThanOrEqualTo({|#0:implicitConversion|}));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, ComparableTypesDiagnostic);
         }
 
         [Test]
-        public void AnalyzeWhenDifferentNonGenericComparableTypesProvided()
+        public async Task AnalyzeWhenDifferentNonGenericComparableTypesProvided()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A : IComparable
                 {
                     public int CompareTo(object? other) => 0;
@@ -445,17 +462,18 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                     {
                         var actual = new A();
                         var expected = new B();
-                        Assert.That(actual, Is.LessThanOrEqualTo(↓expected));
+                        Assert.That(actual, Is.LessThanOrEqualTo({|#0:expected|}));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, ComparableTypesDiagnostic);
         }
 
         [Test]
-        public void AnalyzeWhenSameNonGenericComparableTypesProvided()
+        public async Task AnalyzeWhenSameNonGenericComparableTypesProvided()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A : IComparable
                 {
                     public int CompareTo(object? other) => 0;
@@ -470,15 +488,16 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                         var expected = new A();
                         Assert.That(actual, Is.LessThanOrEqualTo(expected));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenTypesHaveCompareToClassMethod()
+        public async Task AnalyzeWhenTypesHaveCompareToClassMethod()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
                 class A
                 {
                 }
@@ -496,9 +515,10 @@ namespace NUnit.Analyzers.Tests.ComparableTypes
                         var expected = new B();
                         Assert.That(actual, Is.LessThanOrEqualTo(expected));
                     }
-                }");
+                }
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

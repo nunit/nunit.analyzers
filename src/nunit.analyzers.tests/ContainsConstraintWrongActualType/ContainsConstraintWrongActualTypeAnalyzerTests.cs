@@ -1,86 +1,81 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.ContainsConstraintWrongActualType;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.ContainsConstraintWrongActualType.ContainsConstraintWrongActualTypeAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.ContainsConstraintWrongActualType
 {
     public class ContainsConstraintWrongActualTypeAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new ContainsConstraintWrongActualTypeAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.ContainsConstraintWrongActualType);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.ContainsConstraintWrongActualType);
 
         [Test]
-        public void AnalyzeWhenNonStringAndNonCollectionActualArgumentProvided()
+        public async Task AnalyzeWhenNonStringAndNonCollectionActualArgumentProvided()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                "Assert.That(123, ↓Does.Contain(\"1\"));");
+                "Assert.That(123, {|#0:Does.Contain(\"1\")|});");
 
-            RoslynAssert.Diagnostics(analyzer,
-                expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with an actual value of type 'int'"),
-                testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with an actual value of type 'int'").WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenNonStringCollectionActualArgumentProvided()
+        public async Task AnalyzeWhenNonStringCollectionActualArgumentProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new[] {1, 2, 3};
-                Assert.That(actual, ↓Does.Contain(""1""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new[] {1, 2, 3};
+                        Assert.That(actual, {|#0:Does.Contain("1")|});
+            """);
 
-            RoslynAssert.Diagnostics(analyzer,
-                expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with an actual value of type 'int[]'"),
-                testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with an actual value of type 'int[]'").WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenActualIsStringTask()
+        public async Task AnalyzeWhenActualIsStringTask()
         {
             var testCode = TestUtility.WrapInTestMethod(
-                "Assert.That(Task.FromResult(\"1234\"), ↓Does.Contain(\"1\"));");
+                "Assert.That(Task.FromResult(\"1234\"), {|#0:Does.Contain(\"1\")|});");
 
-            RoslynAssert.Diagnostics(analyzer,
-                expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with an actual value of type 'Task<string>'"),
-                testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithMessage("The ContainsConstraint cannot be used with an actual value of type 'Task<string>'").WithLocation(0));
         }
 
         [Test]
-        public void ValidWhenStringProvidedAsActual()
+        public async Task ValidWhenStringProvidedAsActual()
         {
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(\"123\", Does.Contain(\"1\"));");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenStringArrayProvidedAsActual()
+        public async Task ValidWhenStringArrayProvidedAsActual()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                var actual = new[] {""1"", ""2"", ""3""};
-                Assert.That(actual, Does.Contain(""1""));");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        var actual = new[] {"1", "2", "3"};
+                        Assert.That(actual, Does.Contain("1"));
+            """);
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenUsedWithAllOperator()
+        public async Task ValidWhenUsedWithAllOperator()
         {
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(new [] {\"Aa\", \"Ba\", \"Ca\"}, Has.All.Contains(\"a\"));");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void ValidWhenActualIsStringDelegate()
+        public async Task ValidWhenActualIsStringDelegate()
         {
             var testCode = TestUtility.WrapInTestMethod(
                 "Assert.That(() => \"1234\", Does.Contain(\"1\"));");
 
-            RoslynAssert.Valid(analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
     }
 }

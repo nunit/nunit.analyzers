@@ -6,7 +6,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Gu.Roslyn.Asserts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -18,6 +17,10 @@ namespace NUnit.Analyzers.Tests
 {
     public class DocumentationTests
     {
+        private static readonly string RepositoryPath = Path.GetFullPath(Path.Combine(ThisFileDirectory(), "..", ".."));
+
+        private static readonly string DocumentsPath = Path.Combine(RepositoryPath, "documentation");
+
         // Overload of Append(AppendInterpolatedStringHandler) with IFormatProvider not available in .NET 462
 #pragma warning disable CA1305 // Specify IFormatProvider
 
@@ -66,12 +69,6 @@ namespace NUnit.Analyzers.Tests
 
         private static IReadOnlyList<BaseInfo> RulesWithDocs =>
             ((IEnumerable<BaseInfo>)DescriptorsWithDocs).Concat(SuppressorsWithDocs).ToArray();
-
-        private static DirectoryInfo RepositoryDirectory =>
-            SolutionFile.Find("nunit.analyzers.sln").Directory!.Parent!;
-
-        private static DirectoryInfo DocumentsDirectory =>
-            RepositoryDirectory.EnumerateDirectories("documentation", SearchOption.TopDirectoryOnly).Single();
 
         private static Dictionary<DiagnosticSeverity, string> SeverityEmoji => new()
         {
@@ -137,7 +134,7 @@ namespace NUnit.Analyzers.Tests
             var actual = info
                 .DocumentationFile.AllLines
                 .Skip(1)
-                .Select(l => Replace(l, @"\<", "<"))
+                .Select(l => Replace(l, """\<""", "<"))
                 .TakeWhile(l =>
                 {
                     if (string.IsNullOrWhiteSpace(l))
@@ -187,7 +184,7 @@ namespace NUnit.Analyzers.Tests
             var expected = GetTable(info.Stub, headerRow);
             DumpIfRequested(expected);
             var actual = GetTable(info.DocumentationFile.AllText, headerRow);
-            CodeAssert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         [TestCaseSource(nameof(RulesWithDocs))]
@@ -196,7 +193,7 @@ namespace NUnit.Analyzers.Tests
             var expected = GetConfigSeverity(info.Stub);
             DumpIfRequested(expected);
             var actual = GetConfigSeverity(info.DocumentationFile.AllText);
-            CodeAssert.AreEqual(expected, actual);
+            Assert.That(actual, Is.EqualTo(expected));
 
             string GetConfigSeverity(string doc)
             {
@@ -245,8 +242,8 @@ namespace NUnit.Analyzers.Tests
 
             var expected = builder.ToString();
             DumpIfRequested(expected);
-            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), headerRow, tableNumber);
-            CodeAssert.AreEqual(expected, actual);
+            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsPath, "index.md")), headerRow, tableNumber);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         [TestCase(2)]
@@ -275,8 +272,8 @@ namespace NUnit.Analyzers.Tests
 
             var expected = builder.ToString();
             DumpIfRequested(expected);
-            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsDirectory.FullName, "index.md")), headerRow, tableNumber);
-            CodeAssert.AreEqual(expected, actual);
+            var actual = GetTable(File.ReadAllText(Path.Combine(DocumentsPath, "index.md")), headerRow, tableNumber);
+            Assert.That(actual, Is.EqualTo(expected));
         }
 
         private static string GetTable(string doc, string headerRow, int tableNumber = 0)
@@ -319,7 +316,7 @@ namespace NUnit.Analyzers.Tests
         }
 
         private static string EscapeTags(LocalizableString str)
-            => Replace(str.ToString(CultureInfo.InvariantCulture), "<", @"\<");
+            => Replace(str.ToString(CultureInfo.InvariantCulture), "<", """\<""");
 
         private static string Replace(string originalString, string oldValue, string newValue)
         {
@@ -330,12 +327,15 @@ namespace NUnit.Analyzers.Tests
 #endif
         }
 
+        private static string ThisFileDirectory([System.Runtime.CompilerServices.CallerFilePath] string file = "")
+            => Path.GetDirectoryName(file)!;
+
         public abstract class BaseInfo
         {
             protected BaseInfo(Type analyzerType, string id)
             {
                 this.Id = id;
-                this.DocumentationFile = new MarkdownFile(Path.Combine(DocumentsDirectory.FullName, id + ".md"));
+                this.DocumentationFile = new MarkdownFile(Path.Combine(DocumentsPath, id + ".md"));
                 this.AnalyzerFile = CodeFile.Find(analyzerType);
             }
 
@@ -385,70 +385,72 @@ namespace NUnit.Analyzers.Tests
                 builder.Append($"[{analyzer.GetType().Name}]({CodeFile.Find(analyzer.GetType()).Uri})");
 
                 var text = builder.ToString();
-                var stub = $@"# {descriptor.Id}
+                var stub = $$"""
+                    # {{descriptor.Id}}
 
-## {EscapeTags(descriptor.Title)}
+                    ## {{EscapeTags(descriptor.Title)}}
 
-| Topic    | Value
-| :--      | :--
-| Id       | {descriptor.Id}
-| Severity | {descriptor.DefaultSeverity}
-| Enabled  | {(descriptor.IsEnabledByDefault ? "True" : "False")}
-| Category | {descriptor.Category}
-| Code     | [<TYPENAME>](<URL>)
+                    | Topic    | Value
+                    | :--      | :--
+                    | Id       | {{descriptor.Id}}
+                    | Severity | {{descriptor.DefaultSeverity}}
+                    | Enabled  | {{(descriptor.IsEnabledByDefault ? "True" : "False")}}
+                    | Category | {{descriptor.Category}}
+                    | Code     | [<TYPENAME>](<URL>)
 
-## Description
+                    ## Description
 
-{EscapeTags(descriptor.Description)}
+                    {{EscapeTags(descriptor.Description)}}
 
-## Motivation
+                    ## Motivation
 
-ADD MOTIVATION HERE
+                    ADD MOTIVATION HERE
 
-## How to fix violations
+                    ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+                    ADD HOW TO FIX VIOLATIONS HERE
 
-<!-- start generated config severity -->
-## Configure severity
+                    <!-- start generated config severity -->
+                    ## Configure severity
 
-### Via ruleset file
+                    ### Via ruleset file
 
-Configure the severity per project, for more info see
-[MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+                    Configure the severity per project, for more info see
+                    [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
-### Via .editorconfig file
+                    ### Via .editorconfig file
 
-```ini
-# {descriptor.Id}: {descriptor.Title.ToString(CultureInfo.InvariantCulture)}
-dotnet_diagnostic.{descriptor.Id}.severity = chosenSeverity
-```
+                    ```ini
+                    # {{descriptor.Id}}: {{descriptor.Title.ToString(CultureInfo.InvariantCulture)}}
+                    dotnet_diagnostic.{{descriptor.Id}}.severity = chosenSeverity
+                    ```
 
-where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, or `error`.
+                    where `chosenSeverity` can be one of `none`, `silent`, `suggestion`, `warning`, or `error`.
 
-### Via #pragma directive
+                    ### Via #pragma directive
 
-```csharp
-#pragma warning disable {descriptor.Id} // {descriptor.Title.ToString(CultureInfo.InvariantCulture)}
-Code violating the rule here
-#pragma warning restore {descriptor.Id} // {descriptor.Title.ToString(CultureInfo.InvariantCulture)}
-```
+                    ```csharp
+                    #pragma warning disable {{descriptor.Id}} // {{descriptor.Title.ToString(CultureInfo.InvariantCulture)}}
+                    Code violating the rule here
+                    #pragma warning restore {{descriptor.Id}} // {{descriptor.Title.ToString(CultureInfo.InvariantCulture)}}
+                    ```
 
-Or put this at the top of the file to disable all instances.
+                    Or put this at the top of the file to disable all instances.
 
-```csharp
-#pragma warning disable {descriptor.Id} // {descriptor.Title.ToString(CultureInfo.InvariantCulture)}
-```
+                    ```csharp
+                    #pragma warning disable {{descriptor.Id}} // {{descriptor.Title.ToString(CultureInfo.InvariantCulture)}}
+                    ```
 
-### Via attribute `[SuppressMessage]`
+                    ### Via attribute `[SuppressMessage]`
 
-```csharp
-[System.Diagnostics.CodeAnalysis.SuppressMessage(""{descriptor.Category}"",
-    ""{descriptor.Id}:{descriptor.Title.ToString(CultureInfo.InvariantCulture)}"",
-    Justification = ""Reason..."")]
-```
-<!-- end generated config severity -->
-";
+                    ```csharp
+                    [System.Diagnostics.CodeAnalysis.SuppressMessage("{{descriptor.Category}}",
+                        "{{descriptor.Id}}:{{descriptor.Title.ToString(CultureInfo.InvariantCulture)}}",
+                        Justification = "Reason...")]
+                    ```
+                    <!-- end generated config severity -->
+                    """;
+
                 return Replace(stub, "| Code     | [<TYPENAME>](<URL>)", text);
             }
         }
@@ -494,72 +496,73 @@ Or put this at the top of the file to disable all instances.
                 builder.Append($"[{suppressor.GetType().Name}]({CodeFile.Find(suppressor.GetType()).Uri})");
 
                 var text = builder.ToString();
-                var stub = $@"# {descriptor.Id}
+                var stub = $$"""
+                    # {{descriptor.Id}}
 
-## {EscapeTags(descriptor.Justification)}
+                    ## {{EscapeTags(descriptor.Justification)}}
 
-| Topic    | Value
-| :--      | :--
-| Id       | {descriptor.Id}
-| Severity | Info
-| Enabled  | True
-| Category | Suppressor
-| Code     | [<TYPENAME>](<URL>)
+                    | Topic    | Value
+                    | :--      | :--
+                    | Id       | {{descriptor.Id}}
+                    | Severity | Info
+                    | Enabled  | True
+                    | Category | Suppressor
+                    | Code     | [<TYPENAME>](<URL>)
 
-## Description
+                    ## Description
 
-{EscapeTags(descriptor.Justification)}
+                    {{EscapeTags(descriptor.Justification)}}
 
-## Motivation
+                    ## Motivation
 
-ADD MOTIVATION HERE
+                    ADD MOTIVATION HERE
 
-## How to fix violations
+                    ## How to fix violations
 
-ADD HOW TO FIX VIOLATIONS HERE
+                    ADD HOW TO FIX VIOLATIONS HERE
 
-<!-- start generated config severity -->
-## Configure severity
+                    <!-- start generated config severity -->
+                    ## Configure severity
 
-The rule has no severity, but can be disabled.
+                    The rule has no severity, but can be disabled.
 
-### Via ruleset file
+                    ### Via ruleset file
 
-To disable the rule for a project, you need to add a
-[ruleset file](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/DiagnosticSuppressors/NUnit.Analyzers.Suppressions.ruleset)
+                    To disable the rule for a project, you need to add a
+                    [ruleset file](https://github.com/nunit/nunit.analyzers/blob/master/src/nunit.analyzers/DiagnosticSuppressors/NUnit.Analyzers.Suppressions.ruleset)
 
-```xml
-<?xml version=""1.0"" encoding=""utf-8""?>
-<RuleSet Name=""NUnit.Analyzer Suppressions"" Description=""DiagnosticSuppression Rules"" ToolsVersion=""12.0"">
-  <Rules AnalyzerId=""DiagnosticSuppressors"" RuleNamespace=""NUnit.NUnitAnalyzers"">
-    <Rule Id=""NUnit3001"" Action=""Info"" /> <!-- Possible Null Reference -->
-    <Rule Id=""NUnit3002"" Action=""Info"" /> <!-- NonNullableField/Property is Uninitialized -->
-    <Rule Id=""NUnit3003"" Action=""Info"" /> <!-- Avoid Uninstantiated Internal Classes -->
-    <Rule Id=""NUnit3004"" Action=""Info"" /> <!-- Types that own disposable fields should be disposable -->
-  </Rules>
-</RuleSet>
-```
+                    ```xml
+                    <?xml version="1.0" encoding="utf-8"?>
+                    <RuleSet Name="NUnit.Analyzer Suppressions" Description="DiagnosticSuppression Rules" ToolsVersion="12.0">
+                      <Rules AnalyzerId="DiagnosticSuppressors" RuleNamespace="NUnit.NUnitAnalyzers">
+                        <Rule Id="NUnit3001" Action="Info" /> <!-- Possible Null Reference -->
+                        <Rule Id="NUnit3002" Action="Info" /> <!-- NonNullableField/Property is Uninitialized -->
+                        <Rule Id="NUnit3003" Action="Info" /> <!-- Avoid Uninstantiated Internal Classes -->
+                        <Rule Id="NUnit3004" Action="Info" /> <!-- Types that own disposable fields should be disposable -->
+                      </Rules>
+                    </RuleSet>
+                    ```
 
-and add it to the project like:
+                    and add it to the project like:
 
-```xml
-<PropertyGroup>
-  <CodeAnalysisRuleSet>NUnit.Analyzers.Suppressions.ruleset</CodeAnalysisRuleSet>
-</PropertyGroup>
-```
+                    ```xml
+                    <PropertyGroup>
+                      <CodeAnalysisRuleSet>NUnit.Analyzers.Suppressions.ruleset</CodeAnalysisRuleSet>
+                    </PropertyGroup>
+                    ```
 
-For more info about rulesets see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
+                    For more info about rulesets see [MSDN](https://learn.microsoft.com/en-us/visualstudio/code-quality/using-rule-sets-to-group-code-analysis-rules?view=vs-2022).
 
-### Via .editorconfig file
+                    ### Via .editorconfig file
 
-This is currently not working. Waiting for [Roslyn](https://github.com/dotnet/roslyn/issues/49727)
+                    This is currently not working. Waiting for [Roslyn](https://github.com/dotnet/roslyn/issues/49727)
 
-```ini
-# {descriptor.Id}: {descriptor.Justification.ToString(CultureInfo.InvariantCulture)}
-dotnet_diagnostic.{descriptor.Id}.severity = none
-```
-<!-- end generated config severity -->
-";
+                    ```ini
+                    # {{descriptor.Id}}: {{descriptor.Justification.ToString(CultureInfo.InvariantCulture)}}
+                    dotnet_diagnostic.{{descriptor.Id}}.severity = none
+                    ```
+                    <!-- end generated config severity -->
+                    """;
                 return Replace(stub, "| Code     | [<TYPENAME>](<URL>)", text);
             }
         }
@@ -610,7 +613,7 @@ dotnet_diagnostic.{descriptor.Id}.severity = none
 
             public string Name { get; }
 
-            public string Uri => RepoOnMaster + this.Name.Substring(RepositoryDirectory.FullName.Length).Replace('\\', '/');
+            public string Uri => RepoOnMaster + this.Name.Substring(RepositoryPath.Length).Replace('\\', '/');
 
             public static CodeFile Find(Type type)
             {
@@ -624,7 +627,7 @@ dotnet_diagnostic.{descriptor.Id}.severity = none
                                     .Distinct()
                                     .SelectMany(d => Directory.EnumerateFiles(d, name, SearchOption.TopDirectoryOnly))
                                     .FirstOrDefault() ??
-                               Directory.EnumerateFiles(RepositoryDirectory.FullName, name, SearchOption.AllDirectories)
+                               Directory.EnumerateFiles(RepositoryPath, name, SearchOption.AllDirectories)
                                         .First();
                 return new CodeFile(fileName);
             }

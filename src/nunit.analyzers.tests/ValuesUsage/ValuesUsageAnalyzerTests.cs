@@ -1,18 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Gu.Roslyn.Asserts;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.ValuesUsage;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.ValuesUsage.ValuesUsageAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.ValuesUsage
 {
     public class ValuesUsageAnalyzerTests
     {
-        private readonly ValuesUsageAnalyzer analyzer = new ValuesUsageAnalyzer();
-
         private static IEnumerable<TestCaseData> SpecialConversions
         {
             get
@@ -28,7 +28,7 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         [Test]
         public void VerifySupportedDiagnostics()
         {
-            var diagnostics = this.analyzer.SupportedDiagnostics;
+            var diagnostics = new ValuesUsageAnalyzer().SupportedDiagnostics;
 
             Assert.That(diagnostics, Has.Length.EqualTo(1));
             var diagnostic = diagnostics[0];
@@ -42,501 +42,522 @@ namespace NUnit.Analyzers.Tests.ValuesUsage
         }
 
         [Test]
-        public void AnalyzeWhenAttributeIsNotInNUnit()
+        public async Task AnalyzeWhenAttributeIsNotInNUnit()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenAttributeIsNotInNUnit
-    {
-        [Test]
-        public void ATest([Values] bool value) { }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenAttributeIsNotInNUnit
+                {
+                    [Test]
+                    public void ATest([Values] bool value) { }
 
-        private sealed class ValuesAttribute : Attribute
-        { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+                    private sealed class ValuesAttribute : Attribute
+                    { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAttributeHasNoArguments()
+        public async Task AnalyzeWhenAttributeHasNoArguments()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenAttributeHasNoArguments
-    {
-        [Test]
-        public void ATest([Values] bool value) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenAttributeHasNoArguments
+                {
+                    [Test]
+                    public void ATest([Values] bool value) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentTypeIsCorrect()
+        public async Task AnalyzeWhenArgumentTypeIsCorrect()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentTypeIsCorrect
-    {
-        [Test]
-        public void ATest([Values(true, false)] bool blah) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenArgumentTypeIsCorrect
+                {
+                    [Test]
+                    public void ATest([Values(true, false)] bool blah) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(SpecialConversions))]
-        public void AnalyzeWhenArgumentIsSpecialConversion(string value, Type targetType)
+        public async Task AnalyzeWhenArgumentIsSpecialConversion(string value, Type targetType)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    public sealed class AnalyzeWhenArgumentIsSpecialConversion
-    {{
-        [Test]
-        public void Test([Values(""{value}"")] {targetType.Name} a) {{ }}
-    }}");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public sealed class AnalyzeWhenArgumentIsSpecialConversion
+                {
+                    [Test]
+                    public void Test([Values("{{value}}")] {{targetType.Name}} a) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentIsACast()
+        public async Task AnalyzeWhenArgumentIsACast()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentIsACast
-    {
-        [Test]
-        public void Test([Values((byte)2)] byte a) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenArgumentIsACast
+                {
+                    [Test]
+                    public void Test([Values((byte)2)] byte a) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentIsAPrefixedValue()
+        public async Task AnalyzeWhenArgumentIsAPrefixedValue()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentIsAPrefixedValue
-    {
-        [Test]
-        public void Test([Values(-2)] int a) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenArgumentIsAPrefixedValue
+                {
+                    [Test]
+                    public void Test([Values(-2)] int a) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsEnum()
+        public async Task AnalyzeArgumentIsEnum()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeArgumentIsEnum
-    {
-        public enum TestEnum { A,B,C }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeArgumentIsEnum
+                {
+                    public enum TestEnum { A,B,C }
 
-        [Test]
-        public void Test([Values(TestEnum.A, TestEnum.B)] TestEnum e) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+                    [Test]
+                    public void Test([Values(TestEnum.A, TestEnum.B)] TestEnum e) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsIntConvertedToEnum()
+        public async Task AnalyzeArgumentIsIntConvertedToEnum()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeArgumentIsIntConvertedToEnum
-    {
-        public enum TestEnum { A,B,C }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeArgumentIsIntConvertedToEnum
+                {
+                    public enum TestEnum { A,B,C }
 
-        [Test]
-        public void Test([Values(0, 1)] TestEnum e) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+                    [Test]
+                    public void Test([Values(0, 1)] TestEnum e) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsEnumConvertedToInt()
+        public async Task AnalyzeArgumentIsEnumConvertedToInt()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeArgumentIsEnumConvertedToInt
-    {
-        public enum TestEnum { A,B,C }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeArgumentIsEnumConvertedToInt
+                {
+                    public enum TestEnum { A,B,C }
 
-        [Test]
-        public void Test([Values(TestEnum.A, TestEnum.B)] int e) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+                    [Test]
+                    public void Test([Values(TestEnum.A, TestEnum.B)] int e) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentTypeGeneric()
+        public async Task AnalyzeWhenArgumentTypeGeneric()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentTypeIsCorrect
-    {
-        [Test]
-        public void ATest<T>([Values(5, 5.0)] T blah) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenArgumentTypeIsCorrect
+                {
+                    [Test]
+                    public void ATest<T>([Values(5, 5.0)] T blah) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCase("notnull")]
         [TestCase("class")]
-        public void AnalyzeWhenArgumentTypeGenericWithConstraintsAndNonCompatible(string constraint)
+        public async Task AnalyzeWhenArgumentTypeGenericWithConstraintsAndNonCompatible(string constraint)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
-    {{
-        [Test]
-        public void ATest<T>([Values(↓null, ""5.0"")] T blah) where T : {constraint} {{ }}
-    }}");
-            RoslynAssert.Diagnostics(this.analyzer,
-                ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
-                testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
+                {
+                    [Test]
+                    public void ATest<T>([Values({|#0:null|}, "5.0")] T blah) where T : {{constraint}} { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage).WithLocation(0).WithArguments("0", "object", "blah", "T"));
         }
 
         [TestCase("null")]
         [TestCase("\"5.0\"")]
-        public void AnalyzeWhenArgumentTypeGenericWithStructConstraintsAndNonCompatible(string value)
+        public async Task AnalyzeWhenArgumentTypeGenericWithStructConstraintsAndNonCompatible(string value)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
-    {{
-        [Test]
-        public void ATest<T>([Values(↓{value})] T blah) where T : struct {{ }}
-    }}");
-            RoslynAssert.Diagnostics(this.analyzer,
-                ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
-                testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
+                {
+                    [Test]
+                    public void ATest<T>([Values({|#0:{{value}}|})] T blah) where T : struct { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage).WithLocation(0).WithArguments("0", value == "null" ? "<null>" : "string", "blah", "T"));
         }
 
         [TestCase("", "class?")]
         [TestCase("?", "class")]
-        public void AnalyzeWhenArgumentTypeGenericWithConstraintsAndCompatible(string nullableAnnotation, string constraint)
+        public async Task AnalyzeWhenArgumentTypeGenericWithConstraintsAndCompatible(string nullableAnnotation, string constraint)
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($@"
-    public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
-    {{
-        [Test]
-        public void ATest<T>([Values(null, ""5.0"")] T{nullableAnnotation} blah) where T : {constraint} {{ }}
-    }}");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
+                public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
+                {
+                    [Test]
+                    public void ATest<T>([Values(null, "5.0")] T{{nullableAnnotation}} blah) where T : {{constraint}} { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentTypeGenericAndDifferentTypes()
+        public async Task AnalyzeWhenArgumentTypeGenericAndDifferentTypes()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
-    {
-        [Test]
-        public void ATest<T>([Values(5, ↓""5.0"")] T blah) { }
-    }");
-            RoslynAssert.Diagnostics(this.analyzer,
-                ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
-                testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
+                {
+                    [Test]
+                    public void ATest<T>([Values(5, {|#0:"5.0"|})] T blah) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage).WithLocation(0).WithArguments("1", "string", "blah", "T"));
         }
 
         [Test]
-        public void AnalyzeWhenArgumentTypeGenericResolvesNullableType()
+        public async Task AnalyzeWhenArgumentTypeGenericResolvesNullableType()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
-    {
-        [Test]
-        public void ATest<T>([Values(""5.0"", null)] T blah) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenArgumentTypeIsNotCorrect
+                {
+                    [Test]
+                    public void ATest<T>([Values("5.0", null)] T blah) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeParameterIsArray()
+        public async Task AnalyzeParameterIsArray()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeArgumentIsArray
-    {
-        [Test]
-        public void Test([Values(new byte[] { }, new byte[] { 1 }, new byte[] { 1, 2, 3 })] byte[] buffer) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeArgumentIsArray
+                {
+                    [Test]
+                    public void Test([Values(new byte[] { }, new byte[] { 1 }, new byte[] { 1, 2, 3 })] byte[] buffer) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeParameterIsArrayOfObjectWithGoodArguments()
+        public async Task AnalyzeParameterIsArrayOfObjectWithGoodArguments()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class AnalyzeArgumentIsArrayOfObject
-    {
-        public void Test([Values(new object[] { 1, 2.0 })] double d) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class AnalyzeArgumentIsArrayOfObject
+                {
+                    public void Test([Values(new object[] { 1, 2.0 })] double d) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeParameterIsArrayOfObjectWithBadArguments()
+        public async Task AnalyzeParameterIsArrayOfObjectWithBadArguments()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    class AnalyzeArgumentIsArrayOfObject
-    {
-        public void Test([Values(new object[] { 1, ↓2.0 })] int i) { }
-    }");
-            RoslynAssert.Diagnostics(this.analyzer,
-                ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
-                testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                class AnalyzeArgumentIsArrayOfObject
+                {
+                    public void Test([Values(new object[] { 1, {|#0:2.0|} })] int i) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage).WithLocation(0).WithArguments("1", "double", "i", "int"));
         }
 
         [Test]
-        public void AnalyzeArgumentIsStringConvertedToEnum()
+        public async Task AnalyzeArgumentIsStringConvertedToEnum()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeArgumentIsStringConvertedToEnum
-    {
-        public enum TestEnum { A,B,C }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeArgumentIsStringConvertedToEnum
+                {
+                    public enum TestEnum { A,B,C }
 
-        [Test]
-        public void Test([Values(↓""A"", ↓""B"")] TestEnum e) { }
-    }");
-            RoslynAssert.Diagnostics(this.analyzer,
-                                     ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
-                                     testCode);
+                    [Test]
+                    public void Test([Values({|#0:"A"|}, {|#1:"B"|})] TestEnum e) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage).WithLocation(0).WithArguments("0", "string", "e", "NUnit.Analyzers.Tests.Targets.TestCaseUsage.AnalyzeArgumentIsStringConvertedToEnum.TestEnum"), Verify.Diagnostic(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage).WithLocation(1).WithArguments("1", "string", "e", "NUnit.Analyzers.Tests.Targets.TestCaseUsage.AnalyzeArgumentIsStringConvertedToEnum.TestEnum"));
         }
 
         [Test]
-        public void AnalyzeArgumentIsEnumConvertedToString()
+        public async Task AnalyzeArgumentIsEnumConvertedToString()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeArgumentIsEnumConvertedToString
-    {
-        public enum TestEnum { A,B,C }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeArgumentIsEnumConvertedToString
+                {
+                    public enum TestEnum { A,B,C }
 
-        [Test]
-        public void Test([Values(↓TestEnum.A, ↓TestEnum.B)] string e) { }
-    }");
-            RoslynAssert.Diagnostics(this.analyzer,
-                                     ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage),
-                                     testCode);
+                    [Test]
+                    public void Test([Values({|#0:TestEnum.A|}, {|#1:TestEnum.B|})] string e) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage).WithLocation(0).WithArguments("0", "NUnit.Analyzers.Tests.Targets.TestCaseUsage.AnalyzeArgumentIsEnumConvertedToString.TestEnum", "e", "string"), Verify.Diagnostic(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage).WithLocation(1).WithArguments("1", "NUnit.Analyzers.Tests.Targets.TestCaseUsage.AnalyzeArgumentIsEnumConvertedToString.TestEnum", "e", "string"));
         }
 
         [Test]
-        public void AnalyzeArgumentHasImplicitConversion()
+        public async Task AnalyzeArgumentHasImplicitConversion()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeArgumentHasImplicitConversion
-    {
-        [Test]
-        public void Test([Values(uint.MaxValue)] long e) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeArgumentHasImplicitConversion
+                {
+                    [Test]
+                    public void Test([Values(uint.MaxValue)] long e) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsStringConvertedToTypeWithCustomConverter()
+        public async Task AnalyzeArgumentIsStringConvertedToTypeWithCustomConverter()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    using System.ComponentModel;
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                using System.ComponentModel;
 
-    public sealed class AnalyzeArgumentIsStringConvertedToTypeWithCustomConverter
-    {
-        [Test]
-        public void Test([Values(""A"")] CustomType p) { }
-    }
+                public sealed class AnalyzeArgumentIsStringConvertedToTypeWithCustomConverter
+                {
+                    [Test]
+                    public void Test([Values("A")] CustomType p) { }
+                }
 
-    [TypeConverter(typeof(CustomTypeConverter))]
-    public struct CustomType { }
-    public class CustomTypeConverter : TypeConverter { }");
+                [TypeConverter(typeof(CustomTypeConverter))]
+                public struct CustomType { }
+                public class CustomTypeConverter : TypeConverter { }
+            """);
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsNullConvertedToTypeWithCustomConverter()
+        public async Task AnalyzeArgumentIsNullConvertedToTypeWithCustomConverter()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    using System.ComponentModel;
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                using System.ComponentModel;
 
-    public sealed class AnalyzeArgumentIsNullConvertedToTypeWithCustomConverter
-    {
-        [Test]
-        public void Test([Values(null)] CustomType p) { }
-    }
+                public sealed class AnalyzeArgumentIsNullConvertedToTypeWithCustomConverter
+                {
+                    [Test]
+                    public void Test([Values(null)] CustomType p) { }
+                }
 
-    [TypeConverter(typeof(CustomTypeConverter))]
-    public struct CustomType { }
-    public class CustomTypeConverter : TypeConverter { }");
+                [TypeConverter(typeof(CustomTypeConverter))]
+                public struct CustomType { }
+                public class CustomTypeConverter : TypeConverter { }
+            """);
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsStringConvertedToTypeWithCustomConverterOnBaseType()
+        public async Task AnalyzeArgumentIsStringConvertedToTypeWithCustomConverterOnBaseType()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    using System.ComponentModel;
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                using System.ComponentModel;
 
-    public sealed class AnalyzeArgumentIsStringConvertedToTypeWithCustomConverterOnBaseType
-    {
-        [Test]
-        public void Test([Values(""A"")] CustomType p) { }
-    }
+                public sealed class AnalyzeArgumentIsStringConvertedToTypeWithCustomConverterOnBaseType
+                {
+                    [Test]
+                    public void Test([Values("A")] CustomType p) { }
+                }
 
-    public class CustomType : BaseType { }
-    [TypeConverter(typeof(BaseTypeConverter))]
-    public class BaseType { }
-    public class BaseTypeConverter : TypeConverter { }");
+                public class CustomType : BaseType { }
+                [TypeConverter(typeof(BaseTypeConverter))]
+                public class BaseType { }
+                public class BaseTypeConverter : TypeConverter { }
+            """);
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeArgumentIsIntConvertedToTypeWithCustomConverter()
+        public async Task AnalyzeArgumentIsIntConvertedToTypeWithCustomConverter()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    using System.ComponentModel;
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                using System.ComponentModel;
 
-    public sealed class AnalyzeArgumentIsIntConvertedToTypeWithCustomConverter
-    {
-        [Test]
-        public void Test([Values(2)] CustomType p) { }
-    }
+                public sealed class AnalyzeArgumentIsIntConvertedToTypeWithCustomConverter
+                {
+                    [Test]
+                    public void Test([Values(2)] CustomType p) { }
+                }
 
-    [TypeConverter(typeof(CustomTypeConverter))]
-    public struct CustomType { }
-    public class CustomTypeConverter : TypeConverter { }");
+                [TypeConverter(typeof(CustomTypeConverter))]
+                public struct CustomType { }
+                public class CustomTypeConverter : TypeConverter { }
+            """);
 
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentTypeIsIncorrect()
+        public async Task AnalyzeWhenArgumentTypeIsIncorrect()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage,
-                                                               string.Format(CultureInfo.InvariantCulture,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture,
                                                                              ValuesUsageAnalyzerConstants.ParameterTypeMismatchMessage,
                                                                              1, "object", "blah", "bool"));
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class Foo
-    {
-        [Test]
-        public void ATest([Values(true, ↓null)] bool blah) { }
-    }");
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class Foo
+                {
+                    [Test]
+                    public void ATest([Values(true, {|#0:null|})] bool blah) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeArgumentHasTypeNotAllowedInAttributes()
+        public async Task AnalyzeArgumentHasTypeNotAllowedInAttributes()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeArgumentHasTypeNotAllowedInAttributes
-    {
-        [Test]
-        public void Test([Values(1.0m)] decimal d) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode, Settings.Default.WithAllowedCompilerDiagnostics(AllowedCompilerDiagnostics.WarningsAndErrors));
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeArgumentHasTypeNotAllowedInAttributes
+                {
+                    [Test]
+                    public void Test([Values(1.0m)] decimal d) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, test => test.CompilerDiagnostics = CompilerDiagnostics.None);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToValueType()
+        public async Task AnalyzeWhenArgumentPassesNullToValueType()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage,
-                                                               string.Format(CultureInfo.InvariantCulture,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture,
                                                                              ValuesUsageAnalyzerConstants.ParameterTypeMismatchMessage,
                                                                              0, "<null>", "a", "char"));
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentPassesNullToValueType
-    {
-        [Test]
-        public void Test([Values(↓null)] char a) { }
-    }");
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenArgumentPassesNullToValueType
+                {
+                    [Test]
+                    public void Test([Values({|#0:null|})] char a) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToNullableValueType()
+        public async Task AnalyzeWhenArgumentPassesNullToNullableValueType()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentPassesNullToNullableType
-    {
-        [Test]
-        public void Test([Values(null)] int? a) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenArgumentPassesNullToNullableType
+                {
+                    [Test]
+                    public void Test([Values(null)] int? a) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToNullableEnumType()
+        public async Task AnalyzeWhenArgumentPassesNullToNullableEnumType()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentPassesNullToNullableEnumType
-    {
-        public enum TestEnum { A,B,C }
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenArgumentPassesNullToNullableEnumType
+                {
+                    public enum TestEnum { A,B,C }
 
-        [Test]
-        public void Test([Values(null)] TestEnum? e) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+                    [Test]
+                    public void Test([Values(null)] TestEnum? e) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToNullableReferenceType()
+        public async Task AnalyzeWhenArgumentPassesNullToNullableReferenceType()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentPassesNullToNullableType
-    {
-        public void Test([Values(null)] object? a) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenArgumentPassesNullToNullableType
+                {
+                    public void Test([Values(null)] object? a) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToUnspecifiedReferenceType()
+        public async Task AnalyzeWhenArgumentPassesNullToUnspecifiedReferenceType()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    #nullable disable
-    public sealed class AnalyzeWhenArgumentPassesNullToNullableType
-    {
-        public void Test([Values(null)] object a) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                #nullable disable
+                public sealed class AnalyzeWhenArgumentPassesNullToNullableType
+                {
+                    public void Test([Values(null)] object a) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenArgumentPassesNullToNonNullableReferenceType()
+        public async Task AnalyzeWhenArgumentPassesNullToNonNullableReferenceType()
         {
-            var expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage,
-                                                               string.Format(CultureInfo.InvariantCulture,
+            var expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage).WithMessage(string.Format(CultureInfo.InvariantCulture,
                                                                              ValuesUsageAnalyzerConstants.ParameterTypeMismatchMessage,
                                                                              0, "<null>", "a", "object"));
 
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenArgumentPassesNullToNonNullableType
-    {
-        public void Test([Values(↓null)] object a) { }
-    }");
-            RoslynAssert.Diagnostics(this.analyzer, expectedDiagnostic, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenArgumentPassesNullToNonNullableType
+                {
+                    public void Test([Values({|#0:null|})] object a) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenSuppressedNullIsPassedToAReferenceType()
+        public async Task AnalyzeWhenSuppressedNullIsPassedToAReferenceType()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenSuppressedNullIsPassedToAReferenceType
-    {
-        public void Test([Values(null!)] string s) { }
-    }");
-            RoslynAssert.Valid(this.analyzer, testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenSuppressedNullIsPassedToAReferenceType
+                {
+                    public void Test([Values(null!)] string s) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenSuppressedNullIsPassedToANonReferenceType()
+        public async Task AnalyzeWhenSuppressedNullIsPassedToANonReferenceType()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenSuppressedNullIsPassedToAReferenceType
-    {
-        public void Test([Values(↓null!)] int i) { }
-    }");
-            RoslynAssert.Diagnostics(this.analyzer, ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage), testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenSuppressedNullIsPassedToAReferenceType
+                {
+                    public void Test([Values({|#0:null!|})] int i) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage).WithLocation(0).WithArguments("0", "<null>", "i", "int"));
         }
 
         [Test]
-        public void AnalyzeWhenSuppressedConstantIsPassedToANonNullableReferenceType()
+        public async Task AnalyzeWhenSuppressedConstantIsPassedToANonNullableReferenceType()
         {
-            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing(@"
-    public sealed class AnalyzeWhenSuppressedNullIsPassedToAReferenceType
-    {
-        public void Test([Values(↓2!)] string s) { }
-    }");
-            RoslynAssert.Diagnostics(this.analyzer, ExpectedDiagnostic.Create(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage), testCode);
+            var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
+                public sealed class AnalyzeWhenSuppressedNullIsPassedToAReferenceType
+                {
+                    public void Test([Values({|#0:2!|})] string s) { }
+                }
+            """);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.ValuesParameterTypeMismatchUsage).WithLocation(0).WithArguments("0", "int", "s", "string"));
         }
     }
 }

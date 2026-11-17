@@ -1,20 +1,19 @@
+using System;
 using System.Collections.Generic;
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.CodeFixes;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.ClassicModelAssertUsage;
 using NUnit.Analyzers.CollectionAssertUsage;
 using NUnit.Analyzers.Constants;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpCodeFixVerifier<NUnit.Analyzers.CollectionAssertUsage.CollectionAssertUsageAnalyzer, NUnit.Analyzers.CollectionAssertUsage.CollectionAssertUsageCodeFix>;
 
 namespace NUnit.Analyzers.Tests.CollectionAssertUsage
 {
     [TestFixture]
     internal sealed class CollectionAssertUsageCodeFixTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new CollectionAssertUsageAnalyzer();
-        private static readonly CodeFixProvider fix = new CollectionAssertUsageCodeFix();
-        private static readonly ExpectedDiagnostic expectedDiagnostic = ExpectedDiagnostic.Create(AnalyzerIdentifiers.CollectionAssertUsage);
+        private static readonly DiagnosticResult expectedDiagnostic = Verify.Diagnostic(AnalyzerIdentifiers.CollectionAssertUsage);
 
         private static IEnumerable<string> OneCollectionParameterAsserts => CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts.Keys;
 
@@ -23,474 +22,528 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
         private static IEnumerable<string> CollectionAndItemParameterAsserts => CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts.Keys;
 
         [TestCaseSource(nameof(OneCollectionParameterAsserts))]
-        public void AnalyzeOneCollectionWhenNoMessageArgumentsAreUsed(string method)
+        public async Task AnalyzeOneCollectionWhenNoMessageArgumentsAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            ↓CollectionAssert.{method}(collection);
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            Assert.That(collection, {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]});
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        {|#0:CollectionAssert.{{method}}(collection)|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        Assert.That(collection, {{CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}});
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(OneCollectionParameterAsserts))]
-        public void AnalyzeOneCollectionWhenOnlyMessageArgumentIsUsed(string method)
+        public async Task AnalyzeOneCollectionWhenOnlyMessageArgumentIsUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            ↓CollectionAssert.{method}(collection, ""message"");
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            Assert.That(collection, {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}, ""message"");
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        {|#0:CollectionAssert.{{method}}(collection, "message")|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        Assert.That(collection, {{CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}}, "message");
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(OneCollectionParameterAsserts))]
-        public void AnalyzeOneCollectionWhenFormatAndOneParamsArgumentAreUsed(string method)
+        public async Task AnalyzeOneCollectionWhenFormatAndOneParamsArgumentAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            ↓CollectionAssert.{method}(collection, ""Because of {{0}}"", ""message"");
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            Assert.That(collection, {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}, $""Because of {{""message""}}"");
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        {|#0:CollectionAssert.{{method}}(collection, "Because of {0}", "message")|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        Assert.That(collection, {{CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}}, $"Because of {"message"}");
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(OneCollectionParameterAsserts))]
-        public void AnalyzeOneCollectionWhenFormatAndTwoParamsArgumentsAreUsed(string method)
+        public async Task AnalyzeOneCollectionWhenFormatAndTwoParamsArgumentsAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            ↓CollectionAssert.{method}(collection, ""{{0}}, {{1}}"", ""first"", ""second"");
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            Assert.That(collection, {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}, $""{{""first""}}, {{""second""}}"");
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        {|#0:CollectionAssert.{{method}}(collection, "{0}, {1}", "first", "second")|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        Assert.That(collection, {{CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}}, $"{"first"}, {"second"}");
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(OneCollectionParameterAsserts))]
-        public void AnalyzeOneCollectionWhenFormatAndParamsArgumentsAreUsedOutOfOrder(string method)
+        public async Task AnalyzeOneCollectionWhenFormatAndParamsArgumentsAreUsedOutOfOrder(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            ↓CollectionAssert.{method}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", collection: collection);
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            Assert.That(collection, {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}, $""{{""first""}}, {{""second""}}"");
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        {|#0:CollectionAssert.{{method}}(args: new[] { "first", "second" }, message: "{0}, {1}", collection: collection)|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        Assert.That(collection, {{CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}}, $"{"first"}, {"second"}");
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCase(NUnitLegacyFrameworkConstants.NameOfCollectionAssertIsOrdered)]
-        public void AnalyzeOneCollectionWithComparerWhenFormatAndParamsArgumentsAreUsed(string method)
+        public async Task AnalyzeOneCollectionWithComparerWhenFormatAndParamsArgumentsAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 2, 4, 6 }};
-            IComparer comparer = Comparer<int>.Default;
-            ↓CollectionAssert.{method}(collection, comparer, ""Because of {{0}}"", ""message"");
-            ", "using System.Collections;using System.Collections.Generic;");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 2, 4, 6 }};
-            IComparer comparer = Comparer<int>.Default;
-            Assert.That(collection, {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}.Using(comparer), $""Because of {{""message""}}"");
-            ", "using System.Collections;using System.Collections.Generic;");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 2, 4, 6 };
+                        IComparer comparer = Comparer<int>.Default;
+                        {|#0:CollectionAssert.{{method}}(collection, comparer, "Because of {0}", "message")|};
+
+            """, "using System.Collections;using System.Collections.Generic;");
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 2, 4, 6 };
+                        IComparer comparer = Comparer<int>.Default;
+                        Assert.That(collection, {{CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}}.Using(comparer), $"Because of {"message"}");
+
+            """, "using System.Collections;using System.Collections.Generic;");
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
-        public void AnalyzeTwoCollectionWhenNoMessageArgumentsAreUsed(string method)
+        public async Task AnalyzeTwoCollectionWhenNoMessageArgumentsAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            ↓CollectionAssert.{method}(collection1, collection2);
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            Assert.That({GetAdjustedTwoCollectionConstraint(method)});
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        {|#0:CollectionAssert.{{method}}(collection1, collection2)|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        Assert.That({{GetAdjustedTwoCollectionConstraint(method)}});
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixForOneCollectionParameterAssertMaintainsReasonableTriviaWithEndOfLineClosingParen(
+        public async Task CodeFixForOneCollectionParameterAssertMaintainsReasonableTriviaWithEndOfLineClosingParen(
             [ValueSource(nameof(OneCollectionParameterAsserts))] string method,
             [Values] bool hasMessage)
         {
-            var commaAndMessage = hasMessage ? ",\r\n                \"message\"" : string.Empty;
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            ↓CollectionAssert.{method}(
-                collection{commaAndMessage});");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            Assert.That(
-                collection,
-                {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}{commaAndMessage});");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var commaAndMessage = hasMessage ? $",{Environment.NewLine}                \"message\"" : string.Empty;
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        {|#0:CollectionAssert.{{method}}(
+                            collection{{commaAndMessage}})|};
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        Assert.That(
+                            collection,
+                            {{CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}}{{commaAndMessage}});
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixForOneCollectionParameterAssertMaintainsReasonableTriviaWithNewLineClosingParen(
+        public async Task CodeFixForOneCollectionParameterAssertMaintainsReasonableTriviaWithNewLineClosingParen(
             [ValueSource(nameof(OneCollectionParameterAsserts))] string method,
             [Values] bool hasMessage)
         {
-            var commaAndMessage = hasMessage ? ",\r\n                \"message\"" : string.Empty;
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            ↓CollectionAssert.{method}(
-                collection{commaAndMessage}
-            );");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ 1, 2, 3 }};
-            Assert.That(
-                collection,
-                {CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}{commaAndMessage}
-            );");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var commaAndMessage = hasMessage ? $",{Environment.NewLine}                \"message\"" : string.Empty;
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        {|#0:CollectionAssert.{{method}}(
+                            collection{{commaAndMessage}}
+                        )|};
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { 1, 2, 3 };
+                        Assert.That(
+                            collection,
+                            {{CollectionAssertUsageAnalyzer.OneCollectionParameterAsserts[method]}}{{commaAndMessage}}
+                        );
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixForTwoCollectionParameterAssertMaintainsReasonableTriviaWithEndOfLineClosingParen(
+        public async Task CodeFixForTwoCollectionParameterAssertMaintainsReasonableTriviaWithEndOfLineClosingParen(
             [ValueSource(nameof(TwoCollectionParameterAsserts))] string method,
             [Values] bool hasMessage)
         {
-            var commaAndMessage = hasMessage ? ",\r\n                \"message\"" : string.Empty;
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            ↓CollectionAssert.{method}(
-                collection1,
-                collection2{commaAndMessage});");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            Assert.That(
-                {GetAdjustedTwoCollectionConstraint(method, insertNewline: true)}{commaAndMessage});");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var commaAndMessage = hasMessage ? $",{Environment.NewLine}                \"message\"" : string.Empty;
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        {|#0:CollectionAssert.{{method}}(
+                            collection1,
+                            collection2{{commaAndMessage}})|};
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        Assert.That(
+                            {{GetAdjustedTwoCollectionConstraint(method, insertNewline: true)}}{{commaAndMessage}});
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixForTwoCollectionParameterAssertMaintainsReasonableTriviaWithNewLineClosingParen(
+        public async Task CodeFixForTwoCollectionParameterAssertMaintainsReasonableTriviaWithNewLineClosingParen(
             [ValueSource(nameof(TwoCollectionParameterAsserts))] string method,
             [Values] bool hasMessage)
         {
-            var commaAndMessage = hasMessage ? ",\r\n                \"message\"" : string.Empty;
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            ↓CollectionAssert.{method}(
-                collection1,
-                collection2{commaAndMessage}
-            );");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            Assert.That(
-                {GetAdjustedTwoCollectionConstraint(method, insertNewline: true)}{commaAndMessage}
-            );");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var commaAndMessage = hasMessage ? $",{Environment.NewLine}                \"message\"" : string.Empty;
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        {|#0:CollectionAssert.{{method}}(
+                            collection1,
+                            collection2{{commaAndMessage}}
+                        )|};
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        Assert.That(
+                            {{GetAdjustedTwoCollectionConstraint(method, insertNewline: true)}}{{commaAndMessage}}
+                        );
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixForCollectionAndItemParameterAssertMaintainsReasonableTriviaWithEndOfLineClosingParen(
+        public async Task CodeFixForCollectionAndItemParameterAssertMaintainsReasonableTriviaWithEndOfLineClosingParen(
             [ValueSource(nameof(CollectionAndItemParameterAsserts))] string method,
             [Values] bool hasMessage)
         {
-            var commaAndMessage = hasMessage ? ",\r\n                \"message\"" : string.Empty;
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            ↓CollectionAssert.{method}(
-                collection,
-                expected{commaAndMessage});");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            Assert.That(
-                collection,
-                {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}{commaAndMessage});");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var commaAndMessage = hasMessage ? $",{Environment.NewLine}                \"message\"" : string.Empty;
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        {|#0:CollectionAssert.{{method}}(
+                            collection,
+                            expected{{commaAndMessage}})|};
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        Assert.That(
+                            collection,
+                            {{CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}}{{commaAndMessage}});
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixForCollectionAndItemParameterAssertMaintainsReasonableTriviaWithNewLineClosingParen(
+        public async Task CodeFixForCollectionAndItemParameterAssertMaintainsReasonableTriviaWithNewLineClosingParen(
             [ValueSource(nameof(CollectionAndItemParameterAsserts))] string method,
             [Values] bool hasMessage)
         {
-            var commaAndMessage = hasMessage ? ",\r\n                \"message\"" : string.Empty;
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            ↓CollectionAssert.{method}(
-                collection,
-                expected{commaAndMessage}
-            );");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            Assert.That(
-                collection,
-                {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}{commaAndMessage}
-            );");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var commaAndMessage = hasMessage ? $",{Environment.NewLine}                \"message\"" : string.Empty;
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        {|#0:CollectionAssert.{{method}}(
+                            collection,
+                            expected{{commaAndMessage}}
+                        )|};
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        Assert.That(
+                            collection,
+                            {{CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}}{{commaAndMessage}}
+                        );
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
-        public void AnalyzeTwoCollectionWhenOnlyMessageArgumentIsUsed(string method)
+        public async Task AnalyzeTwoCollectionWhenOnlyMessageArgumentIsUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            ↓CollectionAssert.{method}(collection1, collection2, ""message"");
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            Assert.That({GetAdjustedTwoCollectionConstraint(method)}, ""message"");
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        {|#0:CollectionAssert.{{method}}(collection1, collection2, "message")|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        Assert.That({{GetAdjustedTwoCollectionConstraint(method)}}, "message");
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
-        public void AnalyzeTwoCollectionWhenFormatAndOneParamsArgumentAreUsed(string method)
+        public async Task AnalyzeTwoCollectionWhenFormatAndOneParamsArgumentAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            ↓CollectionAssert.{method}(collection1, collection2, ""Because of {{0}}"", ""message"");
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            Assert.That({GetAdjustedTwoCollectionConstraint(method)}, $""Because of {{""message""}}"");
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        {|#0:CollectionAssert.{{method}}(collection1, collection2, "Because of {0}", "message")|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        Assert.That({{GetAdjustedTwoCollectionConstraint(method)}}, $"Because of {"message"}");
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
-        public void AnalyzeTwoCollectionWhenFormatAndTwoParamsArgumentsAreUsed(string method)
+        public async Task AnalyzeTwoCollectionWhenFormatAndTwoParamsArgumentsAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            ↓CollectionAssert.{method}(collection1, collection2, ""{{0}}, {{1}}"", ""first"", ""second"");
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            Assert.That({GetAdjustedTwoCollectionConstraint(method)}, $""{{""first""}}, {{""second""}}"");
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        {|#0:CollectionAssert.{{method}}(collection1, collection2, "{0}, {1}", "first", "second")|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        Assert.That({{GetAdjustedTwoCollectionConstraint(method)}}, $"{"first"}, {"second"}");
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
-        public void AnalyzeTwoCollectionWhenFormatAndArgsArrayAreUsed(string method)
+        public async Task AnalyzeTwoCollectionWhenFormatAndArgsArrayAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            var args = new[] {{ ""first"", ""second"" }};
-            ↓CollectionAssert.{method}(collection1, collection2, ""{{0}}, {{1}}"", args);
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            var args = new[] {{ ""first"", ""second"" }};
-            Assert.That({GetAdjustedTwoCollectionConstraint(method)}, () => string.Format(""{{0}}, {{1}}"", args));
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        var args = new[] { "first", "second" };
+                        {|#0:CollectionAssert.{{method}}(collection1, collection2, "{0}, {1}", args)|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        var args = new[] { "first", "second" };
+                        Assert.That({{GetAdjustedTwoCollectionConstraint(method)}}, () => string.Format("{0}, {1}", args));
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
-        public void AnalyzeTwoCollectionWhenFormatVariableAndTwoParamsArgumentsAreUsed(string method)
+        public async Task AnalyzeTwoCollectionWhenFormatVariableAndTwoParamsArgumentsAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            const string formatSpecification = ""{{0}}, {{1}}"";
-            ↓CollectionAssert.{method}(collection1, collection2, formatSpecification, ""first"", ""second"");
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            const string formatSpecification = ""{{0}}, {{1}}"";
-            Assert.That({GetAdjustedTwoCollectionConstraint(method)}, () => string.Format(formatSpecification, ""first"", ""second""));
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        const string formatSpecification = "{0}, {1}";
+                        {|#0:CollectionAssert.{{method}}(collection1, collection2, formatSpecification, "first", "second")|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        const string formatSpecification = "{0}, {1}";
+                        Assert.That({{GetAdjustedTwoCollectionConstraint(method)}}, () => string.Format(formatSpecification, "first", "second"));
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(TwoCollectionParameterAsserts))]
-        public void AnalyzeTwoCollectionWhenFormatAndParamsArgumentsAreUsedOutOfOrder(string method)
+        public async Task AnalyzeTwoCollectionWhenFormatAndParamsArgumentsAreUsedOutOfOrder(string method)
         {
             var firstParameterName = CollectionAssertUsageCodeFix.CollectionAssertToFirstParameterName[method];
             var secondParameterName = CollectionAssertUsageCodeFix.CollectionAssertToSecondParameterName[method];
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            ↓CollectionAssert.{method}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", {secondParameterName}: collection2, {firstParameterName}: collection1);
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            Assert.That({GetAdjustedTwoCollectionConstraint(method)}, $""{{""first""}}, {{""second""}}"");
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        {|#0:CollectionAssert.{{method}}(args: new[] { "first", "second" }, message: "{0}, {1}", {{secondParameterName}}: collection2, {{firstParameterName}}: collection1)|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        Assert.That({{GetAdjustedTwoCollectionConstraint(method)}}, $"{"first"}, {"second"}");
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCase(NUnitLegacyFrameworkConstants.NameOfCollectionAssertAreEqual)]
         [TestCase(NUnitLegacyFrameworkConstants.NameOfCollectionAssertAreNotEqual)]
-        public void AnalyzeTwoCollectionWithComparerWhenFormatAndParamsArgumentsAreUsed(string method)
+        public async Task AnalyzeTwoCollectionWithComparerWhenFormatAndParamsArgumentsAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            IComparer comparer = Comparer<int>.Default;
-            ↓CollectionAssert.{method}(collection1, collection2, comparer, ""Because of {{0}}"", ""message"");
-            ", "using System.Collections;using System.Collections.Generic;");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            IComparer comparer = Comparer<int>.Default;
-            Assert.That({GetAdjustedTwoCollectionConstraint(method).Replace(".AsCollection", ".Using(comparer)")}, $""Because of {{""message""}}"");
-            ", "using System.Collections;using System.Collections.Generic;");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        IComparer comparer = Comparer<int>.Default;
+                        {|#0:CollectionAssert.{{method}}(collection1, collection2, comparer, "Because of {0}", "message")|};
+
+            """, "using System.Collections;using System.Collections.Generic;");
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        IComparer comparer = Comparer<int>.Default;
+                        Assert.That({{GetAdjustedTwoCollectionConstraint(method).Replace(".AsCollection", ".Using(comparer)")}}, $"Because of {"message"}");
+
+            """, "using System.Collections;using System.Collections.Generic;");
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(CollectionAndItemParameterAsserts))]
-        public void AnalyzeCollectionAndItemWhenNoMessageArgumentsAreUsed(string method)
+        public async Task AnalyzeCollectionAndItemWhenNoMessageArgumentsAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            ↓CollectionAssert.{method}(collection, expected);
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            Assert.That(collection, {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]});
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        {|#0:CollectionAssert.{{method}}(collection, expected)|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        Assert.That(collection, {{CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}});
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(CollectionAndItemParameterAsserts))]
-        public void AnalyzeCollectionAndItemWhenOnlyMessageArgumentIsUsed(string method)
+        public async Task AnalyzeCollectionAndItemWhenOnlyMessageArgumentIsUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            ↓CollectionAssert.{method}(collection, expected, ""message"");
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            Assert.That(collection, {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}, ""message"");
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        {|#0:CollectionAssert.{{method}}(collection, expected, "message")|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        Assert.That(collection, {{CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}}, "message");
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(CollectionAndItemParameterAsserts))]
-        public void AnalyzeCollectionAndItemWhenFormatAndOneParamsArgumentAreUsed(string method)
+        public async Task AnalyzeCollectionAndItemWhenFormatAndOneParamsArgumentAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            ↓CollectionAssert.{method}(collection, expected, ""Because of {{0}}"", ""message"");
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            Assert.That(collection, {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}, $""Because of {{""message""}}"");
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        {|#0:CollectionAssert.{{method}}(collection, expected, "Because of {0}", "message")|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        Assert.That(collection, {{CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}}, $"Because of {"message"}");
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(CollectionAndItemParameterAsserts))]
-        public void AnalyzeCollectionAndItemWhenFormatAndTwoParamsArgumentsAreUsed(string method)
+        public async Task AnalyzeCollectionAndItemWhenFormatAndTwoParamsArgumentsAreUsed(string method)
         {
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            ↓CollectionAssert.{method}(collection, expected, ""{{0}}, {{1}}"", ""first"", ""second"");
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            Assert.That(collection, {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}, $""{{""first""}}, {{""second""}}"");
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        {|#0:CollectionAssert.{{method}}(collection, expected, "{0}, {1}", "first", "second")|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        Assert.That(collection, {{CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}}, $"{"first"}, {"second"}");
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [TestCaseSource(nameof(CollectionAndItemParameterAsserts))]
-        public void AnalyzeCollectionAndItemWhenFormatAndParamsArgumentsAreUsedOutOfOrder(string method)
+        public async Task AnalyzeCollectionAndItemWhenFormatAndParamsArgumentsAreUsedOutOfOrder(string method)
         {
             var secondParameterName = CollectionAssertUsageCodeFix.CollectionAssertToSecondParameterName[method];
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            ↓CollectionAssert.{method}(args: new[] {{ ""first"", ""second"" }}, message: ""{{0}}, {{1}}"", {secondParameterName}: expected, collection: collection);
-            ");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            Assert.That(collection, {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}, $""{{""first""}}, {{""second""}}"");
-            ");
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode);
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        {|#0:CollectionAssert.{{method}}(args: new[] { "first", "second" }, message: "{0}, {1}", {{secondParameterName}}: expected, collection: collection)|};
+
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        Assert.That(collection, {{CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}}, $"{"first"}, {"second"}");
+
+            """);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode);
         }
 
         [Test]
-        public void CodeFixForTwoCollectionParameterAssertsMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
+        public async Task CodeFixForTwoCollectionParameterAssertsMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
             [ValueSource(nameof(TwoCollectionParameterAsserts))] string method,
             [Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            ↓CollectionAssert.{method}(
-                collection1,
-                collection2{optionalNewline});");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection1 = new[] {{ 1, 2, 3 }};
-            var collection2 = new[] {{ 2, 4, 6 }};
-            Assert.That(
-                {GetAdjustedTwoCollectionConstraint(method, insertNewline: true)}{optionalNewline});");
+            var optionalNewline = newlineBeforeClosingParen ? $"{Environment.NewLine}            " : string.Empty;
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        {|#0:CollectionAssert.{{method}}(
+                            collection1,
+                            collection2{{optionalNewline}})|};
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection1 = new[] { 1, 2, 3 };
+                        var collection2 = new[] { 2, 4, 6 };
+                        Assert.That(
+                            {{GetAdjustedTwoCollectionConstraint(method, insertNewline: true)}}{{optionalNewline}});
+            """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         [Test]
-        public void CodeFixForCollectionAndItemParameterAssertMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
+        public async Task CodeFixForCollectionAndItemParameterAssertMaintainsReasonableTriviaWithAllArgumentsOnSameLine(
             [ValueSource(nameof(CollectionAndItemParameterAsserts))] string method,
             [Values] bool newlineBeforeClosingParen)
         {
-            var optionalNewline = newlineBeforeClosingParen ? "\r\n            " : string.Empty;
-            var code = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            ↓CollectionAssert.{method}(
-                collection,
-                expected{optionalNewline});");
-            var fixedCode = TestUtility.WrapInTestMethod(@$"
-            var collection = new[] {{ typeof(byte), typeof(char) }};
-            var expected = typeof(byte);
-            Assert.That(
-                collection,
-                {CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}{optionalNewline});");
+            var optionalNewline = newlineBeforeClosingParen ? $"{Environment.NewLine}            " : string.Empty;
+            var code = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        {|#0:CollectionAssert.{{method}}(
+                            collection,
+                            expected{{optionalNewline}})|};
+            """);
+            var fixedCode = TestUtility.WrapInTestMethod($$"""
+                        var collection = new[] { typeof(byte), typeof(char) };
+                        var expected = typeof(byte);
+                        Assert.That(
+                            collection,
+                            {{CollectionAssertUsageAnalyzer.CollectionAndItemParameterAsserts[method]}}{{optionalNewline}});
+            """);
 
-            RoslynAssert.CodeFix(analyzer, fix, expectedDiagnostic, code, fixedCode, fixTitle: ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
+            await Verify.VerifyCodeFixAsync(code, expectedDiagnostic.WithLocation(0), fixedCode, ClassicModelAssertUsageCodeFix.TransformToConstraintModelDescription);
         }
 
         private static string GetAdjustedTwoCollectionConstraint(string method, bool insertNewline = false)
@@ -503,8 +556,10 @@ namespace NUnit.Analyzers.Tests.CollectionAssertUsage
             string constraint = CollectionAssertUsageAnalyzer.TwoCollectionParameterAsserts[method]
                                                              .Replace("expected", constraintArgument);
             return insertNewline
-                ? $@"{actualArgument},
-                {constraint}"
+                ? $$"""
+                {{actualArgument}},
+                                {{constraint}}
+                """
                 : $"{actualArgument}, {constraint}";
         }
     }

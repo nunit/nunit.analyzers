@@ -1,148 +1,158 @@
-using Gu.Roslyn.Asserts;
-using Microsoft.CodeAnalysis.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Testing;
 using NUnit.Analyzers.Constants;
-using NUnit.Analyzers.DelegateRequired;
 using NUnit.Framework;
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.DelegateRequired.DelegateRequiredAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.DelegateRequired
 {
     public class DelegateRequiredAnalyzerTests
     {
-        private static readonly DiagnosticAnalyzer analyzer = new DelegateRequiredAnalyzer();
-        private static readonly ExpectedDiagnostic expectedDiagnostic =
-            ExpectedDiagnostic.Create(AnalyzerIdentifiers.DelegateRequired);
+        private static readonly DiagnosticResult expectedDiagnostic =
+            Verify.Diagnostic(AnalyzerIdentifiers.DelegateRequired);
 
         [Test]
-        public void AnalyzeWhenLambdaProvided()
+        public async Task AnalyzeWhenLambdaProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(() => throw new InvalidOperationException(), Throws.InstanceOf<InvalidOperationException>());
-            ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(() => throw new InvalidOperationException(), Throws.InstanceOf<InvalidOperationException>());
 
-            RoslynAssert.Valid(analyzer, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAsyncLambdaProvided()
+        public async Task AnalyzeWhenAsyncLambdaProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(() => Task.Delay(-2), Throws.InstanceOf<ArgumentException>());
-            ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(() => Task.Delay(-2), Throws.InstanceOf<ArgumentException>());
 
-            RoslynAssert.Valid(analyzer, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenDelegateProvided()
+        public async Task AnalyzeWhenDelegateProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(MyOperation, Throws.InstanceOf<InvalidOperationException>());
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(MyOperation, Throws.InstanceOf<InvalidOperationException>());
 
-                void MyOperation() => throw new InvalidOperationException();
-            ");
+                        void MyOperation() => throw new InvalidOperationException();
 
-            RoslynAssert.Valid(analyzer, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
 #if NUNIT5
         [Test]
-        public void AnalyzeWhenDelegateLocalProvided()
+        public async Task AnalyzeWhenDelegateLocalProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Action action = MyOperation;
-                Assert.That(action, Throws.InvalidOperationException);
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Action action = MyOperation;
+                        Assert.That(action, Throws.InvalidOperationException);
 
-                static void MyOperation() => throw new InvalidOperationException();
-            ");
+                        static void MyOperation() => throw new InvalidOperationException();
 
-            RoslynAssert.Valid(analyzer, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 #else
         [Test]
-        public void AnalyzeWhenDelegateLocalProvided()
+        public async Task AnalyzeWhenDelegateLocalProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                TestDelegate action = MyOperation;
-                Assert.That(action, Throws.InvalidOperationException);
+            var testCode = TestUtility.WrapInTestMethod("""
+                        TestDelegate action = MyOperation;
+                        Assert.That(action, Throws.InvalidOperationException);
 
-                static void MyOperation() => throw new InvalidOperationException();
-            ");
+                        static void MyOperation() => throw new InvalidOperationException();
 
-            RoslynAssert.Valid(analyzer, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 #endif
 
         [Test]
-        public void AnalyzeWhenDelegateParameterProvided()
+        public async Task AnalyzeWhenDelegateParameterProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                AssertSupported(MyOperation);
+            var testCode = TestUtility.WrapInTestMethod("""
+                        AssertSupported(MyOperation);
 
-                static void AssertSupported(Action test) => Assert.That(test, Throws.InvalidOperationException);
-                static void MyOperation() => throw new InvalidOperationException();
-            ");
+                        static void AssertSupported(Action test) => Assert.That(test, Throws.InvalidOperationException);
+                        static void MyOperation() => throw new InvalidOperationException();
 
-            RoslynAssert.Valid(analyzer, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenAsyncDelegateProvided()
+        public async Task AnalyzeWhenAsyncDelegateProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(MyAsyncOperation, Throws.InstanceOf<InvalidOperationException>());
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That(MyAsyncOperation, Throws.InstanceOf<InvalidOperationException>());
 
-                Task MyAsyncOperation() => throw new InvalidOperationException();
-            ");
+                        Task MyAsyncOperation() => throw new InvalidOperationException();
 
-            RoslynAssert.Valid(analyzer, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenNoDelegateProvided()
+        public async Task AnalyzeWhenNoDelegateProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(↓MyOperation(), Throws.InstanceOf<InvalidOperationException>());
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That({|#0:MyOperation()|}, Throws.InstanceOf<InvalidOperationException>());
 
-                int MyOperation() => throw new InvalidOperationException();
-            ");
+                        int MyOperation() => throw new InvalidOperationException();
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenNoAsyncDelegateProvided()
+        public async Task AnalyzeWhenNoAsyncDelegateProvided()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                Assert.That(↓MyAsyncOperation(), Throws.InstanceOf<InvalidOperationException>());
+            var testCode = TestUtility.WrapInTestMethod("""
+                        Assert.That({|#0:MyAsyncOperation()|}, Throws.InstanceOf<InvalidOperationException>());
 
-                Task MyAsyncOperation() => throw new InvalidOperationException();
-            ");
+                        Task MyAsyncOperation() => throw new InvalidOperationException();
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenDelayedConstraint()
+        public async Task AnalyzeWhenDelayedConstraint()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                int i = 0;
-                int actualFunc() => i++;
-                Assert.That(↓actualFunc(), Is.EqualTo(5).After(1000, 10));
-            ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        int i = 0;
+                        int actualFunc() => i++;
+                        Assert.That({|#0:actualFunc()|}, Is.EqualTo(5).After(1000, 10));
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
 
         [Test]
-        public void AnalyzeWhenDelayedConstraintWithDimensionedDelayInterval()
+        public async Task AnalyzeWhenDelayedConstraintWithDimensionedDelayInterval()
         {
-            var testCode = TestUtility.WrapInTestMethod(@"
-                int i = 0;
-                int actualFunc() => i++;
-                Assert.That(↓actualFunc(), Is.EqualTo(5).After(1).Minutes);
-            ");
+            var testCode = TestUtility.WrapInTestMethod("""
+                        int i = 0;
+                        int actualFunc() => i++;
+                        Assert.That({|#0:actualFunc()|}, Is.EqualTo(5).After(1).Minutes);
 
-            RoslynAssert.Diagnostics(analyzer, expectedDiagnostic, testCode);
+            """);
+
+            await Verify.VerifyAnalyzerAsync(testCode, expectedDiagnostic.WithLocation(0));
         }
     }
 }

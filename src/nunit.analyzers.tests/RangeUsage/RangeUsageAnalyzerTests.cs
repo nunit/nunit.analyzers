@@ -1,16 +1,14 @@
-using Gu.Roslyn.Asserts;
+using System.Threading.Tasks;
 using NUnit.Analyzers.Constants;
 using NUnit.Analyzers.RangeUsage;
 using NUnit.Framework;
-
 using TestCaseType = (string Range, string ParameterType);
+using Verify = NUnit.Analyzers.Tests.Verifiers.NUnitCSharpAnalyzerVerifier<NUnit.Analyzers.RangeUsage.RangeUsageAnalyzer>;
 
 namespace NUnit.Analyzers.Tests.RangeUsage
 {
     public class RangeUsageAnalyzerTests
     {
-        private readonly RangeUsageAnalyzer analyzer = new RangeUsageAnalyzer();
-
         private static readonly TestCaseType[] CorrectUsages =
         [
 
@@ -129,13 +127,13 @@ namespace NUnit.Analyzers.Tests.RangeUsage
         [Test]
         public void VerifySupportedDiagnostics()
         {
-            var diagnostics = this.analyzer.SupportedDiagnostics;
+            var diagnostics = new RangeUsageAnalyzer().SupportedDiagnostics;
 
             Assert.That(diagnostics, Has.Length.EqualTo(4));
         }
 
         [Test]
-        public void AnalyzeWhenAttributeIsNotInNUnit()
+        public async Task AnalyzeWhenAttributeIsNotInNUnit()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
             public sealed class AnalyzeWhenAttributeIsNotInNUnit
@@ -149,21 +147,21 @@ namespace NUnit.Analyzers.Tests.RangeUsage
                 }
             }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [TestCaseSource(nameof(CorrectUsages))]
-        public void AnalyzeWhenArgumentsAreCorrect(TestCaseType testCase)
+        public async Task AnalyzeWhenArgumentsAreCorrect(TestCaseType testCase)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
                 public void ATest([{{testCase.Range}}] {{testCase.ParameterType}} value) { }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         [Test]
-        public void AnalyzeWhenUsingClassConstants()
+        public async Task AnalyzeWhenUsingClassConstants()
         {
             var testCode = TestUtility.WrapClassInNamespaceAndAddUsing("""
             public sealed class AnalyzeWhenUsingClassConstants
@@ -180,7 +178,7 @@ namespace NUnit.Analyzers.Tests.RangeUsage
                 public void ATest([Range(From, To, Step)] int value) { }
             }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
         // Types taken from NUnit's ParamAttributeTypeConversions
@@ -191,60 +189,60 @@ namespace NUnit.Analyzers.Tests.RangeUsage
         [TestCase("Range(0, 10)", "double")]
         [TestCase("Range(0, 10)", "decimal")]
         [TestCase("Range(0.0, 10.0, 1.0)", "decimal")]
-        public void AnalyzeWhenMismatchedTypeCanBeConverted(string range, string type)
+        public async Task AnalyzeWhenMismatchedTypeCanBeConverted(string range, string type)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
                 public void ATest([{{range}}] {{type}} value) { }
             """);
-            RoslynAssert.Valid(this.analyzer, testCode);
+            await Verify.VerifyAnalyzerAsync(testCode);
         }
 
-        [TestCase("Range(0, 10)", "float")]
-        [TestCase("Range(0L, 10L)", "float")]
-        [TestCase("Range(0L, 10L)", "int")]
-        [TestCase("Range(0UL, 10UL)", "int")]
-        [TestCase("Range(0.0f, 1.0f, 0.5f)", "int")]
-        [TestCase("Range(0.0f, 1.0f, 0.5f)", "double")]
-        [TestCase("Range(0.0, 1.0, 0.5)", "int")]
-        [TestCase("Range(0.0, 1.0, 0.5)", "float")]
-        public void AnalyzeWhenMismatchedTypesAreNotCompatible(string range, string type)
+        [TestCase("Range(0, 10)", "int", "float")]
+        [TestCase("Range(0L, 10L)", "long", "float")]
+        [TestCase("Range(0L, 10L)", "long", "int")]
+        [TestCase("Range(0UL, 10UL)", "ulong", "int")]
+        [TestCase("Range(0.0f, 1.0f, 0.5f)", "float", "int")]
+        [TestCase("Range(0.0f, 1.0f, 0.5f)", "float", "double")]
+        [TestCase("Range(0.0, 1.0, 0.5)", "double", "int")]
+        [TestCase("Range(0.0, 1.0, 0.5)", "double", "float")]
+        public async Task AnalyzeWhenMismatchedTypesAreNotCompatible(string range, string rangeType, string type)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
-                public void ATest([↓{{range}}] {{type}} value) { }
+                public void ATest([{|#0:{{range}}|}] {{type}} value) { }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, ExpectedDiagnostic.Create(AnalyzerIdentifiers.AttributeValueMismatchedParameterType), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.AttributeValueMismatchedParameterType).WithLocation(0).WithArguments(rangeType, type));
         }
 
         [TestCaseSource(nameof(ZeroStepUsages))]
-        public void AnalyzeWhenStepIsZero(TestCaseType testCase)
+        public async Task AnalyzeWhenStepIsZero(TestCaseType testCase)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
-                public void ATest([↓{{testCase.Range}}] {{testCase.ParameterType}} value) { }
+                public void ATest([{|#0:{{testCase.Range}}|}] {{testCase.ParameterType}} value) { }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, ExpectedDiagnostic.Create(AnalyzerIdentifiers.RangeUsesZeroStep), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.RangeUsesZeroStep).WithLocation(0));
         }
 
         [TestCaseSource(nameof(FromGreaterThanToWithPositiveStepUsages))]
-        public void AnalyzeWhenFromGreaterThanToWithPositiveStep(TestCaseType testCase)
+        public async Task AnalyzeWhenFromGreaterThanToWithPositiveStep(TestCaseType testCase)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
-                public void ATest([↓{{testCase.Range}}] {{testCase.ParameterType}} value) { }
+                public void ATest([{|#0:{{testCase.Range}}|}] {{testCase.ParameterType}} value) { }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, ExpectedDiagnostic.Create(AnalyzerIdentifiers.RangeInvalidIncrementing), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.RangeInvalidIncrementing).WithLocation(0));
         }
 
         [TestCaseSource(nameof(FromLessThanToWithNegativeStepUsages))]
-        public void AnalyzeWhenFromLessThanToWithNegativeStep(TestCaseType testCase)
+        public async Task AnalyzeWhenFromLessThanToWithNegativeStep(TestCaseType testCase)
         {
             var testCode = TestUtility.WrapMethodInClassNamespaceAndAddUsings($$"""
                 [Test]
-                public void ATest([↓{{testCase.Range}}] {{testCase.ParameterType}} value) { }
+                public void ATest([{|#0:{{testCase.Range}}|}] {{testCase.ParameterType}} value) { }
             """);
-            RoslynAssert.Diagnostics(this.analyzer, ExpectedDiagnostic.Create(AnalyzerIdentifiers.RangeInvalidDecrementing), testCode);
+            await Verify.VerifyAnalyzerAsync(testCode, Verify.Diagnostic(AnalyzerIdentifiers.RangeInvalidDecrementing).WithLocation(0));
         }
     }
 }
