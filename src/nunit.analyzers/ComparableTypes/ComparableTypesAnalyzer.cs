@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -14,6 +15,8 @@ namespace NUnit.Analyzers.ComparableTypes
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class ComparableTypesAnalyzer : BaseAssertionAnalyzer
     {
+        private static readonly Version firstNUnitVersionWithTupleAndValueTupleComparison = new(5, 1);
+
         private static readonly ImmutableHashSet<string> SupportedConstraints = ImmutableHashSet.Create(
             NUnitFrameworkConstants.NameOfIsLessThan,
             NUnitFrameworkConstants.NameOfIsLessThanOrEqualTo,
@@ -39,7 +42,7 @@ namespace NUnit.Analyzers.ComparableTypes
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(comparableTypesDescriptor, comparableOnObjectDescriptor);
 
-        protected override void AnalyzeAssertInvocation(OperationAnalysisContext context, IInvocationOperation assertOperation)
+        protected override void AnalyzeAssertInvocation(Version nunitVersion, OperationAnalysisContext context, IInvocationOperation assertOperation)
         {
             if (!AssertHelper.TryGetActualAndConstraintOperations(assertOperation,
                 out var actualOperation, out var constraintExpression))
@@ -94,7 +97,7 @@ namespace NUnit.Analyzers.ComparableTypes
                         expectedOperation.Syntax.GetLocation(),
                         constraintMethod.Name));
                 }
-                else if (!CanCompare(actualType, expectedType, context.Compilation))
+                else if (!CanCompare(actualType, expectedType, nunitVersion, context.Compilation))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(
                         comparableTypesDescriptor,
@@ -104,8 +107,14 @@ namespace NUnit.Analyzers.ComparableTypes
             }
         }
 
-        private static bool CanCompare(ITypeSymbol actualType, ITypeSymbol expectedType, Compilation compilation)
+        private static bool CanCompare(ITypeSymbol actualType, ITypeSymbol expectedType, Version nunitVersion, Compilation compilation)
         {
+            if (nunitVersion >= firstNUnitVersionWithTupleAndValueTupleComparison &&
+                CanCompareTupleAndValueTuple(actualType, expectedType, nunitVersion, compilation))
+            {
+                return true;
+            }
+
             if (IsIComparable(actualType, expectedType) || IsIComparable(expectedType, actualType))
                 return true;
 
@@ -123,6 +132,31 @@ namespace NUnit.Analyzers.ComparableTypes
 
             return false;
         }
+
+        private static bool CanCompareTupleAndValueTuple(
+            ITypeSymbol firstType,
+            ITypeSymbol secondType,
+            Version nunitVersion,
+            Compilation compilation)
+        {
+            if (firstType is not INamedTypeSymbol firstNamedType ||
+                secondType is not INamedTypeSymbol secondNamedType ||
+                !((IsTuple(firstType) && IsValueTuple(secondType)) ||
+                  (IsValueTuple(firstType) && IsTuple(secondType))))
+            {
+                return false;
+            }
+
+            return firstNamedType.TypeArguments.Length == secondNamedType.TypeArguments.Length &&
+                Enumerable.Range(0, firstNamedType.TypeArguments.Length).All(i =>
+                    CanCompare(firstNamedType.TypeArguments[i], secondNamedType.TypeArguments[i], nunitVersion, compilation));
+        }
+
+        private static bool IsTuple(ITypeSymbol type) =>
+            type.GetFullMetadataName().StartsWith("System.Tuple`", StringComparison.Ordinal);
+
+        private static bool IsValueTuple(ITypeSymbol type) =>
+            type.GetFullMetadataName().StartsWith("System.ValueTuple`", StringComparison.Ordinal);
 
         private static bool IsIComparable(ITypeSymbol typeSymbol, ITypeSymbol comparableTypeArguments)
         {

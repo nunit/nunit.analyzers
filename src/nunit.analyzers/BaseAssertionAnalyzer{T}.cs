@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -57,20 +56,53 @@ namespace NUnit.Analyzers
 
         private void AnalyzeCompilationStart(CompilationStartAnalysisContext context)
         {
-            IEnumerable<AssemblyIdentity> referencedAssemblies = context.Compilation.ReferencedAssemblyNames;
-
-            AssemblyIdentity? nunit = referencedAssemblies.FirstOrDefault(a =>
-                a.Name.Equals(NUnitFrameworkConstants.NUnitFrameworkAssemblyName, StringComparison.OrdinalIgnoreCase));
-
-            if (nunit is null)
+            var nunitAssembly = GetNUnitAssembly(context.Compilation);
+            if (nunitAssembly is null)
             {
                 // Who would use NUnit.Analyzers without NUnit?
                 return;
             }
 
+            var nunitVersion = GetAssemblyFileVersion(context.Compilation, nunitAssembly)
+                ?? nunitAssembly.Identity.Version;
+
             T? info = this.GetAdditionalInfoAtCompilationStart(context.Compilation);
 
-            context.RegisterOperationAction(context => this.AnalyzeInvocation(nunit.Version, info, context), OperationKind.Invocation);
+            context.RegisterOperationAction(context => this.AnalyzeInvocation(nunitVersion, info, context), OperationKind.Invocation);
+        }
+
+        private static Version? GetAssemblyFileVersion(Compilation compilation, IAssemblySymbol assembly)
+        {
+            var fileVersionAttributeType = compilation.GetTypeByMetadataName(
+                "System.Reflection.AssemblyFileVersionAttribute");
+
+            if (fileVersionAttributeType is null)
+                return null;
+
+            var fileVersionAttribute = assembly
+                .GetAttributes()
+                .FirstOrDefault(attribute =>
+                    SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, fileVersionAttributeType));
+
+            if (fileVersionAttribute is null ||
+                fileVersionAttribute.ConstructorArguments.Length != 1 ||
+                fileVersionAttribute.ConstructorArguments[0].Value is not string versionText)
+            {
+                return null;
+            }
+
+            return Version.TryParse(versionText, out Version? version)
+                ? version
+                : null;
+        }
+
+        private static IAssemblySymbol? GetNUnitAssembly(Compilation compilation)
+        {
+            return compilation.References
+                .Select(compilation.GetAssemblyOrModuleSymbol)
+                .OfType<IAssemblySymbol>()
+                .FirstOrDefault(assembly =>
+                    assembly.Name.Equals(NUnitFrameworkConstants.NUnitFrameworkAssemblyName, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
