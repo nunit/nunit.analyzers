@@ -69,7 +69,18 @@ namespace NUnit.Analyzers.TestFixtureShouldBeAbstract
                 abstractSyntax = abstractSyntax.WithLeadingTrivia(originalExpression.GetLeadingTrivia());
             }
 
-            return modifiers.Add(abstractSyntax);
+            // 'partial' must come directly before 'class', so insert 'abstract' in front of it.
+            int partialIndex = modifiers.IndexOf(SyntaxKind.PartialKeyword);
+            if (partialIndex < 0)
+            {
+                return modifiers.Add(abstractSyntax);
+            }
+
+            var partialToken = modifiers[partialIndex];
+            abstractSyntax = abstractSyntax.WithLeadingTrivia(partialToken.LeadingTrivia);
+
+            return modifiers.Replace(partialToken, partialToken.WithLeadingTrivia())
+                            .Insert(partialIndex, abstractSyntax);
         }
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Testing;
@@ -42,7 +41,7 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
 
             var fixedCode = TestUtility.WrapClassInNamespaceAndAddUsing($$"""
                 // Base Fixture
-                {{modifiers}}abstract class BaseFixture
+                {{AddAbstract(modifiers)}}class BaseFixture
                 {
                     [{{attribute}}]
                     public void BaseFixtureMethod() { }
@@ -59,15 +58,12 @@ namespace NUnit.Analyzers.Tests.TestFixtureShouldBeAbstract
             {
                 // The diagnostic is reported on the base class, not on the derived class that causes it.
                 test.CodeFixTestBehaviors |= CodeFixTestBehaviors.SkipLocalDiagnosticCheck;
-
-                int partialIndex = modifiers.IndexOf("partial", StringComparison.Ordinal);
-                if (partialIndex >= 0)
-                {
-                    // BUG: The code fix inserts 'abstract' after 'partial', which does not compile.
-                    test.FixedState.ExpectedDiagnostics.Add(
-                        DiagnosticResult.CompilerError("CS0267").WithSpan(17, 5 + partialIndex, 17, 12 + partialIndex));
-                }
             });
         }
+
+        private static string AddAbstract(string modifiers)
+            => modifiers.Contains("partial ")
+                ? modifiers.Replace("partial ", "abstract partial ")
+                : modifiers + "abstract ";
     }
 }
